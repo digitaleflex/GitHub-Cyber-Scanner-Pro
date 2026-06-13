@@ -740,6 +740,25 @@ def read_index():
     return "<h1>Erreur : Fichier templates/index.html introuvable.</h1>"
 
 
+@app.get("/api/search")
+def search_semantic(q: str):
+    """Recherche sémantique intelligente basée sur le sens de la requête."""
+    if not q or len(q) < 2:
+        return []
+
+    logging.info(f"🔍 Requête sémantique : '{q}'")
+    try:
+        # 1. Vectorisation de la requête utilisateur via l'IA locale
+        encoder = nlp_processor.get_encoder()
+        query_vector = encoder.encode(q).tolist()
+
+        # 2. Recherche des plus proches voisins dans Qdrant
+        results = database.search_qdrant(query_vector, limit=12)
+        return results
+    except Exception as e:
+        logging.error(f"❌ Erreur API recherche : {e}")
+        return {"error": str(e)}
+
 @app.get("/api/stats")
 def get_stats():
     """Retourne les statistiques de la base de données et le statut du scanner."""

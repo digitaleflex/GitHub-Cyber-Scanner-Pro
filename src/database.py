@@ -88,6 +88,39 @@ def save_to_qdrant(repo_id, vector, payload):
     except Exception as e:
         logging.error(f"❌ Erreur sauvegarde Qdrant : {e}")
 
+def search_qdrant(vector, limit=12):
+    """Recherche les vecteurs les plus proches dans Qdrant."""
+    client = get_qdrant_client()
+    if not client or not vector:
+        return []
+
+    try:
+        search_result = client.search(
+            collection_name=QDRANT_COLLECTION,
+            query_vector=vector,
+            limit=limit,
+            with_payload=True
+        )
+        
+        # Formater les résultats pour le frontend
+        formatted_results = []
+        for hit in search_result:
+            p = hit.payload
+            formatted_results.append({
+                "id": str(hit.id),
+                "title": p.get("full_name", "Sans titre"),
+                "description": p.get("description", "Pas de description disponible."),
+                "score_qualite": p.get("score_qualite", 0),
+                "stars": p.get("stargazers_count", 0),
+                "language": p.get("language", "Inconnu"),
+                "url": p.get("url", ""),
+                "score_semantique": round(hit.score * 100, 1)
+            })
+        return formatted_results
+    except Exception as e:
+        logging.error(f"❌ Erreur recherche Qdrant : {e}")
+        return []
+
 def get_db_connection():
     conn = None
     retries = 10
