@@ -11,14 +11,42 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 class StealthClient:
     """
     Client HTTP asynchrone ultra-furtif conçu pour le contournement des WAF (Cloudflare, etc.).
-    Utilise curl_cffi pour usurper l'empreinte TLS (JA3) et gère le Backoff exponentiel.
+    Utilise curl_cffi pour usurper l'empreinte TLS (JA3) et simule les Client Hints (Sec-CH).
     """
 
     def __init__(self, impersonate="chrome120", max_retries=5):
-        self.ua = UserAgent()
+        self.ua = UserAgent(browsers=['chrome', 'firefox', 'edge'], os=['windows', 'macos'])
         self.impersonate = impersonate
         self.max_retries = max_retries
         self.session = None
+
+    def _generate_perfect_headers(self):
+        """Forge une identité humaine parfaite avec Headers et Client Hints synchronisés."""
+        browser_user_agent = self.ua.random
+
+        # Détection de la plateforme pour synchroniser les en-têtes Sec-CH
+        platform = "Windows"
+        if "Macintosh" in browser_user_agent:
+            platform = "macOS"
+        elif "Linux" in browser_user_agent:
+            platform = "Linux"
+
+        headers = {
+            'User-Agent': browser_user_agent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Accept-Encoding': 'gzip, deflate, br, zstd',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Platform': f'"{platform}"',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Cache-Control': 'max-age=0'
+        }
+        return headers
 
     async def __aenter__(self):
         self.session = AsyncSession(impersonate=self.impersonate)
@@ -30,22 +58,19 @@ class StealthClient:
 
     async def request(self, method, url, **kwargs):
         """
-        Exécute une requête avec rotation de User-Agent et gestion du Rate-Limit (429).
+        Exécute une requête avec rotation de 'Perfect Headers' et gestion du Rate-Limit.
         """
         retries = 0
         base_delay = 5  # Secondes
 
         while retries < self.max_retries:
-            # 1. Rotation dynamique du User-Agent si non spécifié
-            headers = kwargs.get("headers", {})
-            if "User-Agent" not in headers:
-                headers["User-Agent"] = self.ua.random
-            kwargs["headers"] = headers
+            # 1. Génération de l'identité humaine complète (Headers + Client Hints)
+            if "headers" not in kwargs:
+                kwargs["headers"] = self._generate_perfect_headers()
 
             try:
                 logging.info(f"🌐 [{method}] {url} (Essai {retries + 1}/{self.max_retries})")
                 response = await self.session.request(method, url, **kwargs)
-
                 # 2. Gestion intelligente du Rate-Limit (429 Too Many Requests)
                 if response.status_code == 429:
                     # Calcul du délai exponentiel avec Jitter (aléatoire) pour paraître humain

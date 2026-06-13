@@ -18,6 +18,7 @@ ignore = [
     "C901", # too complex
     "E701", # multiple statements on one line
     "F841", # unused variable
+    "F821", # undefined name
 ]
 
 [format]
