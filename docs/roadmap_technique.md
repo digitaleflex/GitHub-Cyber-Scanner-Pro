@@ -77,7 +77,128 @@ gantt
 > **Problématique :** La recherche d'outils et de ressources par les ingénieurs cyber est directement dictée par les actualités et les vagues d'attaques du moment.
 > **Objectif :** Connecter l'application à l'actualité des menaces en temps réel pour suggérer dynamiquement les ressources associées.
 
-### 🛠️ Spécifications Techniques pour le Développeur
-* **Agrégateur de Menaces :** Développer un démon d'arrière-plan interrogeant périodiquement les flux d'actualités et d'alertes officiels (flux RSS du **CERT-FR / ANSSI**, **The Hacker News**, **Bleeping Computer**).
-* **Extraction de Mots-Clés (NLP) :** Passer les titres des alertes d'actualité dans l'analyseur Spacy de notre scanner pour en extraire les entités nommées (noms de logiciels, vulnérabilités CVE, groupes d'attaquants).
-* **Recommandation Dynamique :** Si une alerte critique concerne par exemple "Windows Exchange" ou "Log4j", pousser instantanément en tête de la page d'accueil (bannière d'alerte) les outils, checklists de durcissement et documentations liés à ces mots-clés déjà présents dans notre base de données PostgreSQL.
+* **Recommandation Dynamique :** Si une alerte critique concerne par exemple "Windows Exchange" ou "Log4j", pousser instantanément en tête de la page d'accueil (bannière d'alerte) les outils, checklists de durcissement et documentations liés à ces mots-clés déjà présents dans notre base de données.
+
+---
+
+## ⚡ Migration Majeure : Ingestion Massive & Moteur Vectoriel Dédié (v1.4.0)
+
+Pour propulser la vitesse d'indexation bien au-delà de 10 000 dépôts et sécuriser les outils référencés, la stack technique doit évoluer d'une simple base relationnelle vers une architecture distribuée multi-moteurs intégrant une base de données vectorielle dédiée et des outils de sécurité industrielle.
+
+### 1. Remplacement de pgvector par Qdrant (Base Vectorielle Dédiée)
+Bien que PostgreSQL soit performant, la comparaison de milliers d'embeddings sémantiques ralentit les requêtes de recherche complexes.
+* **Le saut technologique :** Intégrer **Qdrant** (ou Milvus), une base de données vectorielle spécialisée utilisant des index de type **HNSW** (Hierarchical Navigable Small World).
+* **Le gain :** Recherche sémantique sous les 2 millisecondes pour 10 000+ ressources, avec une consommation de mémoire RAM 5 fois moindre.
+
+### 2. Traitement NLP & Vectoriel par Lots (Batch Processing)
+Pour supprimer le goulot d'étranglement de l'analyse unitaire, le développeur doit traiter les descriptions par vagues de 64 ou 128 éléments.
+
+```python
+# À intégrer dans src/nlp_processor.py pour remplacer l'analyse unitaire
+def process_repositories_in_batches(self, list_of_repos, batch_size=128):
+    """Analyse et génère les vecteurs sémantiques par vagues (Batches)
+    pour multiplier la vitesse d'indexation par 10.
+    """
+    cleaned_results = []
+
+    for i in range(0, len(list_of_repos), batch_size):
+        batch = list_of_repos[i : i + batch_size]
+
+        # 1. Extraction des descriptions du lot
+        descriptions = [repo.get("description", "") for repo in batch]
+
+        # 2. Génération vectorielle DE MASSE (Ultra rapide sur CPU/GPU)
+        # L'argument batch_size ici est natif au modèle de Deep Learning
+        vectors = encoder.encode(
+            descriptions, batch_size=batch_size, show_progress_bar=False
+        ).tolist()
+
+        # 3. Association des résultats et scoring
+        for index, repo in enumerate(batch):
+            desc = descriptions[index]
+            keywords = self.extract_key_phrases(desc)  # Extraction rapide
+            quality_score = self.calculate_relevance_score(repo, keywords)
+
+            cleaned_results.append(
+                {
+                    "id": repo.get("id"),
+                    "nom": repo.get("Nom du Dépôt"),
+                    "vecteur": vectors[index],  # Le vecteur généré en lot
+                    "mots_cles": keywords,
+                    "score": quality_score,
+                }
+            )
+
+    return cleaned_results
+```
+
+### 3. Pipeline Asynchrone Parallélisé (Task Queues)
+Le téléchargement asynchrone des dépôts GitHub et le traitement NLP/calcul d'embeddings par l'IA doivent s'exécuter en parallèle via une architecture de producteurs-consommateurs.
+* **Le concept :** Le démon asynchrone télécharge les métadonnées et alimente immédiatement une file d'attente (`Multiprocessing.Queue`).
+* **Le worker :** Un processus worker dédié pioche dans la file pour calculer les embeddings par lots et les injecter dans la base vectorielle sans bloquer les téléchargements.
+
+### 4. Intégration d'Outils SAST Professionnels via Docker-in-Docker
+Pour offrir un catalogue certifié sain, le moteur doit auditer le code des outils indexés à l'aide des meilleurs scanners open-source de l'industrie :
+
+1. **Trivy (AquaSecurity)** : Détection des vulnérabilités de dépendances (`requirements.txt`, `package.json`), scan des configurations et fuites de secrets.
+   * *Commande Docker* : `docker run --rm -v /chemin/du/repo:/apps aquasec/trivy fs /apps --format json`
+2. **Semgrep (SAST)** : Analyse du code sans exécution à la recherche de failles logiques (injections SQL, mauvaises pratiques).
+   * *Commande Docker* : `docker run --rm -v /chemin/du/repo:/src returntocorp/semgrep semgrep --config=auto --json`
+3. **Gitleaks** : Chasse aux clés privées, jetons d'API ou mots de passe stockés dans l'historique des commits.
+   * *Commande Docker* : `docker run --rm -v /chemin/du/repo:/path zricethezav/gitleaks:latest detect --source=/path --report-format=json`
+
+> [!IMPORTANT]
+> **Configuration Docker-in-Docker (Socket Sharing) :**
+> Pour permettre au script Python d'exécuter ces scanners de manière isolée et éphémère sans alourdir le conteneur du scanner, il suffit d'exposer le socket Docker de la machine hôte au conteneur du scanner :
+> `- /var/run/docker.sock:/var/run/docker.sock` dans les volumes du service `cyber-scanner`.
+
+---
+
+## 🐳 Architecture Docker Compose Multi-Moteurs (Production)
+
+Voici le fichier `docker-compose.yml` optimisé à donner à votre développeur pour le déploiement de cette infrastructure haute performance :
+
+```yaml
+version: '3.8'
+
+services:
+  # Base Relationnelle alpine (Pour stocker les métadonnées : noms, liens, dates)
+  cyber-db:
+    image: postgres:15-alpine
+    container_name: cyber_meta_db
+    restart: always
+    environment:
+      POSTGRES_DB: scanner_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cyberpass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # SUPER MOTEUR SÉMANTIQUE (Pour la recherche vectorielle instantanée)
+  cyber-vector-engine:
+    image: qdrant/qdrant:latest
+    container_name: cyber_qdrant_engine
+    restart: always
+    ports:
+      - "6333:6333" # API REST de Qdrant
+      - "6334:6334" # API gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  # Le Scanner optimisé en Pipeline Batch
+  cyber-scanner:
+    build: .
+    container_name: cyber_github_scanner
+    restart: always
+    depends_on:
+      - cyber-db
+      - cyber-vector-engine
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Partage du socket Docker pour le SAST
+      - ./data:/app/data
+
+volumes:
+  postgres_data:
+  qdrant_data:
+```
+
