@@ -69,8 +69,50 @@ class SecurityAnalyzer:
             logging.error(f"❌ Erreur Semgrep : {e}")
             return {"status": "error", "reason": str(e)}
 
+    def run_trivy(self, path):
+        """Exécute Trivy sur le système de fichiers."""
+        try:
+            logging.info(f"🛡️ Exécution de Trivy sur {path}...")
+            cmd = ["trivy", "fs", "--format", "json", "--quiet", path]
+            result = subprocess.run(cmd, capture_output=True, text=True) # nosec B603
+            
+            try:
+                data = json.loads(result.stdout)
+                return {
+                    "status": "success",
+                    "results": data.get("Results", [])
+                }
+            except:
+                return {"status": "error", "reason": "Failed to parse Trivy output"}
+        except Exception as e:
+            logging.error(f"❌ Erreur Trivy : {e}")
+            return {"status": "error", "reason": str(e)}
+
+    def run_gitleaks(self, path):
+        """Exécute Gitleaks pour détecter des secrets."""
+        try:
+            logging.info(f"🛡️ Exécution de Gitleaks sur {path}...")
+            report_file = os.path.join(self.work_dir, f"gitleaks_{os.urandom(4).hex()}.json")
+            cmd = ["gitleaks", "detect", "--source", path, "--format", "json", "--report-path", report_file]
+            
+            # Gitleaks retourne 1 si des secrets sont trouvés
+            subprocess.run(cmd, capture_output=True) # nosec B603
+            
+            if os.path.exists(report_file):
+                with open(report_file, 'r') as f:
+                    data = json.load(f)
+                os.remove(report_file)
+                return {
+                    "status": "success",
+                    "findings": data
+                }
+            return {"status": "success", "findings": []}
+        except Exception as e:
+            logging.error(f"❌ Erreur Gitleaks : {e}")
+            return {"status": "error", "reason": str(e)}
+
     def analyze_repository(self, repo_url):
-        """Workflow complet d'analyse SAST."""
+        """Workflow complet d'analyse SAST avec multi-moteurs."""
         temp_path = os.path.join(self.work_dir, f"scan_{os.urandom(4).hex()}")
 
         try:
@@ -79,17 +121,24 @@ class SecurityAnalyzer:
 
             bandit_res = self.run_bandit(temp_path)
             semgrep_res = self.run_semgrep(temp_path)
+            trivy_res = self.run_trivy(temp_path)
+            gitleaks_res = self.run_gitleaks(temp_path)
 
             # Calcul du verdict
             critical_count = 0
             high_count = 0
+            secrets_count = 0
 
-            # Analyse Bandit
+            # Gitleaks
+            if gitleaks_res.get("status") == "success":
+                secrets_count = len(gitleaks_res.get("findings", []))
+
+            # Bandit
             if bandit_res.get("status") == "success":
                 for issue in bandit_res["results"]:
                     if issue["issue_severity"] == "HIGH": high_count += 1
 
-            # Analyse Semgrep
+            # Semgrep
             if semgrep_res.get("status") == "success":
                 for issue in semgrep_res["results"]:
                     extra = issue.get("extra", {})
@@ -97,7 +146,15 @@ class SecurityAnalyzer:
                     if severity == "ERROR": critical_count += 1
                     elif severity == "WARNING": high_count += 1
 
-            if critical_count > 0:
+            # Trivy
+            if trivy_res.get("status") == "success":
+                for target in trivy_res.get("results", []):
+                    for vuln in target.get("Vulnerabilities", []):
+                        sev = vuln.get("Severity", "")
+                        if sev == "CRITICAL": critical_count += 1
+                        elif sev == "HIGH": high_count += 1
+
+            if secrets_count > 0 or critical_count > 0:
                 verdict = "CRITIQUE"
             elif high_count > 0:
                 verdict = "SUSPECT"
@@ -108,10 +165,13 @@ class SecurityAnalyzer:
                 "verdict": verdict,
                 "stats": {
                     "critical": critical_count,
-                    "high": high_count
+                    "high": high_count,
+                    "secrets": secrets_count
                 },
                 "bandit": bandit_res,
-                "semgrep": semgrep_res
+                "semgrep": semgrep_res,
+                "trivy": trivy_res,
+                "gitleaks": gitleaks_res
             }
 
         finally:

@@ -10,6 +10,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     docker.io \
     && rm -rf /var/lib/apt/lists/*
 
+# Installer Trivy
+RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# Installer Gitleaks
+RUN curl -L https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz -o gitleaks.tar.gz \
+    && tar -xzf gitleaks.tar.gz gitleaks \
+    && mv gitleaks /usr/local/bin/ \
+    && rm gitleaks.tar.gz
+
 # Installer les outils SAST (Bandit et Semgrep) via pip
 RUN pip install --no-cache-dir bandit semgrep
 

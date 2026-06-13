@@ -4,6 +4,7 @@ from celery import Celery
 import database
 import scanner
 import nlp_processor
+from security_analyzer import SecurityAnalyzer
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -87,4 +88,34 @@ def task_nlp_analysis(repo_id):
         return f"✅ Analyse NLP terminée pour {repo_id}"
     except Exception as e:
         logging.error(f"❌ Erreur lors de la tâche task_nlp_analysis pour {repo_id}: {e}")
+        return str(e)
+
+@app.task(name="task_security_audit")
+def task_security_audit(repo_url, repo_id):
+    """Effectue un audit de sécurité complet et sauvegarde le résultat."""
+    logging.info(f"🛡️ [Celery] Début de l'audit sécurité pour {repo_id}")
+    try:
+        # Récupérer l'URL complète si non fournie (sécurité)
+        if not repo_url.startswith("http"):
+            # Chercher en base
+            conn = database.get_db_connection()
+            cursor = conn.cursor(cursor_factory=database.RealDictCursor)
+            cursor.execute("SELECT html_url FROM repositories WHERE id = %s", (repo_id,))
+            repo = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            if repo:
+                repo_url = repo["html_url"]
+            else:
+                return f"❌ Impossible de trouver l'URL pour le dépôt {repo_id}"
+
+        analyzer = SecurityAnalyzer()
+        report = analyzer.analyze_repository(repo_url)
+        
+        # Sauvegarder en base
+        database.save_security_audit(repo_id, report["verdict"], report)
+        
+        return f"✅ Audit terminé pour {repo_id} : Verdict {report['verdict']}"
+    except Exception as e:
+        logging.error(f"❌ Erreur audit sécurité pour {repo_id}: {e}")
         return str(e)

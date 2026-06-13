@@ -72,7 +72,7 @@ def save_to_qdrant(repo_id, vector, payload):
             # Générer un hash entier stable à partir de la string si besoin, 
             # ou utiliser l'UUID si Qdrant le supporte mieux
             import hashlib
-            point_id = int(hashlib.md5(repo_id.encode()).hexdigest(), 16) % (10 ** 15)
+            point_id = int(hashlib.md5(repo_id.encode(), usedforsecurity=False).hexdigest(), 16) % (10 ** 15) # nosec B324
 
         client.upsert(
             collection_name=QDRANT_COLLECTION,
@@ -172,6 +172,8 @@ def init_db():
         cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS security_verdict VARCHAR(20) DEFAULT 'NON_AUDITE';")
         cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS security_details JSONB;")
         cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS llm_summary JSONB;")
+        cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS verdict_securite VARCHAR(20) DEFAULT 'NON_AUDITE';")
+        cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS rapport_audit JSONB;")
         conn.commit()
     except Exception as e:
         conn.rollback()
@@ -428,6 +430,23 @@ def update_repo_security(repo_id, verdict, details):
         return True
     except Exception as e:
         logging.error(f"❌ Erreur update_repo_security: {e}")
+        return False
+
+def save_security_audit(repo_id, verdict, raw_report_json):
+    """Enregistre le résultat de l'audit SAST dans PostgreSQL."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE repositories SET verdict_securite = %s, rapport_audit = %s WHERE id = %s",
+            (verdict, psycopg2.extras.Json(raw_report_json), repo_id)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        logging.error(f"❌ Erreur save_security_audit: {e}")
         return False
 
 def get_repos_to_analyze(limit=10):
