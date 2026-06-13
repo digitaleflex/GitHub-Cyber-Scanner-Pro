@@ -1,0 +1,18 @@
+# Configuration de normalisation des fins de ligne
+* text=auto
+
+# Fichiers texte spécifiques à normaliser en LF
+*.py text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+.dockerignore text eol=lf
+.gitignore text eol=lf
+Dockerfile text eol=lf
+
+# Fichiers binaires à ne pas modifier
+*.xlsx binary
+*.db binary
