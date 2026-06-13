@@ -1,0 +1,75 @@
+name: CI/CD Scanner Cyber - Build & Deploy Privé
+
+on:
+  push:
+    branches:
+      - main # Déclenche le workflow à chaque commit sur la branche main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+    permissions:
+      contents: read
+      packages: write # Indispensable pour avoir le droit d'écrire l'image sur GitHub Packages
+
+    steps:
+      - name: 1. Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: 2. Connexion sécurisée au Registre GitHub (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # Jeton temporaire généré automatiquement par GitHub
+
+      - name: 3. Génération des Tags et Métadonnées Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest
+
+      - name: 4. Construction et Publication de l'image Docker (Build & Push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-to-server:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: 5. Connexion SSH au serveur et déploiement à chaud
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /opt/cyber-scanner
+            
+            # 1. Connexion du serveur au registre privé GitHub
+            echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # 2. Mise à jour de la configuration de l'image avec le nouveau Tag
+            sed -i "s|image: ghcr.io/.*|image: ghcr.io/${{ env.IMAGE_NAME }}:sha-${{ needs.build-and-push.outputs.image_tag }}|g" docker-compose.yml
+            
+            # 3. Téléchargement et relance immédiate du scanner (Zéro perte de données)
+            docker compose pull cyber-scanner
+            docker compose up -d cyber-scanner
+            
+            # 4. Nettoyage des anciennes images Docker inutilisées pour économiser le disque
+            docker image prune -f
