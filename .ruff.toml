@@ -24,6 +24,7 @@ ignore = [
     "F401", # unused import
     "UP035", # deprecated typing.List
     "UP045", # deprecated Optional/Union
+    "F541", # f-string without placeholders
 ]
 
 [format]

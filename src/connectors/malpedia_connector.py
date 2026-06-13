@@ -5,21 +5,19 @@ from .base_connector import BaseConnector
 class MalpediaConnector(BaseConnector):
     """
     Connecteur pour Malpedia.
-    Récupère la liste des familles de malwares répertoriées.
+    Inventaire des familles de malwares.
     """
     
-    # API pour lister les familles
-    FAMILIES_API_URL = "https://malpedia.caad.fkie.fraunhofer.de/api/list/families"
-    # Base URL pour les détails (Web)
-    BASE_WEB_URL = "https://malpedia.caad.fkie.fraunhofer.de/details/"
+    LIST_URL = "https://malpedia.caad.fkie.fraunhofer.de/api/list/families"
 
     def __init__(self):
         super().__init__("Malpedia")
 
     def fetch_new_items(self):
         """Récupère la liste des familles de malwares."""
-        self.logger.info("🦠 Récupération des familles de malwares depuis Malpedia...")
-        response = self.stealth_get(self.FAMILIES_API_URL)
+        self.logger.info("🦠 Récupération de l'inventaire Malpedia...")
+        
+        response = self.stealth_get(self.LIST_URL)
         
         if not response or response.status_code != 200:
             self.logger.error("❌ Impossible de récupérer la liste Malpedia.")
@@ -27,39 +25,33 @@ class MalpediaConnector(BaseConnector):
 
         try:
             families = response.json()
-            # C'est généralement une liste de chaînes (ex: "win.asyncrat")
-            self.logger.info(f"✅ {len(families)} familles identifiées.")
+            # Malpedia retourne une liste de chaînes (les IDs des familles)
+            self.logger.info(f"✅ {len(families)} familles de malwares listées.")
             return families
         except Exception as e:
             self.logger.error(f"❌ Erreur lors du parsing JSON Malpedia : {e}")
             return []
 
-    def parse_item(self, item):
+    def parse_item(self, item_id):
         """
-        Transforme une entrée Malpedia (ID de famille) en ressource standard.
-        Item est une chaîne comme 'win.asyncrat'
+        Transforme un ID de famille Malpedia en ressource standard.
+        Note : item_id est une chaîne de caractères (ex: 'win.cobalt_strike')
         """
-        family_id = item
-        # On essaie de rendre le titre plus lisible (ex: Asyncrat)
-        readable_name = family_id.split('.')[-1].capitalize() if '.' in family_id else family_id.capitalize()
-        
-        title = f"[Malware] {readable_name} ({family_id})"
-        description = f"Famille de malware répertoriée sur Malpedia. Identifiant technique : {family_id}."
-        url = f"{self.BASE_WEB_URL}{family_id}"
+        # Construction de l'URL pour plus de détails
+        url = f"https://malpedia.caad.fkie.fraunhofer.de/details/{item_id}"
         
         return {
-            "external_id": family_id,
-            "title": title,
-            "description": description,
+            "external_id": item_id,
+            "title": f"Malware Family: {item_id}",
+            "description": f"Détails de la famille de malware '{item_id}' sur Malpedia.",
             "url": url,
-            "raw_content_url": self.FAMILIES_API_URL,
-            "type_ressource": "Intelligence / Malware Family",
+            "raw_content_url": self.LIST_URL,
+            "type_ressource": "Malware / Taxonomy",
             "language": "en",
             "discovered_at": datetime.now(),
             "security_details": {
-                "family_id": family_id,
-                "platform": family_id.split('.')[0] if '.' in family_id else "unknown",
-                "malpedia_url": url
+                "malpedia_id": item_id,
+                "category": item_id.split('.')[0] if '.' in item_id else "unknown"
             }
         }
 
@@ -69,8 +61,4 @@ if __name__ == "__main__":
     connector = MalpediaConnector()
     items = connector.fetch_new_items()
     if items:
-        # On ne traite que les 5 premiers pour le test
-        for i in range(min(5, len(items))):
-            print(f"Exemple {i+1} : {connector.parse_item(items[i])}")
-    else:
-        print("Aucun item récupéré.")
+        print(f"Exemple : {connector.parse_item(items[0])}")

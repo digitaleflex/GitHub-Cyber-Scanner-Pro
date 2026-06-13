@@ -1,83 +1,69 @@
 import logging
+import xml.etree.ElementTree as ET
 from datetime import datetime
 from .base_connector import BaseConnector
 
-class AlienVaultOTXConnector(BaseConnector):
+class AlienVaultConnector(BaseConnector):
     """
-    Connecteur pour AlienVault Open Threat Exchange (OTX).
-    Récupère les pulses (campagnes de menaces) récents.
+    Connecteur pour AlienVault OTX (Open Threat Exchange).
+    Récupère les "Pulses" de menaces via le flux RSS public.
     """
     
-    # API publique pour les pulses récents
-    API_URL = "https://otx.alienvault.com/api/v1/pulses/recent"
+    RSS_URL = "https://otx.alienvault.com/rss/all/pulses"
 
     def __init__(self):
-        super().__init__("AlienVault-OTX")
+        super().__init__("AlienVault")
 
     def fetch_new_items(self):
-        """Récupère les nouveaux pulses depuis l'API OTX."""
-        self.logger.info("🚀 Récupération des pulses récents depuis AlienVault OTX...")
-        response = self.stealth_get(self.API_URL)
+        """Récupère les pulses récents via RSS."""
+        self.logger.info("👽 Récupération des pulses AlienVault OTX...")
+        
+        response = self.stealth_get(self.RSS_URL)
         
         if not response or response.status_code != 200:
-            self.logger.error("❌ Impossible de récupérer les données AlienVault OTX.")
+            self.logger.error("❌ Impossible de récupérer le flux AlienVault.")
             return []
 
         try:
-            data = response.json()
-            pulses = data.get("results", [])
-            self.logger.info(f"✅ {len(pulses)} pulses récupérés.")
-            return pulses
+            root = ET.fromstring(response.content)
+            items = root.findall(".//item")
+            self.logger.info(f"✅ {len(items)} pulses récupérés.")
+            return items
         except Exception as e:
-            self.logger.error(f"❌ Erreur lors du parsing JSON AlienVault : {e}")
+            self.logger.error(f"❌ Erreur lors du parsing RSS AlienVault : {e}")
             return []
 
     def parse_item(self, item):
         """
-        Transforme un pulse OTX en ressource standard.
-        Champs : id, name, description, author_name, created, references
+        Transforme une entrée RSS AlienVault en ressource standard.
         """
-        pulse_id = item.get("id")
-        name = item.get("name", "Sans titre")
-        author = item.get("author_name", "Inconnu")
+        title = item.find("title").text if item.find("title") is not None else "Untitled Pulse"
+        link = item.find("link").text if item.find("link") is not None else ""
+        description = item.find("description").text if item.find("description") is not None else ""
+        guid = item.find("guid").text if item.find("guid") is not None else link
         
-        title = f"[OTX Pulse] {name} (by {author})"
-        description = item.get("description", "Pas de description fournie.")
-        url = f"https://otx.alienvault.com/pulse/{pulse_id}"
+        # Extraction simplifiée des indicateurs de la description si possible
+        # La description RSS d'OTX contient souvent du HTML avec les types d'indicateurs
         
-        # On essaie de récupérer une date de création
-        created_str = item.get("created", "")
-        discovered_at = datetime.now()
-        if created_str:
-            try:
-                # Format souvent ISO: 2024-01-23T12:34:56.789
-                discovered_at = datetime.fromisoformat(created_str.replace("Z", "+00:00"))
-            except:
-                pass
-
         return {
-            "external_id": str(pulse_id),
+            "external_id": guid,
             "title": title,
-            "description": description,
-            "url": url,
-            "raw_content_url": self.API_URL,
-            "type_ressource": "Intelligence / Pulse",
+            "description": description[:500] + ("..." if len(description) > 500 else ""),
+            "url": link,
+            "raw_content_url": self.RSS_URL,
+            "type_ressource": "Threat Pulse / Intelligence",
             "language": "en",
-            "discovered_at": discovered_at,
+            "discovered_at": datetime.now(),
             "security_details": {
-                "author": author,
-                "tags": item.get("tags", []),
-                "indicators_count": item.get("indicator_count", 0),
-                "references": item.get("references", [])
+                "source": "AlienVault OTX",
+                "full_description": description
             }
         }
 
 if __name__ == "__main__":
     # Test rapide
     logging.basicConfig(level=logging.INFO)
-    connector = AlienVaultOTXConnector()
+    connector = AlienVaultConnector()
     items = connector.fetch_new_items()
     if items:
-        print(f"Exemple de pulse parsé : {connector.parse_item(items[0])}")
-    else:
-        print("Aucun item récupéré.")
+        print(f"Exemple : {connector.parse_item(items[0])}")

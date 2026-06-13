@@ -20,17 +20,35 @@ class BaseConnector(ABC):
         pass
 
     def stealth_get(self, url, headers=None):
-        """Requête HTTP furtive (à enrichir avec curl_cffi)."""
-        # Simulation d'un client furtif
+        """Requête HTTP GET furtive."""
         default_headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json"
         }
         if headers:
             default_headers.update(headers)
-        
+
         try:
             response = requests.get(url, headers=default_headers, timeout=30)
             return response
         except Exception as e:
-            self.logger.error(f"❌ Erreur lors de la requête furtive sur {url} : {e}")
+            self.logger.error(f"❌ Erreur lors du GET furtif sur {url} : {e}")
             return None
+
+    def stealth_post(self, url, json_data=None, headers=None):
+        """Requête HTTP POST furtive."""
+        default_headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+        if headers:
+            default_headers.update(headers)
+
+        try:
+            response = requests.post(url, json=json_data, headers=default_headers, timeout=30)
+            return response
+        except Exception as e:
+            self.logger.error(f"❌ Erreur lors du POST furtif sur {url} : {e}")
+            return None
+
