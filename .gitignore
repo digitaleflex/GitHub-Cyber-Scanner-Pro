@@ -4,6 +4,7 @@
 # Base de données binaire (SQLite)
 *.db
 data/*.db
+data/test_download.*
 *.bak
 
 # Python
