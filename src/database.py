@@ -236,8 +236,8 @@ def init_db():
     # S'assurer que pgcrypto est activé pour gen_random_uuid()
     try:
         cursor.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;")
-    except:
-        pass
+    except Exception:
+        logging.debug("Extension pgcrypto check ignored")
 
     # Index GIN sur resources
     cursor.execute("CREATE INDEX IF NOT EXISTS resources_tsv_idx ON resources USING GIN (tsv_content)")
