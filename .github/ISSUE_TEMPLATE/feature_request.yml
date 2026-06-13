@@ -1,0 +1,44 @@
+name: "🚀 Feature Request (Nouvelle Fonctionnalité)"
+description: "Proposer une nouvelle brique pour le scanner (IA, Sécurité, OSINT)."
+title: "[FEATURE] "
+labels: ["🚀 feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de proposer une nouvelle fonctionnalité ! Pour que l'équipe puisse l'implémenter efficacement dans l'architecture distribuée, merci de remplir les sections ci-dessous.
+  - type: textarea
+    id: goal
+    attributes:
+      label: "🎯 Objectif"
+      description: "Quel problème cette fonctionnalité résout-elle ?"
+      placeholder: "Ex: Ajouter un scan Gitleaks pour détecter les secrets dans les dépôts."
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: "🧩 Composant concerné"
+      description: "Où cette fonctionnalité doit-elle être intégrée ?"
+      options:
+        - "Worker-Harvester (Scraping/Clone)"
+        - "Worker-NLP (IA/Qdrant)"
+        - "Worker-Security (Audit SAST)"
+        - "Dashboard (Interface)"
+        - "Infrastructure (Docker/Celery)"
+    validations:
+      required: true
+  - type: textarea
+    id: specs
+    attributes:
+      label: "🛠️ Spécifications techniques"
+      description: "Détails sur l'implémentation (Outils, packages, workflow)."
+      placeholder: "Ex: Utiliser l'image Docker zricethezav/gitleaks..."
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "🏁 Critères d'acceptation"
+      description: "Comment saurons-nous que la tâche est terminée ?"
+      placeholder: "- [ ] Le scan se lance automatiquement...\n- [ ] Les résultats sont stockés dans Postgres..."
+    validations:
+      required: true

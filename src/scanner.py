@@ -368,9 +368,9 @@ def export_to_excel():
     try:
         conn = database.get_db_connection()
         
-        # 1. Lire les dépôts avec score_qualite
+        # 1. Lire les dépôts avec score_qualite et verdict de sécurité
         df_repos = pd.read_sql_query(
-            "SELECT full_name, stars, description, html_url, language, updated_at, score_qualite FROM repositories", 
+            "SELECT full_name, stars, description, html_url, language, updated_at, score_qualite, security_verdict FROM repositories", 
             conn
         )
         
@@ -381,7 +381,7 @@ def export_to_excel():
                    CASE WHEN b.is_dead = 1 THEN 'Hors ligne' 
                         WHEN b.last_checked IS NULL THEN 'Non vérifié'
                         ELSE 'Disponible' END AS status,
-                   b.url, b.score_qualite 
+                   b.url, b.score_qualite, r.security_verdict 
             FROM books b 
             LEFT JOIN repositories r ON b.repo_id = r.id
             """, 
@@ -392,7 +392,7 @@ def export_to_excel():
         # Formater les dépôts
         if not df_repos.empty:
             df_repos.columns = [
-                "Nom du Dépôt", "Étoiles (Stars)", "Description", "Lien GitHub", "Langue Principale", "Dernière Mise à Jour", "Score Qualité (IA)"
+                "Nom du Dépôt", "Étoiles (Stars)", "Description", "Lien GitHub", "Langue Principale", "Dernière Mise à Jour", "Score Qualité (IA)", "Verdict Sécurité"
             ]
             # Trier d'abord par Score Qualité (IA) puis par Étoiles
             df_repos = df_repos.sort_values(by=["Score Qualité (IA)", "Étoiles (Stars)"], ascending=[False, False])
@@ -402,7 +402,7 @@ def export_to_excel():
         # Formater les livres
         if not df_books.empty:
             df_books.columns = [
-                "Titre de la Ressource / Livre", "Catégorie", "Type de Ressource", "Dépôt Source", "Disponibilité", "Lien de Téléchargement", "Score Qualité (IA)"
+                "Titre de la Ressource / Livre", "Catégorie", "Type de Ressource", "Dépôt Source", "Disponibilité", "Lien de Téléchargement", "Score Qualité (IA)", "Sécurité Source"
             ]
             # Trier d'abord par Score Qualité (IA) puis par Type, Catégorie et Titre
             df_books = df_books.sort_values(by=["Score Qualité (IA)", "Type de Ressource", "Catégorie", "Titre de la Ressource / Livre"], ascending=[False, True, True, True])
@@ -428,8 +428,8 @@ def export_to_json():
         conn = database.get_db_connection()
         cursor = conn.cursor()
         
-        # Récupérer tous les dépôts avec score_qualite
-        cursor.execute("SELECT id, full_name, stars, description, html_url, language, updated_at, score_qualite FROM repositories ORDER BY score_qualite DESC, stars DESC")
+        # Récupérer tous les dépôts avec score_qualite et verdict de sécurité
+        cursor.execute("SELECT id, full_name, stars, description, html_url, language, updated_at, score_qualite, security_verdict FROM repositories ORDER BY score_qualite DESC, stars DESC")
         repos_rows = cursor.fetchall()
         
         data_dict = {}
@@ -443,6 +443,7 @@ def export_to_json():
                 "Langue Principale": r[5],
                 "Dernière Mise à Jour": r[6],
                 "Score Qualité (IA)": r[7],
+                "Verdict Sécurité": r[8],
                 "Ressources": []
             }
             
@@ -797,6 +798,40 @@ def start_scan(background_tasks: BackgroundTasks):
     
     background_tasks.add_task(run_scan_once_manual)
     return {"message": "Le scan en arrière-plan a été démarré !"}
+
+
+if __name__ == "__main__":
+    # 1. Attendre et initialiser la base PostgreSQL
+    database.init_db()
+    
+    # 2. Migrer les anciennes données SQLite (si existantes) vers Postgres
+    migrate_sqlite_to_postgres()
+    
+    # 3. Lancer les démons d'arrière-plan
+    daemon_thread = threading.Thread(target=run_scanner_daemon, daemon=True)
+    daemon_thread.start()
+    
+    validator_thread = threading.Thread(target=run_link_validator_daemon, daemon=True)
+    validator_thread.start()
+
+    security_thread = threading.Thread(target=run_security_scan_daemon, daemon=True)
+    security_thread.start()
+    
+    # 4. Lancer le serveur web
+    import uvicorn
+    logging.info("🔌 Lancement du serveur Web FastAPI sur le port 8000...")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+ry(repo_url)
+                
+                verdict = results.get("verdict", "ERROR")
+                database.update_repo_security(repo_id, verdict, results)
+                logging.info(f"✅ Verdict pour {repo_name} : {verdict}")
+                
+                time.sleep(5) # Pause entre les scans pour le CPU
+                
+        except Exception as e:
+            logging.error(f"❌ Erreur dans le démon de sécurité : {e}")
+            time.sleep(60)
 
 
 if __name__ == "__main__":

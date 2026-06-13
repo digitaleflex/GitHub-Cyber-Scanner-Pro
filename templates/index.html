@@ -581,6 +581,25 @@
         .type-interview { background: rgba(139, 92, 246, 0.12); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.25); }
         .type-threat-intel { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); }
         .type-template { background: rgba(236, 72, 153, 0.12); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.25); }
+
+        /* Badges de Sécurité */
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: help;
+        }
+
+        .security-sain { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); }
+        .security-suspect { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+        .security-critique { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); }
+        .security-none { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--card-border); }
     </style>
 </head>
 <body>
@@ -653,8 +672,9 @@
                             <tr>
                                 <th style="width: 25%;">Nom du Dépôt</th>
                                 <th style="width: 12%;">Étoiles</th>
-                                <th style="width: 38%;">Description</th>
-                                <th style="width: 15%;">Langue</th>
+                                <th style="width: 30%;">Description</th>
+                                <th style="width: 13%;">Sécurité</th>
+                                <th style="width: 10%;">Langue</th>
                                 <th style="width: 10%;">Lien</th>
                             </tr>
                         </thead>
@@ -802,16 +822,39 @@
             tbody.innerHTML = '';
             
             if (allRepos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Aucun dépôt trouvé.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Aucun dépôt trouvé.</td></tr>';
                 return;
             }
 
             allRepos.forEach(repo => {
                 const tr = document.createElement('tr');
+                
+                // Formater le badge de sécurité
+                let secBadge = '';
+                let secVerdict = repo.security_verdict || 'NON_AUDITE';
+                let secTooltip = 'Audit de sécurité non effectué';
+                
+                if (secVerdict === 'SAIN') {
+                    secBadge = `<span class="security-badge security-sain" title="Aucune vulnérabilité majeure détectée">SAIN</span>`;
+                } else if (secVerdict === 'SUSPECT') {
+                    const stats = repo.security_details?.stats || {};
+                    secTooltip = `Détecté : ${stats.high || 0} alertes élevées`;
+                    secBadge = `<span class="security-badge security-suspect" title="${secTooltip}">SUSPECT</span>`;
+                } else if (secVerdict === 'CRITIQUE') {
+                    const stats = repo.security_details?.stats || {};
+                    secTooltip = `ALERTE : ${stats.critical || 0} vulnérabilités critiques !`;
+                    secBadge = `<span class="security-badge security-critique" title="${secTooltip}">CRITIQUE</span>`;
+                } else if (secVerdict === 'ERROR') {
+                    secBadge = `<span class="security-badge security-none" title="Erreur lors de l'analyse (Clone impossible ou timeout)">ERREUR</span>`;
+                } else {
+                    secBadge = `<span class="security-badge security-none" title="En attente d'audit technique">EN ATTENTE</span>`;
+                }
+
                 tr.innerHTML = `
                     <td><a href="${repo.html_url}" target="_blank" class="repo-link">${repo.full_name}</a></td>
                     <td><span class="stars-badge">★ ${repo.stars.toLocaleString()}</span></td>
                     <td style="color: var(--text-muted); line-height: 1.4;">${escapeHTML(repo.description)}</td>
+                    <td>${secBadge}</td>
                     <td><span class="lang-badge">${repo.language}</span></td>
                     <td><a href="${repo.html_url}" target="_blank" class="book-url-btn">Ouvrir</a></td>
                 `;

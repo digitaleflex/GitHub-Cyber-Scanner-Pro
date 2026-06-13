@@ -5,7 +5,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     gcc \
+    git \
+    curl \
+    docker.io \
     && rm -rf /var/lib/apt/lists/*
+
+# Installer les outils SAST (Bandit et Semgrep) via pip
+RUN pip install --no-cache-dir bandit semgrep
 
 # Éviter la génération de fichiers pyc et forcer l'unbuffered mode pour Docker logs
 ENV PYTHONDONTWRITEBYTECODE=1

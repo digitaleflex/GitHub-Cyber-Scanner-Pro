@@ -7,7 +7,7 @@ Ce document décrit l'intégration d'un méta-moteur de recherche open-source (S
 Pour éviter les blocages d'IP et les Captchas de Google, le développeur doit ajouter un conteneur SearXNG dans l'architecture locale.
 
 ```yaml
-  # Dans docker-compose.yml
+  # Dans compose.yml
   searxng:
     image: searxng/searxng:latest
     container_name: cyber_searxng

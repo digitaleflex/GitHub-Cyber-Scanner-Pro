@@ -85,10 +85,11 @@ gantt
 
 Pour propulser la vitesse d'indexation bien au-delà de 10 000 dépôts et sécuriser les outils référencés, la stack technique doit évoluer d'une simple base relationnelle vers une architecture distribuée multi-moteurs intégrant une base de données vectorielle dédiée et des outils de sécurité industrielle.
 
-### 1. Remplacement de pgvector par Qdrant (Base Vectorielle Dédiée)
-Bien que PostgreSQL soit performant, la comparaison de milliers d'embeddings sémantiques ralentit les requêtes de recherche complexes.
-* **Le saut technologique :** Intégrer **Qdrant** (ou Milvus), une base de données vectorielle spécialisée utilisant des index de type **HNSW** (Hierarchical Navigable Small World).
-* **Le gain :** Recherche sémantique sous les 2 millisecondes pour 10 000+ ressources, avec une consommation de mémoire RAM 5 fois moindre.
+### 1. Adoption de TanStack Start (Frontend) et pnpm
+Pour garantir la souveraineté et la performance :
+* **TanStack Start** remplace les frameworks cloud-dependant pour un auto-hébergement robuste.
+* **pnpm** est utilisé pour optimiser les builds Docker et la consommation de RAM.
+* **FastAPI** reste le socle backend pour sa rapidité et son intégration avec le pipeline IA.
 
 ### 2. Traitement NLP & Vectoriel par Lots (Batch Processing)
 Pour supprimer le goulot d'étranglement de l'analyse unitaire, le développeur doit traiter les descriptions par vagues de 64 ou 128 éléments.
@@ -167,7 +168,7 @@ L'avantage majeur de cette architecture SAST et IA est son autonomie complète. 
 
 ## 🐳 Architecture Docker Compose Multi-Moteurs (Production)
 
-Voici le fichier `docker-compose.yml` optimisé à donner à votre développeur pour le déploiement de cette infrastructure haute performance :
+Voici le fichier `compose.yml` optimisé à donner à votre développeur pour le déploiement de cette infrastructure haute performance :
 
 ```yaml
 version: '3.8'

@@ -1,0 +1,9 @@
+{
+  "name": "cyber-scanner-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Run TanStack Start here'",
+    "build": "mkdir -p .output && echo 'Build placeholder' > .output/index.html"
+  }
+}

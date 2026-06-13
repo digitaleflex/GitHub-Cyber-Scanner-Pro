@@ -307,6 +307,40 @@ def get_stats():
         return 0, 0
 
 
+def update_repo_security(repo_id, verdict, details):
+    """Met à jour le verdict de sécurité et les détails pour un dépôt."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE repositories SET security_verdict = %s, security_details = %s WHERE id = %s",
+            (verdict, psycopg2.extras.Json(details), repo_id)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        logging.error(f"❌ Erreur update_repo_security: {e}")
+        return False
+
+def get_repos_to_analyze(limit=10):
+    """Récupère les dépôts qui n'ont pas encore été audités."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            "SELECT id, full_name, html_url FROM repositories WHERE security_verdict = 'NON_AUDITE' LIMIT %s",
+            (limit,)
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return [dict(r) for r in rows]
+    except Exception as e:
+        logging.error(f"❌ Erreur get_repos_to_analyze: {e}")
+        return []
+
 def get_repositories():
     """Renvoie les dépôts triés par score de qualité (IA) puis par étoiles."""
     try:
@@ -314,7 +348,7 @@ def get_repositories():
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(
             """
-            SELECT id, full_name, stars, description, html_url, language, updated_at, score_qualite 
+            SELECT id, full_name, stars, description, html_url, language, updated_at, score_qualite, security_verdict, security_details
             FROM repositories 
             ORDER BY score_qualite DESC, stars DESC
             """

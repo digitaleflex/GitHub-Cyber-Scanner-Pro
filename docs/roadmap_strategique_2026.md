@@ -59,7 +59,7 @@ Ce document définit la trajectoire complète de l'application, du scanner GitHu
 
 ### Instructions pour le développeur
 
-1. **Activer le socket Docker** (`/var/run/docker.sock`) dans le `docker-compose.yml` (déjà fait).
+1. **Activer le socket Docker** (`/var/run/docker.sock`) dans le `compose.yml` (déjà fait).
 2. **Implémenter le workflow SAST éphémère :**
    - `git clone --depth 1` du dépôt cible dans un dossier temporaire.
    - Lancer Trivy, Semgrep et Gitleaks via Docker sur ce dossier.
@@ -76,7 +76,7 @@ Ce document définit la trajectoire complète de l'application, du scanner GitHu
 
 ### Instructions pour le développeur
 
-1. **Connecter SearXNG** (déjà dans `docker-compose.yml`) au script Python.
+1. **Connecter SearXNG** (déjà dans `compose.yml`) au script Python.
 2. **Générer des Dorks automatiques** (PDF universitaires, rapports de pentest, PoC).
 3. **Indexer les résultats hors-GitHub** dans Qdrant (même pipeline que GitHub).
 4. **Lancer la plateforme SaaS :**

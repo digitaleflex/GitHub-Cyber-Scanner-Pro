@@ -116,11 +116,11 @@ jobs:
             echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             # 2. Mise à jour de la configuration de l'image avec le nouveau Tag
-            sed -i "s|image: ghcr.io/.*|image: ghcr.io/${{ env.IMAGE_NAME }}:sha-${{ needs.build-and-push.outputs.image_tag }}|g" docker-compose.yml
+            sed -i "s|image: ghcr.io/.*|image: ghcr.io/${{ env.IMAGE_NAME }}:sha-${{ needs.build-and-push.outputs.image_tag }}|g" compose.yml
             
-            # 3. Téléchargement et relance immédiate du scanner (Zéro perte de données)
-            docker compose pull cyber-scanner
-            docker compose up -d cyber-scanner
+            # 3. Téléchargement et relance immédiate du scanner et des workers
+            docker compose pull
+            docker compose up -d
             
             # 4. Nettoyage des anciennes images Docker inutilisées pour économiser le disque
             docker image prune -f

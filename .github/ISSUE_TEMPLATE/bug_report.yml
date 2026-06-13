@@ -1,0 +1,33 @@
+name: "🐛 Bug Report (Signalement d'Erreur)"
+description: "Signaler un bug ou une défaillance technique."
+title: "[BUG] "
+labels: ["🐛 bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Un bug ? Pas de panique. Décrivez précisément le problème pour que nous puissions le corriger rapidement.
+  - type: textarea
+    id: description
+    attributes:
+      label: "📝 Description du bug"
+      description: "Que se passe-t-il exactement ?"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "🔄 Étapes pour reproduire"
+      description: "Comment pouvons-nous voir l'erreur de notre côté ?"
+      placeholder: "1. Lancer compose.yml\n2. Rechercher '...'..."
+  - type: textarea
+    id: expected
+    attributes:
+      label: "✅ Comportement attendu"
+      description: "Que devrait-il se passer normalement ?"
+  - type: textarea
+    id: logs
+    attributes:
+      label: "📋 Logs & Erreurs"
+      description: "Copiez-collez les logs Docker ou Celery ici."
+      render: shell
