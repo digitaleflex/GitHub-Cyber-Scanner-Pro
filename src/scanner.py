@@ -801,6 +801,50 @@ def start_scan(background_tasks: BackgroundTasks):
     return {"message": "Le scan en arrière-plan a été démarré !"}
 
 
+def run_llm_summary_daemon():
+    """Démon de génération de fiches de synthèse via Ollama."""
+    logging.info("🚀 Démarrage du démon de synthèse IA (Ollama)...")
+    summarizer = llm_summarizer.LLMSummarizer()
+    
+    while True:
+        try:
+            repos_to_summarize = database.get_repos_needing_summary(5)
+            if not repos_to_summarize:
+                time.sleep(300)
+                continue
+                
+            for repo in repos_to_summarize:
+                repo_id = repo["id"]
+                full_name = repo["full_name"]
+                description = repo["description"]
+                
+                logging.info(f"🤖 Génération de la fiche IA pour {full_name}...")
+                
+                # Récupérer le README pour avoir plus de contexte
+                readme_text = ""
+                readme_url = f"https://api.github.com/repos/{full_name}/readme"
+                headers = {"Accept": "application/vnd.github.v3.raw"}
+                if GITHUB_TOKEN:
+                    headers["Authorization"] = f"token {GITHUB_TOKEN}"
+                try:
+                    res = requests.get(readme_url, headers=headers, timeout=15)
+                    if res.status_code == 200:
+                        readme_text = res.text
+                except:
+                    pass
+                
+                summary = summarizer.generate_summary(readme_text, description)
+                if summary:
+                    database.update_repo_llm_summary(repo_id, summary)
+                    logging.info(f"✅ Fiche IA générée avec succès pour {full_name}")
+                
+                time.sleep(10) # Pause pour le LLM
+                
+        except Exception as e:
+            logging.error(f"❌ Erreur dans le démon LLM : {e}")
+            time.sleep(60)
+
+
 if __name__ == "__main__":
     # 1. Attendre et initialiser la base PostgreSQL
     database.init_db()

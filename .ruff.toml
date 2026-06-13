@@ -13,6 +13,7 @@ select = [
 ignore = [
     "E501", # line too long, handled by black/ruff formatter
     "W291", # trailing whitespace
+    "W293", # blank line contains whitespace
     "E722", # bare except
     "C901", # too complex
     "E701", # multiple statements on one line
