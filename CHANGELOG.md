@@ -4,6 +4,75 @@ Toutes les modifications notables apportées à ce projet seront documentées da
 
 ---
 
+## [Unreleased] - v4.0.0 - Aspirateur OSINT Global & Monétisation SaaS
+### Planifié (Roadmap - Mois 6+)
+* Connexion autonome de SearXNG au script Python pour le dorking web automatique.
+* Indexation des ressources hors-GitHub (PDF universitaires, rapports de pentest, PoC) dans Qdrant.
+* Lancement de la plateforme SaaS avec 3 niveaux : Gratuit, PRO (19€/mois), Enterprise.
+
+---
+
+## [Unreleased] - v3.0.0 - Validateur de Confiance
+### Planifié (Roadmap - Mois 3-4)
+* Workflow SAST éphémère : clone partiel → Trivy/Semgrep/Gitleaks → suppression immédiate.
+* Calcul et affichage du Score de Confiance (0 à 100) avec badges visuels par ressource.
+* Limite de 5 clones simultanés maximum (Semaphore) pour éviter la saturation disque.
+
+---
+
+## [Unreleased] - v2.0.0 - Cerveau Sémantique Multilingue
+### Planifié (Roadmap - Mois 1-2)
+* Migration de pgvector vers Qdrant pour la recherche vectorielle < 2ms sur 15 000+ ressources.
+* Intégration du modèle IA multilingue `paraphrase-multilingual-MiniLM-L12-v2` (50+ langues).
+* Activation du Batch Processing (lots de 128 dépôts) dans `nlp_processor.py`.
+* Déploiement d'Ollama (Mistral-7B) pour la génération automatique de fiches techniques JSON.
+
+---
+
+## [1.5.0] - 2026-06-13
+### Architecture 100% Souveraine & Moteur OSINT (Zéro API Payante)
+
+Transition stratégique vers une infrastructure entièrement auto-hébergée, éliminant toute dépendance aux API commerciales payantes (Shodan, Censys, Google API). Coût opérationnel mensuel : 0€.
+
+#### Ajouté
+* **Conteneur SearXNG :** Intégration du méta-moteur open-source dans `docker-compose.yml` pour remplacer toutes les API Google/Bing. Requête les moteurs de recherche en arrière-plan et renvoie les résultats au format JSON sans clé ni blocage d'IP.
+* **Configuration SearXNG (`searxng/settings.yml`) :** Fichier de configuration initial activant la sortie JSON, le mode OSINT (safe_search=0) et les moteurs Google, Bing et DuckDuckGo.
+* **Base vectorielle Qdrant :** Conteneur dédié à la recherche vectorielle haute performance (HNSW), remplaçant pgvector pour les comparaisons d'embeddings sémantiques.
+* **Documentation OSINT :** Création de `docs/moteur_osint_searxng.md` (architecture SearXNG et générateur de Dorks) et `docs/moteurs_specialises_osint.md` (stratégie des alternatives libres à Shodan/Censys).
+* **Feuille de route 2026 :** Création de `docs/roadmap_strategique_2026.md` définissant les 4 phases de développement jusqu'au lancement SaaS.
+* **Issues GitHub Roadmap (42-51) :** Création de 4 nouveaux jalons (v1.0.0 à v4.0.0) et 10 issues détaillées avec critères d'acceptation pour le développeur.
+
+#### Modifié
+* **`docker-compose.yml` :** Refactorisation complète pour intégrer Qdrant et SearXNG dans l'architecture multi-conteneurs.
+
+---
+
+## [1.4.0] - 2026-06-13
+### Pipeline CI/CD Sécurisée & Qualité du Code (Standard EHAF)
+
+Mise en place d'un pipeline de validation automatique bloquant tout déploiement non sécurisé, conformément au standard de sécurité EHAF (Security Engineering Standard).
+
+#### Ajouté
+* **Job CI `code-quality` (GitHub Actions) :** Exécution automatique de Ruff (linting architecture), Bandit (SAST sécurité Python) et Pytest (tests unitaires) avant chaque build Docker.
+* **Scan d'image Trivy :** Intégration de `aquasecurity/trivy-action` dans la pipeline. Tout déploiement est bloqué si une vulnérabilité de niveau `HIGH` ou `CRITICAL` est détectée dans l'image Docker.
+* **Configuration Ruff (`.ruff.toml`) :** Règles de linting strictes (PEP8, variables inutilisées, imports non triés) pour garantir un code professionnel et maintenable.
+* **Suite de tests unitaires (`tests/`) :** Création du dossier `tests/` avec les premiers tests Pytest pour `nlp_processor.py` (lemmatisation, ontologie) et `database.py` (connexion, schéma, TSQuery) via des mocks.
+* **Correction Docker Buildx :** Résolution de l'erreur `Cache export is not supported for the docker driver` en ajoutant `docker/setup-buildx-action@v3`.
+
+#### Modifié
+* **`.github/workflows/deploy.yml` :** Ajout des jobs `code-quality` (prérequis au build) et du scan Trivy entre la construction locale et la publication sur GHCR.
+
+---
+
+## [1.3.0] - 2026-06-13
+### Moteur de Veille OSINT & Connecteurs Spécialisés
+
+#### Ajouté
+* **Issues OSINT (37-41) :** Création des issues GitHub pour le chantier OSINT (jalon v1.5.0) : SearXNG Docker, générateur de dorks Python, indexation PDF hors-GitHub, architecture en plugins pour les connecteurs spécialisés.
+* **Jalon v1.5.0 :** Création du milestone `v1.5.0 - Veille OSINT & Google Dorking` sur GitHub.
+
+---
+
 ## [1.1.0] - 2026-06-13
 ### Recherche Sémantique & Moteur de Scoring IA 🧠
 

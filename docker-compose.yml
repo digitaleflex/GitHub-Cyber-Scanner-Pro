@@ -1,38 +1,60 @@
 version: '3.8'
 
 services:
-  db:
-    image: pgvector/pgvector:pg16
-    container_name: cyber_db
+  # 1. Base relationnelle pour vos utilisateurs et métadonnées
+  cyber-db:
+    image: postgres:15-alpine
+    container_name: cyber_meta_db
     restart: always
     environment:
       POSTGRES_DB: scanner_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD:-cyberpass}
-    ports:
-      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
-  scanner:
+  # 2. Base vectorielle ultra-rapide pour l'IA multilingue (Gratuit)
+  cyber-vector-engine:
+    image: qdrant/qdrant:latest
+    container_name: cyber_qdrant_engine
+    restart: always
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  # 3. L'aspirateur OSINT global : Remplace toutes les APIs Google/Bing
+  searxng:
+    image: searxng/searxng:latest
+    container_name: cyber_osint_search
+    restart: always
+    volumes:
+      - ./searxng:/etc/searxng
+    ports:
+      - "8080:8080"
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8080/
+      - SEARXNG_SECRET=${SEARXNG_SECRET:-cyber_secret_default_key}
+
+  # 4. Votre script Python (Scanner GitHub de masse + Analyseur NLP local + Trivy)
+  cyber-scanner:
     build: .
     container_name: cyber_github_scanner
     restart: always
-    depends_on:
-      - db
     env_file:
       - .env
-    volumes:
-      - ./data:/app/data
-    ports:
-      - "8000:8000"
     environment:
-      - DB_HOST=db
+      - DB_HOST=cyber-db
       - DB_PORT=5432
       - DB_NAME=scanner_db
       - DB_USER=postgres
       - DB_PASSWORD=${DB_PASSWORD:-cyberpass}
-      - SCAN_INTERVAL_SECONDS=3600
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Permet de lancer Trivy/Semgrep localement
+      - ./data:/app/data
+    depends_on:
+      - cyber-db
+      - cyber-vector-engine
+      - searxng
 
 volumes:
-  pgdata:
+  postgres_data:
+  qdrant_data:

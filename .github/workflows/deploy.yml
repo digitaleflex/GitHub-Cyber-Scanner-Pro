@@ -10,7 +10,36 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: 2. Configuration de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 3. Installation des dépendances de test
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff bandit pytest pytest-asyncio
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m spacy download en_core_web_sm
+          python -m spacy download fr_core_news_sm
+
+      - name: 4. Analyse syntaxique et architecture (Ruff)
+        run: ruff check .
+
+      - name: 5. Analyse de sécurité statique (Bandit)
+        run: bandit -r src/
+
+      - name: 6. Exécution des tests unitaires (Pytest)
+        run: pytest tests/
+
   build-and-push:
+    needs: code-quality
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.meta.outputs.version }}
@@ -41,7 +70,26 @@ jobs:
             type=sha,format=short
             type=raw,value=latest
 
-      - name: 4. Construction et Publication de l'image Docker (Build & Push)
+      - name: 4. Construction de l'image Docker locale
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true # Charge l'image localement pour le scan Trivy
+          tags: local-test-image:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 5. Scan de Vulnérabilités de l'Image (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'local-test-image:latest'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: 6. Publication de l'image Docker (Push)
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -55,7 +103,7 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: 5. Connexion SSH au serveur et déploiement à chaud
+      - name: 7. Connexion SSH au serveur et déploiement à chaud
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
