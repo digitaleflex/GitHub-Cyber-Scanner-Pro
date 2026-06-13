@@ -1019,6 +1019,44 @@
             }
         }
 
+        async function fetchResources() {
+            try {
+                const res = await fetch('/api/resources');
+                allResources = await res.json();
+                renderResources();
+            } catch (err) {
+                console.error("Erreur ressources OSINT:", err);
+            }
+        }
+
+        function renderResources() {
+            const tbody = document.getElementById('osint-table-body');
+            tbody.innerHTML = '';
+            
+            if (allResources.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Aucune donnée OSINT synchronisée pour le moment.</td></tr>';
+                return;
+            }
+
+            allResources.forEach(res => {
+                const tr = document.createElement('tr');
+                
+                // Détecter la classe CSS pour la source
+                let sourceBadgeClass = 'lang-badge';
+                if (res.source_name === 'Exploit-DB') sourceBadgeClass = 'stars-badge';
+                else if (res.source_name === 'CISA-KEV') sourceBadgeClass = 'security-badge security-critique';
+
+                tr.innerHTML = `
+                    <td><span class="${sourceBadgeClass}" style="font-size: 0.75rem;">${res.source_name}</span></td>
+                    <td style="font-weight: 600;">${res.external_id ? `<span style="color: #6366f1;">[${res.external_id}]</span> ` : ''}${escapeHTML(res.title)}</td>
+                    <td><span class="type-badge type-hardening" style="background: rgba(99, 102, 241, 0.05);">${res.type_ressource || 'Général'}</span></td>
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${new Date(res.discovered_at).toLocaleDateString('fr-FR')}</td>
+                    <td><a href="${res.url}" target="_blank" class="book-url-btn">Consulter</a></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
         let searchTimeout = null;
 
         function filterTables() {

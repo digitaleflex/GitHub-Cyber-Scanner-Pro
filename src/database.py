@@ -248,7 +248,7 @@ def init_db():
     logging.info("⚙️ [Base de données] Tables PostgreSQL (V2 Multi-sources) initialisées.")
 
 
-    def save_resource(source_name, item_data):
+def save_resource(source_name, item_data):
     """Enregistre une ressource provenant d'un connecteur externe."""
     try:
         conn = get_db_connection()
@@ -565,6 +565,29 @@ def get_repos_needing_summary(limit=10):
         return [dict(r) for r in rows]
     except Exception as e:
         logging.error(f"❌ Erreur get_repos_needing_summary: {e}")
+        return []
+
+def get_all_resources(limit=100):
+    """Récupère les ressources multi-sources (Exploits, NIST, arXiv, etc.)."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            """
+            SELECT r.id, s.name as source_name, r.external_id, r.title, r.description, r.url, r.type_ressource, r.language, r.discovered_at
+            FROM resources r
+            JOIN sources s ON r.source_id = s.id
+            ORDER BY r.discovered_at DESC
+            LIMIT %s
+            """,
+            (limit,)
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return [dict(r) for r in rows]
+    except Exception as e:
+        logging.error(f"❌ Erreur get_all_resources: {e}")
         return []
 
 def get_repositories():

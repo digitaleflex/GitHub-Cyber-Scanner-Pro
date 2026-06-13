@@ -16,6 +16,9 @@ from fastapi.responses import FileResponse, HTMLResponse
 # Importer nos modules sémantiques et de base de données
 import database
 import nlp_processor
+import security_analyzer
+import llm_summarizer
+import orchestrator
 
 # Reconfigurer la sortie standard en UTF-8 sur Windows pour supporter l'affichage d'emojis
 if sys.platform == "win32":
@@ -755,6 +758,12 @@ def get_repositories_api():
     return database.get_repositories()
 
 
+@app.get("/api/resources")
+def get_resources_api():
+    """Renvoie la liste des ressources multi-sources (OSINT)."""
+    return database.get_all_resources()
+
+
 @app.get("/api/books")
 def get_books_api(q: str = None):
     """
@@ -895,6 +904,9 @@ if __name__ == "__main__":
 
     llm_thread = threading.Thread(target=run_llm_summary_daemon, daemon=True)
     llm_thread.start()
+
+    orchestrator_thread = threading.Thread(target=orchestrator.run_orchestrator_daemon, daemon=True)
+    orchestrator_thread.start()
 
     # 4. Lancer le serveur web
     import uvicorn
