@@ -22,6 +22,8 @@ ignore = [
     "I001", # unsorted imports
     "E741", # ambiguous variable name
     "F401", # unused import
+    "UP035", # deprecated typing.List
+    "UP045", # deprecated Optional/Union
 ]
 
 [format]
