@@ -725,14 +725,15 @@
             document.getElementById(tabId).classList.add('active');
             currentTab = tabId;
             
+            // Réinitialiser la barre de recherche au changement d'onglet
+            document.getElementById('search-input').value = '';
+            
             // Charger les données fraîches de l'onglet sélectionné
             if (tabId === 'tab-repos') {
                 fetchRepos();
             } else if (tabId === 'tab-books') {
                 fetchBooks();
             }
-            
-            filterTables();
         }
 
         function filterCategory(cat) {
@@ -766,9 +767,13 @@
             }
         }
 
-        async function fetchBooks() {
+        async function fetchBooks(query = null) {
             try {
-                const res = await fetch('/api/books');
+                let url = '/api/books';
+                if (query) {
+                    url += `?q=${encodeURIComponent(query)}`;
+                }
+                const res = await fetch(url);
                 allBooks = await res.json();
                 renderBooks();
             } catch (err) {
@@ -854,22 +859,37 @@
             });
         }
 
+        let searchTimeout = null;
+
         function filterTables() {
-            const val = document.getElementById('search-input').value.toLowerCase();
-            const rows = document.querySelectorAll(currentTab === 'tab-repos' ? '#repos-table-body tr' : '#books-table-body tr');
+            const val = document.getElementById('search-input').value.trim();
             
-            rows.forEach(row => {
-                if (row.cells.length < 2) return; // Sauter les lignes vides/chargement
-                
-                let matches = false;
-                for (let i = 0; i < row.cells.length; i++) {
-                    if (row.cells[i].textContent.toLowerCase().includes(val)) {
-                        matches = true;
-                        break;
+            if (currentTab === 'tab-repos') {
+                // Filtrage local classique pour les dépôts
+                const valLower = val.toLowerCase();
+                const rows = document.querySelectorAll('#repos-table-body tr');
+                rows.forEach(row => {
+                    if (row.cells.length < 2) return;
+                    let matches = false;
+                    for (let i = 0; i < row.cells.length; i++) {
+                        if (row.cells[i].textContent.toLowerCase().includes(valLower)) {
+                            matches = true;
+                            break;
+                        }
                     }
-                }
-                row.style.display = matches ? '' : 'none';
-            });
+                    row.style.display = matches ? '' : 'none';
+                });
+            } else if (currentTab === 'tab-books') {
+                // Recherche sémantique intelligente côté serveur (de-bounce 350ms)
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    if (val.length > 1) {
+                        fetchBooks(val);
+                    } else if (val.length === 0) {
+                        fetchBooks();
+                    }
+                }, 350);
+            }
         }
 
         async function triggerScan() {

@@ -1,10 +1,25 @@
 version: '3.8'
 
 services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: cyber_db
+    restart: always
+    environment:
+      POSTGRES_DB: scanner_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cyberpass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   scanner:
     build: .
     container_name: cyber_github_scanner
     restart: always
+    depends_on:
+      - db
     env_file:
       - .env
     volumes:
@@ -12,4 +27,12 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=scanner_db
+      - DB_USER=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-cyberpass}
       - SCAN_INTERVAL_SECONDS=3600
+
+volumes:
+  pgdata:

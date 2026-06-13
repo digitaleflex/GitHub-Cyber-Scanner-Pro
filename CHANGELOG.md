@@ -4,6 +4,23 @@ Toutes les modifications notables apportées à ce projet seront documentées da
 
 ---
 
+## [1.1.0] - 2026-06-13
+### Recherche Sémantique & Moteur de Scoring IA 🧠
+
+Cette mise à jour majeure intègre des capacités de traitement automatique du langage naturel (NLP) et d'apprentissage profond pour transformer le scanner en moteur de recherche cyber intelligent et révéler les pépites méconnues de la communauté.
+
+#### Ajouté
+* **Analyseur NLP Spacy :** Intégration de Spacy avec modèles bilingues (`en_core_web_sm` / `fr_core_news_sm`) pour la lemmatisation, la détection linguistique et l'extraction sémantique des groupes nominaux.
+* **Embeddings Vectoriels (Sentence-Transformers) :** Génération automatique de vecteurs sémantiques à 384 dimensions via le modèle `all-MiniLM-L6-v2` pour capturer le contexte des descriptions.
+* **Calcul de Score de Qualité (IA) :** Algorithme intelligent (`score_qualite` sur 100) valorisant la densité sémantique, la présence de concepts cyber clés (Active Directory, Buffer Overflow, etc.), le classement logarithmique des stars, tout en appliquant des pénalités sur le spam (crypto, forex).
+* **Base PostgreSQL & pgvector :** Migration de SQLite vers PostgreSQL (image `pgvector/pgvector:pg16`) pour la gestion des données persistantes, avec support des requêtes vectorielles et index GIN sur TSVector pour une recherche plein texte ultra-rapide.
+* **Migration SQLite vers Postgres Rétroactive :** Logique de migration automatique au démarrage avec calcul et backfill à la volée des scores de qualité et des embeddings.
+* **Tri IA dans les Exports :** Inclusion du score de qualité et tri multicritères sémantiques dans les fichiers JSON et Excel générés.
+
+#### Modifié
+* **Recherche temps réel asynchrone :** L'interface utilisateur utilise désormais une recherche sémantique debouncée côté serveur via l'API PostgreSQL.
+* **Dockerfile optimisé :** Compilation optimisée de PyTorch en mode CPU uniquement (réduction de 1.5 Go de l'image Docker) et pré-téléchargement des modèles d'IA à la construction de l'image.
+
 ## [1.0.0] - 2026-06-13
 ### Version Monstre 🚀
 
