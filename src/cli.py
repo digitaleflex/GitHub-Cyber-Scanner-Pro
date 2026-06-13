@@ -16,7 +16,7 @@ console = Console()
 def get_stats():
     """Affiche les statistiques globales."""
     try:
-        res = requests.get(f"{API_URL}/stats")
+        res = requests.get(f"{API_URL}/stats", timeout=10)
         data = res.json()
         
         table = Table(title="📊 Statistiques de la Plateforme", title_style="bold magenta")
@@ -34,7 +34,7 @@ def get_stats():
 def search_repos(query):
     """Recherche des dépôts GitHub."""
     try:
-        res = requests.get(f"{API_URL}/repositories")
+        res = requests.get(f"{API_URL}/repositories", timeout=10)
         repos = res.json()
         
         # Filtrage simple pour la démo CLI
@@ -65,7 +65,7 @@ def search_repos(query):
 def search_intel(query):
     """Recherche dans les ressources OSINT (Exploits, NIST, etc.)."""
     try:
-        res = requests.get(f"{API_URL}/resources")
+        res = requests.get(f"{API_URL}/resources", timeout=10)
         items = res.json()
         
         if query:
@@ -91,7 +91,7 @@ def search_intel(query):
 def show_flash(repo_name):
     """Affiche la fiche flash IA d'un dépôt."""
     try:
-        res = requests.get(f"{API_URL}/repositories")
+        res = requests.get(f"{API_URL}/repositories", timeout=10)
         repos = res.json()
         
         target = next((r for r in repos if repo_name.lower() in r['full_name'].lower()), None)
