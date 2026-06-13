@@ -1,16 +1,17 @@
-import sys
-import os
-import time
 import json
 import logging
+import os
 import re
+import sys
 import threading
+import time
+
 import pandas as pd
 import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, BackgroundTasks
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import BackgroundTasks, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse
 
 # Importer nos modules sémantiques et de base de données
 import database
@@ -123,19 +124,19 @@ def fetch_github_data(query, sort_by="stars"):
             response = requests.get(url, params=params, headers=headers, timeout=15)
             rate_remaining = response.headers.get("X-RateLimit-Remaining")
             rate_reset = response.headers.get("X-RateLimit-Reset")
-            
+
             if response.status_code == 200:
                 new_etag = response.headers.get("ETag")
                 new_last_modified = response.headers.get("Last-Modified")
                 if new_etag or new_last_modified:
                     database.save_etag_to_cache(cache_key, new_etag, new_last_modified)
-                
+
                 return response.json().get("items", []), False
-                
+
             elif response.status_code == 304:
                 logging.info(f"🔄 [Cache 304] Aucun changement détecté pour la recherche : {query} ({sort_by})")
                 return [], False
-                
+
             elif response.status_code == 403:
                 retry_after = response.headers.get("Retry-After")
                 if retry_after:
@@ -156,10 +157,10 @@ def fetch_github_data(query, sort_by="stars"):
                         continue
                     except ValueError:
                         pass
-                
+
                 logging.warning("⚠️ Limite d'appels API atteinte. Prochain cycle.")
                 return [], True
-                
+
             elif response.status_code >= 500:
                 logging.error(
                     f"❌ Erreur serveur GitHub ({response.status_code}). "
@@ -171,7 +172,7 @@ def fetch_github_data(query, sort_by="stars"):
             else:
                 logging.error(f"❌ Erreur API GitHub : {response.status_code} - {response.text}")
                 return [], False
-                
+
         except requests.exceptions.RequestException as e:
             logging.error(
                 f"🔌 Erreur réseau ou de connexion ({e}). "
@@ -179,7 +180,7 @@ def fetch_github_data(query, sort_by="stars"):
             )
             time.sleep(backoff_delay)
             backoff_delay *= 2
-            
+
     logging.error(f"❌ Échec de la récupération après {max_retries} tentatives pour : {query} ({sort_by})")
     return [], False
 
@@ -194,7 +195,7 @@ def fetch_and_parse_readme(repo_id, full_name, repo_description=""):
 
     try:
         res = requests.get(readme_api_url, headers=headers, timeout=15)
-        
+
         if res.status_code == 403:
             rate_reset = res.headers.get("X-RateLimit-Reset")
             retry_after = res.headers.get("Retry-After")
@@ -218,20 +219,20 @@ def fetch_and_parse_readme(repo_id, full_name, repo_description=""):
                 database.mark_repo_as_parsed(repo_id)
                 logging.info(f"ℹ️ Aucun README trouvé pour {full_name} (marqué traité).")
             return False
-            
+
         download_url = res.json().get("download_url")
         if not download_url:
             return False
-            
+
         readme_res = requests.get(download_url, timeout=15)
         if readme_res.status_code != 200:
             return False
-            
+
         readme_content = readme_res.text
-        
+
         # Extraire tous les liens Markdown [Titre](URL)
         links = re.findall(r'\[([^\]\n]+)\]\((https?://[^\)\s]+)\)', readme_content)
-        
+
         extracted_count = 0
         resource_keywords = [
             "book", "guide", "manual", "handbook", "tutorial", "course", "pdf", "epub", "mobi",
@@ -245,12 +246,12 @@ def fetch_and_parse_readme(repo_id, full_name, repo_description=""):
         for title, url in links:
             title = title.strip()
             url = url.strip()
-            
+
             title_lower = title.lower()
             url_lower = url.lower()
-            
+
             is_resource = False
-            
+
             if any(url_lower.endswith(ext) or f"{ext}?" in url_lower or f"{ext}#" in url_lower for ext in book_extensions):
                 is_resource = True
             elif any(domain in url_lower for domain in book_domains):
@@ -259,27 +260,27 @@ def fetch_and_parse_readme(repo_id, full_name, repo_description=""):
                 ignore_keywords = ["twitter.com", "linkedin.com", "facebook.com", "github.com/sponsors", "patreon.com", "paypal.me", "github.com/users/"]
                 if not any(ignore in url_lower for ignore in ignore_keywords):
                     is_resource = True
-            
+
             if is_resource and len(title) > 2 and len(url) < 1000:
                 # 1. Traitement NLP : Nettoyage et lemmatisation avec Spacy
                 # Concaténer le titre et la description du dépôt pour donner du contexte NLP
                 context_text = f"{title} {repo_description}"
                 lemmas = nlp_processor.clean_and_lemmatize(context_text)
-                
+
                 # 2. Catégorisation sémantique
                 category = nlp_processor.categorize_by_semantic_ontology(title, repo_description, lemmas)
-                
+
                 # 3. Détection du type de ressource (IA)
                 type_ressource = nlp_processor.detect_resource_type(title, repo_description, url, category)
-                
+
                 # 4. Sauvegarde dans Postgres avec génération du TSVector
                 saved = database.save_book(repo_id, title, url, category, lemmas, type_ressource)
                 if saved:
                     extracted_count += 1
-                    
+
         # Marquer le dépôt comme traité
         database.mark_repo_as_parsed(repo_id)
-        
+
         if extracted_count > 0:
             logging.info(f"✨ Extrait sémantiquement {extracted_count} livre(s)/ressource(s) depuis {full_name}")
         return True
@@ -293,7 +294,7 @@ def parse_unprocessed_readmes():
     unprocessed = database.get_unprocessed_repositories()
     if not unprocessed:
         return
-        
+
     logging.info(f"📚 Extraction des README en cours pour {len(unprocessed)} dépôt(s)...")
     for repo_id, full_name in unprocessed:
         # Récupérer la description du dépôt pour le contexte sémantique
@@ -303,9 +304,9 @@ def parse_unprocessed_readmes():
         row = cursor.fetchone()
         cursor.close()
         conn.close()
-        
+
         description = row[0] if row else ""
-        
+
         fetch_and_parse_readme(repo_id, full_name, description)
         time.sleep(1.5)
 
@@ -332,31 +333,31 @@ def run_link_validator_daemon():
     """Démon de validation périodique de la validité des liens dans Postgres."""
     logging.info("🚀 Démarrage du démon de validation des liens (Link Checker)...")
     time.sleep(30)
-    
+
     while True:
         try:
             books_to_check = database.get_books_to_verify(50)
-            
+
             if not books_to_check:
                 time.sleep(3600)
                 continue
-                
+
             logging.info(f"🔍 [Link Checker] Vérification de la disponibilité de {len(books_to_check)} liens...")
-            
+
             for book_id, url in books_to_check:
                 status = verify_book_link(url)
-                
+
                 if status is False:
                     logging.warning(f"❌ Lien mort détecté et désactivé : {url}")
                     database.update_book_status(book_id, is_dead=1)
                 else:
                     database.update_book_status(book_id, is_dead=0)
                 time.sleep(3)
-                
+
             # Mettre à jour les exports Excel et JSON
             export_to_excel()
             export_to_json()
-            
+
         except Exception as e:
             logging.error(f"❌ Erreur dans le démon de validation des liens : {e}")
             time.sleep(60)
@@ -367,13 +368,13 @@ def export_to_excel():
     logging.info("📊 Exportation de la base de données PostgreSQL vers Excel...")
     try:
         conn = database.get_db_connection()
-        
+
         # 1. Lire les dépôts avec score_qualite et verdict de sécurité
         df_repos = pd.read_sql_query(
-            "SELECT full_name, stars, description, html_url, language, updated_at, score_qualite, security_verdict FROM repositories", 
+            "SELECT full_name, stars, description, html_url, language, updated_at, score_qualite, security_verdict FROM repositories",
             conn
         )
-        
+
         # 2. Lire les livres avec score_qualite et type_ressource
         df_books = pd.read_sql_query(
             """
@@ -384,11 +385,11 @@ def export_to_excel():
                    b.url, b.score_qualite, r.security_verdict 
             FROM books b 
             LEFT JOIN repositories r ON b.repo_id = r.id
-            """, 
+            """,
             conn
         )
         conn.close()
-        
+
         # Formater les dépôts
         if not df_repos.empty:
             df_repos.columns = [
@@ -398,7 +399,7 @@ def export_to_excel():
             df_repos = df_repos.sort_values(by=["Score Qualité (IA)", "Étoiles (Stars)"], ascending=[False, False])
             for col in df_repos.select_dtypes(include=['object']).columns:
                 df_repos[col] = df_repos[col].astype(str).str.slice(0, 32000)
-                
+
         # Formater les livres
         if not df_books.empty:
             df_books.columns = [
@@ -408,14 +409,14 @@ def export_to_excel():
             df_books = df_books.sort_values(by=["Score Qualité (IA)", "Type de Ressource", "Catégorie", "Titre de la Ressource / Livre"], ascending=[False, True, True, True])
             for col in df_books.select_dtypes(include=['object']).columns:
                 df_books[col] = df_books[col].astype(str).str.slice(0, 32000)
-                
+
         # Sauvegarder Excel
         with pd.ExcelWriter(EXCEL_FILE, engine='openpyxl') as writer:
             if not df_repos.empty:
                 df_repos.to_excel(writer, sheet_name="Dépôts GitHub", index=False)
             if not df_books.empty:
                 df_books.to_excel(writer, sheet_name="Livres & Ressources", index=False)
-                
+
         logging.info(f"💾 Fichier Excel mis à jour avec succès : [{EXCEL_FILE}]")
     except Exception as e:
         logging.error(f"❌ Erreur lors de la génération du fichier Excel : {e}")
@@ -427,11 +428,11 @@ def export_to_json():
     try:
         conn = database.get_db_connection()
         cursor = conn.cursor()
-        
+
         # Récupérer tous les dépôts avec score_qualite et verdict de sécurité
         cursor.execute("SELECT id, full_name, stars, description, html_url, language, updated_at, score_qualite, security_verdict FROM repositories ORDER BY score_qualite DESC, stars DESC")
         repos_rows = cursor.fetchall()
-        
+
         data_dict = {}
         for r in repos_rows:
             repo_id = r[0]
@@ -446,7 +447,7 @@ def export_to_json():
                 "Verdict Sécurité": r[8],
                 "Ressources": []
             }
-            
+
         # Récupérer tous les livres avec score_qualite et type_ressource
         cursor.execute(
             """
@@ -461,7 +462,7 @@ def export_to_json():
         )
         books_rows = cursor.fetchall()
         conn.close()
-        
+
         for b in books_rows:
             repo_id = b[0]
             if repo_id in data_dict:
@@ -473,13 +474,13 @@ def export_to_json():
                     "Lien de Téléchargement": b[5],
                     "Score Qualité (IA)": b[6]
                 })
-                
+
         # Pour trier le dictionnaire par score_qualite des dépôts
         sorted_data = dict(sorted(data_dict.items(), key=lambda item: item[1]["Score Qualité (IA)"], reverse=True))
-                
+
         with open(JSON_FILE, "w", encoding="utf-8") as f:
             json.dump(sorted_data, f, indent=4, ensure_ascii=False)
-            
+
         logging.info(f"💾 Fichier JSON mis à jour avec succès : [{JSON_FILE}]")
     except Exception as e:
         logging.error(f"❌ Erreur lors de la génération du fichier JSON : {e}")
@@ -490,25 +491,25 @@ def migrate_sqlite_to_postgres():
     sqlite_db = "data/scanner.db"
     if not os.path.exists(sqlite_db):
         return
-        
+
     logging.info("📂 Base de données SQLite existante détectée. Lancement de la migration vers PostgreSQL...")
     import sqlite3
     try:
         sqlite_conn = sqlite3.connect(sqlite_db)
         sqlite_conn.row_factory = sqlite3.Row
         sqlite_cursor = sqlite_conn.cursor()
-        
+
         # 1. Lire tous les dépôts de SQLite
         sqlite_cursor.execute("SELECT id, full_name, stars, description, html_url, language, updated_at, readme_parsed FROM repositories")
         repos = [dict(row) for row in sqlite_cursor.fetchall()]
-        
+
         # Construire le corpus pour le TF-IDF
         corpus = [r.get("description", "") for r in repos if r.get("description")]
         analyzer = nlp_processor.CyberTextAnalyzer(corpus)
-        
+
         pg_conn = database.get_db_connection()
         pg_cursor = pg_conn.cursor()
-        
+
         migrated_repos = 0
         for r in repos:
             # Lancer l'analyse d'IA (Embedding, mots-clés et score de pertinence)
@@ -528,10 +529,10 @@ def migrate_sqlite_to_postgres():
             if analysis:
                 score_qualite = analysis["score_qualite"]
                 vector = analysis["vecteur_semantique"]
-            
+
             if not vector:
                 vector = None
-                
+
             pg_cursor.execute(
                 """
                 INSERT INTO repositories (id, full_name, stars, description, html_url, language, updated_at, readme_parsed, score_qualite, vecteur_semantique)
@@ -562,11 +563,11 @@ def migrate_sqlite_to_postgres():
             )
             if pg_cursor.rowcount > 0:
                 migrated_repos += 1
-                
+
         # 2. Migrer les livres de SQLite
         sqlite_cursor.execute("SELECT repo_id, title, url, category, is_dead, last_checked FROM books")
         books = [dict(row) for row in sqlite_cursor.fetchall()]
-        
+
         migrated_books = 0
         for b in books:
             repo_id = str(b["repo_id"])
@@ -575,7 +576,7 @@ def migrate_sqlite_to_postgres():
             category = b["category"]
             is_dead = b["is_dead"]
             last_checked = b["last_checked"]
-            
+
             # Rechercher la description du dépôt et ses données de qualité déjà insérées dans Postgres
             pg_cursor.execute("SELECT description, score_qualite, vecteur_semantique FROM repositories WHERE id = %s", (repo_id,))
             desc_row = pg_cursor.fetchone()
@@ -587,14 +588,14 @@ def migrate_sqlite_to_postgres():
                 description = ""
                 score_qualite = 0
                 vecteur_semantique = None
-            
+
             # Détecter le type de ressource (IA) pour la migration
             type_ressource = nlp_processor.detect_resource_type(title, description, url, category)
-            
+
             lemmas = nlp_processor.clean_and_lemmatize(f"{title} {description}")
             lemmas_str = " ".join(lemmas)
             semantic_text = f"{title} {category if category else ''} {type_ressource} {lemmas_str}"
-            
+
             pg_cursor.execute(
                 """
                 INSERT INTO books (repo_id, title, url, category, is_dead, last_checked, lemmas_str, score_qualite, vecteur_semantique, type_ressource, tsv_content)
@@ -614,12 +615,12 @@ def migrate_sqlite_to_postgres():
             )
             if pg_cursor.rowcount > 0:
                 migrated_books += 1
-                
+
         pg_conn.commit()
         pg_cursor.close()
         pg_conn.close()
         sqlite_conn.close()
-        
+
         # Renommer la base SQLite pour éviter de la réimporter au prochain reboot
         os.rename(sqlite_db, sqlite_db + ".bak")
         logging.info(f"✨ Migration réussie : {migrated_repos} dépôts et {migrated_books} livres importés dans PostgreSQL avec calcul de score et embeddings sémantiques.")
@@ -632,44 +633,44 @@ def scan_cycle():
     logging.info("🔄 Début du cycle de scan sur GitHub...")
     new_discoveries_total = 0
     any_success = False
-    
+
     for query in QUERIES:
         # 1. Recherche par popularité (stars)
         logging.info(f"🔍 Recherche (Popularité) pour : {query}...")
         raw_items_stars, rate_limit_hit = fetch_github_data(query, sort_by="stars")
-        
+
         if rate_limit_hit:
             logging.warning("⚠️ Cycle de scan interrompu en raison d'une limite de quota API non résolue.")
             break
-            
+
         if raw_items_stars:
             any_success = True
             new_discoveries = database.save_repositories(raw_items_stars)
             new_discoveries_total += new_discoveries
-            
+
         time.sleep(2.5)
-        
+
         # 2. Recherche par activité récente (updated) pour découvrir les nouveaux dépôts / pépites
         logging.info(f"🔍 Recherche (Nouveautés récentes) pour : {query}...")
         raw_items_updated, rate_limit_hit = fetch_github_data(query, sort_by="updated")
-        
+
         if rate_limit_hit:
             logging.warning("⚠️ Cycle de scan interrompu en raison d'une limite de quota API non résolue.")
             break
-            
+
         if raw_items_updated:
             any_success = True
             new_discoveries = database.save_repositories(raw_items_updated)
             new_discoveries_total += new_discoveries
-            
+
         time.sleep(2.5)
-        
+
     if any_success:
         if new_discoveries_total > 0:
             logging.info(f"✨ {new_discoveries_total} nouvelle(s) pépite(s) découverte(s) lors de ce cycle !")
         else:
             logging.info("ℹ️ Données existantes synchronisées. Aucun nouveau dépôt.")
-            
+
         parse_unprocessed_readmes()
         export_to_excel()
         export_to_json()
@@ -682,7 +683,7 @@ def run_scan_once_manual():
         if scan_in_progress:
             return
         scan_in_progress = True
-        
+
     try:
         scanner_status = "Scan manuel en cours..."
         logging.info("⚡ Lancement d'un scan manuel...")
@@ -699,10 +700,10 @@ def run_scanner_daemon():
     """Démon de scan périodique."""
     global scanner_status, scan_in_progress
     logging.info("🚀 Démarrage du démon de scan automatique...")
-    
+
     # Attendre que Postgres soit prêt et migré
     time.sleep(15)
-    
+
     while True:
         with scanner_lock:
             if not scan_in_progress:
@@ -710,7 +711,7 @@ def run_scanner_daemon():
             else:
                 time.sleep(60)
                 continue
-                
+
         try:
             scanner_status = "Scan automatique en cours..."
             scan_cycle()
@@ -719,7 +720,7 @@ def run_scanner_daemon():
         finally:
             scanner_status = "Prêt / En sommeil"
             scan_in_progress = False
-            
+
         logging.info(f"💤 En sommeil pour {SCAN_INTERVAL_SECONDS // 60} minutes...")
         time.sleep(SCAN_INTERVAL_SECONDS)
 
@@ -731,7 +732,7 @@ def read_index():
     """Sert l'interface HTML principale."""
     index_path = "templates/index.html"
     if os.path.exists(index_path):
-        with open(index_path, "r", encoding="utf-8") as f:
+        with open(index_path, encoding="utf-8") as f:
             return f.read()
     return "<h1>Erreur : Fichier templates/index.html introuvable.</h1>"
 
@@ -769,8 +770,8 @@ def download_excel():
     export_to_excel()
     if os.path.exists(EXCEL_FILE):
         return FileResponse(
-            EXCEL_FILE, 
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+            EXCEL_FILE,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             filename="cyber_security_catalogues.xlsx"
         )
     return {"error": "Fichier Excel non disponible."}
@@ -782,8 +783,8 @@ def download_json():
     export_to_json()
     if os.path.exists(JSON_FILE):
         return FileResponse(
-            JSON_FILE, 
-            media_type="application/json", 
+            JSON_FILE,
+            media_type="application/json",
             filename="cyber_security_catalogues.json"
         )
     return {"error": "Fichier JSON non disponible."}
@@ -795,7 +796,7 @@ def start_scan(background_tasks: BackgroundTasks):
     global scan_in_progress
     if scan_in_progress:
         return {"message": "Un scan est déjà en cours."}
-    
+
     background_tasks.add_task(run_scan_once_manual)
     return {"message": "Le scan en arrière-plan a été démarré !"}
 
@@ -803,51 +804,17 @@ def start_scan(background_tasks: BackgroundTasks):
 if __name__ == "__main__":
     # 1. Attendre et initialiser la base PostgreSQL
     database.init_db()
-    
+
     # 2. Migrer les anciennes données SQLite (si existantes) vers Postgres
     migrate_sqlite_to_postgres()
-    
+
     # 3. Lancer les démons d'arrière-plan
     daemon_thread = threading.Thread(target=run_scanner_daemon, daemon=True)
     daemon_thread.start()
-    
+
     validator_thread = threading.Thread(target=run_link_validator_daemon, daemon=True)
     validator_thread.start()
 
-    security_thread = threading.Thread(target=run_security_scan_daemon, daemon=True)
-    security_thread.start()
-    
-    # 4. Lancer le serveur web
-    import uvicorn
-    logging.info("🔌 Lancement du serveur Web FastAPI sur le port 8000...")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-ry(repo_url)
-                
-                verdict = results.get("verdict", "ERROR")
-                database.update_repo_security(repo_id, verdict, results)
-                logging.info(f"✅ Verdict pour {repo_name} : {verdict}")
-                
-                time.sleep(5) # Pause entre les scans pour le CPU
-                
-        except Exception as e:
-            logging.error(f"❌ Erreur dans le démon de sécurité : {e}")
-            time.sleep(60)
-
-
-if __name__ == "__main__":
-    # 1. Attendre et initialiser la base PostgreSQL
-    database.init_db()
-    
-    # 2. Migrer les anciennes données SQLite (si existantes) vers Postgres
-    migrate_sqlite_to_postgres()
-    
-    # 3. Lancer les démons d'arrière-plan
-    daemon_thread = threading.Thread(target=run_scanner_daemon, daemon=True)
-    daemon_thread.start()
-    
-    validator_thread = threading.Thread(target=run_link_validator_daemon, daemon=True)
-    validator_thread.start()
-    
     # 4. Lancer le serveur web
     import uvicorn
     logging.info("🔌 Lancement du serveur Web FastAPI sur le port 8000...")

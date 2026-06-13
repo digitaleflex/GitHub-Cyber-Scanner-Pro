@@ -1,9 +1,10 @@
+import json
+import logging
 import os
 import shutil
 import subprocess
-import json
-import logging
 import tempfile
+
 from git import Repo
 
 # Configuration du logging
@@ -12,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 class SecurityAnalyzer:
     def __init__(self, work_dir=None):
         self.work_dir = work_dir if work_dir else tempfile.gettempdir()
-        
+
     def clone_repo(self, repo_url, target_path):
         """Clone le dépôt avec une profondeur de 1 (sans historique)."""
         try:
@@ -31,10 +32,10 @@ class SecurityAnalyzer:
             py_files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if f.endswith('.py')]
             if not py_files:
                 return {"status": "skipped", "reason": "No Python files found"}
-                
+
             cmd = ["bandit", "-r", path, "-f", "json", "-q"]
             result = subprocess.run(cmd, capture_output=True, text=True)
-            
+
             # Bandit retourne 1 si des vulnérabilités sont trouvées, on ignore le code de retour
             try:
                 data = json.loads(result.stdout)
@@ -55,7 +56,7 @@ class SecurityAnalyzer:
             logging.info(f"🛡️ Exécution de Semgrep sur {path}...")
             cmd = ["semgrep", "--config=auto", "--json", path, "--quiet"]
             result = subprocess.run(cmd, capture_output=True, text=True)
-            
+
             try:
                 data = json.loads(result.stdout)
                 return {
@@ -71,23 +72,23 @@ class SecurityAnalyzer:
     def analyze_repository(self, repo_url):
         """Workflow complet d'analyse SAST."""
         temp_path = os.path.join(self.work_dir, f"scan_{os.urandom(4).hex()}")
-        
+
         try:
             if not self.clone_repo(repo_url, temp_path):
                 return {"verdict": "ERROR", "reason": "Cloning failed"}
-            
+
             bandit_res = self.run_bandit(temp_path)
             semgrep_res = self.run_semgrep(temp_path)
-            
+
             # Calcul du verdict
             critical_count = 0
             high_count = 0
-            
+
             # Analyse Bandit
             if bandit_res.get("status") == "success":
                 for issue in bandit_res["results"]:
                     if issue["issue_severity"] == "HIGH": high_count += 1
-                    
+
             # Analyse Semgrep
             if semgrep_res.get("status") == "success":
                 for issue in semgrep_res["results"]:
@@ -102,7 +103,7 @@ class SecurityAnalyzer:
                 verdict = "SUSPECT"
             else:
                 verdict = "SAIN"
-                
+
             return {
                 "verdict": verdict,
                 "stats": {
@@ -112,7 +113,7 @@ class SecurityAnalyzer:
                 "bandit": bandit_res,
                 "semgrep": semgrep_res
             }
-            
+
         finally:
             if os.path.exists(temp_path):
                 # Sous Windows, les fichiers .git sont souvent en lecture seule

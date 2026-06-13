@@ -1,7 +1,8 @@
-import os
 import json
-import requests
+import os
 import time
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,7 +25,7 @@ HEADERS = {
 API_URL = f"https://api.github.com/repos/{REPO}"
 
 def load_backlog():
-    with open("github_issues.json", "r", encoding="utf-8") as f:
+    with open("github_issues.json", encoding="utf-8") as f:
         return json.load(f)
 
 def create_milestone(title, description, due_on):
@@ -68,14 +69,14 @@ def create_issue(title, body, milestone_number, labels):
 
 def main():
     backlog = load_backlog()
-    
+
     print(f"🔍 Début de la synchronisation sur le dépôt : {REPO}")
-    
+
     # 1. Création des Labels
     print("\n--- Étape 1 : Labels ---")
     for label in backlog["labels"]:
         create_label(label["name"], label["color"], label["description"])
-    
+
     # 2. Création des Milestones
     print("\n--- Étape 2 : Milestones ---")
     milestone_map = {}
@@ -83,7 +84,7 @@ def main():
         m_num = create_milestone(m["title"], m["description"], m["due_on"])
         if m_num:
             milestone_map[m["title"]] = m_num
-            
+
     # 3. Création des Issues
     print("\n--- Étape 3 : Issues ---")
     for issue in backlog["issues"]:

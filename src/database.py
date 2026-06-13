@@ -1,8 +1,10 @@
+import logging
 import os
 import time
-import logging
+
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
 import nlp_processor
 
 # Configuration du logging
@@ -44,7 +46,7 @@ def init_db():
     """Initialise les tables PostgreSQL avec pgvector et TSVector pour la recherche sémantique de pointe."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     # 1. Activer l'extension pgvector si disponible
     try:
         cursor.execute("CREATE EXTENSION IF NOT EXISTS vector;")
@@ -73,7 +75,7 @@ def init_db():
             vecteur_semantique vector(384)
         )
     """)
-    
+
     # S'assurer de rajouter les colonnes si elles n'existent pas (migration fluide)
     try:
         cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS security_verdict VARCHAR(20) DEFAULT 'NON_AUDITE';")
@@ -83,7 +85,7 @@ def init_db():
     except Exception as e:
         conn.rollback()
         logging.warning(f"⚠️ Erreur migration colonnes repositories : {e}")
-    
+
     # 3. Table des livres (avec score_qualite, vecteur_semantique et tsvector)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS books (
@@ -102,7 +104,7 @@ def init_db():
             tsv_content tsvector
         )
     """)
-    
+
     # S'assurer de rajouter la colonne si elle n'existe pas (migration fluide)
     try:
         cursor.execute("ALTER TABLE books ADD COLUMN IF NOT EXISTS type_ressource VARCHAR(100) DEFAULT 'Book';")
@@ -110,7 +112,7 @@ def init_db():
     except Exception as e:
         conn.rollback()
         logging.warning(f"⚠️ Impossible d'ajouter la colonne type_ressource : {e}")
-    
+
     # 4. Table de cache ETag
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS etag_cache (
@@ -120,10 +122,10 @@ def init_db():
             last_checked TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    
+
     # 5. Créer l'index GIN sur tsv_content
     cursor.execute("CREATE INDEX IF NOT EXISTS books_tsv_idx ON books USING GIN (tsv_content)")
-    
+
     conn.commit()
     cursor.close()
     conn.close()
@@ -171,43 +173,43 @@ def save_repositories(items):
     """Enregistre les dépôts découverts, calcule leur score de qualité et leur embedding vectoriel sémantique."""
     if not items:
         return 0
-    
+
     # Récupérer toutes les descriptions existantes pour initialiser le corpus TF-IDF
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT description FROM repositories WHERE description IS NOT NULL")
     existing_desc = [r[0] for r in cursor.fetchall()]
-    
+
     # Ajouter les descriptions des nouveaux items au corpus pour calibrage TF-IDF
     new_desc = [item.get("description", "") for item in items if item.get("description")]
     corpus = existing_desc + new_desc
-    
+
     # Instancier l'analyseur sémantique cyber de pointe
     analyzer = nlp_processor.CyberTextAnalyzer(corpus)
-    
+
     new_discoveries = 0
     for item in items:
         repo_id = str(item.get("id"))
-        
+
         # 1. Vérifier si le dépôt est nouveau
         cursor.execute("SELECT 1 FROM repositories WHERE id = %s", (repo_id,))
         exists = cursor.fetchone()
         if not exists:
             new_discoveries += 1
-            
+
         # 2. Lancer l'analyse d'IA (Embedding, mots-clés et score de pertinence)
         analysis = analyzer.process_repository(item)
         score_qualite = 0
         vector = None
-        
+
         if analysis:
             score_qualite = analysis["score_qualite"]
             vector = analysis["vecteur_semantique"]
-            
+
         # S'assurer que le vecteur est None si vide (pour pgvector)
         if not vector:
             vector = None
-            
+
         cursor.execute(
             """
             INSERT INTO repositories (id, full_name, stars, description, html_url, language, updated_at, score_qualite, vecteur_semantique)
@@ -266,7 +268,7 @@ def save_book(repo_id, title, url, category, lemmas_list, type_ressource='Book')
     """
     lemmas_str = " ".join(lemmas_list) if lemmas_list else ""
     semantic_text = f"{title} {category if category else ''} {type_ressource} {lemmas_str}"
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -275,7 +277,7 @@ def save_book(repo_id, title, url, category, lemmas_list, type_ressource='Book')
         row = cursor.fetchone()
         score_qualite = row[0] if row else 0
         vecteur_semantique = row[1] if row else None
-        
+
         cursor.execute(
             """
             INSERT INTO books (repo_id, title, url, category, lemmas_str, score_qualite, vecteur_semantique, type_ressource, tsv_content)
@@ -310,7 +312,7 @@ def get_stats():
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM repositories")
         total_repos = cursor.fetchone()[0]
-        
+
         cursor.execute("SELECT COUNT(*) FROM books WHERE is_dead = 0")
         total_books = cursor.fetchone()[0]
         cursor.close()
@@ -417,7 +419,7 @@ def get_books(search_query=None):
     try:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
+
         if search_query:
             # Recherche sémantique TSVector ordonnée par pertinence textuelle
             cursor.execute(
@@ -441,7 +443,7 @@ def get_books(search_query=None):
                 ORDER BY b.score_qualite DESC, b.discovered_at DESC
                 """
             )
-            
+
         rows = cursor.fetchall()
         cursor.close()
         conn.close()

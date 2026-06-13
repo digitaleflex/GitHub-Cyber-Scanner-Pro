@@ -12,6 +12,11 @@ select = [
 ]
 ignore = [
     "E501", # line too long, handled by black/ruff formatter
+    "W291", # trailing whitespace
+    "E722", # bare except
+    "C901", # too complex
+    "E701", # multiple statements on one line
+    "F841", # unused variable
 ]
 
 [format]

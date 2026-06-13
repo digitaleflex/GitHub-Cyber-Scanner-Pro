@@ -1,6 +1,7 @@
-import os
 import json
 import logging
+import os
+
 import requests
 
 # Configuration du logging
@@ -42,9 +43,9 @@ class LLMSummarizer:
                 "stream": False,
                 "format": "json"
             }
-            
+
             response = requests.post(self.url, json=payload, timeout=60)
-            
+
             if response.status_code == 200:
                 result = response.json()
                 try:
@@ -56,7 +57,7 @@ class LLMSummarizer:
             else:
                 logging.error(f"❌ Erreur Ollama : {response.status_code} - {response.text}")
                 return None
-                
+
         except Exception as e:
             logging.error(f"❌ Échec de la connexion à Ollama : {e}")
             return None

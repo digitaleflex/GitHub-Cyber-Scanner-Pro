@@ -2,6 +2,7 @@ import asyncio
 import os
 import sys
 import time
+
 import aiohttp
 import pandas as pd
 from dotenv import load_dotenv
@@ -32,8 +33,8 @@ GITHUB_TOKENS = [t.strip() for t in TOKENS_RAW.split(",") if t.strip()]
 # Définition des tranches d'étoiles (Slicing) pour contourner la limite des 1000 résultats
 # On affine les tranches là où il y a le plus de micro-projets (entre 0 et 100 stars)
 STAR_SLICES = [
-    "0..2", "3..5", "6..10", "11..20", "21..35", "36..50", 
-    "51..75", "76..100", "101..150", "151..250", "251..500", 
+    "0..2", "3..5", "6..10", "11..20", "21..35", "36..50",
+    "51..75", "76..100", "101..150", "151..250", "251..500",
     "501..1000", "1001..3000", "3001..5000", ">5000"
 ]
 
@@ -55,7 +56,7 @@ class GitHubMassScanner:
         """Télécharge de manière asynchrone une page spécifique d'une tranche d'étoiles."""
         url = "https://api.github.com/search/repositories"
         query = f"{BASE_QUERY} stars:{slice_range}"
-        
+
         params = {
             "q": query,
             "sort": "stars",
@@ -63,12 +64,12 @@ class GitHubMassScanner:
             "per_page": 100,  # Maximum autorisé par page
             "page": page
         }
-        
+
         headers = {
             "Accept": "application/vnd.github.v3+json",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
-        
+
         token = self.get_active_token()
         if token:
             headers["Authorization"] = f"token {token}"
@@ -93,11 +94,11 @@ class GitHubMassScanner:
     async def scan_slice(self, session, slice_range):
         """Scanne les 10 pages autorisées (1000 résultats max) pour une tranche donnée."""
         print(f"🚀 Initialisation du scan pour la tranche d'étoiles : [stars:{slice_range}]")
-        
+
         # On lance les requêtes pour les 10 pages simultanément en arrière-plan
         tasks = [self.fetch_page(session, slice_range, page) for page in range(1, 11)]
         pages_results = await asyncio.gather(*tasks)
-        
+
         slice_count = 0
         for items in pages_results:
             for item in items:
@@ -112,26 +113,26 @@ class GitHubMassScanner:
                         "Dernière Mise à Jour": item.get("updated_at")
                     }
                     slice_count += 1
-        
+
         print(f"✅ Tranche [stars:{slice_range}] terminée : +{slice_count} dépôts uniques ajoutés.")
 
     async def start_mass_harvesting(self):
         """Orchestre le scan de toutes les tranches en parallèle."""
         start_time = time.time()
-        
+
         # Limite le nombre de connexions TCP simultanées pour ne pas saturer la machine
         connector = aiohttp.TCPConnector(limit_per_host=10)
-        
+
         async with aiohttp.ClientSession(connector=connector) as session:
             # Création de la liste de tâches pour chaque tranche d'étoiles
             tasks = [self.scan_slice(session, slice_range) for slice_range in STAR_SLICES]
             # Exécution de l'asynchronisme de masse
             await asyncio.gather(*tasks)
-            
+
         duration = time.time() - start_time
         print(f"\n🎯 Extraction de masse achevée en {duration:.2f} secondes !")
         print(f"📊 Nombre total de ressources uniques en mémoire : {len(self.all_repositories)}")
-        
+
         # Sauvegarde d'urgence au format Excel / Prêt pour insertion en base de données
         if self.all_repositories:
             # Assurer que le dossier local de données de sauvegarde temporaire existe

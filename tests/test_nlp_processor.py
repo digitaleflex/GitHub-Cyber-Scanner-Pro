@@ -1,6 +1,5 @@
-import pytest
-import asyncio
 from src.nlp_processor import NLPProcessor
+
 
 def test_nlp_processor_initialization():
     """Vérifie que le processeur NLP s'initialise correctement et charge le modèle Spacy."""
@@ -15,7 +14,7 @@ def test_lemmatization():
     # Vérifie que "attaques" est lemmatisé en "attaque", "sécurisées" en "sécurisé"
     assert "attaque" in result
     assert "sécuriser" in result or "sécurisé" in result
-    
+
 def test_ontology_classification():
     """Vérifie la classification avec l'ontologie."""
     processor = NLPProcessor(language="fr")

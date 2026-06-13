@@ -1,6 +1,7 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
 from src.database import PostgresDB
+
 
 @patch('src.database.psycopg2.connect')
 def test_database_connection(mock_connect):
@@ -18,13 +19,13 @@ def test_database_schema_creation(mock_connect):
     # Mocking du curseur
     mock_cursor = MagicMock()
     mock_connect.return_value.cursor.return_value = mock_cursor
-    
+
     db.init_schema()
-    
+
     # Vérifie que des requêtes de création ont été exécutées
     assert mock_cursor.execute.call_count > 0
     mock_connect.return_value.commit.assert_called_once()
-    
+
 def test_tsvector_query_formatting():
     """Vérifie que les requêtes TSVector sont bien formatées par la fonction (en mock)."""
     db = PostgresDB()

@@ -57,6 +57,12 @@
       "labels": ["infra", "db"]
     },
     {
+      "title": "Moteur de Scraping Furtif (Anti-Ban & Stealth)",
+      "body": "Remplacer `requests`/`aiohttp` par `curl_cffi` pour usurper l'empreinte TLS (JA3). Intégrer ProxyBroker2 pour la rotation d'IP, Playwright Stealth pour le JS, et un Exponential Backoff strict pour les erreurs 429.",
+      "milestone": "M1: Fondations & Orchestration",
+      "labels": ["infra", "backend"]
+    },
+    {
       "title": "Moteur de Slicing GitHub (Mass Harvesting)",
       "body": "Valider et intégrer le script de slicing par tranches d'étoiles pour indexer au moins 10 000 dépôts cyber uniques.",
       "milestone": "M2: Data Harvester & Usine NLP",
@@ -69,10 +75,28 @@
       "labels": ["feature", "backend"]
     },
     {
+      "title": "Écoute Temps Réel (PyGHArchive & GitDorker)",
+      "body": "Remplacer le polling manuel par une écoute du flux `GH Archive` en temps réel. Intégrer `GitDorker` pour automatiser la recherche des dorks sur GitHub et le Web mondial sans recoder le moteur.",
+      "milestone": "M2: Data Harvester & Usine NLP",
+      "labels": ["feature", "backend"]
+    },
+    {
+      "title": "Agrégation Threat Intel (CISA, CERT-FR, MITRE)",
+      "body": "Créer des tâches Celery (RSS/JSON) pour ingérer quotidiennement le CISA KEV, CERT-FR, MITRE ATT&CK et l'OWASP Top 10 afin d'enrichir l'ontologie de l'IA (mots-clés d'autorité).",
+      "milestone": "M2: Data Harvester & Usine NLP",
+      "labels": ["osint", "ai"]
+    },
+    {
       "title": "Pipeline de Vectorisation Qdrant (IA Sync)",
       "body": "Automatiser la génération des embeddings sémantiques lors de la découverte et leur synchronisation en temps réel avec le moteur Qdrant.",
       "milestone": "M2: Data Harvester & Usine NLP",
       "labels": ["ai", "infra"]
+    },
+    {
+      "title": "Extraction Deep Document (PyMuPDF & Tesseract OCR)",
+      "body": "Mettre en place l'extraction de texte pour les PDF/Livres avec `PyMuPDF` et `pytesseract`. Implémenter le 'Recursive Character Text Splitting' (Chunking 1000 car.) pour l'indexation massive dans Qdrant.",
+      "milestone": "M2: Data Harvester & Usine NLP",
+      "labels": ["ai", "backend"]
     },
     {
       "title": "Dashboard de Monitoring des Workers (Health Check)",
@@ -91,6 +115,18 @@
       "body": "Utiliser SearXNG en local pour automatiser la recherche de rapports PDF techniques et de guides de durcissement sur le web public.",
       "milestone": "M3: Audit Sécurité & Hub OSINT",
       "labels": ["feature", "osint"]
+    },
+    {
+      "title": "Surveillance Active (Certstream & Telegram)",
+      "body": "Intégrer `Certstream` pour détecter les nouveaux noms de domaine cyber via les CT Logs. Utiliser `Telethon` pour écouter et scraper silencieusement les canaux Telegram de fuites (SOCMINT).",
+      "milestone": "M3: Audit Sécurité & Hub OSINT",
+      "labels": ["osint", "feature"]
+    },
+    {
+      "title": "Analyse Binaire & Signatures (YARA & Firmwalker)",
+      "body": "Ajouter le support des règles `YARA` pour identifier les TTPs des acteurs de la menace (APT). Intégrer `Binwalk`/`Firmwalker` pour extraire les secrets des binaires/firmwares uploadés.",
+      "milestone": "M3: Audit Sécurité & Hub OSINT",
+      "labels": ["security", "feature"]
     },
     {
       "title": "Détection de Secrets (Gitleaks Integration)",
