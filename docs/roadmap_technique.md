@@ -147,10 +147,21 @@ Pour offrir un catalogue certifié sain, le moteur doit auditer le code des outi
 3. **Gitleaks** : Chasse aux clés privées, jetons d'API ou mots de passe stockés dans l'historique des commits.
    * *Commande Docker* : `docker run --rm -v /chemin/du/repo:/path zricethezav/gitleaks:latest detect --source=/path --report-format=json`
 
-> [!IMPORTANT]
-> **Configuration Docker-in-Docker (Socket Sharing) :**
-> Pour permettre au script Python d'exécuter ces scanners de manière isolée et éphémère sans alourdir le conteneur du scanner, il suffit d'exposer le socket Docker de la machine hôte au conteneur du scanner :
 > `- /var/run/docker.sock:/var/run/docker.sock` dans les volumes du service `cyber-scanner`.
+
+### ⚙️ Fonctionnement 100 % Local & Séquençage (Sans API Payante)
+
+L'avantage majeur de cette architecture SAST et IA est son autonomie complète. **Aucun service tiers payant n'est requis**, garantissant un coût d'exploitation de 0 € pour le traitement :
+
+1. **Bases de Vulnérabilités Embarquées :**
+   Lorsqu'un conteneur comme Trivy démarre, il télécharge et met en cache localement et gratuitement les bases de données de vulnérabilités publiques (comme la base NVD/CVE). L'analyse se déroule entièrement sur votre propre disque dur.
+2. **Workflow de Scan éphémère (Git Clone à la volée) :**
+   Le développeur doit implémenter la séquence d'analyse suivante dans le script Python :
+   - **Clonage partiel :** Lancer une commande `git clone --depth 1 [URL_DU_REPO] [DOSSIER_TEMP]` pour ne télécharger que la version la plus récente du code, sans historique, minimisant la bande passante et l'espace disque.
+   - **Audit local :** Lancer les scanners de sécurité (Trivy, Semgrep, Gitleaks) sur ce dossier temporaire via Docker et récupérer les rapports au format JSON.
+   - **Nettoyage automatique :** Parser les fichiers JSON pour mettre à jour la base de données, puis supprimer immédiatement le dossier temporaire pour éviter la saturation du disque.
+3. **Modèles d'IA Gratuits et Locaux :**
+   La recherche sémantique vectorielle (Qdrant, SentenceTransformers, Ollama local) s'exécute entièrement sur les ressources physiques (CPU/GPU) de votre propre serveur.
 
 ---
 

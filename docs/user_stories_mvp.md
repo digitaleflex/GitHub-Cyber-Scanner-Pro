@@ -30,6 +30,19 @@ Ce document formalise les exigences fonctionnelles et les critères d'acceptatio
 
 ---
 
+### 👤 US 1.3 : Workflow de clonage ephemere et de nettoyage automatique
+* **En tant que** : Developpeur ou administrateur de la plateforme,
+* **Je souhaite** : Que le code source des depots soit clone de maniere temporaire et sans historique (depth 1), puis supprime directement apres le scan SAST,
+* **Afin de** : Minimiser l'espace disque consomme et la bande passante sur mon serveur tout en garantissant un audit complet et local.
+
+#### 🏁 Criteres d'acceptation :
+- [ ] Le script Python lance la commande `git clone --depth 1 [URL_DU_REPO] [DOSSIER_TEMP]` pour telecharger uniquement le dernier commit.
+- [ ] Les analyses de securite (Trivy, Semgrep, Gitleaks) sont executees en local via Docker sur ce dossier temporaire.
+- [ ] Une fois les rapports JSON charges en base de donnees, le script supprime recursivement le dossier temporaire.
+- [ ] Aucune donnee de code source n'est conservee sur le disque dur apres traitement.
+
+---
+
 ## 🧠 Chantier 2 : Le Générateur Automatique de Fiches de Synthèse (LLM Local)
 
 ### 👤 US 2.1 : Génération de la fiche technique standardisée
