@@ -29,6 +29,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }} # Jeton temporaire généré automatiquement par GitHub
 
+      - name: 2.5. Configuration de Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: 3. Génération des Tags et Métadonnées Docker
         id: meta
         uses: docker/metadata-action@v5
