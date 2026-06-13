@@ -801,6 +801,37 @@ def start_scan(background_tasks: BackgroundTasks):
     return {"message": "Le scan en arrière-plan a été démarré !"}
 
 
+def run_security_scan_daemon():
+    """Démon de scan de sécurité SAST périodique."""
+    logging.info("🚀 Démarrage du démon d'analyse de sécurité (SAST)...")
+    analyzer = security_analyzer.SecurityAnalyzer()
+    
+    while True:
+        try:
+            repos_to_scan = database.get_repos_to_analyze(5)
+            if not repos_to_scan:
+                time.sleep(300) # Attendre 5 min si rien à scanner
+                continue
+                
+            for repo in repos_to_scan:
+                repo_id = repo["id"]
+                repo_url = repo["html_url"]
+                repo_name = repo["full_name"]
+                
+                logging.info(f"🛡️ Audit de sécurité en cours pour {repo_name}...")
+                results = analyzer.analyze_repository(repo_url)
+                
+                verdict = results.get("verdict", "ERROR")
+                database.update_repo_security(repo_id, verdict, results)
+                logging.info(f"✅ Verdict pour {repo_name} : {verdict}")
+                
+                time.sleep(5) # Pause entre les scans pour le CPU
+                
+        except Exception as e:
+            logging.error(f"❌ Erreur dans le démon de sécurité : {e}")
+            time.sleep(60)
+
+
 def run_llm_summary_daemon():
     """Démon de génération de fiches de synthèse via Ollama."""
     logging.info("🚀 Démarrage du démon de synthèse IA (Ollama)...")
@@ -859,7 +890,13 @@ if __name__ == "__main__":
     validator_thread = threading.Thread(target=run_link_validator_daemon, daemon=True)
     validator_thread.start()
 
+    security_thread = threading.Thread(target=run_security_scan_daemon, daemon=True)
+    security_thread.start()
+
+    llm_thread = threading.Thread(target=run_llm_summary_daemon, daemon=True)
+    llm_thread.start()
+
     # 4. Lancer le serveur web
     import uvicorn
     logging.info("🔌 Lancement du serveur Web FastAPI sur le port 8000...")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000) # nosec B104

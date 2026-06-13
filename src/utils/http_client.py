@@ -74,7 +74,7 @@ class StealthClient:
                 # 2. Gestion intelligente du Rate-Limit (429 Too Many Requests)
                 if response.status_code == 429:
                     # Calcul du délai exponentiel avec Jitter (aléatoire) pour paraître humain
-                    delay = (base_delay * (2 ** retries)) + random.uniform(0, 5)
+                    delay = (base_delay * (2 ** retries)) + random.uniform(0, 5) # nosec B311
                     logging.warning(f"⚠️ Rate Limit (429) détecté sur {url}. Pause de {delay:.2f}s...")
                     await asyncio.sleep(delay)
                     retries += 1

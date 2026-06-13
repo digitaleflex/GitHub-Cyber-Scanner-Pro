@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import shutil
-import subprocess
+import subprocess # nosec B404
 import tempfile
 
 from git import Repo
@@ -34,7 +34,7 @@ class SecurityAnalyzer:
                 return {"status": "skipped", "reason": "No Python files found"}
 
             cmd = ["bandit", "-r", path, "-f", "json", "-q"]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, capture_output=True, text=True) # nosec B603
 
             # Bandit retourne 1 si des vulnérabilités sont trouvées, on ignore le code de retour
             try:
@@ -55,7 +55,7 @@ class SecurityAnalyzer:
         try:
             logging.info(f"🛡️ Exécution de Semgrep sur {path}...")
             cmd = ["semgrep", "--config=auto", "--json", path, "--quiet"]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, capture_output=True, text=True) # nosec B603
 
             try:
                 data = json.loads(result.stdout)

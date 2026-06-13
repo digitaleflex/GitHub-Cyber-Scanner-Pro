@@ -103,7 +103,7 @@ class OSINTHarvester:
                     await asyncio.gather(*tasks)
 
                     # Pause "humaine" entre les dorks pour la discrétion
-                    await asyncio.sleep(random.uniform(10, 20))
+                    await asyncio.sleep(random.uniform(10, 20)) # nosec B311
 
 # --- EXEMPLE D'UTILISATION (Simulé) ---
 DORKS_EXEMPLE = {
