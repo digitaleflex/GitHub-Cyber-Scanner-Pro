@@ -67,9 +67,22 @@ def init_db():
             readme_parsed INTEGER DEFAULT 0,
             discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             score_qualite INTEGER DEFAULT 0,
+            security_verdict VARCHAR(20) DEFAULT 'NON_AUDITE',
+            security_details JSONB,
+            llm_summary JSONB,
             vecteur_semantique vector(384)
         )
     """)
+    
+    # S'assurer de rajouter les colonnes si elles n'existent pas (migration fluide)
+    try:
+        cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS security_verdict VARCHAR(20) DEFAULT 'NON_AUDITE';")
+        cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS security_details JSONB;")
+        cursor.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS llm_summary JSONB;")
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        logging.warning(f"⚠️ Erreur migration colonnes repositories : {e}")
     
     # 3. Table des livres (avec score_qualite, vecteur_semantique et tsvector)
     cursor.execute("""
@@ -341,6 +354,40 @@ def get_repos_to_analyze(limit=10):
         logging.error(f"❌ Erreur get_repos_to_analyze: {e}")
         return []
 
+def update_repo_llm_summary(repo_id, summary_json):
+    """Enregistre la fiche de synthèse générée par le LLM."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE repositories SET llm_summary = %s WHERE id = %s",
+            (psycopg2.extras.Json(summary_json), repo_id)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        logging.error(f"❌ Erreur update_repo_llm_summary: {e}")
+        return False
+
+def get_repos_needing_summary(limit=10):
+    """Récupère les dépôts qui n'ont pas encore de fiche de synthèse."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            "SELECT id, full_name, description FROM repositories WHERE llm_summary IS NULL LIMIT %s",
+            (limit,)
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return [dict(r) for r in rows]
+    except Exception as e:
+        logging.error(f"❌ Erreur get_repos_needing_summary: {e}")
+        return []
+
 def get_repositories():
     """Renvoie les dépôts triés par score de qualité (IA) puis par étoiles."""
     try:
@@ -348,7 +395,7 @@ def get_repositories():
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(
             """
-            SELECT id, full_name, stars, description, html_url, language, updated_at, score_qualite, security_verdict, security_details
+            SELECT id, full_name, stars, description, html_url, language, updated_at, score_qualite, security_verdict, security_details, llm_summary
             FROM repositories 
             ORDER BY score_qualite DESC, stars DESC
             """

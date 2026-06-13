@@ -1,0 +1,132 @@
+{
+  "milestones": [
+    {
+      "title": "M1: Fondations & Orchestration",
+      "description": "Mise en place de l'infrastructure de base (Docker, Celery, Auth) pour transformer les scripts en SaaS.",
+      "due_on": "2026-07-01T23:59:59Z"
+    },
+    {
+      "title": "M2: Data Harvester & Usine NLP",
+      "description": "Indexation de masse (10k+) avec enrichissement sémantique multilingue local.",
+      "due_on": "2026-07-15T23:59:59Z"
+    },
+    {
+      "title": "M3: Audit Sécurité & Hub OSINT",
+      "description": "Ajout des capacités d'audit technique (SAST) et de recherche OSINT automatisée.",
+      "due_on": "2026-08-01T23:59:59Z"
+    },
+    {
+      "title": "M4: Portail SaaS & Beta",
+      "description": "Livraison de l'interface TanStack Start finale et déploiement Beta.",
+      "due_on": "2026-08-15T23:59:59Z"
+    }
+  ],
+  "labels": [
+    {"name": "infra", "color": "0052cc", "description": "Infrastructure et Docker"},
+    {"name": "backend", "color": "006b75", "description": "Logique serveur et API"},
+    {"name": "frontend", "color": "fbca04", "description": "Interface utilisateur"},
+    {"name": "security", "color": "d93f0b", "description": "Audit et vulnérabilités"},
+    {"name": "ai", "color": "5319e7", "description": "NLP et Intelligence Artificielle"},
+    {"name": "feature", "color": "a2eeef", "description": "Nouvelle fonctionnalité"},
+    {"name": "osint", "color": "bfd4f2", "description": "Recherche de sources ouvertes"},
+    {"name": "docs", "color": "0075ca", "description": "Documentation"}
+  ],
+  "issues": [
+    {
+      "title": "Migration vers Celery & Redis (Background Tasks)",
+      "body": "Transformer les scripts isolés (`mass_async_scanner.py`, `security_analyzer.py`) en tâches Celery distribuées pour permettre un traitement asynchrone sans bloquer l'API.",
+      "milestone": "M1: Fondations & Orchestration",
+      "labels": ["infra", "backend"]
+    },
+    {
+      "title": "Initialisation Docker-Compose Final (Sovereign Stack)",
+      "body": "Créer le fichier d'orchestration global incluant Postgres (pgvector), Redis, Qdrant, FastAPI, SearXNG et les workers Celery.",
+      "milestone": "M1: Fondations & Orchestration",
+      "labels": ["infra", "devops"]
+    },
+    {
+      "title": "API d'Authentification Souveraine (JWT Local)",
+      "body": "Implémenter une gestion des utilisateurs locale sécurisée (login, inscription, tokens JWT) sans dépendance cloud tiers.",
+      "milestone": "M1: Fondations & Orchestration",
+      "labels": ["security", "backend"]
+    },
+    {
+      "title": "Schéma DB & Migrations (pgvector Optimization)",
+      "body": "Finaliser le schéma PostgreSQL dans `database.py` et ajouter les index HNSW pour accélérer les recherches vectorielles sur 10k+ entrées.",
+      "milestone": "M1: Fondations & Orchestration",
+      "labels": ["infra", "db"]
+    },
+    {
+      "title": "Moteur de Slicing GitHub (Mass Harvesting)",
+      "body": "Valider et intégrer le script de slicing par tranches d'étoiles pour indexer au moins 10 000 dépôts cyber uniques.",
+      "milestone": "M2: Data Harvester & Usine NLP",
+      "labels": ["ai", "backend"]
+    },
+    {
+      "title": "Connecteur GitLab & Codeberg (Multi-Sources)",
+      "body": "Développer les adaptateurs pour aspirer les dépôts depuis GitLab API et Codeberg (Forgejo) afin de diversifier les sources cyber.",
+      "milestone": "M2: Data Harvester & Usine NLP",
+      "labels": ["feature", "backend"]
+    },
+    {
+      "title": "Pipeline de Vectorisation Qdrant (IA Sync)",
+      "body": "Automatiser la génération des embeddings sémantiques lors de la découverte et leur synchronisation en temps réel avec le moteur Qdrant.",
+      "milestone": "M2: Data Harvester & Usine NLP",
+      "labels": ["ai", "infra"]
+    },
+    {
+      "title": "Dashboard de Monitoring des Workers (Health Check)",
+      "body": "Interface visuelle pour surveiller l'état des workers Celery, les files d'attente Redis et les éventuelles erreurs de scan.",
+      "milestone": "M2: Data Harvester & Usine NLP",
+      "labels": ["frontend", "ops"]
+    },
+    {
+      "title": "Intégration Trivy & Semgrep (Automated SAST)",
+      "body": "Intégrer les outils de scan de sécurité statique pour auditer automatiquement chaque nouveau projet découvert.",
+      "milestone": "M3: Audit Sécurité & Hub OSINT",
+      "labels": ["security", "backend"]
+    },
+    {
+      "title": "Moteur de Dorking OSINT (SearXNG Automator)",
+      "body": "Utiliser SearXNG en local pour automatiser la recherche de rapports PDF techniques et de guides de durcissement sur le web public.",
+      "milestone": "M3: Audit Sécurité & Hub OSINT",
+      "labels": ["feature", "osint"]
+    },
+    {
+      "title": "Détection de Secrets (Gitleaks Integration)",
+      "body": "Scanner les dépôts clonés pour détecter les fuites de secrets (clés API, credentials) avant indexation.",
+      "milestone": "M3: Audit Sécurité & Hub OSINT",
+      "labels": ["security", "feature"]
+    },
+    {
+      "title": "Système d'Alertes 'Pépites' (Webhooks)",
+      "body": "Mécanisme de notification automatique quand un projet dépasse un score de qualité sémantique de 90.",
+      "milestone": "M3: Audit Sécurité & Hub OSINT",
+      "labels": ["feature", "backend"]
+    },
+    {
+      "title": "UI de Recherche Sémantique (TanStack Start)",
+      "body": "Développer le portail de recherche moderne en langage naturel avec TanStack Start et pnpm.",
+      "milestone": "M4: Portail SaaS & Beta",
+      "labels": ["frontend", "ux"]
+    },
+    {
+      "title": "Vue Détails & Rapports CVE (Interactive UI)",
+      "body": "Interface détaillée par projet affichant les fiches IA, les badges CVE et l'historique des vulnérabilités.",
+      "milestone": "M4: Portail SaaS & Beta",
+      "labels": ["frontend", "security"]
+    },
+    {
+      "title": "Module d'Export PDF Pro (Reporting Tool)",
+      "body": "Outil de génération de rapports de veille cyber PDF personnalisables pour les clients finaux.",
+      "milestone": "M4: Portail SaaS & Beta",
+      "labels": ["feature", "frontend"]
+    },
+    {
+      "title": "Documentation Utilisateur & Onboarding",
+      "body": "Rédiger le manuel de déploiement souverain et le guide d'utilisation de la plateforme.",
+      "milestone": "M4: Portail SaaS & Beta",
+      "labels": ["docs"]
+    }
+  ]
+}
