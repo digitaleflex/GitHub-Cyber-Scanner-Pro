@@ -24,7 +24,7 @@ class OSINTHarvester:
         try:
             database.init_db()
         except Exception:
-            pass
+            logging.debug("Init failed safely")
 
     async def process_url(self, client, url, title, repo_id="OSINT_DISCOVERY"):
         """

@@ -862,7 +862,7 @@ def run_llm_summary_daemon():
                     if res.status_code == 200:
                         readme_text = res.text
                 except Exception:
-                    pass
+                    logging.debug("Readme fetch failed safely")
                 
                 summary = summarizer.generate_summary(readme_text, description)
                 if summary:
