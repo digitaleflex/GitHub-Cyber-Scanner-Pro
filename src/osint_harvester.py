@@ -26,21 +26,48 @@ class OSINTHarvester:
         except Exception:
             logging.debug("Init failed safely")
 
+    def extract_text_from_pdf(self, pdf_content):
+        """Extrait le texte d'un PDF à partir de son contenu binaire (via PyMuPDF)."""
+        import fitz
+        try:
+            doc = fitz.open(stream=pdf_content, filetype="pdf")
+            text = ""
+            # On extrait les 5 premières pages pour éviter les documents trop lourds
+            for page in doc[:5]:
+                text += page.get_text()
+            doc.close()
+            return text
+        except Exception as e:
+            logging.error(f"❌ Erreur lors de l'extraction PDF : {e}")
+            return ""
+
     async def process_url(self, client, url, title, repo_id="OSINT_DISCOVERY"):
         """
-        Traite une URL unique trouvée via un Dork : Scrape, Analyse, Score et Sauvegarde.
+        Traite une URL unique trouvée via un Dork : Scrape (PDF ou HTML), Analyse, Score et Sauvegarde.
         """
         try:
-            # 1. Scraping Furtif du contenu (On limite à 2000 caractères pour l'analyse sémantique)
-            response = await client.get(url, timeout=15)
+            # 1. Scraping Furtif du contenu
+            response = await client.get(url, timeout=20)
             if not response or response.status_code != 200:
                 return False
 
-            content = response.text[:2000] if response.text else ""
+            # Gestion différenciée selon le type de fichier
+            if url.lower().endswith(".pdf") or "application/pdf" in response.headers.get("Content-Type", ""):
+                content = self.extract_text_from_pdf(response.content)
+                is_pdf = True
+            else:
+                content = response.text
+                is_pdf = False
+
+            if not content or len(content.strip()) < 100:
+                return False
+
+            # On limite à 4000 caractères pour l'analyse sémantique
+            content_sample = content[:4000]
 
             # 2. Analyse Sémantique & Scoring IA
             analysis = self.analyzer.process_repository({
-                "description": content,
+                "description": content_sample,
                 "full_name": title,
                 "stars": 50 # On simule une autorité moyenne pour les découvertes web
             })
@@ -51,24 +78,29 @@ class OSINTHarvester:
                 return False
 
             # 4. Catégorisation & Typage
-            lemmas = clean_and_lemmatize(content)
-            category = categorize_by_semantic_ontology(title, content, lemmas)
-            resource_type = detect_resource_type(title, content, url, category)
+            lemmas = clean_and_lemmatize(content_sample)
+            category = categorize_by_semantic_ontology(title, content_sample, lemmas)
+            resource_type = "Livre PDF" if is_pdf else detect_resource_type(title, content_sample, url, category)
 
-            # 5. Sauvegarde en Base de Données
-            # Note : repo_id est factice pour les découvertes OSINT pures
-            success = database.save_book(
-                repo_id=repo_id,
-                title=title,
-                url=url,
-                category=category,
-                lemmas_list=lemmas,
-                type_ressource=resource_type
-            )
+            # 5. Sauvegarde en Base de Données (Postgres + Qdrant via task_nlp_analysis)
+            # On utilise task_nlp_analysis pour s'assurer que les vecteurs vont dans Qdrant
+            from src.tasks import task_nlp_analysis
+            
+            repo_data = {
+                "full_name": title,
+                "description": content_sample,
+                "html_url": url,
+                "stargazers_count": 50,
+                "language": "PDF" if is_pdf else "HTML",
+                "category": category,
+                "type_ressource": resource_type
+            }
+            
+            # On lance l'analyse NLP asynchrone qui va tout sauvegarder
+            task_nlp_analysis.delay(repo_data)
 
-            if success:
-                logging.info(f"💎 Pépite enregistrée [{analysis['score_qualite']}/100] : {title} ({resource_type})")
-            return success
+            logging.info(f"💎 Pépite envoyée au pipeline IA [{analysis['score_qualite']}/100] : {title} ({resource_type})")
+            return True
 
         except Exception as e:
             logging.error(f"❌ Erreur lors du traitement de l'URL {url} : {e}")

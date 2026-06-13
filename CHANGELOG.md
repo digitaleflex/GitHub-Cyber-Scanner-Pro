@@ -4,9 +4,27 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 ---
 
-## [1.5.0] - 2026-06-13
-### 🚀 Architecture Distribuée & Gouvernance GitHub (Prêt pour Production)
-Cette version marque la fin de la phase de conception technique. L'infrastructure est désormais prête pour le lancement du Sprint 1 (Ingestion de masse).
+## [1.6.0] - 2026-06-13
+### 🚀 Plateforme Cyber Intelligence Pro : Sécurité & OSINT Massive
+Cette version majeure transforme le scanner en une plateforme complète d'intelligence cyber souveraine.
+
+#### 🛡️ Sécurité & Confiance (Chantier 1)
+*   **Pipeline SAST Automatisé** : Intégration de Bandit et Semgrep pour scanner les dépôts clonés.
+*   **Verdict de Sécurité** : Ajout d'une analyse automatique (SAIN/SUSPECT/CRITIQUE) stockée en base.
+*   **Dashboard Visual** : Badges de sécurité en temps réel sur l'interface web.
+
+#### 🤖 Intelligence Artificielle (Chantier 2)
+*   **Ollama local** : Intégration complète d'un LLM souverain.
+*   **Fiches Flash IA** : Génération automatique de résumés (Objectif/Prérequis/Commande) pour chaque outil découvert.
+
+#### 🌐 Intelligence OSINT Massive (20 Connecteurs)
+*   **20 Connecteurs stratégiques** : Connexion aux sources mondiales (arXiv, NIST, Exploit-DB, CISA KEV, Malpedia, etc.).
+*   **Grand Orchestrateur** : Démon asynchrone qui synchronise toutes les sources et les centralise dans une nouvelle structure de données universelle.
+
+#### 🛠️ Usability & DevOps
+*   **Interface CLI** : Nouvel outil `cyber` pour piloter la plateforme en ligne de commande.
+*   **One-Click Launch** : Scripts `run_platform.bat` et `run_platform.sh` pour un démarrage instantané.
+*   **Architecture Distribuée** : Support Docker-in-Docker pour des audits isolés.
 
 #### 🏗️ Architecture & Infrastructure
 *   **Migration Docker Compose V2** : Renommage de `docker-compose.yml` en `compose.yml` selon les derniers standards.

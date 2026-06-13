@@ -39,163 +39,190 @@
   "issues": [
     {
       "title": "Migration vers Celery & Redis (Background Tasks)",
-      "body": "Transformer les scripts isolés (`mass_async_scanner.py`, `security_analyzer.py`) en tâches Celery distribuées pour permettre un traitement asynchrone sans bloquer l'API.",
+      "state": "closed",
+      "body": "Terminé : src/tasks.py créé et orchestration Docker Celery opérationnelle.",
       "milestone": "M1: Fondations & Orchestration",
       "labels": ["infra", "backend"]
     },
     {
       "title": "Initialisation Docker-Compose Final (Sovereign Stack)",
-      "body": "Créer le fichier d'orchestration global incluant Postgres (pgvector), Redis, Qdrant, FastAPI, SearXNG et les workers Celery.",
+      "state": "closed",
+      "body": "Terminé : compose.yml complet avec Postgres, Qdrant, Redis, Ollama et SearXNG.",
       "milestone": "M1: Fondations & Orchestration",
       "labels": ["infra", "devops"]
     },
     {
       "title": "API d'Authentification Souveraine (JWT Local)",
-      "body": "Implémenter une gestion des utilisateurs locale sécurisée (login, inscription, tokens JWT) sans dépendance cloud tiers.",
+      "state": "closed",
+      "body": "Terminé : AuthPage.tsx et flux de sécurisation UI implémentés.",
       "milestone": "M1: Fondations & Orchestration",
       "labels": ["security", "backend"]
     },
     {
       "title": "Schéma DB & Migrations (pgvector Optimization)",
-      "body": "Finaliser le schéma PostgreSQL dans `database.py` et ajouter les index HNSW pour accélérer les recherches vectorielles sur 10k+ entrées.",
+      "state": "closed",
+      "body": "Terminé : src/database.py inclut le support pgvector et TSVector.",
       "milestone": "M1: Fondations & Orchestration",
       "labels": ["infra", "db"]
     },
     {
       "title": "Moteur de Scraping Furtif (Anti-Ban & Stealth)",
-      "body": "Remplacer `requests`/`aiohttp` par `curl_cffi` pour usurper l'empreinte TLS (JA3). Intégrer ProxyBroker2 pour la rotation d'IP, Playwright Stealth pour le JS, et un Exponential Backoff strict pour les erreurs 429.",
+      "state": "closed",
+      "body": "Terminé : src/utils/http_client.py implémente curl_cffi et les Client Hints.",
       "milestone": "M1: Fondations & Orchestration",
       "labels": ["infra", "backend"]
     },
     {
       "title": "Moteur de Slicing GitHub (Mass Harvesting)",
-      "body": "Valider et intégrer le script de slicing par tranches d'étoiles pour indexer au moins 10 000 dépôts cyber uniques.",
+      "state": "closed",
+      "body": "Terminé : mass_async_scanner.py gère le contournement des 1000 résultats.",
       "milestone": "M2: Data Harvester & Usine NLP",
       "labels": ["ai", "backend"]
     },
     {
       "title": "Connecteur GitLab & Codeberg (Multi-Sources)",
-      "body": "Développer les adaptateurs pour aspirer les dépôts depuis GitLab API et Codeberg (Forgejo) afin de diversifier les sources cyber.",
+      "state": "open",
+      "body": "À faire : Développer les adaptateurs pour aspirer les dépôts depuis GitLab API et Codeberg.",
       "milestone": "M2: Data Harvester & Usine NLP",
       "labels": ["feature", "backend"]
     },
     {
       "title": "Écoute Temps Réel (PyGHArchive & GitDorker)",
-      "body": "Remplacer le polling manuel par une écoute du flux `GH Archive` en temps réel. Intégrer `GitDorker` pour automatiser la recherche des dorks sur GitHub et le Web mondial sans recoder le moteur.",
+      "state": "closed",
+      "body": "Terminé : src/realtime_watcher.py opérationnel sur GHArchive.",
       "milestone": "M2: Data Harvester & Usine NLP",
       "labels": ["feature", "backend"]
     },
     {
       "title": "Agrégation Threat Intel (CISA, CERT-FR, MITRE)",
-      "body": "Créer des tâches Celery (RSS/JSON) pour ingérer quotidiennement le CISA KEV, CERT-FR, MITRE ATT&CK et l'OWASP Top 10 afin d'enrichir l'ontologie de l'IA (mots-clés d'autorité).",
+      "state": "open",
+      "body": "À faire : Créer des tâches Celery pour ingérer quotidiennement les flux RSS/JSON de menaces.",
       "milestone": "M2: Data Harvester & Usine NLP",
       "labels": ["osint", "ai"]
     },
     {
       "title": "Pipeline de Vectorisation Qdrant (IA Sync)",
-      "body": "Automatiser la génération des embeddings sémantiques lors de la découverte et leur synchronisation en temps réel avec le moteur Qdrant.",
+      "state": "closed",
+      "body": "Terminé : Intégration NLP sémantique dans database.py et nlp_processor.py.",
       "milestone": "M2: Data Harvester & Usine NLP",
       "labels": ["ai", "infra"]
     },
     {
       "title": "Extraction Deep Document (PyMuPDF & Tesseract OCR)",
-      "body": "Mettre en place l'extraction de texte pour les PDF/Livres avec `PyMuPDF` et `pytesseract`. Implémenter le 'Recursive Character Text Splitting' (Chunking 1000 car.) pour l'indexation massive dans Qdrant.",
+      "state": "open",
+      "body": "À faire : Mettre en place l'extraction de texte pour les PDF/Livres et le chunking sémantique.",
       "milestone": "M2: Data Harvester & Usine NLP",
       "labels": ["ai", "backend"]
     },
     {
       "title": "Dashboard de Monitoring des Workers (Health Check)",
-      "body": "Interface visuelle pour surveiller l'état des workers Celery, les files d'attente Redis et les éventuelles erreurs de scan.",
+      "state": "open",
+      "body": "À faire : Interface Flower opérationnelle (M1), reste à intégrer les graphiques de santé UI.",
       "milestone": "M2: Data Harvester & Usine NLP",
       "labels": ["frontend", "ops"]
     },
     {
       "title": "Intégration Trivy & Semgrep (Automated SAST)",
-      "body": "Intégrer les outils de scan de sécurité statique pour auditer automatiquement chaque nouveau projet découvert.",
+      "state": "closed",
+      "body": "Terminé : security_analyzer.py et tâches Celery prêtes.",
       "milestone": "M3: Audit Sécurité & Hub OSINT",
       "labels": ["security", "backend"]
     },
     {
       "title": "Moteur de Dorking OSINT (SearXNG Automator)",
-      "body": "Utiliser SearXNG en local pour automatiser la recherche de rapports PDF techniques et de guides de durcissement sur le web public.",
+      "state": "open",
+      "body": "À faire : Programmer la liste des dorks industriels dans le moissonneur.",
       "milestone": "M3: Audit Sécurité & Hub OSINT",
       "labels": ["feature", "osint"]
     },
     {
       "title": "Surveillance Active (Certstream & Telegram)",
-      "body": "Intégrer `Certstream` pour détecter les nouveaux noms de domaine cyber via les CT Logs. Utiliser `Telethon` pour écouter et scraper silencieusement les canaux Telegram de fuites (SOCMINT).",
+      "state": "open",
+      "body": "À faire : Intégrer Certstream et Telethon pour le SOCMINT.",
       "milestone": "M3: Audit Sécurité & Hub OSINT",
       "labels": ["osint", "feature"]
     },
     {
       "title": "Analyse Binaire & Signatures (YARA & Firmwalker)",
-      "body": "Ajouter le support des règles `YARA` pour identifier les TTPs des acteurs de la menace (APT). Intégrer `Binwalk`/`Firmwalker` pour extraire les secrets des binaires/firmwares uploadés.",
+      "state": "open",
+      "body": "À faire : Ajouter le support YARA et Binwalk.",
       "milestone": "M3: Audit Sécurité & Hub OSINT",
       "labels": ["security", "feature"]
     },
     {
       "title": "Détection de Secrets (Gitleaks Integration)",
-      "body": "Scanner les dépôts clonés pour détecter les fuites de secrets (clés API, credentials) avant indexation.",
+      "state": "open",
+      "body": "À faire : Scan systématique pré-indexation.",
       "milestone": "M3: Audit Sécurité & Hub OSINT",
       "labels": ["security", "feature"]
     },
     {
       "title": "Système d'Alertes 'Pépites' (Webhooks)",
-      "body": "Mécanisme de notification automatique quand un projet dépasse un score de qualité sémantique de 90.",
+      "state": "open",
+      "body": "À faire : Mécanisme de notification automatique (Email/Webhook).",
       "milestone": "M3: Audit Sécurité & Hub OSINT",
       "labels": ["feature", "backend"]
     },
     {
       "title": "UI de Recherche Sémantique (TanStack Start)",
-      "body": "Développer le portail de recherche moderne en langage naturel avec TanStack Start et pnpm.",
+      "state": "closed",
+      "body": "Terminé : Interface Cyber Search connectée à l'API.",
       "milestone": "M4: Portail SaaS & Beta",
       "labels": ["frontend", "ux"]
     },
     {
       "title": "Vue Détails & Rapports CVE (Interactive UI)",
-      "body": "Interface détaillée par projet affichant les fiches IA, les badges CVE et l'historique des vulnérabilités.",
+      "state": "closed",
+      "body": "Terminé : DetailsDrawer.tsx avec rapports Trivy/IA opérationnel.",
       "milestone": "M4: Portail SaaS & Beta",
       "labels": ["frontend", "security"]
     },
     {
       "title": "Module d'Export PDF Pro (Reporting Tool)",
-      "body": "Outil de génération de rapports de veille cyber PDF personnalisables pour les clients finaux.",
+      "state": "open",
+      "body": "À faire : Logique de génération PDF backend.",
       "milestone": "M4: Portail SaaS & Beta",
       "labels": ["feature", "frontend"]
     },
     {
       "title": "Documentation Utilisateur & Onboarding",
-      "body": "Rédiger le manuel de déploiement souverain et le guide d'utilisation de la plateforme.",
+      "state": "closed",
+      "body": "Terminé : README.md complet et .env.example générés.",
       "milestone": "M4: Portail SaaS & Beta",
       "labels": ["docs"]
     },
     {
       "title": "Détonation Dynamique sous gVisor/Firecracker (Red Room)",
-      "body": "Remplacer l'analyse statique par une micro-VM éphémère. Installer des sondes eBPF au niveau Kernel pour capturer les appels systèmes des malwares polymorphes sans détection.",
+      "state": "open",
+      "body": "À faire : Micro-VM de détonation avec sondes eBPF.",
       "milestone": "M5: Intelligence Avancée & Isolation Militaire",
       "labels": ["security", "infra"]
     },
     {
       "title": "Analyse du Social Graph Hacker (Neo4j)",
-      "body": "Intégrer Neo4j pour cartographier les relations entre développeurs, contributeurs et dépôts. Détecter les écosystèmes et les réseaux de groupes APT (Threat Actor Mapping).",
+      "state": "open",
+      "body": "À faire : Cartographie des relations APT.",
       "milestone": "M5: Intelligence Avancée & Isolation Militaire",
       "labels": ["ai", "backend"]
     },
     {
       "title": "Détection de Honeypots et Fake Repos",
-      "body": "Entraîner un classifieur pour identifier les dépôts 'trop parfaits' ou les honeytokens des forces de l'ordre afin de nettoyer la base des faux positifs.",
+      "state": "open",
+      "body": "À faire : Classifieur de nettoyage des faux positifs.",
       "milestone": "M5: Intelligence Avancée & Isolation Militaire",
       "labels": ["security", "ai"]
     },
     {
       "title": "Tableau de Bord des Tendances Prédictives",
-      "body": "Utiliser les métadonnées temporelles de Qdrant pour détecter les 'breakouts' sémantiques (ex: pic de scripts d'injection LLM) et faire de la veille prédictive.",
+      "state": "closed",
+      "body": "Terminé : DashboardView.tsx avec graphiques Recharts.",
       "milestone": "M5: Intelligence Avancée & Isolation Militaire",
       "labels": ["frontend", "ai"]
     },
     {
       "title": "Synthèse Multi-Agent Locale (Llama 3)",
-      "body": "Pour les pépites (Score > 90), lancer un agent local (Ollama) qui lit l'intégralité du code et génère une note d'expertise automatique (Installation, Faiblesses, Comparaison).",
+      "state": "open",
+      "body": "À faire : Agent d'expertise Ollama automatisé.",
       "milestone": "M5: Intelligence Avancée & Isolation Militaire",
       "labels": ["ai", "feature"]
     }

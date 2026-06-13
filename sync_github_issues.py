@@ -1,20 +1,17 @@
-import json
 import os
-import time
-
+import json
 import requests
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # --- CONFIGURATION ---
-# Remplacez par votre repo: 'username/repo_name'
 REPO = os.getenv("GITHUB_REPO", "VOTRE_USERNAME/cyber_scan_books")
-TOKEN = os.getenv("GITHUB_ADMIN_TOKEN") # Nécessite un PAT avec les droits 'repo'
+TOKEN = os.getenv("GITHUB_ADMIN_TOKEN")
 
 if not TOKEN:
     print("❌ Erreur: GITHUB_ADMIN_TOKEN manquant dans le fichier .env")
-    print("ℹ️ Note: Ce token doit avoir les droits d'écriture (scope 'repo') sur votre dépôt.")
     exit(1)
 
 HEADERS = {
@@ -25,8 +22,17 @@ HEADERS = {
 API_URL = f"https://api.github.com/repos/{REPO}"
 
 def load_backlog():
-    with open("github_issues.json", encoding="utf-8") as f:
+    with open("github_issues.json", "r", encoding="utf-8") as f:
         return json.load(f)
+
+def get_existing_issues():
+    """Récupère toutes les issues existantes (ouvertes et fermées)."""
+    url = f"{API_URL}/issues"
+    params = {"state": "all", "per_page": 100}
+    response = requests.get(url, headers=HEADERS, params=params)
+    if response.status_code == 200:
+        return response.json()
+    return []
 
 def create_milestone(title, description, due_on):
     url = f"{API_URL}/milestones"
@@ -36,64 +42,76 @@ def create_milestone(title, description, due_on):
         print(f"✅ Milestone créé : {title}")
         return response.json()["number"]
     else:
-        # Si le milestone existe déjà, on récupère son numéro
         response = requests.get(url, headers=HEADERS)
         for m in response.json():
             if m["title"] == title:
-                print(f"ℹ️ Milestone existant : {title} (ID: {m['number']})")
                 return m["number"]
     return None
 
 def create_label(name, color, description):
     url = f"{API_URL}/labels"
     data = {"name": name, "color": color, "description": description}
-    response = requests.post(url, headers=HEADERS, json=data)
-    if response.status_code == 201:
-        print(f"✅ Label créé : {name}")
-    else:
-        print(f"ℹ️ Label ignoré (existe déjà ?) : {name}")
+    requests.post(url, headers=HEADERS, json=data)
 
-def create_issue(title, body, milestone_number, labels):
-    url = f"{API_URL}/issues"
-    data = {
-        "title": title,
-        "body": body,
-        "milestone": milestone_number,
-        "labels": labels
-    }
-    response = requests.post(url, headers=HEADERS, json=data)
-    if response.status_code == 201:
-        print(f"🚀 Issue créée : {title}")
+def sync_issue(issue_data, milestone_number, existing_issues):
+    """Crée ou met à jour une issue selon son état dans le JSON."""
+    title = issue_data["title"]
+    state = issue_data.get("state", "open")
+    body = issue_data["body"]
+    labels = issue_data["labels"]
+
+    # Chercher si l'issue existe déjà
+    existing = next((i for i in existing_issues if i["title"] == title), None)
+
+    if existing:
+        # Mise à jour de l'état
+        url = f"{API_URL}/issues/{existing['number']}"
+        data = {"state": state, "body": body}
+        res = requests.patch(url, headers=HEADERS, json=data)
+        if res.status_code == 200:
+            status_emoji = "✅" if state == "closed" else "🔄"
+            print(f"{status_emoji} Issue mise à jour ({state}) : {title}")
     else:
-        print(f"❌ Erreur lors de la création de l'issue {title} : {response.text}")
+        # Création
+        url = f"{API_URL}/issues"
+        data = {
+            "title": title,
+            "body": body,
+            "milestone": milestone_number,
+            "labels": labels,
+            "state": state
+        }
+        res = requests.post(url, headers=HEADERS, json=data)
+        if res.status_code == 201:
+            print(f"🚀 Issue créée : {title}")
 
 def main():
     backlog = load_backlog()
-
-    print(f"🔍 Début de la synchronisation sur le dépôt : {REPO}")
-
-    # 1. Création des Labels
-    print("\n--- Étape 1 : Labels ---")
+    print(f"🔍 Synchronisation 'en ligne' sur : {REPO}")
+    
+    # 1. Labels
     for label in backlog["labels"]:
         create_label(label["name"], label["color"], label["description"])
-
-    # 2. Création des Milestones
-    print("\n--- Étape 2 : Milestones ---")
+    
+    # 2. Milestones
     milestone_map = {}
     for m in backlog["milestones"]:
         m_num = create_milestone(m["title"], m["description"], m["due_on"])
         if m_num:
             milestone_map[m["title"]] = m_num
-
-    # 3. Création des Issues
-    print("\n--- Étape 3 : Issues ---")
+            
+    # 3. Récupérer l'état actuel de GitHub
+    existing_issues = get_existing_issues()
+    
+    # 4. Synchronisation Intelligente
+    print("\n--- Mise à jour des Issues ---")
     for issue in backlog["issues"]:
         m_title = issue.get("milestone")
         m_num = milestone_map.get(m_title)
-        create_issue(issue["title"], issue["body"], m_num, issue["labels"])
-        time.sleep(1) # Petit délai pour éviter les limites de l'API GitHub
+        sync_issue(issue, m_num, existing_issues)
+        time.sleep(0.5)
 
-    print("\n✨ Synchronisation terminée ! Votre tableau de bord GitHub est prêt.")
+    print("\n✨ La mise à jour 'en ligne' est terminée !")
 
 if __name__ == "__main__":
     main()
