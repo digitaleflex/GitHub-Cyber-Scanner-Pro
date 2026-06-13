@@ -8,17 +8,18 @@
     "start": "vinxi start"
   },
   "dependencies": {
-    "@tanstack/react-router": "latest",
     "@tanstack/react-query": "latest",
+    "@tanstack/react-router": "latest",
     "@tanstack/start": "latest",
+    "axios": "latest",
+    "clsx": "latest",
+    "framer-motion": "latest",
+    "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "lucide-react": "latest",
-    "clsx": "latest",
-    "tailwind-merge": "latest",
-    "framer-motion": "latest",
     "recharts": "latest",
-    "axios": "latest"
+    "tailwind-merge": "latest",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/react": "latest",

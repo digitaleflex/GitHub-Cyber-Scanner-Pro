@@ -1,5 +1,21 @@
 # Environnement et secrets
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Frontend (Node/pnpm/Vinxi)
+node_modules/
+frontend/node_modules/
+.output/
+frontend/.output/
+.vinxi/
+frontend/.vinxi/
+dist/
+frontend/dist/
+.pnpm-debug.log*
+frontend/.pnpm-debug.log*
 
 # Base de données binaire (SQLite)
 *.db
@@ -13,5 +29,10 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
+.ruff_cache/
 .venv/
 venv/
+
+# Systèmes
+.DS_Store
+Thumbs.db
