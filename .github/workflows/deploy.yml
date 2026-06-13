@@ -33,7 +33,7 @@ jobs:
         run: ruff check .
 
       - name: 5. Analyse de sécurité statique (Bandit)
-        run: bandit -r src/
+        run: bandit -r src/ -ll
 
       - name: 6. Exécution des tests unitaires (Pytest)
         run: pytest tests/

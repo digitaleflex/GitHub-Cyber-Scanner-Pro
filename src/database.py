@@ -72,7 +72,7 @@ def save_to_qdrant(repo_id, vector, payload):
             # Générer un hash entier stable à partir de la string si besoin, 
             # ou utiliser l'UUID si Qdrant le supporte mieux
             import hashlib
-            point_id = int(hashlib.md5(repo_id.encode(), usedforsecurity=False).hexdigest(), 16) % (10 ** 15) # nosec B324
+            point_id = int(hashlib.md5(repo_id.encode(), usedforsecurity=False).hexdigest(), 16) % (10 ** 15)  # nosec B324
 
         client.upsert(
             collection_name=QDRANT_COLLECTION,
