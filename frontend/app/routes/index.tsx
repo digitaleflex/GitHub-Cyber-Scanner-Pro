@@ -4,6 +4,10 @@ import { useQuery } from '@tanstack/react-query'
 import { Search, Shield, Zap, BookOpen, AlertCircle } from 'lucide-react'
 import axios from 'axios'
 
+// --- COMPOSANTS UI ---
+import { Button } from '@/components/ui/button'
+import { DetailsDrawer } from '@/components/DetailsDrawer'
+
 // --- CONNECTEUR API ---
 const fetchSearchResults = async (query: string) => {
   if (!query) return []
@@ -18,6 +22,8 @@ export const Route = createFileRoute('/')({
 
 function CyberSearchPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedRepo, setSelectedRepo] = useState<any>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   
   const { data: results, isLoading, isError } = useQuery({
     queryKey: ['search', searchTerm],
@@ -25,6 +31,11 @@ function CyberSearchPage() {
     enabled: searchTerm.length > 2,
     placeholderData: (previousData) => previousData,
   })
+
+  const handleOpenDetails = (repo: any) => {
+    setSelectedRepo(repo)
+    setIsDrawerOpen(true)
+  }
 
   return (
     <div className="min-h-screen bg-cyber-bg text-cyber-text font-sans p-8">
@@ -61,9 +72,9 @@ function CyberSearchPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button className="bg-cyber-accent text-black font-bold px-8 py-3 rounded-lg hover:scale-95 transition-transform">
+            <Button className="bg-cyber-accent text-black font-bold px-8 h-12 rounded-lg hover:scale-95 transition-transform">
               ANALYSER
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -72,7 +83,11 @@ function CyberSearchPage() {
           {isLoading && <div className="col-span-2 text-center text-cyber-accent animate-pulse">Calcul des vecteurs sémantiques en cours...</div>}
           
           {results?.map((res: any) => (
-            <div key={res.id} className="bg-cyber-card border border-cyber-border p-6 rounded-xl hover:border-cyber-accent/50 transition-all cursor-pointer group">
+            <div 
+              key={res.id} 
+              onClick={() => handleOpenDetails(res)}
+              className="bg-cyber-card border border-cyber-border p-6 rounded-xl hover:border-cyber-accent/50 transition-all cursor-pointer group"
+            >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex gap-2">
                   <span className="bg-cyber-accent/10 text-cyber-accent text-[10px] font-bold px-2 py-1 rounded border border-cyber-accent/20">SCORE: {res.score_qualite}</span>
@@ -99,6 +114,13 @@ function CyberSearchPage() {
           )}
         </div>
       </main>
+
+      {/* TIROIR DE DÉTAILS */}
+      <DetailsDrawer 
+        repo={selectedRepo} 
+        isOpen={isDrawerOpen} 
+        onClose={setIsDrawerOpen} 
+      />
 
       {/* FOOTER STATS */}
       <footer className="mt-20 border-t border-cyber-border pt-8 flex justify-center gap-12 text-[10px] text-gray-700 uppercase tracking-widest">

@@ -133,7 +133,32 @@ class GitHubMassScanner:
         print(f"\n🎯 Extraction de masse achevée en {duration:.2f} secondes !")
         print(f"📊 Nombre total de ressources uniques en mémoire : {len(self.all_repositories)}")
 
-        # Sauvegarde d'urgence au format Excel / Prêt pour insertion en base de données
+        # Envoi vers Celery pour traitement asynchrone profond
+        if self.all_repositories:
+            print("🚀 Envoi des dépôts vers la file d'attente Celery...")
+            from tasks import task_osint_scan, task_nlp_analysis
+            
+            for repo_id, data in self.all_repositories.items():
+                repo_url = data["Lien GitHub"]
+                repo_name = data["Nom du Dépôt"]
+                
+                # Préparer les données pour Celery
+                repo_data = {
+                    "stars": data["Étoiles (Stars)"],
+                    "description": data["Description"],
+                    "language": data["Langue Principale"],
+                    "updated_at": data["Dernière Mise à Jour"]
+                }
+                
+                # 1. Lancer le scan OSINT (README extraction)
+                task_osint_scan.delay(repo_url, repo_name, repo_data)
+                
+                # 2. Lancer l'analyse NLP vectorielle
+                task_nlp_analysis.delay(repo_id)
+            
+            print(f"✅ {len(self.all_repositories)} tâches envoyées à Celery.")
+
+        # Sauvegarde d'urgence au format Excel
         if self.all_repositories:
             # Assurer que le dossier local de données de sauvegarde temporaire existe
             os.makedirs("data", exist_ok=True)

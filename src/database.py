@@ -4,18 +4,89 @@ import time
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from qdrant_client import QdrantClient
+from qdrant_client.http import models
 
 import nlp_processor
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-# Configuration de la base de données
+# Configuration de la base de données PostgreSQL
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "scanner_db")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "cyberpass")
+
+# Configuration Qdrant
+QDRANT_HOST = os.getenv("QDRANT_HOST", "cyber-vector-engine")
+QDRANT_PORT = os.getenv("QDRANT_PORT", "6333")
+QDRANT_COLLECTION = "cyber_resources"
+
+qdrant_client = None
+
+def get_qdrant_client():
+    """Initialise et retourne le client Qdrant."""
+    global qdrant_client
+    if qdrant_client is None:
+        try:
+            qdrant_client = QdrantClient(host=QDRANT_HOST, port=int(QDRANT_PORT))
+            logging.info(f"🛰️ Connecté à Qdrant sur {QDRANT_HOST}:{QDRANT_PORT}")
+        except Exception as e:
+            logging.error(f"❌ Erreur connexion Qdrant : {e}")
+    return qdrant_client
+
+def init_qdrant():
+    """Crée la collection Qdrant si elle n'existe pas."""
+    client = get_qdrant_client()
+    if not client:
+        return
+
+    try:
+        collections = client.get_collections().collections
+        exists = any(c.name == QDRANT_COLLECTION for c in collections)
+        
+        if not exists:
+            client.create_collection(
+                collection_name=QDRANT_COLLECTION,
+                vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE),
+            )
+            logging.info(f"✨ Collection Qdrant '{QDRANT_COLLECTION}' créée avec succès.")
+        else:
+            logging.info(f"✅ Collection Qdrant '{QDRANT_COLLECTION}' déjà existante.")
+    except Exception as e:
+        logging.error(f"❌ Erreur initialisation Qdrant : {e}")
+
+def save_to_qdrant(repo_id, vector, payload):
+    """Enregistre un vecteur et ses métadonnées dans Qdrant."""
+    client = get_qdrant_client()
+    if not client or not vector:
+        return
+
+    try:
+        # Convertir l'ID en entier si possible pour Qdrant, sinon garder en string
+        try:
+            point_id = int(repo_id)
+        except ValueError:
+            # Générer un hash entier stable à partir de la string si besoin, 
+            # ou utiliser l'UUID si Qdrant le supporte mieux
+            import hashlib
+            point_id = int(hashlib.md5(repo_id.encode()).hexdigest(), 16) % (10 ** 15)
+
+        client.upsert(
+            collection_name=QDRANT_COLLECTION,
+            points=[
+                models.PointStruct(
+                    id=point_id,
+                    vector=vector,
+                    payload=payload
+                )
+            ]
+        )
+        logging.info(f"🧠 Vecteur sauvegardé dans Qdrant pour le dépôt {repo_id}")
+    except Exception as e:
+        logging.error(f"❌ Erreur sauvegarde Qdrant : {e}")
 
 def get_db_connection():
     conn = None
@@ -42,10 +113,30 @@ def get_db_connection():
     raise ConnectionError("Échec de connexion à PostgreSQL.")
 
 
+def update_repo_quality_and_vector(repo_id, score, vector):
+    """Met à jour le score de qualité et le vecteur sémantique d'un dépôt."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE repositories SET score_qualite = %s, vecteur_semantique = %s WHERE id = %s",
+            (score, vector, repo_id)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        logging.error(f"❌ Erreur update_repo_quality_and_vector: {e}")
+        return False
+
 def init_db():
     """Initialise les tables PostgreSQL avec pgvector et TSVector pour la recherche sémantique de pointe."""
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # 0. Initialiser Qdrant en parallèle
+    init_qdrant()
 
     # 1. Activer l'extension pgvector si disponible
     try:

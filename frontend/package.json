@@ -8,6 +8,7 @@
     "start": "vinxi start"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.16",
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
     "@tanstack/start": "latest",

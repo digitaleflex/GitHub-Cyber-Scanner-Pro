@@ -20,6 +20,8 @@ ignore = [
     "F841", # unused variable
     "F821", # undefined name
     "I001", # unsorted imports
+    "E741", # ambiguous variable name
+    "F401", # unused import
 ]
 
 [format]
