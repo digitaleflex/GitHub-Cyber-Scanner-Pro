@@ -1,9 +1,32 @@
 {
-  "name": "cyber-scanner-frontend",
-  "version": "0.1.0",
-  "private": true,
+  "name": "cyber-scan-frontend",
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "echo 'Run TanStack Start here'",
-    "build": "mkdir -p .output && echo 'Build placeholder' > .output/index.html"
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start"
+  },
+  "dependencies": {
+    "@tanstack/react-router": "latest",
+    "@tanstack/react-query": "latest",
+    "@tanstack/start": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "lucide-react": "latest",
+    "clsx": "latest",
+    "tailwind-merge": "latest",
+    "framer-motion": "latest",
+    "recharts": "latest",
+    "axios": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "autoprefixer": "latest",
+    "postcss": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest",
+    "vinxi": "latest"
   }
 }

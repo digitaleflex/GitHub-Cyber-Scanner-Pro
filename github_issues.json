@@ -19,6 +19,11 @@
       "title": "M4: Portail SaaS & Beta",
       "description": "Livraison de l'interface TanStack Start finale et déploiement Beta.",
       "due_on": "2026-08-15T23:59:59Z"
+    },
+    {
+      "title": "M5: Intelligence Avancée & Isolation Militaire",
+      "description": "Capacités de contre-ingénierie, d'analyse de graphes (Neo4j) et de détonation (gVisor).",
+      "due_on": "2026-09-01T23:59:59Z"
     }
   ],
   "labels": [
@@ -163,6 +168,36 @@
       "body": "Rédiger le manuel de déploiement souverain et le guide d'utilisation de la plateforme.",
       "milestone": "M4: Portail SaaS & Beta",
       "labels": ["docs"]
+    },
+    {
+      "title": "Détonation Dynamique sous gVisor/Firecracker (Red Room)",
+      "body": "Remplacer l'analyse statique par une micro-VM éphémère. Installer des sondes eBPF au niveau Kernel pour capturer les appels systèmes des malwares polymorphes sans détection.",
+      "milestone": "M5: Intelligence Avancée & Isolation Militaire",
+      "labels": ["security", "infra"]
+    },
+    {
+      "title": "Analyse du Social Graph Hacker (Neo4j)",
+      "body": "Intégrer Neo4j pour cartographier les relations entre développeurs, contributeurs et dépôts. Détecter les écosystèmes et les réseaux de groupes APT (Threat Actor Mapping).",
+      "milestone": "M5: Intelligence Avancée & Isolation Militaire",
+      "labels": ["ai", "backend"]
+    },
+    {
+      "title": "Détection de Honeypots et Fake Repos",
+      "body": "Entraîner un classifieur pour identifier les dépôts 'trop parfaits' ou les honeytokens des forces de l'ordre afin de nettoyer la base des faux positifs.",
+      "milestone": "M5: Intelligence Avancée & Isolation Militaire",
+      "labels": ["security", "ai"]
+    },
+    {
+      "title": "Tableau de Bord des Tendances Prédictives",
+      "body": "Utiliser les métadonnées temporelles de Qdrant pour détecter les 'breakouts' sémantiques (ex: pic de scripts d'injection LLM) et faire de la veille prédictive.",
+      "milestone": "M5: Intelligence Avancée & Isolation Militaire",
+      "labels": ["frontend", "ai"]
+    },
+    {
+      "title": "Synthèse Multi-Agent Locale (Llama 3)",
+      "body": "Pour les pépites (Score > 90), lancer un agent local (Ollama) qui lit l'intégralité du code et génère une note d'expertise automatique (Installation, Faiblesses, Comparaison).",
+      "milestone": "M5: Intelligence Avancée & Isolation Militaire",
+      "labels": ["ai", "feature"]
     }
   ]
 }

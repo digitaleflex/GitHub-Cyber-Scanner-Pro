@@ -23,7 +23,7 @@ class OSINTHarvester:
         # On s'assure que la base de données est prête
         try:
             database.init_db()
-        except:
+        except Exception:
             pass
 
     async def process_url(self, client, url, title, repo_id="OSINT_DISCOVERY"):

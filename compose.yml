@@ -45,6 +45,36 @@ services:
     ports:
       - "8080:8080"
 
+  # Ollama : Le moteur d'IA locale pour les fiches de synthèse
+  ollama:
+    image: ollama/ollama:latest
+    container_name: cyber_ollama_ai
+    restart: always
+    volumes:
+      - ./ollama_data:/root/.ollama
+
+  # Interface API & Dashboard
+  cyber-scanner:
+    build: .
+    container_name: cyber_github_scanner
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - DB_HOST=cyber-db
+      - DB_PORT=5432
+      - DB_NAME=cyber_knowledge
+      - DB_USER=cyber_master
+      - DB_PASSWORD=${DB_PASSWORD:-cyberpass}
+      - OLLAMA_HOST=ollama
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - cyber-db
+      - ollama
+
   # --- LES AGENTS INTELLIGENTS (CELERY WORKERS) ---
   
   # Agent 1 : Dédié au téléchargement et à la découverte (Asynchrone GitHub)
@@ -96,3 +126,4 @@ volumes:
   postgres_data:
   qdrant_data:
   redis_data:
+  ollama_data:

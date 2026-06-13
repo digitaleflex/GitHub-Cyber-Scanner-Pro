@@ -861,7 +861,7 @@ def run_llm_summary_daemon():
                     res = requests.get(readme_url, headers=headers, timeout=15)
                     if res.status_code == 200:
                         readme_text = res.text
-                except:
+                except Exception:
                     pass
                 
                 summary = summarizer.generate_summary(readme_text, description)
