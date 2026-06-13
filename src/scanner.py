@@ -46,6 +46,29 @@ QUERIES = [
     '"infosec" resources',
     '"red team" tools',
     '"blue team" tools',
+    # 1. Write-ups CTF et Bug Bounty
+    '"ctf-writeups"',
+    '"bugbounty-methodology"',
+    '"walkthrough" cybersecurity',
+    '"poc-exploits" cybersecurity',
+    # 2. Checklists de Durcissement (Hardening) et Conformité
+    '"hardening-guide" cybersecurity',
+    '"security-checklist"',
+    '"cis-benchmarks"',
+    '"active-directory-hardening"',
+    # 3. Modèles de Rapports d'Audit & Livrables Pro
+    '"pentest-report-template"',
+    '"audit-template" cybersecurity',
+    '"security-policy-samples"',
+    # 4. Questions d'Entretiens & Certifs
+    '"cybersecurity-interview-questions"',
+    '"oscp-notes"',
+    '"cissp-study-guide"',
+    # 5. Flux de Threat Intelligence
+    '"yara-rules" malware',
+    '"sigma-rules" threat',
+    '"threat-intel" list',
+    '"ioc-lists" ip'
 ]
 
 DATA_DIR = os.getenv("DATA_DIR", "data")
@@ -75,17 +98,18 @@ app.add_middleware(
 )
 
 
-def fetch_github_data(query):
+def fetch_github_data(query, sort_by="stars"):
     """Interroge l'API GitHub avec gestion d'ETag, de Rate Limit et de retry."""
     url = "https://api.github.com/search/repositories"
-    params = {"q": query, "sort": "stars", "order": "desc", "per_page": 50}
+    params = {"q": query, "sort": sort_by, "order": "desc", "per_page": 50}
     headers = {"Accept": "application/vnd.github.v3+json"}
 
     if GITHUB_TOKEN:
         headers["Authorization"] = f"token {GITHUB_TOKEN}"
 
-    # Récupérer l'ETag du cache PostgreSQL
-    etag, last_modified = database.get_etag_from_cache(query)
+    # Récupérer l'ETag du cache PostgreSQL (clé de cache enrichie avec le critère de tri)
+    cache_key = f"{query}_{sort_by}"
+    etag, last_modified = database.get_etag_from_cache(cache_key)
     if etag:
         headers["If-None-Match"] = etag
     if last_modified:
@@ -104,12 +128,12 @@ def fetch_github_data(query):
                 new_etag = response.headers.get("ETag")
                 new_last_modified = response.headers.get("Last-Modified")
                 if new_etag or new_last_modified:
-                    database.save_etag_to_cache(query, new_etag, new_last_modified)
+                    database.save_etag_to_cache(cache_key, new_etag, new_last_modified)
                 
                 return response.json().get("items", []), False
                 
             elif response.status_code == 304:
-                logging.info(f"🔄 [Cache 304] Aucun changement détecté pour la recherche : {query}")
+                logging.info(f"🔄 [Cache 304] Aucun changement détecté pour la recherche : {query} ({sort_by})")
                 return [], False
                 
             elif response.status_code == 403:
@@ -125,7 +149,7 @@ def fetch_github_data(query):
                         reset_time = float(rate_reset)
                         wait_time = max(1.0, reset_time - time.time()) + 5.0
                         logging.warning(
-                            f"⚠️ Limite d'appels API atteinte pour la requête '{query}'. "
+                            f"⚠️ Limite d'appels API atteinte pour la requête '{query}' ({sort_by}). "
                             f"Mise en pause obligatoire pendant {int(wait_time)} secondes..."
                         )
                         time.sleep(wait_time)
@@ -156,7 +180,7 @@ def fetch_github_data(query):
             time.sleep(backoff_delay)
             backoff_delay *= 2
             
-    logging.error(f"❌ Échec de la récupération après {max_retries} tentatives pour : {query}")
+    logging.error(f"❌ Échec de la récupération après {max_retries} tentatives pour : {query} ({sort_by})")
     return [], False
 
 
@@ -209,9 +233,11 @@ def fetch_and_parse_readme(repo_id, full_name, repo_description=""):
         links = re.findall(r'\[([^\]\n]+)\]\((https?://[^\)\s]+)\)', readme_content)
         
         extracted_count = 0
-        book_keywords = [
+        resource_keywords = [
             "book", "guide", "manual", "handbook", "tutorial", "course", "pdf", "epub", "mobi",
-            "livre", "manuel", "cours", "reference", "cheat", "lectures", "bibliotheque", "library"
+            "livre", "manuel", "cours", "reference", "cheat", "lectures", "bibliotheque", "library",
+            "writeup", "write-up", "walkthrough", "hardening", "checklist", "benchmark", "template",
+            "report", "interview", "questions", "yara", "sigma", "threat-intel", "threat intel", "ioc"
         ]
         book_extensions = [".pdf", ".epub", ".mobi", ".docx"]
         book_domains = ["drive.google.com", "dropbox.com", "mega.nz", "mediafire.com", "books.google.com", "leanpub.com", "gitbook.io"]
@@ -223,18 +249,18 @@ def fetch_and_parse_readme(repo_id, full_name, repo_description=""):
             title_lower = title.lower()
             url_lower = url.lower()
             
-            is_book = False
+            is_resource = False
             
             if any(url_lower.endswith(ext) or f"{ext}?" in url_lower or f"{ext}#" in url_lower for ext in book_extensions):
-                is_book = True
+                is_resource = True
             elif any(domain in url_lower for domain in book_domains):
-                is_book = True
-            elif any(k in title_lower or k in url_lower for k in book_keywords):
+                is_resource = True
+            elif any(k in title_lower or k in url_lower for k in resource_keywords):
                 ignore_keywords = ["twitter.com", "linkedin.com", "facebook.com", "github.com/sponsors", "patreon.com", "paypal.me", "github.com/users/"]
                 if not any(ignore in url_lower for ignore in ignore_keywords):
-                    is_book = True
+                    is_resource = True
             
-            if is_book and len(title) > 2 and len(url) < 1000:
+            if is_resource and len(title) > 2 and len(url) < 1000:
                 # 1. Traitement NLP : Nettoyage et lemmatisation avec Spacy
                 # Concaténer le titre et la description du dépôt pour donner du contexte NLP
                 context_text = f"{title} {repo_description}"
@@ -243,8 +269,11 @@ def fetch_and_parse_readme(repo_id, full_name, repo_description=""):
                 # 2. Catégorisation sémantique
                 category = nlp_processor.categorize_by_semantic_ontology(title, repo_description, lemmas)
                 
-                # 3. Sauvegarde dans Postgres avec génération du TSVector
-                saved = database.save_book(repo_id, title, url, category, lemmas)
+                # 3. Détection du type de ressource (IA)
+                type_ressource = nlp_processor.detect_resource_type(title, repo_description, url, category)
+                
+                # 4. Sauvegarde dans Postgres avec génération du TSVector
+                saved = database.save_book(repo_id, title, url, category, lemmas, type_ressource)
                 if saved:
                     extracted_count += 1
                     
@@ -345,10 +374,10 @@ def export_to_excel():
             conn
         )
         
-        # 2. Lire les livres avec score_qualite
+        # 2. Lire les livres avec score_qualite et type_ressource
         df_books = pd.read_sql_query(
             """
-            SELECT b.title, b.category, r.full_name AS repo_name, 
+            SELECT b.title, b.category, b.type_ressource, r.full_name AS repo_name, 
                    CASE WHEN b.is_dead = 1 THEN 'Hors ligne' 
                         WHEN b.last_checked IS NULL THEN 'Non vérifié'
                         ELSE 'Disponible' END AS status,
@@ -373,10 +402,10 @@ def export_to_excel():
         # Formater les livres
         if not df_books.empty:
             df_books.columns = [
-                "Titre de la Ressource / Livre", "Catégorie", "Dépôt Source", "Disponibilité", "Lien de Téléchargement", "Score Qualité (IA)"
+                "Titre de la Ressource / Livre", "Catégorie", "Type de Ressource", "Dépôt Source", "Disponibilité", "Lien de Téléchargement", "Score Qualité (IA)"
             ]
-            # Trier d'abord par Score Qualité (IA) puis par Catégorie et Titre
-            df_books = df_books.sort_values(by=["Score Qualité (IA)", "Catégorie", "Titre de la Ressource / Livre"], ascending=[False, True, True])
+            # Trier d'abord par Score Qualité (IA) puis par Type, Catégorie et Titre
+            df_books = df_books.sort_values(by=["Score Qualité (IA)", "Type de Ressource", "Catégorie", "Titre de la Ressource / Livre"], ascending=[False, True, True, True])
             for col in df_books.select_dtypes(include=['object']).columns:
                 df_books[col] = df_books[col].astype(str).str.slice(0, 32000)
                 
@@ -417,10 +446,10 @@ def export_to_json():
                 "Ressources": []
             }
             
-        # Récupérer tous les livres avec score_qualite
+        # Récupérer tous les livres avec score_qualite et type_ressource
         cursor.execute(
             """
-            SELECT repo_id, title, category, 
+            SELECT repo_id, title, category, type_ressource, 
                    CASE WHEN is_dead = 1 THEN 'Hors ligne'
                         WHEN last_checked IS NULL THEN 'Non vérifié'
                         ELSE 'Disponible' END AS status,
@@ -438,9 +467,10 @@ def export_to_json():
                 data_dict[repo_id]["Ressources"].append({
                     "Titre de la Ressource / Livre": b[1],
                     "Catégorie": b[2],
-                    "Disponibilité": b[3],
-                    "Lien de Téléchargement": b[4],
-                    "Score Qualité (IA)": b[5]
+                    "Type de Ressource": b[3],
+                    "Disponibilité": b[4],
+                    "Lien de Téléchargement": b[5],
+                    "Score Qualité (IA)": b[6]
                 })
                 
         # Pour trier le dictionnaire par score_qualite des dépôts
@@ -557,14 +587,17 @@ def migrate_sqlite_to_postgres():
                 score_qualite = 0
                 vecteur_semantique = None
             
+            # Détecter le type de ressource (IA) pour la migration
+            type_ressource = nlp_processor.detect_resource_type(title, description, url, category)
+            
             lemmas = nlp_processor.clean_and_lemmatize(f"{title} {description}")
             lemmas_str = " ".join(lemmas)
-            semantic_text = f"{title} {category if category else ''} {lemmas_str}"
+            semantic_text = f"{title} {category if category else ''} {type_ressource} {lemmas_str}"
             
             pg_cursor.execute(
                 """
-                INSERT INTO books (repo_id, title, url, category, is_dead, last_checked, lemmas_str, score_qualite, vecteur_semantique, tsv_content)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, to_tsvector('simple', %s))
+                INSERT INTO books (repo_id, title, url, category, is_dead, last_checked, lemmas_str, score_qualite, vecteur_semantique, type_ressource, tsv_content)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, to_tsvector('simple', %s))
                 ON CONFLICT (url) DO UPDATE
                 SET title = EXCLUDED.title,
                     category = EXCLUDED.category,
@@ -573,9 +606,10 @@ def migrate_sqlite_to_postgres():
                     lemmas_str = EXCLUDED.lemmas_str,
                     score_qualite = EXCLUDED.score_qualite,
                     vecteur_semantique = EXCLUDED.vecteur_semantique,
+                    type_ressource = EXCLUDED.type_ressource,
                     tsv_content = to_tsvector('simple', EXCLUDED.lemmas_str)
                 """,
-                (repo_id, title, url, category, is_dead, last_checked, lemmas_str, score_qualite, vecteur_semantique, semantic_text)
+                (repo_id, title, url, category, is_dead, last_checked, lemmas_str, score_qualite, vecteur_semantique, type_ressource, semantic_text)
             )
             if pg_cursor.rowcount > 0:
                 migrated_books += 1
@@ -593,25 +627,41 @@ def migrate_sqlite_to_postgres():
 
 
 def scan_cycle():
-    """Effectue un cycle de scan GitHub."""
+    """Effectue un cycle de scan GitHub hybride (popularité et activité récente)."""
     logging.info("🔄 Début du cycle de scan sur GitHub...")
     new_discoveries_total = 0
     any_success = False
     
     for query in QUERIES:
-        logging.info(f"🔍 Recherche pour : {query}...")
-        raw_items, rate_limit_hit = fetch_github_data(query)
+        # 1. Recherche par popularité (stars)
+        logging.info(f"🔍 Recherche (Popularité) pour : {query}...")
+        raw_items_stars, rate_limit_hit = fetch_github_data(query, sort_by="stars")
         
         if rate_limit_hit:
             logging.warning("⚠️ Cycle de scan interrompu en raison d'une limite de quota API non résolue.")
             break
             
-        if raw_items:
+        if raw_items_stars:
             any_success = True
-            new_discoveries = database.save_repositories(raw_items)
+            new_discoveries = database.save_repositories(raw_items_stars)
             new_discoveries_total += new_discoveries
             
-        time.sleep(2)
+        time.sleep(2.5)
+        
+        # 2. Recherche par activité récente (updated) pour découvrir les nouveaux dépôts / pépites
+        logging.info(f"🔍 Recherche (Nouveautés récentes) pour : {query}...")
+        raw_items_updated, rate_limit_hit = fetch_github_data(query, sort_by="updated")
+        
+        if rate_limit_hit:
+            logging.warning("⚠️ Cycle de scan interrompu en raison d'une limite de quota API non résolue.")
+            break
+            
+        if raw_items_updated:
+            any_success = True
+            new_discoveries = database.save_repositories(raw_items_updated)
+            new_discoveries_total += new_discoveries
+            
+        time.sleep(2.5)
         
     if any_success:
         if new_discoveries_total > 0:

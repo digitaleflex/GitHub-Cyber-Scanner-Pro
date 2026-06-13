@@ -85,9 +85,18 @@ def init_db():
             lemmas_str TEXT,
             score_qualite INTEGER DEFAULT 0,
             vecteur_semantique vector(384),
+            type_ressource VARCHAR(100) DEFAULT 'Book',
             tsv_content tsvector
         )
     """)
+    
+    # S'assurer de rajouter la colonne si elle n'existe pas (migration fluide)
+    try:
+        cursor.execute("ALTER TABLE books ADD COLUMN IF NOT EXISTS type_ressource VARCHAR(100) DEFAULT 'Book';")
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        logging.warning(f"⚠️ Impossible d'ajouter la colonne type_ressource : {e}")
     
     # 4. Table de cache ETag
     cursor.execute("""
@@ -237,13 +246,13 @@ def mark_repo_as_parsed(repo_id, readme_parsed=1):
     conn.close()
 
 
-def save_book(repo_id, title, url, category, lemmas_list):
+def save_book(repo_id, title, url, category, lemmas_list, type_ressource='Book'):
     """
     Enregistre un livre, hérite ou calcule son score de qualité, son embedding
     et génère le TSVector pour la recherche sémantique PostgreSQL.
     """
     lemmas_str = " ".join(lemmas_list) if lemmas_list else ""
-    semantic_text = f"{title} {category if category else ''} {lemmas_str}"
+    semantic_text = f"{title} {category if category else ''} {type_ressource} {lemmas_str}"
     
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -256,9 +265,9 @@ def save_book(repo_id, title, url, category, lemmas_list):
         
         cursor.execute(
             """
-            INSERT INTO books (repo_id, title, url, category, lemmas_str, score_qualite, vecteur_semantique, tsv_content)
+            INSERT INTO books (repo_id, title, url, category, lemmas_str, score_qualite, vecteur_semantique, type_ressource, tsv_content)
             VALUES (
-                %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s, %s,
                 to_tsvector('simple', %s)
             )
             ON CONFLICT (url) DO UPDATE 
@@ -267,9 +276,10 @@ def save_book(repo_id, title, url, category, lemmas_list):
                 lemmas_str = EXCLUDED.lemmas_str,
                 score_qualite = EXCLUDED.score_qualite,
                 vecteur_semantique = EXCLUDED.vecteur_semantique,
+                type_ressource = EXCLUDED.type_ressource,
                 tsv_content = to_tsvector('simple', %s)
             """,
-            (repo_id, title, url, category, lemmas_str, score_qualite, vecteur_semantique, semantic_text, semantic_text)
+            (repo_id, title, url, category, lemmas_str, score_qualite, vecteur_semantique, type_ressource, semantic_text, semantic_text)
         )
         conn.commit()
         return True
@@ -331,7 +341,7 @@ def get_books(search_query=None):
             # Recherche sémantique TSVector ordonnée par pertinence textuelle
             cursor.execute(
                 """
-                SELECT b.id, b.title, b.url, b.category, r.full_name AS repo_name, r.html_url AS repo_url, b.is_dead, b.last_checked, b.score_qualite,
+                SELECT b.id, b.title, b.url, b.category, r.full_name AS repo_name, r.html_url AS repo_url, b.is_dead, b.last_checked, b.score_qualite, b.type_ressource,
                        ts_rank(b.tsv_content, plainto_tsquery('simple', %s)) as rank
                 FROM books b 
                 LEFT JOIN repositories r ON b.repo_id = r.id 
@@ -344,7 +354,7 @@ def get_books(search_query=None):
             # Tri par score de qualité IA par défaut (propulse les pépites) puis date de découverte
             cursor.execute(
                 """
-                SELECT b.id, b.title, b.url, b.category, r.full_name AS repo_name, r.html_url AS repo_url, b.is_dead, b.last_checked, b.score_qualite
+                SELECT b.id, b.title, b.url, b.category, r.full_name AS repo_name, r.html_url AS repo_url, b.is_dead, b.last_checked, b.score_qualite, b.type_ressource
                 FROM books b 
                 LEFT JOIN repositories r ON b.repo_id = r.id 
                 ORDER BY b.score_qualite DESC, b.discovered_at DESC

@@ -255,3 +255,45 @@ def categorize_by_semantic_ontology(title, description, lemmas):
         return "Général / InfoSec"
         
     return "Général / InfoSec"
+
+
+def detect_resource_type(title, description, url, category):
+    """Détecte de manière experte le type de ressource à partir du titre, de la description, de l'URL et de la catégorie."""
+    text = f"{title} {description if description else ''} {category if category else ''}".lower()
+    url_lower = url.lower() if url else ""
+    
+    # 1. Threat-Intel
+    threat_intel_markers = ["yara", "sigma", "threat-intel", "threat intel", "ioc-list", "ioc list", "iocs", "compromise", "signature de malware", "rules"]
+    if any(m in text or m in url_lower for m in threat_intel_markers):
+        if not any(x in text for x in ["course", "book", "livre", "guide"]):
+            return "Threat-Intel"
+            
+    # 2. Hardening
+    hardening_markers = ["hardening", "durcissement", "checklist", "cis-benchmark", "cis benchmark", "benchmarks", "security-checklist", "active-directory-hardening", "durcir", "securiser"]
+    if any(m in text or m in url_lower for m in hardening_markers):
+        return "Hardening"
+        
+    # 3. Write-up
+    writeup_markers = ["writeup", "write-up", "ctf-writeup", "bugbounty", "bug bounty", "walkthrough", "poc-exploit", "poc", "exploit", "solution", "resolution"]
+    if any(m in text or m in url_lower for m in writeup_markers):
+        return "Write-up"
+        
+    # 4. Interview
+    interview_markers = ["interview", "entretien", "embauche", "prep", "study-guide", "study guide", "exam", "certification", "oscp-notes", "cissp-study", "ceh-notes", "questions"]
+    if any(m in text or m in url_lower for m in interview_markers):
+        return "Interview"
+        
+    # 5. Template
+    template_markers = ["template", "modele", "report", "rapport", "audit-template", "livrable", "pssi", "security-policy", "policy-sample"]
+    if any(m in text or m in url_lower for m in template_markers):
+        return "Template"
+        
+    # 6. Tool
+    tool_markers = ["tool", "script", "program", "scanner", "utility", "exploit-db", "framework", "automatisation"]
+    if any(m in text or m in url_lower for m in tool_markers) or "github.com/" in url_lower:
+        # Si c'est un lien GitHub sans être un PDF ou autre, c'est probablement un outil
+        if not any(ext in url_lower for ext in [".pdf", ".epub", ".mobi", "drive.google.com"]):
+            return "Tool"
+            
+    # 7. Book (par défaut pour les PDF, cours, documents etc.)
+    return "Book"

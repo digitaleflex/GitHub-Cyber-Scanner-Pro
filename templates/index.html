@@ -563,9 +563,24 @@
             transition: var(--transition);
         }
 
-        .repo-link:hover {
-            text-shadow: 0 0 8px rgba(99, 102, 241, 0.35);
+        .type-badge {
+            display: inline-block;
+            padding: 0.35rem 0.65rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+        
+        .type-book { background: rgba(99, 102, 241, 0.12); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.25); }
+        .type-tool { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+        .type-writeup { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); }
+        .type-hardening { background: rgba(6, 182, 212, 0.12); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.25); }
+        .type-interview { background: rgba(139, 92, 246, 0.12); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.25); }
+        .type-threat-intel { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); }
+        .type-template { background: rgba(236, 72, 153, 0.12); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.25); }
     </style>
 </head>
 <body>
@@ -670,10 +685,11 @@
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 30%;">Titre de la ressource / Livre</th>
-                                <th style="width: 15%;">Catégorie</th>
-                                <th style="width: 25%;">Dépôt source</th>
-                                <th style="width: 18%;">Disponibilité</th>
+                                <th style="width: 25%;">Titre de la ressource</th>
+                                <th style="width: 12%;">Type</th>
+                                <th style="width: 13%;">Catégorie</th>
+                                <th style="width: 22%;">Dépôt source</th>
+                                <th style="width: 16%;">Disponibilité</th>
                                 <th style="width: 12%;">Lien</th>
                             </tr>
                         </thead>
@@ -802,7 +818,6 @@
                 tbody.appendChild(tr);
             });
         }
-
         function renderBooks() {
             const tbody = document.getElementById('books-table-body');
             tbody.innerHTML = '';
@@ -813,7 +828,7 @@
             }
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Aucun livre trouvé dans cette catégorie.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Aucune ressource trouvée dans cette catégorie.</td></tr>';
                 return;
             }
 
@@ -848,8 +863,19 @@
                     tr.className = rowClass;
                 }
 
+                // Détecter la classe CSS pour le badge de type
+                let typeClass = 'type-book';
+                let typeText = book.type_ressource || 'Book';
+                if (typeText === 'Tool') typeClass = 'type-tool';
+                else if (typeText === 'Write-up') typeClass = 'type-writeup';
+                else if (typeText === 'Hardening') typeClass = 'type-hardening';
+                else if (typeText === 'Interview') typeClass = 'type-interview';
+                else if (typeText === 'Threat-Intel') typeClass = 'type-threat-intel';
+                else if (typeText === 'Template') typeClass = 'type-template';
+
                 tr.innerHTML = `
                     <td style="font-weight: 600;">${escapeHTML(book.title)}</td>
+                    <td><span class="type-badge ${typeClass}">${typeText}</span></td>
                     <td><span class="cat-table-badge" data-cat="${book.category}">${book.category}</span></td>
                     <td><a href="${book.repo_url}" target="_blank" class="repo-link">${book.repo_name}</a></td>
                     <td>${statusBadge}</td>
