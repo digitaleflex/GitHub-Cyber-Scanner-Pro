@@ -1,113 +1,63 @@
 import logging
-import re
+import xml.etree.ElementTree as ET # nosec B405
 from datetime import datetime
-from bs4 import BeautifulSoup
 from .base_connector import BaseConnector
 
 class PacketStormConnector(BaseConnector):
     """
     Connecteur pour Packet Storm Security.
-    Scraper pour les derniers outils, exploits et bulletins.
+    Récupère les outils, exploits et avis de sécurité via le flux RSS.
     """
     
-    BASE_URL = "https://packetstormsecurity.com"
-    FILES_URL = "https://packetstormsecurity.com/files/page/1/"
+    RSS_URL = "http://rss.packetstormsecurity.com/files/"
 
     def __init__(self):
         super().__init__("PacketStorm")
 
     def fetch_new_items(self):
-        """Récupère les derniers fichiers depuis Packet Storm."""
-        self.logger.info("🌪️ Scraping de Packet Storm Security...")
-        
-        # Le cookie 'AGREE=1' est souvent nécessaire pour bypasser le ToS wall
-        headers = {
-            "Referer": "https://packetstormsecurity.com/files/"
-        }
-        # Note: BaseConnector.stealth_get simple, on va lui passer les cookies si possible
-        # Mais stealth_get ne supporte pas les cookies nativement dans sa signature actuelle
-        # On va utiliser une approche directe si stealth_get est trop limité, 
-        # ou enrichir l'appel si on peut.
-        
-        # Pour Packet Storm, on va tenter le coup avec stealth_get et espérer que l'UA suffise
-        # ou que le ToS ne soit pas systématique pour l'UA utilisé.
-        response = self.stealth_get(self.FILES_URL, headers=headers)
+        """Récupère les nouvelles entrées du flux RSS Packet Storm."""
+        self.logger.info(f"📥 Récupération du flux RSS Packet Storm: {self.RSS_URL}")
+        response = self.stealth_get(self.RSS_URL)
         
         if not response or response.status_code != 200:
-            self.logger.error("❌ Impossible de scraper Packet Storm.")
+            self.logger.error("❌ Impossible de récupérer le flux RSS Packet Storm.")
             return []
 
-        # Si on est redirigé vers le ToS, on réessaie avec le cookie
-        if "frequently asked questions" in response.text.lower():
-            self.logger.info("🛡️ ToS détecté, tentative de bypass avec cookie...")
-            import requests
-            # On utilise requests directement car stealth_get ne gère pas les cookies
-            response = requests.get(self.FILES_URL, headers=headers, cookies={"AGREE": "1"}, timeout=30)
-            if response.status_code != 200:
-                return []
-
         try:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            # Les fichiers sont dans des balises <dl id="files">
-            dl_files = soup.find('dl', id='files')
-            if not dl_files:
-                # Fallback sur tous les <dl> si l'ID a changé
-                dl_files = soup.find_all('dl')
-            else:
-                dl_files = [dl_files]
-
-            items = []
-            for dl in dl_files:
-                # Chaque fichier a un <dt> (titre/lien) et des <dd> (détails)
-                dts = dl.find_all('dt')
-                for dt in dts:
-                    item = {"dt": dt}
-                    # Les <dd> qui suivent le <dt> actuel jusqu'au prochain <dt>
-                    next_node = dt.next_sibling
-                    item["dds"] = []
-                    while next_node and next_node.name != 'dt':
-                        if next_node.name == 'dd':
-                            item["dds"].append(next_node)
-                        next_node = next_node.next_sibling
-                    items.append(item)
-            
-            self.logger.info(f"✅ {len(items)} fichiers trouvés sur Packet Storm.")
+            root = ET.fromstring(response.content)
+            items = root.findall('.//item')
+            self.logger.info(f"✅ {len(items)} items trouvés dans le flux Packet Storm.")
             return items
         except Exception as e:
-            self.logger.error(f"❌ Erreur lors du parsing Packet Storm : {e}")
+            self.logger.error(f"❌ Erreur lors du parsing XML Packet Storm : {e}")
             return []
 
     def parse_item(self, item):
         """
-        Transforme un bloc Packet Storm en ressource standard.
+        Transforme un item RSS Packet Storm en ressource standard.
         """
-        dt = item["dt"]
-        dds = item["dds"]
+        title = item.find('title').text.strip() if item.find('title') is not None else "Sans titre"
+        link = item.find('link').text.strip() if item.find('link') is not None else ""
+        description = item.find('description').text.strip() if item.find('description') is not None else ""
         
-        a_tag = dt.find('a')
-        title = a_tag.text if a_tag else "Sans titre"
-        link = self.BASE_URL + a_tag['href'] if a_tag else ""
-        
-        description = ""
-        external_id = "PS-" + link.split('/')[-2] if '/' in link else "PS-Unknown"
-        
-        # Extraction de la description et de la date dans les <dd>
-        for dd in dds:
-            if 'class' in dd.attrs:
-                if 'detail' in dd['class']:
-                    description += dd.text.strip() + " "
-                elif 'datetime' in dd['class']:
-                    # La date est souvent "Feb 10, 2026"
-                    pass # On peut l'extraire si besoin
-            else:
-                description += dd.text.strip() + " "
+        # Extraction de l'ID depuis l'URL (ex: https://packetstormsecurity.com/files/178550/...)
+        external_id = "PS-unknown"
+        if "/files/" in link:
+            parts = link.split("/")
+            try:
+                # L'ID est généralement après /files/
+                idx = parts.index("files")
+                if len(parts) > idx + 1:
+                    external_id = f"PS-{parts[idx+1]}"
+            except ValueError:
+                pass
 
         return {
             "external_id": external_id,
-            "title": title.strip(),
-            "description": description.strip()[:500],
+            "title": title,
+            "description": description[:500] + "..." if len(description) > 500 else description,
             "url": link,
-            "raw_content_url": link, # Packet Storm propose des téléchargements directs sur la page
+            "raw_content_url": "", # Pas d'URL directe simple vers le fichier brut via RSS
             "type_ressource": "Outil / Bulletin",
             "language": "en",
             "discovered_at": datetime.now()
@@ -117,6 +67,8 @@ if __name__ == "__main__":
     # Test rapide
     logging.basicConfig(level=logging.INFO)
     connector = PacketStormConnector()
-    files = connector.fetch_new_items()
-    if files:
-        print(f"Exemple : {connector.parse_item(files[0])}")
+    items = connector.fetch_new_items()
+    if items:
+        print(f"✅ Exemple d'item parsé : {connector.parse_item(items[0])}")
+    else:
+        print("❌ Aucun item trouvé ou erreur lors de la récupération.")
