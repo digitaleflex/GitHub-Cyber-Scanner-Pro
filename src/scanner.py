@@ -14,11 +14,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 
 # Importer nos modules sémantiques et de base de données
-import database
-import nlp_processor
-import security_analyzer
-import llm_summarizer
-import orchestrator
+from src import database
+from src import nlp_processor
+from src import security_analyzer
+from src import llm_summarizer
+from src import orchestrator
 
 # Reconfigurer la sortie standard en UTF-8 sur Windows pour supporter l'affichage d'emojis
 if sys.platform == "win32":
