@@ -1,0 +1,17 @@
+# Environnement et secrets
+.env
+
+# Données locales et base de données (SQLite, Excel, JSON exports)
+data/
+*.xlsx
+*.json
+*.bak
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/

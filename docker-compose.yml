@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  scanner:
+    build: .
+    container_name: cyber_github_scanner
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    environment:
+      - SCAN_INTERVAL_SECONDS=3600

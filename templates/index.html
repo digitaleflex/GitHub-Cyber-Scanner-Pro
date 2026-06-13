@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Cyber Scanner Pro</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 25, 40, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #6366f1; /* Indigo */
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --accent-offensive: #ef4444; /* Rouge Red Team */
+            --accent-defensive: #10b981; /* Vert Blue Team */
+            --accent-cert: #f59e0b; /* Jaune Certifs */
+            --accent-cheatsheet: #06b6d4; /* Cyan */
+            --accent-general: #8b5cf6; /* Violet */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
+        }
+
+        /* En-tête */
+        header {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo-section h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-section p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .actions-section {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Boutons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            background-color: #4f46e5;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--card-border);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Container Principal */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Section Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            padding: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-info h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-info p {
+            font-size: 1.75rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Onglets */
+        .tabs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            color: var(--text-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Barre de Recherche */
+        .search-box {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.65rem 1rem 0.65rem 2.5rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            fill: var(--text-muted);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Filtres Catégories */
+        .category-filters {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .cat-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .cat-badge:hover, .cat-badge.active {
+            color: #fff;
+            transform: scale(1.03);
+        }
+
+        /* Styles spécifiques aux catégories pour les badges actifs */
+        .cat-badge.active[data-cat="all"] { background-color: var(--primary); border-color: var(--primary); }
+        .cat-badge.active[data-cat="Offensive / Red Team"] { background-color: var(--accent-offensive); border-color: var(--accent-offensive); }
+        .cat-badge.active[data-cat="Defensive / Blue Team"] { background-color: var(--accent-defensive); border-color: var(--accent-defensive); }
+        .cat-badge.active[data-cat="Certifications"] { background-color: var(--accent-cert); border-color: var(--accent-cert); }
+        .cat-badge.active[data-cat="Cheat Sheets / Références"] { background-color: var(--accent-cheatsheet); border-color: var(--accent-cheatsheet); }
+        .cat-badge.active[data-cat="Général / InfoSec"] { background-color: var(--accent-general); border-color: var(--accent-general); }
+
+        /* Conteneurs de Contenu */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cartes et Tableaux */
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            padding: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            background: #0f172a; /* Nécessaire pour le sticky th */
+        }
+
+        td {
+            padding: 1.1rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Liens et badges de table */
+        .repo-link {
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .repo-link:hover {
+            color: #8b5cf6;
+            text-decoration: underline;
+        }
+
+        .stars-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(245, 158, 11, 0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 0.3rem 0.65rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .lang-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.3rem 0.65rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Badges de Catégorie dans la table */
+        .cat-table-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .cat-table-badge[data-cat="Offensive / Red Team"] { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .cat-table-badge[data-cat="Defensive / Blue Team"] { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .cat-table-badge[data-cat="Certifications"] { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .cat-table-badge[data-cat="Cheat Sheets / Références"] { background: rgba(6, 182, 212, 0.12); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.2); }
+        .cat-table-badge[data-cat="Général / InfoSec"] { background: rgba(139, 92, 246, 0.12); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); }
+
+        .book-url-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            background-color: rgba(99, 102, 241, 0.12);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: var(--transition);
+        }
+
+        .book-url-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: #fff;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateY(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar moderne */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Badges de Statut de Disponibilité */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: var(--transition);
+            cursor: help;
+        }
+
+        .status-badge svg {
+            width: 13px;
+            height: 13px;
+            stroke-width: 2.5;
+        }
+
+        .status-available {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+        }
+
+        .status-available:hover {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.18);
+        }
+
+        .status-dead {
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+        }
+
+        .status-dead:hover {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.18);
+        }
+
+        .status-unchecked {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
+        }
+
+        .status-unchecked:hover {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.18);
+        }
+
+        /* Lignes désactivées / Hors Ligne */
+        .row-dead {
+            opacity: 0.55;
+            background: rgba(239, 68, 68, 0.015);
+            transition: var(--transition);
+        }
+
+        .row-dead:hover {
+            opacity: 0.85;
+            background: rgba(239, 68, 68, 0.03) !important;
+        }
+
+        .row-dead td {
+            color: #b3b8c2;
+        }
+
+        .row-dead .book-url-btn {
+            background-color: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            border-color: rgba(255, 255, 255, 0.06);
+            box-shadow: none;
+        }
+
+        .row-dead .book-url-btn:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-color);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Effets d'esthétique globale */
+        .logo-section h1:hover {
+            background: linear-gradient(135deg, #a5b4fc 0%, #8b5cf6 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
+            transition: var(--transition);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1) rotate(5deg);
+            transition: var(--transition);
+        }
+
+        .repo-link:hover {
+            text-shadow: 0 0 8px rgba(99, 102, 241, 0.35);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-section">
+            <h1>GitHub Cyber Scanner Pro</h1>
+            <p>Intelligence de Veille & Extraction de Livres Cybersécurité</p>
+        </div>
+        <div class="actions-section">
+            <button class="btn btn-secondary" id="btn-scan" onclick="triggerScan()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Lancer un Scan
+            </button>
+            <a href="/api/download/json" class="btn btn-secondary" style="border-color: rgba(99, 102, 241, 0.35); color: #a5b4fc;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Télécharger le JSON
+            </a>
+            <a href="/api/download" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Télécharger l'Excel
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Grille de Statistiques -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📂</div>
+                <div class="stat-info">
+                    <h3>Dépôts Indexés</h3>
+                    <p id="stat-repos">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-info">
+                    <h3>Livres & Ressources</h3>
+                    <p id="stat-books">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔄</div>
+                <div class="stat-info">
+                    <h3>Statut du Scanner</h3>
+                    <p id="stat-status" style="font-size: 1.15rem; font-weight: 600; color: #a5b4fc;">Prêt / En sommeil</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Entête des Onglets -->
+        <section class="tabs-header">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-repos', this)">Dépôts GitHub</button>
+                <button class="tab-btn" onclick="switchTab('tab-books', this)">Livres & Ressources Extraits</button>
+            </div>
+            <div class="search-box">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="search-input" placeholder="Rechercher..." onkeyup="filterTables()">
+            </div>
+        </section>
+
+        <!-- Onglet Dépôts -->
+        <section id="tab-repos" class="tab-content active">
+            <div class="content-card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Nom du Dépôt</th>
+                                <th style="width: 12%;">Étoiles</th>
+                                <th style="width: 38%;">Description</th>
+                                <th style="width: 15%;">Langue</th>
+                                <th style="width: 10%;">Lien</th>
+                            </tr>
+                        </thead>
+                        <tbody id="repos-table-body">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-muted);">Chargement des dépôts...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Onglet Livres -->
+        <section id="tab-books" class="tab-content">
+            <!-- Badges de Catégorie -->
+            <div class="category-filters">
+                <span class="cat-badge active" data-cat="all" onclick="filterCategory('all')">Tous</span>
+                <span class="cat-badge" data-cat="Offensive / Red Team" onclick="filterCategory('Offensive / Red Team')">Offensive / Red Team</span>
+                <span class="cat-badge" data-cat="Defensive / Blue Team" onclick="filterCategory('Defensive / Blue Team')">Defensive / Blue Team</span>
+                <span class="cat-badge" data-cat="Certifications" onclick="filterCategory('Certifications')">Certifications</span>
+                <span class="cat-badge" data-cat="Cheat Sheets / Références" onclick="filterCategory('Cheat Sheets / Références')">Cheat Sheets / Références</span>
+                <span class="cat-badge" data-cat="Général / InfoSec" onclick="filterCategory('Général / InfoSec')">Général / InfoSec</span>
+            </div>
+            
+            <div class="content-card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Titre de la ressource / Livre</th>
+                                <th style="width: 15%;">Catégorie</th>
+                                <th style="width: 25%;">Dépôt source</th>
+                                <th style="width: 18%;">Disponibilité</th>
+                                <th style="width: 12%;">Lien</th>
+                            </tr>
+                        </thead>
+                        <tbody id="books-table-body">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-muted);">Chargement des livres...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span id="toast-message">Action réussie !</span>
+    </div>
+
+    <script>
+        let currentTab = 'tab-repos';
+        let currentCategory = 'all';
+        let allRepos = [];
+        let allBooks = [];
+
+        // Charger les données au chargement de la page
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchStats();
+            fetchRepos();
+            fetchBooks();
+            
+            // Rafraîchir régulièrement le statut et les données de l'onglet actif toutes les 10 secondes
+            setInterval(() => {
+                fetchStats();
+                if (currentTab === 'tab-repos') {
+                    fetchRepos();
+                } else if (currentTab === 'tab-books') {
+                    fetchBooks();
+                }
+            }, 10000);
+        });
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            el.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            currentTab = tabId;
+            
+            // Charger les données fraîches de l'onglet sélectionné
+            if (tabId === 'tab-repos') {
+                fetchRepos();
+            } else if (tabId === 'tab-books') {
+                fetchBooks();
+            }
+            
+            filterTables();
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('.cat-badge').forEach(badge => badge.classList.remove('active'));
+            const clickedBadge = document.querySelector(`.cat-badge[data-cat="${cat}"]`);
+            if (clickedBadge) clickedBadge.classList.add('active');
+            
+            currentCategory = cat;
+            renderBooks();
+        }
+
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                document.getElementById('stat-repos').textContent = data.total_repos;
+                document.getElementById('stat-books').textContent = data.total_books;
+                document.getElementById('stat-status').textContent = data.status;
+            } catch (err) {
+                console.error("Erreur stats:", err);
+            }
+        }
+
+        async function fetchRepos() {
+            try {
+                const res = await fetch('/api/repositories');
+                allRepos = await res.json();
+                renderRepos();
+            } catch (err) {
+                console.error("Erreur dépôts:", err);
+            }
+        }
+
+        async function fetchBooks() {
+            try {
+                const res = await fetch('/api/books');
+                allBooks = await res.json();
+                renderBooks();
+            } catch (err) {
+                console.error("Erreur livres:", err);
+            }
+        }
+
+        function renderRepos() {
+            const tbody = document.getElementById('repos-table-body');
+            tbody.innerHTML = '';
+            
+            if (allRepos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Aucun dépôt trouvé.</td></tr>';
+                return;
+            }
+
+            allRepos.forEach(repo => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><a href="${repo.html_url}" target="_blank" class="repo-link">${repo.full_name}</a></td>
+                    <td><span class="stars-badge">★ ${repo.stars.toLocaleString()}</span></td>
+                    <td style="color: var(--text-muted); line-height: 1.4;">${escapeHTML(repo.description)}</td>
+                    <td><span class="lang-badge">${repo.language}</span></td>
+                    <td><a href="${repo.html_url}" target="_blank" class="book-url-btn">Ouvrir</a></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderBooks() {
+            const tbody = document.getElementById('books-table-body');
+            tbody.innerHTML = '';
+
+            let filtered = allBooks;
+            if (currentCategory !== 'all') {
+                filtered = allBooks.filter(book => book.category === currentCategory);
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Aucun livre trouvé dans cette catégorie.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(book => {
+                const tr = document.createElement('tr');
+                
+                // Formater le badge de statut et le tooltip
+                let statusBadge = '';
+                let rowClass = '';
+                let lastCheckedStr = book.last_checked ? new Date(book.last_checked + 'Z').toLocaleString('fr-FR') : 'Jamais vérifié';
+                let tooltipText = `Dernier contrôle : ${lastCheckedStr}`;
+                
+                if (book.is_dead === 1) {
+                    rowClass = 'row-dead';
+                    statusBadge = `<span class="status-badge status-dead" title="${tooltipText}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        Hors ligne
+                    </span>`;
+                } else if (book.last_checked) {
+                    statusBadge = `<span class="status-badge status-available" title="${tooltipText}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Disponible
+                    </span>`;
+                } else {
+                    statusBadge = `<span class="status-badge status-unchecked" title="${tooltipText}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        Non vérifié
+                    </span>`;
+                }
+
+                if (rowClass) {
+                    tr.className = rowClass;
+                }
+
+                tr.innerHTML = `
+                    <td style="font-weight: 600;">${escapeHTML(book.title)}</td>
+                    <td><span class="cat-table-badge" data-cat="${book.category}">${book.category}</span></td>
+                    <td><a href="${book.repo_url}" target="_blank" class="repo-link">${book.repo_name}</a></td>
+                    <td>${statusBadge}</td>
+                    <td><a href="${book.url}" target="_blank" class="book-url-btn">${book.is_dead === 1 ? 'Accéder quand même' : 'Télécharger / Accéder'}</a></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTables() {
+            const val = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll(currentTab === 'tab-repos' ? '#repos-table-body tr' : '#books-table-body tr');
+            
+            rows.forEach(row => {
+                if (row.cells.length < 2) return; // Sauter les lignes vides/chargement
+                
+                let matches = false;
+                for (let i = 0; i < row.cells.length; i++) {
+                    if (row.cells[i].textContent.toLowerCase().includes(val)) {
+                        matches = true;
+                        break;
+                    }
+                }
+                row.style.display = matches ? '' : 'none';
+            });
+        }
+
+        async function triggerScan() {
+            const btn = document.getElementById('btn-scan');
+            btn.disabled = true;
+            btn.innerHTML = `<svg style="animation: spin 1s linear infinite" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Scan en cours...`;
+            
+            try {
+                const res = await fetch('/api/scan', { method: 'POST' });
+                const data = await res.json();
+                showToast(data.message);
+                fetchStats();
+            } catch (err) {
+                console.error("Erreur lors du scan:", err);
+                showToast("Erreur lors du lancement du scan.");
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg> Lancer un Scan`;
+                }, 3000);
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
+    
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
