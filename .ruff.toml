@@ -19,6 +19,7 @@ ignore = [
     "E701", # multiple statements on one line
     "F841", # unused variable
     "F821", # undefined name
+    "I001", # unsorted imports
 ]
 
 [format]

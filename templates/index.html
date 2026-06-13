@@ -600,6 +600,58 @@
         .security-suspect { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
         .security-critique { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); }
         .security-none { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--card-border); }
+
+        /* Bouton Fiche Flash */
+        .btn-flash {
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-flash:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+
+        /* Modal Fiche Flash */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #111827;
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+            animation: fadeIn 0.3s ease-out;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 1rem;
+        }
+        .flash-section { margin-bottom: 1.25rem; }
+        .flash-label { font-size: 0.75rem; text-transform: uppercase; color: #a5b4fc; font-weight: 700; margin-bottom: 0.25rem; }
+        .flash-value { font-size: 1rem; color: #fff; line-height: 1.5; }
+        .flash-cmd { background: #000; padding: 0.75rem; border-radius: 8px; font-family: 'Space Grotesk', monospace; font-size: 0.9rem; color: #10b981; border: 1px solid #10b981; }
     </style>
 </head>
 <body>
@@ -723,6 +775,17 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal Fiche Flash -->
+    <div id="flash-modal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 style="font-family: 'Space Grotesk', sans-serif; color: #f59e0b;">⚡ Fiche Flash IA</h2>
+                <button class="btn-secondary" style="padding: 0.25rem 0.5rem; border-radius: 6px;" onclick="document.getElementById('flash-modal').style.display='none'">✕</button>
+            </div>
+            <div id="flash-body"></div>
+        </div>
+    </div>
 
     <!-- Notification Toast -->
     <div class="toast" id="toast">
@@ -851,7 +914,10 @@
                 }
 
                 tr.innerHTML = `
-                    <td><a href="${repo.html_url}" target="_blank" class="repo-link">${repo.full_name}</a></td>
+                    <td>
+                        <a href="${repo.html_url}" target="_blank" class="repo-link">${repo.full_name}</a>
+                        ${repo.llm_summary ? `<br><button class="btn-flash" onclick='showFlashCard(${JSON.stringify(repo.llm_summary).replace(/'/g, "&apos;")})'>⚡ Fiche Flash IA</button>` : ''}
+                    </td>
                     <td><span class="stars-badge">★ ${repo.stars.toLocaleString()}</span></td>
                     <td style="color: var(--text-muted); line-height: 1.4;">${escapeHTML(repo.description)}</td>
                     <td>${secBadge}</td>
@@ -926,6 +992,31 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function showFlashCard(summary) {
+            const body = document.getElementById('flash-body');
+            body.innerHTML = `
+                <div class="flash-section">
+                    <div class="flash-label">Objectif</div>
+                    <div class="flash-value">${summary.objectif || 'Non défini'}</div>
+                </div>
+                <div class="flash-section">
+                    <div class="flash-label">Prérequis</div>
+                    <div class="flash-value">${summary.prerequis || 'Aucun'}</div>
+                </div>
+                <div class="flash-section">
+                    <div class="flash-label">Commande Flash</div>
+                    <div class="flash-cmd">${summary.commande_flash || '# Non disponible'}</div>
+                </div>
+            `;
+            document.getElementById('flash-modal').style.display = 'flex';
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'flash-modal') {
+                e.target.style.display = 'none';
+            }
         }
 
         let searchTimeout = null;
