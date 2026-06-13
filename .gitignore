@@ -1,10 +1,9 @@
 # Environnement et secrets
 .env
 
-# Données locales et base de données (SQLite, Excel, JSON exports)
-data/
-*.xlsx
-*.json
+# Base de données binaire (SQLite)
+*.db
+data/*.db
 *.bak
 
 # Python
