@@ -179,7 +179,7 @@ def init_db():
         conn.rollback()
         logging.warning(f"⚠️ Erreur migration colonnes repositories : {e}")
 
-    # 3. Table des livres (avec score_qualite, vecteur_semantique et tsvector)
+    # 3. Table des livres (existante - conservée pour compatibilité)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS books (
             id SERIAL PRIMARY KEY,
@@ -198,32 +198,99 @@ def init_db():
         )
     """)
 
-    # S'assurer de rajouter la colonne si elle n'existe pas (migration fluide)
-    try:
-        cursor.execute("ALTER TABLE books ADD COLUMN IF NOT EXISTS type_ressource VARCHAR(100) DEFAULT 'Book';")
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        logging.warning(f"⚠️ Impossible d'ajouter la colonne type_ressource : {e}")
+    # --- NOUVELLES TABLES MULTI-SOURCES ---
 
-    # 4. Table de cache ETag
+    # 4. Table des sources
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS etag_cache (
-            query VARCHAR(255) PRIMARY KEY,
-            etag VARCHAR(255),
-            last_modified VARCHAR(255),
-            last_checked TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        CREATE TABLE IF NOT EXISTS sources (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) UNIQUE NOT NULL,
+            url VARCHAR(500),
+            type VARCHAR(50),
+            is_active BOOLEAN DEFAULT TRUE,
+            last_sync TIMESTAMP
         )
     """)
 
-    # 5. Créer l'index GIN sur tsv_content
-    cursor.execute("CREATE INDEX IF NOT EXISTS books_tsv_idx ON books USING GIN (tsv_content)")
+    # 5. Table universelle des ressources
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS resources (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            source_id INTEGER REFERENCES sources(id),
+            external_id VARCHAR(255),
+            title TEXT NOT NULL,
+            description TEXT,
+            content_raw TEXT,
+            url VARCHAR(1000) UNIQUE NOT NULL,
+            type_ressource VARCHAR(100),
+            language VARCHAR(10) DEFAULT 'en',
+            score_qualite INTEGER DEFAULT 0,
+            security_verdict VARCHAR(20) DEFAULT 'NON_AUDITE',
+            vecteur_semantique vector(384),
+            tsv_content tsvector,
+            discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP
+        )
+    """)
+
+    # S'assurer que pgcrypto est activé pour gen_random_uuid()
+    try:
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;")
+    except:
+        pass
+
+    # Index GIN sur resources
+    cursor.execute("CREATE INDEX IF NOT EXISTS resources_tsv_idx ON resources USING GIN (tsv_content)")
 
     conn.commit()
     cursor.close()
     conn.close()
-    logging.info("⚙️ [Base de données] Tables PostgreSQL initialisées.")
+    logging.info("⚙️ [Base de données] Tables PostgreSQL (V2 Multi-sources) initialisées.")
 
+
+    def save_resource(source_name, item_data):
+    """Enregistre une ressource provenant d'un connecteur externe."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # 1. Récupérer ou créer la source
+        cursor.execute("SELECT id FROM sources WHERE name = %s", (source_name,))
+        row = cursor.fetchone()
+        if not row:
+            cursor.execute("INSERT INTO sources (name) VALUES (%s) RETURNING id", (source_name,))
+            source_id = cursor.fetchone()[0]
+        else:
+            source_id = row[0]
+
+        # 2. Insérer la ressource (avec gestion de conflit sur URL)
+        cursor.execute(
+            """
+            INSERT INTO resources (source_id, external_id, title, description, url, type_ressource, language)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (url) DO UPDATE SET
+                title = EXCLUDED.title,
+                description = EXCLUDED.description,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (
+                source_id, 
+                item_data.get("external_id"), 
+                item_data.get("title"), 
+                item_data.get("description"), 
+                item_data.get("url"), 
+                item_data.get("type_ressource"), 
+                item_data.get("language", "en")
+            )
+        )
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        logging.error(f"❌ Erreur save_resource ({source_name}): {e}")
+        return False
 
 def save_etag_to_cache(query, etag, last_modified):
     try:

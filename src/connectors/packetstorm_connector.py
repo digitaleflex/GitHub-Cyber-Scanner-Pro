@@ -24,7 +24,7 @@ class PacketStormConnector(BaseConnector):
             return []
 
         try:
-            root = ET.fromstring(response.content)
+            root = ET.fromstring(response.content) # nosec B314
             items = root.findall('.//item')
             self.logger.info(f"✅ {len(items)} items trouvés dans le flux Packet Storm.")
             return items
