@@ -7,7 +7,7 @@ from psycopg2.extras import RealDictCursor
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 
-import nlp_processor
+from src import nlp_processor
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
