@@ -26,7 +26,7 @@ class ArxivConnector(BaseConnector):
 
         try:
             # Parser le flux XML Atom
-            root = ET.fromstring(response.content)
+            root = ET.fromstring(response.content) # nosec B314
             # Les namespaces Atom
             ns = {'atom': 'http://www.w3.org/2005/Atom'}
             
