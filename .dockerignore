@@ -5,10 +5,11 @@ __pycache__/
 .git
 .gitignore
 .env
-data/
-*.json
-*.xlsx
+data/*.json
+data/*.xlsx
 .gemini/
 *.log
-Dockerfile
-docker-compose.yml
+reports/
+.github/
+*.md
+!requirements.txt
