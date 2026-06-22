@@ -1,0 +1,2072 @@
+[
+  {
+    "name": "GyulyVGC/sniffnet",
+    "desc": "Comfortably monitor your Internet traffic \ud83d\udd75\ufe0f\u200d\u2642\ufe0f",
+    "stars": 39500,
+    "lang": "Rust",
+    "url": "https://github.com/GyulyVGC/sniffnet",
+    "created": "2022-07-31T21:55:56Z",
+    "updated": "2026-06-22T02:36:41Z",
+    "size_kb": 341291
+  },
+  {
+    "name": "getsops/sops",
+    "desc": "Simple and flexible tool for managing secrets",
+    "stars": 22164,
+    "lang": "Go",
+    "url": "https://github.com/getsops/sops",
+    "created": "2015-08-13T22:11:00Z",
+    "updated": "2026-06-21T22:54:50Z",
+    "size_kb": 146673
+  },
+  {
+    "name": "MobSF/Mobile-Security-Framework-MobSF",
+    "desc": "Mobile Security Framework (MobSF) is an automated, all-in-one mobile application (Android/iOS/Windows) pen-testing, malw",
+    "stars": 21247,
+    "lang": "JavaScript",
+    "url": "https://github.com/MobSF/Mobile-Security-Framework-MobSF",
+    "created": "2015-01-31T04:36:01Z",
+    "updated": "2026-06-22T02:21:03Z",
+    "size_kb": 1524430
+  },
+  {
+    "name": "slackhq/nebula",
+    "desc": "A scalable overlay networking tool with a focus on performance, simplicity and security",
+    "stars": 17441,
+    "lang": "Go",
+    "url": "https://github.com/slackhq/nebula",
+    "created": "2019-11-16T23:26:23Z",
+    "updated": "2026-06-22T01:46:54Z",
+    "size_kb": 3905
+  },
+  {
+    "name": "shadow1ng/fscan",
+    "desc": "\u4e00\u6b3e\u5185\u7f51\u7efc\u5408\u626b\u63cf\u5de5\u5177\uff0c\u65b9\u4fbf\u4e00\u952e\u81ea\u52a8\u5316\u3001\u5168\u65b9\u4f4d\u6f0f\u626b\u626b\u63cf\u3002(An intranet comprehensive scanning tool, enabling one-click automated, all-round vulnerabili",
+    "stars": 14013,
+    "lang": "Go",
+    "url": "https://github.com/shadow1ng/fscan",
+    "created": "2020-11-13T16:35:20Z",
+    "updated": "2026-06-21T17:34:34Z",
+    "size_kb": 29488
+  },
+  {
+    "name": "projectdiscovery/subfinder",
+    "desc": "Fast passive subdomain enumeration tool.",
+    "stars": 13893,
+    "lang": "Go",
+    "url": "https://github.com/projectdiscovery/subfinder",
+    "created": "2018-03-31T09:44:57Z",
+    "updated": "2026-06-22T01:35:37Z",
+    "size_kb": 10166
+  },
+  {
+    "name": "anchore/grype",
+    "desc": "A vulnerability scanner for container images and filesystems",
+    "stars": 12458,
+    "lang": "Go",
+    "url": "https://github.com/anchore/grype",
+    "created": "2020-05-26T13:44:38Z",
+    "updated": "2026-06-21T16:37:11Z",
+    "size_kb": 9721
+  },
+  {
+    "name": "projectdiscovery/naabu",
+    "desc": "A fast port scanner written in go with a focus on reliability and simplicity. Designed to be used in combination with ot",
+    "stars": 6008,
+    "lang": "Go",
+    "url": "https://github.com/projectdiscovery/naabu",
+    "created": "2020-01-21T10:56:32Z",
+    "updated": "2026-06-22T01:32:40Z",
+    "size_kb": 3833
+  },
+  {
+    "name": "Pennyw0rth/NetExec",
+    "desc": "The Network Execution Tool",
+    "stars": 5615,
+    "lang": "Python",
+    "url": "https://github.com/Pennyw0rth/NetExec",
+    "created": "2023-09-08T15:36:00Z",
+    "updated": "2026-06-21T20:22:49Z",
+    "size_kb": 17163
+  },
+  {
+    "name": "Ed1s0nZ/CyberStrikeAI",
+    "desc": "CyberStrikeAI is an AI-native security testing platform built in Go. It integrates 100+ security tools, an intelligent o",
+    "stars": 4662,
+    "lang": "Go",
+    "url": "https://github.com/Ed1s0nZ/CyberStrikeAI",
+    "created": "2025-11-08T10:41:23Z",
+    "updated": "2026-06-22T02:34:47Z",
+    "size_kb": 53470
+  },
+  {
+    "name": "intelowlproject/IntelOwl",
+    "desc": "IntelOwl: manage your Threat Intelligence at scale",
+    "stars": 4601,
+    "lang": "Python",
+    "url": "https://github.com/intelowlproject/IntelOwl",
+    "created": "2019-12-31T15:18:52Z",
+    "updated": "2026-06-21T22:05:50Z",
+    "size_kb": 195431
+  },
+  {
+    "name": "ivre/ivre",
+    "desc": "Network recon framework. Build your own, self-hosted and fully-controlled alternatives to Shodan / ZoomEye / Censys and ",
+    "stars": 4061,
+    "lang": "Python",
+    "url": "https://github.com/ivre/ivre",
+    "created": "2014-09-12T13:34:56Z",
+    "updated": "2026-06-21T22:28:27Z",
+    "size_kb": 44063
+  },
+  {
+    "name": "Cryakl/Ultimate-RAT-Collection",
+    "desc": "For educational purposes only, exhaustive samples of 500+ classic/modern trojan builders including screenshots.",
+    "stars": 4022,
+    "lang": null,
+    "url": "https://github.com/Cryakl/Ultimate-RAT-Collection",
+    "created": "2023-09-12T00:41:11Z",
+    "updated": "2026-06-21T19:42:19Z",
+    "size_kb": 26722311
+  },
+  {
+    "name": "alexandreborges/malwoverview",
+    "desc": "Malwoverview is a first response tool for threat hunting across VirusTotal, Hybrid Analysis, URLHaus, Polyswarm, Malshar",
+    "stars": 3881,
+    "lang": "Python",
+    "url": "https://github.com/alexandreborges/malwoverview",
+    "created": "2018-09-08T02:08:49Z",
+    "updated": "2026-06-21T17:55:04Z",
+    "size_kb": 46218
+  },
+  {
+    "name": "Bearer/bearer",
+    "desc": "Code security scanning tool (SAST) to discover, filter and prioritize security and privacy risks.",
+    "stars": 2686,
+    "lang": "Go",
+    "url": "https://github.com/Bearer/bearer",
+    "created": "2022-09-27T17:02:45Z",
+    "updated": "2026-06-21T22:46:41Z",
+    "size_kb": 24843
+  },
+  {
+    "name": "V0id-v2/Void-Tools-v2.0",
+    "desc": "Python terminal multitool \u2014 OSINT, Discord, web & network utilities. Rich TUI, 13 themes, remote updates. Educational us",
+    "stars": 2629,
+    "lang": "Python",
+    "url": "https://github.com/V0id-v2/Void-Tools-v2.0",
+    "created": "2026-05-30T21:57:30Z",
+    "updated": "2026-06-22T02:13:34Z",
+    "size_kb": 1157
+  },
+  {
+    "name": "WebBreacher/WhatsMyName",
+    "desc": "Community-maintained dataset of 700+ websites for finding accounts by username \u2014 powers OSINT and digital footprint tool",
+    "stars": 2609,
+    "lang": "Python",
+    "url": "https://github.com/WebBreacher/WhatsMyName",
+    "created": "2015-10-02T21:12:55Z",
+    "updated": "2026-06-21T20:52:40Z",
+    "size_kb": 4415
+  },
+  {
+    "name": "kubearmor/KubeArmor",
+    "desc": "Runtime Security Enforcement System. Workload hardening/sandboxing and implementing least-permissive policies made easy ",
+    "stars": 2429,
+    "lang": "Go",
+    "url": "https://github.com/kubearmor/KubeArmor",
+    "created": "2020-11-26T01:59:16Z",
+    "updated": "2026-06-21T15:17:26Z",
+    "size_kb": 81405
+  },
+  {
+    "name": "TermuxHackz/X-osint",
+    "desc": "This is an Open source intelligent framework ie an osint tool which gathers valid information about a phone number, user",
+    "stars": 2397,
+    "lang": "Python",
+    "url": "https://github.com/TermuxHackz/X-osint",
+    "created": "2023-03-11T06:37:34Z",
+    "updated": "2026-06-21T18:00:03Z",
+    "size_kb": 33110
+  },
+  {
+    "name": "david942j/one_gadget",
+    "desc": "The best tool for finding one gadget RCE in libc.so.6",
+    "stars": 2329,
+    "lang": "Ruby",
+    "url": "https://github.com/david942j/one_gadget",
+    "created": "2017-02-07T08:03:34Z",
+    "updated": "2026-06-19T09:30:34Z",
+    "size_kb": 14228
+  },
+  {
+    "name": "Ch0pin/medusa",
+    "desc": "Mobile Edge-Dynamic Unified Security Analysis",
+    "stars": 2285,
+    "lang": "JavaScript",
+    "url": "https://github.com/Ch0pin/medusa",
+    "created": "2020-06-24T08:21:13Z",
+    "updated": "2026-06-21T18:49:13Z",
+    "size_kb": 54164
+  },
+  {
+    "name": "rustsec/rustsec",
+    "desc": "RustSec API & Tooling",
+    "stars": 1899,
+    "lang": "Rust",
+    "url": "https://github.com/rustsec/rustsec",
+    "created": "2017-02-07T09:53:17Z",
+    "updated": "2026-06-21T15:56:57Z",
+    "size_kb": 21015
+  },
+  {
+    "name": "stacklok/toolhive",
+    "desc": "ToolHive is an enterprise-grade platform for running and managing Model Context Protocol (MCP) servers.",
+    "stars": 1898,
+    "lang": "Go",
+    "url": "https://github.com/stacklok/toolhive",
+    "created": "2025-03-12T14:49:15Z",
+    "updated": "2026-06-22T01:15:22Z",
+    "size_kb": 105456
+  },
+  {
+    "name": "devploit/nomore403",
+    "desc": "\ud83d\udeab Advanced tool for security researchers to bypass 403/40X restrictions through smart techniques and adaptive request ma",
+    "stars": 1796,
+    "lang": "Go",
+    "url": "https://github.com/devploit/nomore403",
+    "created": "2021-08-30T13:09:18Z",
+    "updated": "2026-06-21T23:55:19Z",
+    "size_kb": 7325
+  },
+  {
+    "name": "project-copacetic/copacetic",
+    "desc": "\ud83e\uddf5 CLI tool for directly patching container images!",
+    "stars": 1645,
+    "lang": "Go",
+    "url": "https://github.com/project-copacetic/copacetic",
+    "created": "2023-01-11T18:56:42Z",
+    "updated": "2026-06-19T20:34:41Z",
+    "size_kb": 28766
+  },
+  {
+    "name": "WangYihang/GitHacker",
+    "desc": "\ud83d\udd77\ufe0f A `.git` folder exploiting tool that is able to restore the entire Git repository, including stash, common branches a",
+    "stars": 1641,
+    "lang": "Python",
+    "url": "https://github.com/WangYihang/GitHacker",
+    "created": "2017-04-07T18:01:15Z",
+    "updated": "2026-06-21T09:45:39Z",
+    "size_kb": 5876
+  },
+  {
+    "name": "v0id4real/Void-Tools",
+    "desc": "Python terminal multitool \u2014 OSINT, network utilities, Rich TUI dashboard. Educational use only.",
+    "stars": 1405,
+    "lang": "Python",
+    "url": "https://github.com/v0id4real/Void-Tools",
+    "created": "2026-04-13T09:15:11Z",
+    "updated": "2026-06-22T01:58:38Z",
+    "size_kb": 709
+  },
+  {
+    "name": "BushidoUK/Ransomware-Tool-Matrix",
+    "desc": "A resource containing all the tools each ransomware gangs uses",
+    "stars": 1394,
+    "lang": null,
+    "url": "https://github.com/BushidoUK/Ransomware-Tool-Matrix",
+    "created": "2024-08-12T18:48:51Z",
+    "updated": "2026-06-22T00:25:20Z",
+    "size_kb": 991
+  },
+  {
+    "name": "NHAS/reverse_ssh",
+    "desc": "SSH based reverse shell ",
+    "stars": 1380,
+    "lang": "Go",
+    "url": "https://github.com/NHAS/reverse_ssh",
+    "created": "2021-02-11T05:15:56Z",
+    "updated": "2026-06-17T23:25:58Z",
+    "size_kb": 4874
+  },
+  {
+    "name": "taranis-ai/taranis-ai",
+    "desc": "Taranis AI is an advanced Open-Source Intelligence (OSINT) tool, leveraging Artificial Intelligence to revolutionize inf",
+    "stars": 1160,
+    "lang": "Python",
+    "url": "https://github.com/taranis-ai/taranis-ai",
+    "created": "2023-10-05T08:40:04Z",
+    "updated": "2026-06-21T15:37:44Z",
+    "size_kb": 20869
+  },
+  {
+    "name": "hahwul/jwt-hack",
+    "desc": "JSON Web Token Hack Toolkit",
+    "stars": 1001,
+    "lang": "Rust",
+    "url": "https://github.com/hahwul/jwt-hack",
+    "created": "2020-07-02T16:17:09Z",
+    "updated": "2026-06-21T17:18:13Z",
+    "size_kb": 2644
+  },
+  {
+    "name": "noraj/haiti",
+    "desc": ":key: Hash type identifier (CLI & lib)",
+    "stars": 988,
+    "lang": "Ruby",
+    "url": "https://github.com/noraj/haiti",
+    "created": "2020-06-22T09:03:16Z",
+    "updated": "2026-06-21T18:27:40Z",
+    "size_kb": 1172
+  },
+  {
+    "name": "DataDog/KubeHound",
+    "desc": "Tool for building Kubernetes attack paths",
+    "stars": 976,
+    "lang": "Go",
+    "url": "https://github.com/DataDog/KubeHound",
+    "created": "2023-05-15T07:48:42Z",
+    "updated": "2026-06-21T17:47:38Z",
+    "size_kb": 33268
+  },
+  {
+    "name": "bugbasesecurity/pentest-copilot",
+    "desc": "Pentest Copilot is an AI-powered browser based ethical hacking assistant tool designed to streamline pentesting workflow",
+    "stars": 952,
+    "lang": "TypeScript",
+    "url": "https://github.com/bugbasesecurity/pentest-copilot",
+    "created": "2025-03-08T14:04:31Z",
+    "updated": "2026-06-21T14:01:37Z",
+    "size_kb": 28414
+  },
+  {
+    "name": "Chocapikk/wpprobe",
+    "desc": "A fast WordPress plugin enumeration tool",
+    "stars": 890,
+    "lang": "Go",
+    "url": "https://github.com/Chocapikk/wpprobe",
+    "created": "2025-02-09T17:10:56Z",
+    "updated": "2026-06-21T22:53:14Z",
+    "size_kb": 2305
+  },
+  {
+    "name": "projectdiscovery/urlfinder",
+    "desc": "A high-speed tool for passively gathering URLs, optimized for efficient and comprehensive web asset discovery without ac",
+    "stars": 880,
+    "lang": "Go",
+    "url": "https://github.com/projectdiscovery/urlfinder",
+    "created": "2024-04-30T13:41:12Z",
+    "updated": "2026-06-19T20:25:19Z",
+    "size_kb": 277
+  },
+  {
+    "name": "firefart/stunner",
+    "desc": "Stunner is a tool to test and exploit STUN, TURN and TURN over TCP servers.",
+    "stars": 851,
+    "lang": "Go",
+    "url": "https://github.com/firefart/stunner",
+    "created": "2022-04-15T11:30:59Z",
+    "updated": "2026-06-18T20:42:40Z",
+    "size_kb": 431
+  },
+  {
+    "name": "Bert-JanP/Open-Source-Threat-Intel-Feeds",
+    "desc": "This repository contains Open Source freely usable Threat Intel feeds that can be used without additional requirements. ",
+    "stars": 851,
+    "lang": "Python",
+    "url": "https://github.com/Bert-JanP/Open-Source-Threat-Intel-Feeds",
+    "created": "2022-06-08T18:29:18Z",
+    "updated": "2026-06-22T02:09:35Z",
+    "size_kb": 104
+  },
+  {
+    "name": "yqcs/prismx",
+    "desc": ":: Prism X \u00b7 Automated Enterprise Network Security Risk Detection and Vulnerability Scanning Tool  / \u68f1\u955c X \u00b7 \u81ea\u52a8\u5316\u4f01\u4e1a\u7f51\u7edc\u5b89\u5168\u98ce\u9669\u68c0",
+    "stars": 827,
+    "lang": "Go",
+    "url": "https://github.com/yqcs/prismx",
+    "created": "2023-12-25T06:08:41Z",
+    "updated": "2026-06-17T09:48:01Z",
+    "size_kb": 36332
+  },
+  {
+    "name": "OWASP-Benchmark/BenchmarkJava",
+    "desc": "OWASP Benchmark is a test suite designed to verify the speed and accuracy of software vulnerability detection tools. A f",
+    "stars": 810,
+    "lang": "Java",
+    "url": "https://github.com/OWASP-Benchmark/BenchmarkJava",
+    "created": "2015-04-07T20:03:33Z",
+    "updated": "2026-06-19T16:31:55Z",
+    "size_kb": 76193
+  },
+  {
+    "name": "vil/H4X-Tools",
+    "desc": "A modular, terminal-based toolkit for OSINT, reconnaissance, and scraping - built in Python, runs on Linux and Windows.",
+    "stars": 778,
+    "lang": "Python",
+    "url": "https://github.com/vil/H4X-Tools",
+    "created": "2022-04-18T19:43:00Z",
+    "updated": "2026-06-22T00:02:51Z",
+    "size_kb": 3961
+  },
+  {
+    "name": "OpenOSINT/OpenOSINT",
+    "desc": "AI-powered OSINT agent with interactive REPL, MCP server, and CLI. 16 tools. Works with Claude, GPT-4, or local models. ",
+    "stars": 726,
+    "lang": "Python",
+    "url": "https://github.com/OpenOSINT/OpenOSINT",
+    "created": "2026-05-06T11:12:42Z",
+    "updated": "2026-06-21T19:07:30Z",
+    "size_kb": 19180
+  },
+  {
+    "name": "activecm/rita",
+    "desc": "Real Intelligence Threat Analytics (RITA) is a framework for detecting command and control communication through network",
+    "stars": 588,
+    "lang": "Go",
+    "url": "https://github.com/activecm/rita",
+    "created": "2024-06-27T23:10:56Z",
+    "updated": "2026-06-21T08:47:05Z",
+    "size_kb": 180633
+  },
+  {
+    "name": "Pepelux/sippts",
+    "desc": "Set of tools to audit SIP based VoIP Systems",
+    "stars": 568,
+    "lang": "Python",
+    "url": "https://github.com/Pepelux/sippts",
+    "created": "2015-05-17T16:02:09Z",
+    "updated": "2026-06-20T13:15:59Z",
+    "size_kb": 1110
+  },
+  {
+    "name": "vflame6/leaker",
+    "desc": "Passive leak enumeration tool.",
+    "stars": 539,
+    "lang": "Go",
+    "url": "https://github.com/vflame6/leaker",
+    "created": "2025-12-25T11:43:14Z",
+    "updated": "2026-06-21T08:15:59Z",
+    "size_kb": 2458
+  },
+  {
+    "name": "CybercentreCanada/assemblyline",
+    "desc": "AssemblyLine 4: File triage and malware analysis",
+    "stars": 510,
+    "lang": "Python",
+    "url": "https://github.com/CybercentreCanada/assemblyline",
+    "created": "2020-12-03T18:06:55Z",
+    "updated": "2026-06-18T21:46:43Z",
+    "size_kb": 339
+  },
+  {
+    "name": "chainreactors/malice-network",
+    "desc": "Next Generation C2 Framework, IoM-server/client ",
+    "stars": 460,
+    "lang": "Go",
+    "url": "https://github.com/chainreactors/malice-network",
+    "created": "2023-09-05T11:34:35Z",
+    "updated": "2026-06-21T10:52:33Z",
+    "size_kb": 63441
+  },
+  {
+    "name": "Cobalt-Strike/community_kit",
+    "desc": "Cobalt Strike is a post-exploitation framework designed to be extended and customized by the user community. Several exc",
+    "stars": 420,
+    "lang": "CSS",
+    "url": "https://github.com/Cobalt-Strike/community_kit",
+    "created": "2021-08-02T13:59:17Z",
+    "updated": "2026-06-21T04:54:54Z",
+    "size_kb": 13156
+  },
+  {
+    "name": "CriticalPathSecurity/Zeek-Intelligence-Feeds",
+    "desc": "Zeek-Formatted Threat Intelligence Feeds",
+    "stars": 401,
+    "lang": "Zeek",
+    "url": "https://github.com/CriticalPathSecurity/Zeek-Intelligence-Feeds",
+    "created": "2020-08-20T13:13:32Z",
+    "updated": "2026-06-22T02:02:33Z",
+    "size_kb": 4940
+  },
+  {
+    "name": "fabaff/nix-security-box",
+    "desc": "Tool set for Information security professionals and all others",
+    "stars": 397,
+    "lang": "Nix",
+    "url": "https://github.com/fabaff/nix-security-box",
+    "created": "2020-12-22T22:36:28Z",
+    "updated": "2026-06-16T22:32:13Z",
+    "size_kb": 625
+  },
+  {
+    "name": "ShutdownRepo/shellerator",
+    "desc": "Simple CLI tool for the generation of bind and reverse shells in multiple languages",
+    "stars": 392,
+    "lang": "Python",
+    "url": "https://github.com/ShutdownRepo/shellerator",
+    "created": "2020-04-13T18:36:56Z",
+    "updated": "2026-06-16T14:49:44Z",
+    "size_kb": 7167
+  },
+  {
+    "name": "CERT-Polska/mwdb-core",
+    "desc": "Malware repository component for samples & static configuration with REST API interface.",
+    "stars": 388,
+    "lang": "Python",
+    "url": "https://github.com/CERT-Polska/mwdb-core",
+    "created": "2018-01-15T10:41:26Z",
+    "updated": "2026-06-19T13:13:25Z",
+    "size_kb": 21370
+  },
+  {
+    "name": "cea-sec/usbsas",
+    "desc": "Tool and framework for securely reading untrusted USB mass storage devices.",
+    "stars": 372,
+    "lang": "Rust",
+    "url": "https://github.com/cea-sec/usbsas",
+    "created": "2022-05-31T12:41:40Z",
+    "updated": "2026-06-19T13:56:49Z",
+    "size_kb": 23693
+  },
+  {
+    "name": "RAJANAGORI/Nightingale",
+    "desc": "Nightingale Docker for Pentesters is a comprehensive Dockerized environment tailored for penetration testing and vulnera",
+    "stars": 309,
+    "lang": "Dockerfile",
+    "url": "https://github.com/RAJANAGORI/Nightingale",
+    "created": "2020-10-04T16:38:40Z",
+    "updated": "2026-06-20T15:53:38Z",
+    "size_kb": 123784
+  },
+  {
+    "name": "REMnux/docker",
+    "desc": "This repository contains Dockerfiles for building Docker images of popular malware analysis tools, which are distributed",
+    "stars": 303,
+    "lang": "Dockerfile",
+    "url": "https://github.com/REMnux/docker",
+    "created": "2014-11-29T00:31:26Z",
+    "updated": "2026-06-19T14:25:41Z",
+    "size_kb": 591
+  },
+  {
+    "name": "ddddddO/packemon",
+    "desc": "Packet monster (\u3063\u2018-\u2019)\u256e=\u035e\u035f\u035f\u035e\u25d2  \u30fd( '-'\u30fd)  TUI tool for sending packets of arbitrary input and monitoring packets on any ne",
+    "stars": 303,
+    "lang": "Go",
+    "url": "https://github.com/ddddddO/packemon",
+    "created": "2024-04-26T12:35:59Z",
+    "updated": "2026-06-18T16:19:03Z",
+    "size_kb": 37344
+  },
+  {
+    "name": "0xSaikat/findme",
+    "desc": "FindME is a CLI tool for searching social media and online profiles linked to a username. It\u2019s ideal for reconnaissance,",
+    "stars": 279,
+    "lang": "HTML",
+    "url": "https://github.com/0xSaikat/findme",
+    "created": "2025-01-14T05:47:07Z",
+    "updated": "2026-06-21T13:00:38Z",
+    "size_kb": 2894
+  },
+  {
+    "name": "praetorian-inc/brutus",
+    "desc": "Fast, zero-dependency credential testing tool in Go. Brute force SSH, MySQL, PostgreSQL, Redis, MongoDB, SMB, and 20+ pr",
+    "stars": 274,
+    "lang": "Go",
+    "url": "https://github.com/praetorian-inc/brutus",
+    "created": "2026-02-12T17:23:18Z",
+    "updated": "2026-06-21T19:42:06Z",
+    "size_kb": 3498
+  },
+  {
+    "name": "0xDanielLopez/phishing_kits",
+    "desc": "Exposing phishing kits seen from phishunt.io",
+    "stars": 268,
+    "lang": null,
+    "url": "https://github.com/0xDanielLopez/phishing_kits",
+    "created": "2020-05-21T12:25:43Z",
+    "updated": "2026-06-21T13:02:04Z",
+    "size_kb": 2279975
+  },
+  {
+    "name": "portbuster1337/ArachneC2",
+    "desc": "Decentralized C2 framework built on libp2p",
+    "stars": 267,
+    "lang": "Go",
+    "url": "https://github.com/portbuster1337/ArachneC2",
+    "created": "2026-06-02T14:18:03Z",
+    "updated": "2026-06-21T21:14:42Z",
+    "size_kb": 3739
+  },
+  {
+    "name": "cybercdh/kitphishr",
+    "desc": "A tool designed to hunt for Phishing Kit source code ",
+    "stars": 232,
+    "lang": "Go",
+    "url": "https://github.com/cybercdh/kitphishr",
+    "created": "2020-05-08T12:08:58Z",
+    "updated": "2026-06-21T20:32:45Z",
+    "size_kb": 55287
+  },
+  {
+    "name": "h0tak88r/AutoAR",
+    "desc": "AutoAR is an automated security reconnaissance tool, ASM and Discord bot for bug bounty hunters and penetration testers.",
+    "stars": 223,
+    "lang": "Go",
+    "url": "https://github.com/h0tak88r/AutoAR",
+    "created": "2024-06-24T18:40:23Z",
+    "updated": "2026-06-22T02:39:21Z",
+    "size_kb": 29062
+  },
+  {
+    "name": "christinminor459/OnionClaw",
+    "desc": "Provide AI agents with full Tor network access and dark web data through a zero-config OpenClaw skill or standalone tool",
+    "stars": 211,
+    "lang": "Python",
+    "url": "https://github.com/christinminor459/OnionClaw",
+    "created": "2026-03-28T20:40:47Z",
+    "updated": "2026-06-22T02:11:29Z",
+    "size_kb": 1804
+  },
+  {
+    "name": "grisuno/LazyOwn",
+    "desc": "LazyOwn RedTeam/APT Framework is the first RedTeam Framework with an AI-powered C&C, featuring rootkits to conceal campa",
+    "stars": 209,
+    "lang": "Python",
+    "url": "https://github.com/grisuno/LazyOwn",
+    "created": "2024-05-21T04:00:51Z",
+    "updated": "2026-06-20T21:32:46Z",
+    "size_kb": 295559
+  },
+  {
+    "name": "HydraDragonAntivirus/HydraDragonAntivirus",
+    "desc": "Dynamic and static analysis with Real Time Malware Analysis with Antivirus for Windows, including open-source XDR (3 EDR",
+    "stars": 207,
+    "lang": "C++",
+    "url": "https://github.com/HydraDragonAntivirus/HydraDragonAntivirus",
+    "created": "2024-05-22T11:24:00Z",
+    "updated": "2026-06-22T00:59:07Z",
+    "size_kb": 8295447
+  },
+  {
+    "name": "kontext-security/kontext-cli",
+    "desc": "Open-source Runtime Security for tool-using AI agents providing permissions, credentials, policy enforcement, and audit ",
+    "stars": 206,
+    "lang": "Go",
+    "url": "https://github.com/kontext-security/kontext-cli",
+    "created": "2026-04-05T09:12:57Z",
+    "updated": "2026-06-21T12:25:57Z",
+    "size_kb": 2249
+  },
+  {
+    "name": "GreedyBear-Project/GreedyBear",
+    "desc": "Threat Intel Platform for T-POTs",
+    "stars": 199,
+    "lang": "Python",
+    "url": "https://github.com/GreedyBear-Project/GreedyBear",
+    "created": "2021-12-23T19:56:14Z",
+    "updated": "2026-06-16T07:05:27Z",
+    "size_kb": 5418
+  },
+  {
+    "name": "righettod/toolbox-pentest-web",
+    "desc": "Docker toolbox for pentest of web based application.",
+    "stars": 185,
+    "lang": "Python",
+    "url": "https://github.com/righettod/toolbox-pentest-web",
+    "created": "2019-12-19T15:43:36Z",
+    "updated": "2026-06-21T00:57:05Z",
+    "size_kb": 112938
+  },
+  {
+    "name": "OSINT-TECHNOLOGIES/dpulse",
+    "desc": "DPULSE - Tool for complex approach to domain OSINT",
+    "stars": 163,
+    "lang": "HTML",
+    "url": "https://github.com/OSINT-TECHNOLOGIES/dpulse",
+    "created": "2023-12-18T14:09:55Z",
+    "updated": "2026-06-19T21:42:32Z",
+    "size_kb": 1860
+  },
+  {
+    "name": "praetorian-inc/trajan",
+    "desc": "A multi-platform CI/CD vulnerability detection and attack automation tool for identifying security weaknesses in pipelin",
+    "stars": 163,
+    "lang": "Go",
+    "url": "https://github.com/praetorian-inc/trajan",
+    "created": "2026-03-06T03:17:33Z",
+    "updated": "2026-06-21T20:52:48Z",
+    "size_kb": 1223
+  },
+  {
+    "name": "InnerWarden/innerwarden",
+    "desc": "Local safety layer for AI agents that use the terminal. Screens risky commands and MCP/tool calls, watches Linux activit",
+    "stars": 159,
+    "lang": "Rust",
+    "url": "https://github.com/InnerWarden/innerwarden",
+    "created": "2026-03-12T05:40:36Z",
+    "updated": "2026-06-21T20:55:39Z",
+    "size_kb": 30667
+  },
+  {
+    "name": "paulpogoda/OSINT-for-countries-V2.0",
+    "desc": "OSINT resources and tools by country, structured for fact-checkers and digital profilers",
+    "stars": 155,
+    "lang": null,
+    "url": "https://github.com/paulpogoda/OSINT-for-countries-V2.0",
+    "created": "2024-11-20T15:10:39Z",
+    "updated": "2026-06-18T22:57:19Z",
+    "size_kb": 138
+  },
+  {
+    "name": "TheManticoreProject/Manticore",
+    "desc": "A cross platform library to write offensive and defensive security tools in Go",
+    "stars": 153,
+    "lang": "Go",
+    "url": "https://github.com/TheManticoreProject/Manticore",
+    "created": "2025-05-04T18:47:50Z",
+    "updated": "2026-06-21T19:53:16Z",
+    "size_kb": 24719
+  },
+  {
+    "name": "AdvDebug/Brovan",
+    "desc": "Brovan is a user-mode x86_64 binary emulator for your malware analysis & reverse engineering.",
+    "stars": 139,
+    "lang": "C#",
+    "url": "https://github.com/AdvDebug/Brovan",
+    "created": "2026-05-15T02:12:23Z",
+    "updated": "2026-06-22T00:07:13Z",
+    "size_kb": 14142
+  },
+  {
+    "name": "glockinhand/navi-multitool",
+    "desc": "\ud83c\udf0c Advanced Terminal Multitool: Discord Automation, OSINT Intelligence, Malicious Security Tools, and a professional Pyth",
+    "stars": 133,
+    "lang": "Python",
+    "url": "https://github.com/glockinhand/navi-multitool",
+    "created": "2026-04-24T21:15:41Z",
+    "updated": "2026-06-21T19:39:53Z",
+    "size_kb": 655
+  },
+  {
+    "name": "CriticalPathSecurity/Public-Intelligence-Feeds",
+    "desc": "Standard-Format Threat Intelligence Feeds",
+    "stars": 132,
+    "lang": null,
+    "url": "https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds",
+    "created": "2021-11-29T18:13:30Z",
+    "updated": "2026-06-22T02:03:38Z",
+    "size_kb": 2106
+  },
+  {
+    "name": "iss4cf0ng/Alien",
+    "desc": "A C#-based webshell management tool for penetration testing.",
+    "stars": 130,
+    "lang": "C#",
+    "url": "https://github.com/iss4cf0ng/Alien",
+    "created": "2023-03-03T06:38:53Z",
+    "updated": "2026-06-21T17:12:10Z",
+    "size_kb": 3480
+  },
+  {
+    "name": "SK-CERT/Taranis-NG",
+    "desc": "Taranis NG is an OSINT gathering and analysis tool for CSIRT teams and organisations. It allows team-to-team collaborati",
+    "stars": 126,
+    "lang": "Vue",
+    "url": "https://github.com/SK-CERT/Taranis-NG",
+    "created": "2021-10-09T16:02:55Z",
+    "updated": "2026-06-21T17:38:47Z",
+    "size_kb": 10973
+  },
+  {
+    "name": "DouglasFreshHabian/OsintDroid",
+    "desc": "A Bash-based Android OSINT and forensics tool. Extract call logs, SMS, contacts, emails, installed apps, and secret code",
+    "stars": 121,
+    "lang": "Shell",
+    "url": "https://github.com/DouglasFreshHabian/OsintDroid",
+    "created": "2025-12-20T05:09:57Z",
+    "updated": "2026-06-22T01:51:40Z",
+    "size_kb": 16
+  },
+  {
+    "name": "ErdemOzgen/blackdagger",
+    "desc": "Blackdagger is a DAG based automation tool specifically used in DevOps, DevSecOps, MLOps, MLSecOps, and Continuous Red T",
+    "stars": 116,
+    "lang": "Go",
+    "url": "https://github.com/ErdemOzgen/blackdagger",
+    "created": "2024-02-26T14:54:48Z",
+    "updated": "2026-06-21T23:20:12Z",
+    "size_kb": 22149
+  },
+  {
+    "name": "htrgouvea/spellbook",
+    "desc": "Framework for rapid development of offensive security tools",
+    "stars": 114,
+    "lang": "Perl",
+    "url": "https://github.com/htrgouvea/spellbook",
+    "created": "2016-07-11T14:36:28Z",
+    "updated": "2026-06-20T18:33:46Z",
+    "size_kb": 73038
+  },
+  {
+    "name": "ice-wzl/Hacknetics",
+    "desc": "Contained is all my reference material for my OSCP / Red Teaming.  Designed to be a one stop shop for code, guides, comm",
+    "stars": 108,
+    "lang": "Shell",
+    "url": "https://github.com/ice-wzl/Hacknetics",
+    "created": "2021-06-02T11:54:48Z",
+    "updated": "2026-06-18T02:58:20Z",
+    "size_kb": 53621
+  },
+  {
+    "name": "WhiteMuush/sandevistan",
+    "desc": "Welcome cyberpsycho, SANDEVISTAN is your ultimate hub a single space where every reconnaissance, exploitation, and post-",
+    "stars": 103,
+    "lang": "Shell",
+    "url": "https://github.com/WhiteMuush/sandevistan",
+    "created": "2025-10-17T12:18:38Z",
+    "updated": "2026-06-17T09:00:27Z",
+    "size_kb": 107
+  },
+  {
+    "name": "tomsec8/IntelHub",
+    "desc": "A modern and intuitive Chrome extension that brings your favorite OSINT tools, metadata analyzers, and Google Dorking as",
+    "stars": 103,
+    "lang": "HTML",
+    "url": "https://github.com/tomsec8/IntelHub",
+    "created": "2025-05-15T17:28:31Z",
+    "updated": "2026-06-17T15:12:27Z",
+    "size_kb": 6081
+  },
+  {
+    "name": "cocomelonc/cocomelonc.github.io",
+    "desc": "Cybersecurity blog. Red Team, pentest, malware analysis and dev",
+    "stars": 102,
+    "lang": "JavaScript",
+    "url": "https://github.com/cocomelonc/cocomelonc.github.io",
+    "created": "2021-09-04T06:10:04Z",
+    "updated": "2026-06-17T06:07:56Z",
+    "size_kb": 594400
+  },
+  {
+    "name": "REMnux/remnux-mcp-server",
+    "desc": "MCP server for using the REMnux malware analysis toolkit via AI assistants",
+    "stars": 99,
+    "lang": "TypeScript",
+    "url": "https://github.com/REMnux/remnux-mcp-server",
+    "created": "2026-02-02T01:09:21Z",
+    "updated": "2026-06-19T11:33:51Z",
+    "size_kb": 477
+  },
+  {
+    "name": "portbuster1337/lpe-toolkit",
+    "desc": "Multi-architecture Linux privilege escalation toolkit with 19 pre-built and runtime-compilable exploits. Auto-detects ke",
+    "stars": 91,
+    "lang": "C",
+    "url": "https://github.com/portbuster1337/lpe-toolkit",
+    "created": "2026-05-21T19:33:28Z",
+    "updated": "2026-06-21T10:45:39Z",
+    "size_kb": 23949
+  },
+  {
+    "name": "noraj/ctf-party",
+    "desc": ":triangular_flag_on_post: A CLI tool & library to enhance and speed up script/exploit writing with string conversion/man",
+    "stars": 91,
+    "lang": "Ruby",
+    "url": "https://github.com/noraj/ctf-party",
+    "created": "2020-06-22T09:03:22Z",
+    "updated": "2026-06-18T08:24:38Z",
+    "size_kb": 497
+  },
+  {
+    "name": "saradasen27-collab/yellowkey-forensic-decryptor",
+    "desc": "YellowKey BitLocker 2026 Bypass \u2013 Next-Gen Drive Lock Decryption & Exploit Tool",
+    "stars": 88,
+    "lang": "HTML",
+    "url": "https://github.com/saradasen27-collab/yellowkey-forensic-decryptor",
+    "created": "2026-06-15T08:01:48Z",
+    "updated": "2026-06-21T22:00:28Z",
+    "size_kb": 43
+  },
+  {
+    "name": "corelan/mona3",
+    "desc": "Repository for mona v3 - Corelan's exploit dev tool for Windbg, WindbgX etc",
+    "stars": 79,
+    "lang": "Python",
+    "url": "https://github.com/corelan/mona3",
+    "created": "2026-03-25T08:33:58Z",
+    "updated": "2026-06-21T16:55:10Z",
+    "size_kb": 10139
+  },
+  {
+    "name": "soxoj/osint-cli-tool-skeleton",
+    "desc": "Template for new OSINT command-line tools",
+    "stars": 79,
+    "lang": "Python",
+    "url": "https://github.com/soxoj/osint-cli-tool-skeleton",
+    "created": "2021-12-04T12:30:53Z",
+    "updated": "2026-06-17T19:05:01Z",
+    "size_kb": 76
+  },
+  {
+    "name": "mwakidenis/WebCheck-OSINT",
+    "desc": "\ud83d\udd75\ufe0f\u200d\u2642\ufe0f All-in-one OSINT reconnaissance tool for dissecting any website. \ud83e\udde0\ud83c\udf10\ud83d\udca5",
+    "stars": 66,
+    "lang": "TypeScript",
+    "url": "https://github.com/mwakidenis/WebCheck-OSINT",
+    "created": "2025-12-14T08:48:42Z",
+    "updated": "2026-06-22T00:11:40Z",
+    "size_kb": 26257
+  },
+  {
+    "name": "gocsaf/csaf",
+    "desc": "Tools to download or provide CSAF (Common Security Advisory Framework) documents.",
+    "stars": 65,
+    "lang": "Go",
+    "url": "https://github.com/gocsaf/csaf",
+    "created": "2021-11-25T11:21:42Z",
+    "updated": "2026-06-17T13:43:54Z",
+    "size_kb": 1802
+  },
+  {
+    "name": "lyshark/LyScript",
+    "desc": "An AI driven debugging assistant specially designed for x32/x64dbg, it helps to double the efficiency of reverse enginee",
+    "stars": 64,
+    "lang": "Python",
+    "url": "https://github.com/lyshark/LyScript",
+    "created": "2025-12-19T12:03:12Z",
+    "updated": "2026-06-20T02:29:19Z",
+    "size_kb": 14758
+  },
+  {
+    "name": "spmedia/Crypto-Scam-and-Crypto-Phishing-Threat-Intel-Feed",
+    "desc": "A fresh feed of crypto phishing and crypto scam websites. Automatically updated daily/frequently.",
+    "stars": 62,
+    "lang": null,
+    "url": "https://github.com/spmedia/Crypto-Scam-and-Crypto-Phishing-Threat-Intel-Feed",
+    "created": "2024-12-08T06:30:32Z",
+    "updated": "2026-06-21T23:59:09Z",
+    "size_kb": 1077
+  },
+  {
+    "name": "DevVj-1/Sub-Ringan-Framework",
+    "desc": "Tool for automate bug hunting process \ud83d\udd0d --> \ud83c\udf6d",
+    "stars": 58,
+    "lang": "Shell",
+    "url": "https://github.com/DevVj-1/Sub-Ringan-Framework",
+    "created": "2023-08-08T13:24:16Z",
+    "updated": "2026-06-19T10:28:06Z",
+    "size_kb": 20104
+  },
+  {
+    "name": "OmYarewar/PHANTOM",
+    "desc": "\ud83d\udc7b AI-Powered Pentesting Command Center \u2014 Autonomous security testing with real-time streaming, self-improving AI, unlimi",
+    "stars": 58,
+    "lang": "JavaScript",
+    "url": "https://github.com/OmYarewar/PHANTOM",
+    "created": "2026-05-10T11:04:15Z",
+    "updated": "2026-06-21T13:39:25Z",
+    "size_kb": 683
+  },
+  {
+    "name": "rexlunae/RustyClaw",
+    "desc": "A super-lightweight super-capable agentic tool with improved security versus OpenClaw.",
+    "stars": 58,
+    "lang": "Rust",
+    "url": "https://github.com/rexlunae/RustyClaw",
+    "created": "2026-02-11T04:48:53Z",
+    "updated": "2026-06-21T04:13:17Z",
+    "size_kb": 4278
+  },
+  {
+    "name": "tuconnaisyouknow/BadUSB_reverseShellInjector",
+    "desc": "This script allows you to take control of a PC with a reverseShell attack.",
+    "stars": 57,
+    "lang": "C++",
+    "url": "https://github.com/tuconnaisyouknow/BadUSB_reverseShellInjector",
+    "created": "2022-04-16T13:57:01Z",
+    "updated": "2026-06-17T23:56:39Z",
+    "size_kb": 25
+  },
+  {
+    "name": "zuxu4n/Rosint",
+    "desc": "Reddit open-source user intelligence tool",
+    "stars": 55,
+    "lang": "JavaScript",
+    "url": "https://github.com/zuxu4n/Rosint",
+    "created": "2026-03-29T07:09:24Z",
+    "updated": "2026-06-21T18:50:25Z",
+    "size_kb": 1533
+  },
+  {
+    "name": "xFreed0m/ghosttype",
+    "desc": "Local forensic scanner that extracts credentials from AI tool conversation history. For authorized red team and DLP use ",
+    "stars": 53,
+    "lang": "Python",
+    "url": "https://github.com/xFreed0m/ghosttype",
+    "created": "2026-05-12T14:10:11Z",
+    "updated": "2026-06-19T16:39:38Z",
+    "size_kb": 210
+  },
+  {
+    "name": "seifreed/r2inspect",
+    "desc": "r2inspect is a professional malware analysis framework that automates deep static inspection for PE, ELF, and Mach-O bin",
+    "stars": 52,
+    "lang": "Python",
+    "url": "https://github.com/seifreed/r2inspect",
+    "created": "2025-06-24T12:43:52Z",
+    "updated": "2026-06-21T19:30:48Z",
+    "size_kb": 6847
+  },
+  {
+    "name": "preflightsh/preflight",
+    "desc": "Preflight is a Go-based CLI tool that scans a codebase and related configuration for launch readiness. It identifies mis",
+    "stars": 51,
+    "lang": "Go",
+    "url": "https://github.com/preflightsh/preflight",
+    "created": "2025-12-06T14:30:36Z",
+    "updated": "2026-06-19T13:41:44Z",
+    "size_kb": 359
+  },
+  {
+    "name": "ait-testbed/attackmate",
+    "desc": "AttackMate is an attack orchestration tool that executes full attack-chains based on playbooks.",
+    "stars": 50,
+    "lang": "Python",
+    "url": "https://github.com/ait-testbed/attackmate",
+    "created": "2023-04-28T11:00:16Z",
+    "updated": "2026-06-18T12:47:20Z",
+    "size_kb": 58457
+  },
+  {
+    "name": "micromize-dev/micromize",
+    "desc": "micromize is a security hardening tool designed to detect and break the post-exploit kill chain for containerized applic",
+    "stars": 49,
+    "lang": "Go",
+    "url": "https://github.com/micromize-dev/micromize",
+    "created": "2025-11-18T22:19:51Z",
+    "updated": "2026-06-21T13:59:23Z",
+    "size_kb": 400
+  },
+  {
+    "name": "kubearmor/kubearmor-client",
+    "desc": "KubeArmor cli tool aka kArmor :robot:",
+    "stars": 45,
+    "lang": "Go",
+    "url": "https://github.com/kubearmor/kubearmor-client",
+    "created": "2021-07-05T11:20:56Z",
+    "updated": "2026-06-17T05:54:28Z",
+    "size_kb": 1929
+  },
+  {
+    "name": "RootCX/RootCX",
+    "desc": "Governed infrastructure for internal tools and AI agents",
+    "stars": 45,
+    "lang": "Rust",
+    "url": "https://github.com/RootCX/RootCX",
+    "created": "2026-02-17T14:33:24Z",
+    "updated": "2026-06-19T13:00:41Z",
+    "size_kb": 3009
+  },
+  {
+    "name": "DeepBitsTechnology/claude-plugins",
+    "desc": "This project  equips Claude Code with advanced binary analysis capabilities for tasks such as incident response, malware",
+    "stars": 44,
+    "lang": null,
+    "url": "https://github.com/DeepBitsTechnology/claude-plugins",
+    "created": "2025-10-28T16:39:25Z",
+    "updated": "2026-06-18T00:18:31Z",
+    "size_kb": 60
+  },
+  {
+    "name": "stacklok/brood-box",
+    "desc": "CLI tool for running coding agents inside hardware-isolated microVMs",
+    "stars": 43,
+    "lang": "Go",
+    "url": "https://github.com/stacklok/brood-box",
+    "created": "2026-02-13T18:25:11Z",
+    "updated": "2026-06-20T05:31:51Z",
+    "size_kb": 1031
+  },
+  {
+    "name": "EndlessFractal/Threat-Intel-Feed",
+    "desc": "Automated threat intel feed parsing and consolidation\ud83d\udcbb\ud83d\udc7e\ud83e\udd16 ",
+    "stars": 42,
+    "lang": "Python",
+    "url": "https://github.com/EndlessFractal/Threat-Intel-Feed",
+    "created": "2023-10-07T22:17:11Z",
+    "updated": "2026-06-21T23:08:48Z",
+    "size_kb": 12470
+  },
+  {
+    "name": "Tamzk/Rebel-OtpBot-Twillo-Bypass-Paypal-2fa-80-Country-Usa",
+    "desc": "OTP verification is widely used in 2FA, with tools like OTP bots and generators enabling automation. OTP bypass techniqu",
+    "stars": 40,
+    "lang": "Visual Basic .NET",
+    "url": "https://github.com/Tamzk/Rebel-OtpBot-Twillo-Bypass-Paypal-2fa-80-Country-Usa",
+    "created": "2025-05-01T16:57:09Z",
+    "updated": "2026-06-22T00:05:42Z",
+    "size_kb": 15285
+  },
+  {
+    "name": "static-analysis-engineering/CodeHawk-Binary",
+    "desc": "CodeHawk Binary Analyzer for malware analysis and general reverse engineering",
+    "stars": 40,
+    "lang": "Python",
+    "url": "https://github.com/static-analysis-engineering/CodeHawk-Binary",
+    "created": "2020-01-11T23:22:52Z",
+    "updated": "2026-06-19T22:55:08Z",
+    "size_kb": 94629
+  },
+  {
+    "name": "yasindce1998/KubeDagger",
+    "desc": "An eBPF-based security research tool that demonstrates offensive techniques including network discovery, file system mon",
+    "stars": 39,
+    "lang": "Go",
+    "url": "https://github.com/yasindce1998/KubeDagger",
+    "created": "2021-12-10T12:25:00Z",
+    "updated": "2026-06-19T13:06:51Z",
+    "size_kb": 19510
+  },
+  {
+    "name": "seahop/Clio",
+    "desc": "Logging tool intended for red team usage",
+    "stars": 38,
+    "lang": "JavaScript",
+    "url": "https://github.com/seahop/Clio",
+    "created": "2025-03-01T19:51:18Z",
+    "updated": "2026-06-18T21:00:08Z",
+    "size_kb": 2825
+  },
+  {
+    "name": "gameworkerkim/CYBER-THREAT-INTELLIGENCE-REPORT",
+    "desc": "This report analyzes the collapse of the cyber weapons supply chain and its impact on national security through the case",
+    "stars": 37,
+    "lang": null,
+    "url": "https://github.com/gameworkerkim/CYBER-THREAT-INTELLIGENCE-REPORT",
+    "created": "2026-03-20T05:36:52Z",
+    "updated": "2026-06-21T10:32:13Z",
+    "size_kb": 11035
+  },
+  {
+    "name": "Deimos-Wizard101/Deimos-Wizard101",
+    "desc": "A free and open-source exploit tool, auto farmer, and quester for Wizard101. ",
+    "stars": 36,
+    "lang": "Python",
+    "url": "https://github.com/Deimos-Wizard101/Deimos-Wizard101",
+    "created": "2025-06-16T02:25:38Z",
+    "updated": "2026-06-20T23:19:15Z",
+    "size_kb": 40289
+  },
+  {
+    "name": "4ndr0666/userscripts",
+    "desc": "These are my tools, the 4ndr0tools.",
+    "stars": 35,
+    "lang": "JavaScript",
+    "url": "https://github.com/4ndr0666/userscripts",
+    "created": "2024-02-09T05:24:50Z",
+    "updated": "2026-06-20T03:16:30Z",
+    "size_kb": 18153
+  },
+  {
+    "name": "Mazzy-Stars/lain_c2",
+    "desc": "command control framework",
+    "stars": 33,
+    "lang": "Go",
+    "url": "https://github.com/Mazzy-Stars/lain_c2",
+    "created": "2025-02-15T09:54:22Z",
+    "updated": "2026-06-20T02:51:14Z",
+    "size_kb": 5658
+  },
+  {
+    "name": "ShRP69/shellean",
+    "desc": "Bash TCP Reverse Shell",
+    "stars": 33,
+    "lang": "Shell",
+    "url": "https://github.com/ShRP69/shellean",
+    "created": "2024-04-16T18:01:46Z",
+    "updated": "2026-06-19T00:21:30Z",
+    "size_kb": 9
+  },
+  {
+    "name": "cristianovisk/cves_data_intelligence",
+    "desc": "This repository contain some datas about CVE's updated hourly, to help community Prioritize, based in sources the Threat",
+    "stars": 32,
+    "lang": "HTML",
+    "url": "https://github.com/cristianovisk/cves_data_intelligence",
+    "created": "2024-06-13T12:30:17Z",
+    "updated": "2026-06-22T02:40:37Z",
+    "size_kb": 468398
+  },
+  {
+    "name": "Synarcs/DNSObelisk",
+    "desc": "Advanced kernel-native security framework to disrupt and prevent DNS-based breaches including C2 channels and tunneling ",
+    "stars": 31,
+    "lang": "Go",
+    "url": "https://github.com/Synarcs/DNSObelisk",
+    "created": "2024-02-16T19:36:26Z",
+    "updated": "2026-06-21T22:19:27Z",
+    "size_kb": 1950572
+  },
+  {
+    "name": "UPinar/contrastapi",
+    "desc": "MCP server with 54 security intelligence tools \u2014 CVE/KEV, MITRE ATLAS+D3FEND, Sigma detection rules, email security post",
+    "stars": 28,
+    "lang": "Python",
+    "url": "https://github.com/UPinar/contrastapi",
+    "created": "2026-03-27T12:45:44Z",
+    "updated": "2026-06-18T14:39:33Z",
+    "size_kb": 2340
+  },
+  {
+    "name": "Garmask/SilverRAT-FULL-Source-Code",
+    "desc": "This project contains an open source RAT (Remote Access Trojan).",
+    "stars": 24,
+    "lang": "C#",
+    "url": "https://github.com/Garmask/SilverRAT-FULL-Source-Code",
+    "created": "2025-12-23T18:06:41Z",
+    "updated": "2026-06-22T00:03:22Z",
+    "size_kb": 11121
+  },
+  {
+    "name": "Correia-jpv/fucking-awesome-malware-analysis",
+    "desc": "Defund the Police. With repository stars\u2b50 and forks\ud83c\udf74",
+    "stars": 23,
+    "lang": null,
+    "url": "https://github.com/Correia-jpv/fucking-awesome-malware-analysis",
+    "created": "2022-08-02T20:17:11Z",
+    "updated": "2026-06-20T08:06:13Z",
+    "size_kb": 566
+  },
+  {
+    "name": "reloading01/certstream-server-rust",
+    "desc": "High-performance Certificate Transparency (CT) monitoring tool written in Rust. Real-time stream of newly issued SSL/TLS",
+    "stars": 22,
+    "lang": "Rust",
+    "url": "https://github.com/reloading01/certstream-server-rust",
+    "created": "2025-12-25T22:24:07Z",
+    "updated": "2026-06-19T13:24:58Z",
+    "size_kb": 3152
+  },
+  {
+    "name": "Red-Parakeet/PhantomShell",
+    "desc": "PowerShell reverse-shell payload generator engineered to bypass Windows Defender and AMSI. ",
+    "stars": 20,
+    "lang": "Python",
+    "url": "https://github.com/Red-Parakeet/PhantomShell",
+    "created": "2026-03-11T05:14:43Z",
+    "updated": "2026-06-21T08:10:31Z",
+    "size_kb": 22200
+  },
+  {
+    "name": "votal-ai-hq/wb-red-team",
+    "desc": "Whitebox & Blackbox red-teaming framework for LLMs & Agentic AI apps. It analyzes your app's source code to discover too",
+    "stars": 20,
+    "lang": "Python",
+    "url": "https://github.com/votal-ai-hq/wb-red-team",
+    "created": "2026-03-06T05:58:31Z",
+    "updated": "2026-06-18T19:36:10Z",
+    "size_kb": 20769
+  },
+  {
+    "name": "noraj/ADAssault",
+    "desc": "Dominate the Active Directory game. An Active Directory environments pentest tool complementary to existing ones like Ne",
+    "stars": 20,
+    "lang": "Ruby",
+    "url": "https://github.com/noraj/ADAssault",
+    "created": "2024-06-23T17:14:05Z",
+    "updated": "2026-06-16T23:51:43Z",
+    "size_kb": 181
+  },
+  {
+    "name": "0x5ubt13/enumeraga",
+    "desc": "Automatic multiprocess Linux CLI tool that aims for a quick enumeration wrapping pentesting tools.",
+    "stars": 20,
+    "lang": "Go",
+    "url": "https://github.com/0x5ubt13/enumeraga",
+    "created": "2023-08-16T21:15:14Z",
+    "updated": "2026-06-19T16:32:38Z",
+    "size_kb": 83905
+  },
+  {
+    "name": "dadevel/archpkgs",
+    "desc": "Pentesting tools packaged for Arch Linux.",
+    "stars": 19,
+    "lang": "Shell",
+    "url": "https://github.com/dadevel/archpkgs",
+    "created": "2022-07-02T17:37:40Z",
+    "updated": "2026-06-20T14:37:16Z",
+    "size_kb": 163
+  },
+  {
+    "name": "stacklok/toolhive-registry-server",
+    "desc": "Discover, govern and control access to MCP servers and agent skills across your organization",
+    "stars": 19,
+    "lang": "Go",
+    "url": "https://github.com/stacklok/toolhive-registry-server",
+    "created": "2025-10-10T11:58:48Z",
+    "updated": "2026-06-18T17:02:37Z",
+    "size_kb": 4970
+  },
+  {
+    "name": "Sarks0/binary-mcp",
+    "desc": "A Model Context Protocol (MCP) server that provides AI assistants with binary analysis capabilities using Ghidra (static",
+    "stars": 18,
+    "lang": "Python",
+    "url": "https://github.com/Sarks0/binary-mcp",
+    "created": "2025-10-30T16:28:18Z",
+    "updated": "2026-06-16T08:56:02Z",
+    "size_kb": 2051
+  },
+  {
+    "name": "CrystalC2/crystal-c2",
+    "desc": "Command and control framework",
+    "stars": 17,
+    "lang": "C#",
+    "url": "https://github.com/CrystalC2/crystal-c2",
+    "created": "2026-06-19T16:06:19Z",
+    "updated": "2026-06-22T02:32:30Z",
+    "size_kb": 1747
+  },
+  {
+    "name": "Hazegard/Goauld",
+    "desc": "Goauld is a post-exploitation and remote access tool designed for restricted environments.",
+    "stars": 17,
+    "lang": "Go",
+    "url": "https://github.com/Hazegard/Goauld",
+    "created": "2026-03-16T18:23:42Z",
+    "updated": "2026-06-16T21:50:03Z",
+    "size_kb": 18513
+  },
+  {
+    "name": "26zl/cybersec-toolkit",
+    "desc": "One command installs 580+ security tools on Linux & Termux; an authorization-gated MCP server picks tools and runs them ",
+    "stars": 16,
+    "lang": "Python",
+    "url": "https://github.com/26zl/cybersec-toolkit",
+    "created": "2026-02-11T03:27:56Z",
+    "updated": "2026-06-19T13:31:44Z",
+    "size_kb": 12236
+  },
+  {
+    "name": "AgentSafe-AI/tooltrust-scanner",
+    "desc": "Security scanner for AI agent tool definitions",
+    "stars": 16,
+    "lang": "Go",
+    "url": "https://github.com/AgentSafe-AI/tooltrust-scanner",
+    "created": "2026-03-01T04:44:06Z",
+    "updated": "2026-06-21T05:34:41Z",
+    "size_kb": 37506
+  },
+  {
+    "name": "rehman2052/qualcomm_gbl_exploit_poc",
+    "desc": "Demonstrate exploiting Qualcomm's GBL bootloader to load unsigned UEFI apps and gain arbitrary code execution for unlock",
+    "stars": 15,
+    "lang": "C",
+    "url": "https://github.com/rehman2052/qualcomm_gbl_exploit_poc",
+    "created": "2026-03-15T15:47:06Z",
+    "updated": "2026-06-22T01:27:59Z",
+    "size_kb": 587
+  },
+  {
+    "name": "spac3gh0st00/Cybersecurity-Threat-Intelligence-Dashboard",
+    "desc": "A live, browser-based threat intelligence dashboard aggregating 68 curated sources across government advisories, news, r",
+    "stars": 15,
+    "lang": "HTML",
+    "url": "https://github.com/spac3gh0st00/Cybersecurity-Threat-Intelligence-Dashboard",
+    "created": "2024-11-20T21:30:46Z",
+    "updated": "2026-06-22T02:00:41Z",
+    "size_kb": 17156
+  },
+  {
+    "name": "cybrota/scharf",
+    "desc": "Static analysis tool to Identify and Fix GitHub Actions prone to Supply\u2011Chain Risks",
+    "stars": 15,
+    "lang": "Go",
+    "url": "https://github.com/cybrota/scharf",
+    "created": "2025-03-22T19:34:37Z",
+    "updated": "2026-06-17T00:34:09Z",
+    "size_kb": 425
+  },
+  {
+    "name": "1-3-7/disrobe",
+    "desc": "Decompile, deobfuscate, and unpack almost anything: a universal, deterministic, single-binary reverse-engineering toolki",
+    "stars": 14,
+    "lang": "Rust",
+    "url": "https://github.com/1-3-7/disrobe",
+    "created": "2026-05-27T12:04:13Z",
+    "updated": "2026-06-21T18:44:37Z",
+    "size_kb": 64026
+  },
+  {
+    "name": "eikendev/sectxt",
+    "desc": "A library & tool for probing, parsing, and validating security.txt files as specified in RFC 9116 :rocket::books:",
+    "stars": 14,
+    "lang": "Rust",
+    "url": "https://github.com/eikendev/sectxt",
+    "created": "2020-06-28T20:44:40Z",
+    "updated": "2026-06-20T09:16:54Z",
+    "size_kb": 586
+  },
+  {
+    "name": "Waremderme/GateSentinel-C2-RemoteTool",
+    "desc": "GateSentinel is a modern C2 framework for security research and penetration testing, supporting HVNC, RAT-style remote a",
+    "stars": 13,
+    "lang": "JavaScript",
+    "url": "https://github.com/Waremderme/GateSentinel-C2-RemoteTool",
+    "created": "2026-01-20T17:54:04Z",
+    "updated": "2026-06-22T02:06:26Z",
+    "size_kb": 1462
+  },
+  {
+    "name": "PKHarsimran/SwiftIOC-Automated-Threat-Intelligence-Collector",
+    "desc": "Automated threat intelligence collector built with Python and GitHub Actions \u2014 fetches recent IOCs from open sources, no",
+    "stars": 13,
+    "lang": "Python",
+    "url": "https://github.com/PKHarsimran/SwiftIOC-Automated-Threat-Intelligence-Collector",
+    "created": "2025-11-09T15:37:18Z",
+    "updated": "2026-06-22T01:03:31Z",
+    "size_kb": 2034634
+  },
+  {
+    "name": "martidu4/honey-ai",
+    "desc": "\ud83c\udf6f All-in-one AI honeypot powered by local LLMs. SSH, HTTP, FTP, Telnet, SMTP, MySQL, Redis, Git, VNC, RDP \u2014 with canary ",
+    "stars": 13,
+    "lang": "JavaScript",
+    "url": "https://github.com/martidu4/honey-ai",
+    "created": "2026-06-10T14:21:36Z",
+    "updated": "2026-06-19T10:52:16Z",
+    "size_kb": 4216
+  },
+  {
+    "name": "msalihberk/ShadowLab",
+    "desc": "A modular C2 framework developed in Python for cybersecurity research and adversary emulation. Features encrypted commun",
+    "stars": 12,
+    "lang": "Python",
+    "url": "https://github.com/msalihberk/ShadowLab",
+    "created": "2025-08-03T09:29:20Z",
+    "updated": "2026-06-21T07:34:46Z",
+    "size_kb": 7477
+  },
+  {
+    "name": "ShRP69/konshell",
+    "desc": "Ksh Reverse TCP/UDP Shell",
+    "stars": 12,
+    "lang": "Shell",
+    "url": "https://github.com/ShRP69/konshell",
+    "created": "2024-04-23T21:30:16Z",
+    "updated": "2026-06-19T00:36:20Z",
+    "size_kb": 8
+  },
+  {
+    "name": "anpa1200/Unpacker",
+    "desc": "Packer detection and unpacking workflow for malware analysis: UPX, ASPack, Themida, VMProtect, PE and ELF.",
+    "stars": 11,
+    "lang": "Python",
+    "url": "https://github.com/anpa1200/Unpacker",
+    "created": "2026-02-28T05:49:08Z",
+    "updated": "2026-06-19T22:52:33Z",
+    "size_kb": 80
+  },
+  {
+    "name": "DNSZLSK/muad-dib",
+    "desc": "Real-time npm/PyPI supply-chain threat detection. Behavioral chain analysis, AST scanning, IOC feeds, and compound scori",
+    "stars": 11,
+    "lang": "JavaScript",
+    "url": "https://github.com/DNSZLSK/muad-dib",
+    "created": "2026-01-01T19:14:43Z",
+    "updated": "2026-06-20T10:29:56Z",
+    "size_kb": 39362
+  },
+  {
+    "name": "Orion-Intelligence/Orion-Intelligence",
+    "desc": " Orion Platform is a comprehensive, web-based solution that combines the functionality of a browser to provide Cyber Thr",
+    "stars": 11,
+    "lang": "TypeScript",
+    "url": "https://github.com/Orion-Intelligence/Orion-Intelligence",
+    "created": "2021-09-11T07:42:15Z",
+    "updated": "2026-06-18T16:20:53Z",
+    "size_kb": 1141972
+  },
+  {
+    "name": "tryhackmeacct-netizen/Advanced-Threat-Intelligence-Platform-Dynamic-Policy-Enforcer",
+    "desc": "Finance & Banking - Advanced Threat Intelligence Plt. & Dynamic Policy Enforcer that ingests OSINT threat feeds, normali",
+    "stars": 11,
+    "lang": "Python",
+    "url": "https://github.com/tryhackmeacct-netizen/Advanced-Threat-Intelligence-Platform-Dynamic-Policy-Enforcer",
+    "created": "2026-05-21T18:27:38Z",
+    "updated": "2026-06-20T17:59:22Z",
+    "size_kb": 11463
+  },
+  {
+    "name": "zwerkenm/Muck-MASS-SMS-Sender-Whatsapp-Boomber",
+    "desc": "SMS APIs and gateways enable services like messaging, verification, and spamming. Tools like SMS bombers or prank apps e",
+    "stars": 10,
+    "lang": "Visual Basic .NET",
+    "url": "https://github.com/zwerkenm/Muck-MASS-SMS-Sender-Whatsapp-Boomber",
+    "created": "2026-02-15T18:23:47Z",
+    "updated": "2026-06-22T00:04:22Z",
+    "size_kb": 685
+  },
+  {
+    "name": "cataam-security/cataam",
+    "desc": "Open-source GRC tooling \u2014 CIS hardening scripts, CVE scanners, ISO 27001 templates, and compliance knowledge. Maintained",
+    "stars": 10,
+    "lang": "Python",
+    "url": "https://github.com/cataam-security/cataam",
+    "created": "2026-05-19T11:40:10Z",
+    "updated": "2026-06-16T00:54:11Z",
+    "size_kb": 447
+  },
+  {
+    "name": "DIvkov575/Beaver",
+    "desc": "SEIM (data security log analysis tool). Inspired by matano, executes completely within gcp",
+    "stars": 10,
+    "lang": "Rust",
+    "url": "https://github.com/DIvkov575/Beaver",
+    "created": "2023-10-01T23:47:56Z",
+    "updated": "2026-06-18T18:07:02Z",
+    "size_kb": 1472
+  },
+  {
+    "name": "ModernOps888/mcplex",
+    "desc": "MCPlex - The MCP Smart Gateway. Semantic tool routing, security guardrails, and real-time observability for AI agents.",
+    "stars": 10,
+    "lang": "Rust",
+    "url": "https://github.com/ModernOps888/mcplex",
+    "created": "2026-04-10T10:34:29Z",
+    "updated": "2026-06-21T14:09:20Z",
+    "size_kb": 881
+  },
+  {
+    "name": "ac0d3r/machbox",
+    "desc": "Machbox is a native, lightweight, single-binary malware analysis sandbox for macOS.",
+    "stars": 9,
+    "lang": "Go",
+    "url": "https://github.com/ac0d3r/machbox",
+    "created": "2026-05-08T12:42:11Z",
+    "updated": "2026-06-19T05:47:26Z",
+    "size_kb": 8306
+  },
+  {
+    "name": "d3vhex/Argos",
+    "desc": "Advanced C2 framework for authorized red team operations and penetration testing. Features encrypted agent communication",
+    "stars": 8,
+    "lang": "C",
+    "url": "https://github.com/d3vhex/Argos",
+    "created": "2026-06-08T08:47:39Z",
+    "updated": "2026-06-17T12:33:48Z",
+    "size_kb": 25864
+  },
+  {
+    "name": "Mojo96666/hack-crypto-wallets",
+    "desc": "A software tool created to circumvent security mechanisms and gain unauthorized access to encrypted cryptocurrency walle",
+    "stars": 8,
+    "lang": "Python",
+    "url": "https://github.com/Mojo96666/hack-crypto-wallets",
+    "created": "2025-05-02T11:56:21Z",
+    "updated": "2026-06-22T02:15:31Z",
+    "size_kb": 587
+  },
+  {
+    "name": "taoq-ai/ziran",
+    "desc": "\u81ea\u7136 ZIRAN is an open-source security testing framework for AI agents. It discovers dangerous tool chain compositions via ",
+    "stars": 8,
+    "lang": "Python",
+    "url": "https://github.com/taoq-ai/ziran",
+    "created": "2026-02-09T14:13:08Z",
+    "updated": "2026-06-21T23:27:41Z",
+    "size_kb": 8023
+  },
+  {
+    "name": "ridpath/awinrm",
+    "desc": "Modern WinRM shell for red teams and CTFs with automated tool staging, AV bypass, recon, and credential/loot extraction",
+    "stars": 8,
+    "lang": "Ruby",
+    "url": "https://github.com/ridpath/awinrm",
+    "created": "2025-11-19T04:32:33Z",
+    "updated": "2026-06-20T21:32:56Z",
+    "size_kb": 5342
+  },
+  {
+    "name": "avartraj/VenomRecon",
+    "desc": "Autonomous attack surface mapping and vuln discovery tool for bug bounty and red team ops.",
+    "stars": 8,
+    "lang": "Python",
+    "url": "https://github.com/avartraj/VenomRecon",
+    "created": "2026-05-21T18:38:24Z",
+    "updated": "2026-06-17T20:09:19Z",
+    "size_kb": 2264
+  },
+  {
+    "name": "schjonhaug/canary",
+    "desc": "Bitcoin monitoring tool with transaction alerts and intelligent balance notifications. Set custom balance thresholds, mo",
+    "stars": 8,
+    "lang": "Rust",
+    "url": "https://github.com/schjonhaug/canary",
+    "created": "2025-06-28T18:40:07Z",
+    "updated": "2026-06-16T07:40:20Z",
+    "size_kb": 14410
+  },
+  {
+    "name": "ShRP69/cell",
+    "desc": "C Reverse TCP Shell",
+    "stars": 7,
+    "lang": "C",
+    "url": "https://github.com/ShRP69/cell",
+    "created": "2024-04-16T17:04:43Z",
+    "updated": "2026-06-19T00:31:23Z",
+    "size_kb": 8
+  },
+  {
+    "name": "antiweevil/obscure-usb",
+    "desc": "Obscure-USB is a program that generates BadUSB payloads, establishing a reverse shell between a Linux machine and a Wind",
+    "stars": 7,
+    "lang": "Python",
+    "url": "https://github.com/antiweevil/obscure-usb",
+    "created": "2026-05-14T05:03:23Z",
+    "updated": "2026-06-21T17:12:58Z",
+    "size_kb": 3769
+  },
+  {
+    "name": "Lasertems/AV-skip-Builder",
+    "desc": "Trojan-Malware-undetected builder-Generator, 360,Eset,Kaspersky Topics: crypter, crypter-fud, crypter-rat, crypter-defen",
+    "stars": 7,
+    "lang": "C++",
+    "url": "https://github.com/Lasertems/AV-skip-Builder",
+    "created": "2026-04-02T11:47:59Z",
+    "updated": "2026-06-22T02:12:49Z",
+    "size_kb": 957
+  },
+  {
+    "name": "Kayamwom/AsyncRAT-Dark-Mode",
+    "desc": "AsyncRAT Dark Mode is a modified version of AsyncRAT with a sleek dark theme, modern UI updates, and improved TLS 1.2 co",
+    "stars": 7,
+    "lang": "C#",
+    "url": "https://github.com/Kayamwom/AsyncRAT-Dark-Mode",
+    "created": "2025-12-23T18:15:45Z",
+    "updated": "2026-06-21T23:56:51Z",
+    "size_kb": 5317
+  },
+  {
+    "name": "NeCr00/CVE-Mapper",
+    "desc": "CVE Finder and Mapper",
+    "stars": 7,
+    "lang": "Python",
+    "url": "https://github.com/NeCr00/CVE-Mapper",
+    "created": "2026-06-16T15:36:34Z",
+    "updated": "2026-06-18T18:02:45Z",
+    "size_kb": 645
+  },
+  {
+    "name": "Jancema/ShellCode-Elevator-Uac-Bypass-Inject-Any-X64-fud",
+    "desc": "Shellcode development involves creating payloads for post-exploitation tasks like antivirus evasion and UAC bypass. Tool",
+    "stars": 7,
+    "lang": "C++",
+    "url": "https://github.com/Jancema/ShellCode-Elevator-Uac-Bypass-Inject-Any-X64-fud",
+    "created": "2025-12-25T18:58:14Z",
+    "updated": "2026-06-22T00:17:37Z",
+    "size_kb": 1079
+  },
+  {
+    "name": "ashiandd/arsenal-ng",
+    "desc": "\ud83c\udfaf Launch pentesting commands quickly with arsenal-ng, a modern, streamlined tool in Go, focused on simplicity and speed ",
+    "stars": 7,
+    "lang": "Go",
+    "url": "https://github.com/ashiandd/arsenal-ng",
+    "created": "2026-01-13T15:39:10Z",
+    "updated": "2026-06-22T00:58:14Z",
+    "size_kb": 19596
+  },
+  {
+    "name": "K0NGR3SS/WAFPierce",
+    "desc": "CLI & GUI tool, it is WAF/CDN fingerprinting and bypass validation tool for pentesting across cloud providers. It detect",
+    "stars": 7,
+    "lang": "Python",
+    "url": "https://github.com/K0NGR3SS/WAFPierce",
+    "created": "2026-01-30T21:31:54Z",
+    "updated": "2026-06-17T20:58:17Z",
+    "size_kb": 5071
+  },
+  {
+    "name": "mukul975/Malware-Sandbox-mcp",
+    "desc": "Detonate files & URLs in cloud malware sandboxes (Hybrid Analysis, tria.ge, ANY.RUN) and enrich IOCs across MalwareBazaa",
+    "stars": 7,
+    "lang": "Python",
+    "url": "https://github.com/mukul975/Malware-Sandbox-mcp",
+    "created": "2026-06-11T18:26:57Z",
+    "updated": "2026-06-21T12:57:37Z",
+    "size_kb": 1746
+  },
+  {
+    "name": "The-DarkStar-Project/darkstar",
+    "desc": "The ultimate Red Team and Blue Team tool for attack surface mapping and vulnerability management",
+    "stars": 6,
+    "lang": "Python",
+    "url": "https://github.com/The-DarkStar-Project/darkstar",
+    "created": "2025-07-08T14:23:45Z",
+    "updated": "2026-06-18T05:42:55Z",
+    "size_kb": 5792
+  },
+  {
+    "name": "haza-3301/Recon-Engine",
+    "desc": "Recon-Engine adalah framework subdomain enumeration modular dan asinkron untuk bug bounty & pentest. Mendukung plugin AP",
+    "stars": 6,
+    "lang": "Python",
+    "url": "https://github.com/haza-3301/Recon-Engine",
+    "created": "2025-07-09T19:31:44Z",
+    "updated": "2026-06-21T17:47:20Z",
+    "size_kb": 9913
+  },
+  {
+    "name": "idaholab/cape2stix",
+    "desc": "This software allows for the conversion, extraction, and transformation of malware behavior data from \"Malware Configura",
+    "stars": 6,
+    "lang": "Python",
+    "url": "https://github.com/idaholab/cape2stix",
+    "created": "2023-06-21T12:35:26Z",
+    "updated": "2026-06-18T20:29:19Z",
+    "size_kb": 11789
+  },
+  {
+    "name": "anpa1200/String-Analyzer",
+    "desc": "String extraction for CTI and malware analysis: URLs, IPs, registry keys, APIs, encoded data, and analyst-ready prompts.",
+    "stars": 6,
+    "lang": "Python",
+    "url": "https://github.com/anpa1200/String-Analyzer",
+    "created": "2025-04-17T14:18:37Z",
+    "updated": "2026-06-18T03:57:06Z",
+    "size_kb": 135
+  },
+  {
+    "name": "AkhrorKhasanov/port_scanner",
+    "desc": "A high-performance, multi-threaded CLI port scanner built in Rust. It features fast TCP scanning, banner grabbing, confi",
+    "stars": 6,
+    "lang": "Rust",
+    "url": "https://github.com/AkhrorKhasanov/port_scanner",
+    "created": "2026-06-19T20:17:03Z",
+    "updated": "2026-06-21T05:24:47Z",
+    "size_kb": 19
+  },
+  {
+    "name": "ShRP69/kai",
+    "desc": "Ruby Reverse TCP Shell",
+    "stars": 5,
+    "lang": "Ruby",
+    "url": "https://github.com/ShRP69/kai",
+    "created": "2024-04-16T17:12:34Z",
+    "updated": "2026-06-19T00:34:11Z",
+    "size_kb": 8
+  },
+  {
+    "name": "credkellar-boop/Monware",
+    "desc": "Monware is an lab repository for the defensive study of malicious software. We reverse engineer malware to understand at",
+    "stars": 5,
+    "lang": "Python",
+    "url": "https://github.com/credkellar-boop/Monware",
+    "created": "2026-05-23T04:51:43Z",
+    "updated": "2026-06-20T15:52:25Z",
+    "size_kb": 2377
+  },
+  {
+    "name": "splunk/ctis-taxii-splunk-app",
+    "desc": "Splunk App supporting STIX threat intel sharing to ASD's CTIS TAXII program",
+    "stars": 5,
+    "lang": "JavaScript",
+    "url": "https://github.com/splunk/ctis-taxii-splunk-app",
+    "created": "2024-07-08T00:17:19Z",
+    "updated": "2026-06-19T04:15:30Z",
+    "size_kb": 475327
+  },
+  {
+    "name": "JunaYa/ddu",
+    "desc": "DDU - A lightweight desktop screenshot management tool that prioritizes security and tiny size.",
+    "stars": 5,
+    "lang": "Rust",
+    "url": "https://github.com/JunaYa/ddu",
+    "created": "2024-11-08T15:50:54Z",
+    "updated": "2026-06-17T11:59:07Z",
+    "size_kb": 3319
+  },
+  {
+    "name": "Slyb00ts/TentaFlow",
+    "desc": "Local AI deployment made trivial. Run vLLM, SGLang, Ollama, llama.cpp, MLX, STT & TTS \u2014 containerized or native \u2014 from a",
+    "stars": 5,
+    "lang": "Rust",
+    "url": "https://github.com/Slyb00ts/TentaFlow",
+    "created": "2026-03-24T14:24:13Z",
+    "updated": "2026-06-21T21:11:24Z",
+    "size_kb": 61114
+  },
+  {
+    "name": "credkellar-boop/Insta-Repo",
+    "desc": "\u200bInsta-Repo is a high-performance Rust security tool that recursively scans repositories for hidden malware, supply-chai",
+    "stars": 5,
+    "lang": "Rust",
+    "url": "https://github.com/credkellar-boop/Insta-Repo",
+    "created": "2026-06-17T23:13:47Z",
+    "updated": "2026-06-21T18:57:32Z",
+    "size_kb": 1307
+  },
+  {
+    "name": "MatrixTM26/TOMCAT-C2-Framework",
+    "desc": "Adversary emulation framework for managing remote agents. Build for red team simulation operations and research purposes",
+    "stars": 4,
+    "lang": "Java",
+    "url": "https://github.com/MatrixTM26/TOMCAT-C2-Framework",
+    "created": "2026-05-31T11:41:29Z",
+    "updated": "2026-06-21T07:14:34Z",
+    "size_kb": 73911
+  },
+  {
+    "name": "fionaadrelia7-Slave/whispernet-go",
+    "desc": "Covert acoustic C2 framework utilizing ultrasonic frequencies, FHSS, and CPU thermal side-channels for air-gapped exfilt",
+    "stars": 4,
+    "lang": "Go",
+    "url": "https://github.com/fionaadrelia7-Slave/whispernet-go",
+    "created": "2026-06-21T04:35:35Z",
+    "updated": "2026-06-21T16:12:24Z",
+    "size_kb": 12188
+  },
+  {
+    "name": "Serious-senpai/remote-access-trojan",
+    "desc": "A Remote Access Trojan (RAT) with UEFI persistence",
+    "stars": 4,
+    "lang": "Rust",
+    "url": "https://github.com/Serious-senpai/remote-access-trojan",
+    "created": "2025-12-25T02:11:20Z",
+    "updated": "2026-06-21T15:04:29Z",
+    "size_kb": 32084
+  },
+  {
+    "name": "haid1n/LabExploit",
+    "desc": "\ud83d\udee0\ufe0f Develop and analyze exploits with LabExploit, a security research tool featuring built-in safety controls for authori",
+    "stars": 4,
+    "lang": "Python",
+    "url": "https://github.com/haid1n/LabExploit",
+    "created": "2024-12-25T11:23:07Z",
+    "updated": "2026-06-22T02:37:23Z",
+    "size_kb": 3222
+  },
+  {
+    "name": "ghoxtbyte/recon-tool",
+    "desc": "A simple yet powerful bash-based subdomain reconnaissance tool for bug bounty and red teaming.",
+    "stars": 4,
+    "lang": "Shell",
+    "url": "https://github.com/ghoxtbyte/recon-tool",
+    "created": "2025-06-29T09:11:33Z",
+    "updated": "2026-06-22T00:00:34Z",
+    "size_kb": 87
+  },
+  {
+    "name": "n0x90/onewAy",
+    "desc": "An Armitage inspired red-team tool. Provides a UI for both Nmap and Metasploit.",
+    "stars": 4,
+    "lang": "Python",
+    "url": "https://github.com/n0x90/onewAy",
+    "created": "2026-05-10T15:55:00Z",
+    "updated": "2026-06-20T20:09:49Z",
+    "size_kb": 7296
+  },
+  {
+    "name": "anpa1200/Basic-File-Information-Gathering-Script",
+    "desc": "File triage for CTI and malware analysis: hashes, strings, entropy, metadata, YARA context, JSON and CSV output.",
+    "stars": 4,
+    "lang": "Python",
+    "url": "https://github.com/anpa1200/Basic-File-Information-Gathering-Script",
+    "created": "2025-04-17T13:59:39Z",
+    "updated": "2026-06-18T03:55:33Z",
+    "size_kb": 89
+  },
+  {
+    "name": "alexverboon/microsoft-defender-threat-intelligence-toolkit",
+    "desc": "Scripts for managing Microsoft Sentinel Threat Intelligence",
+    "stars": 4,
+    "lang": "PowerShell",
+    "url": "https://github.com/alexverboon/microsoft-defender-threat-intelligence-toolkit",
+    "created": "2026-04-11T06:56:58Z",
+    "updated": "2026-06-17T13:26:03Z",
+    "size_kb": 867
+  },
+  {
+    "name": "CyberNinja7420/whmcs-fraud-prevention-suite",
+    "desc": "Open-source fraud detection for WHMCS -- 16 detection engines, 3D threat globe, device fingerprinting, bot cleanup, REST",
+    "stars": 4,
+    "lang": "PHP",
+    "url": "https://github.com/CyberNinja7420/whmcs-fraud-prevention-suite",
+    "created": "2026-04-05T13:56:09Z",
+    "updated": "2026-06-17T15:43:24Z",
+    "size_kb": 9814
+  },
+  {
+    "name": "butlergroup/env_encryption_tool",
+    "desc": "Rust-based .env (dotenv) file encryption & decryption tool - store & retrieve your app environment variables safely :sun",
+    "stars": 4,
+    "lang": "Rust",
+    "url": "https://github.com/butlergroup/env_encryption_tool",
+    "created": "2025-01-30T00:23:48Z",
+    "updated": "2026-06-18T20:10:10Z",
+    "size_kb": 406
+  },
+  {
+    "name": "camjac251/tool-gates",
+    "desc": "Intelligent tool permission gate & security hooks for AI assistants (Claude Code, Codex, Antigravity; Gemini deprecated)",
+    "stars": 4,
+    "lang": "Rust",
+    "url": "https://github.com/camjac251/tool-gates",
+    "created": "2025-12-15T01:53:24Z",
+    "updated": "2026-06-20T20:35:57Z",
+    "size_kb": 2715
+  },
+  {
+    "name": "kennystrawnmusic/TensorBuster",
+    "desc": "C2 framework for the AI era",
+    "stars": 3,
+    "lang": "Python",
+    "url": "https://github.com/kennystrawnmusic/TensorBuster",
+    "created": "2026-06-19T23:45:43Z",
+    "updated": "2026-06-22T02:15:26Z",
+    "size_kb": 520
+  },
+  {
+    "name": "AkaTorich/Co2H-C2",
+    "desc": "Co2H-C2 - it's C2 framework",
+    "stars": 3,
+    "lang": "C",
+    "url": "https://github.com/AkaTorich/Co2H-C2",
+    "created": "2026-05-18T01:02:56Z",
+    "updated": "2026-06-16T15:50:32Z",
+    "size_kb": 11404
+  },
+  {
+    "name": "Kadowms/Sakura-Rat-Hvnc-Hidden-Browser-Remote-Administration-Trojan-Bot-Native",
+    "desc": "HVNC malware and RAT tools like Sakura provide remote access to Windows systems. These tools, including batch RATs and H",
+    "stars": 3,
+    "lang": "Visual Basic .NET",
+    "url": "https://github.com/Kadowms/Sakura-Rat-Hvnc-Hidden-Browser-Remote-Administration-Trojan-Bot-Native",
+    "created": "2026-04-08T11:15:58Z",
+    "updated": "2026-06-22T02:10:25Z",
+    "size_kb": 210
+  },
+  {
+    "name": "eronforyou/Worst-Stealer",
+    "desc": "Advanced Windows infostealer. Grabs browser passwords/cookies, Discord tokens with Nitro stats, crypto wallets, and popu",
+    "stars": 3,
+    "lang": null,
+    "url": "https://github.com/eronforyou/Worst-Stealer",
+    "created": "2026-06-13T08:07:33Z",
+    "updated": "2026-06-17T13:04:25Z",
+    "size_kb": 8
+  },
+  {
+    "name": "jeanmalaquias/ai-governance-toolkit",
+    "desc": "Deployable Responsible AI runtime toolkit: model-card generator, risk assessor, guardrail orchestrator, OWASP LLM red-te",
+    "stars": 3,
+    "lang": "Python",
+    "url": "https://github.com/jeanmalaquias/ai-governance-toolkit",
+    "created": "2026-06-17T01:31:19Z",
+    "updated": "2026-06-21T20:05:21Z",
+    "size_kb": 40
+  },
+  {
+    "name": "anpa1200/Android-Malware-Analysis",
+    "desc": "Android APK malware triage with YARA, VirusTotal context, MITRE ATT&CK output, Frida hooks, and multi-LLM analysis.",
+    "stars": 3,
+    "lang": "Python",
+    "url": "https://github.com/anpa1200/Android-Malware-Analysis",
+    "created": "2026-03-26T07:48:37Z",
+    "updated": "2026-06-18T03:55:30Z",
+    "size_kb": 77
+  },
+  {
+    "name": "fkie-cad/Sandroid_Dexray-Intercept",
+    "desc": "A Android malware analysis tool that creates comprehensive runtime profiles by hooking into application behavior across ",
+    "stars": 3,
+    "lang": "JavaScript",
+    "url": "https://github.com/fkie-cad/Sandroid_Dexray-Intercept",
+    "created": "2025-07-25T07:58:41Z",
+    "updated": "2026-06-19T13:20:37Z",
+    "size_kb": 12488
+  },
+  {
+    "name": "Fadouse/clash-threat-intel",
+    "desc": "Threat Intelligence For Clash Route Rules",
+    "stars": 3,
+    "lang": "YARA",
+    "url": "https://github.com/Fadouse/clash-threat-intel",
+    "created": "2026-03-15T03:51:12Z",
+    "updated": "2026-06-22T01:05:04Z",
+    "size_kb": 4721927
+  },
+  {
+    "name": "dalryan/ip-enrich",
+    "desc": "A very fast threat intel aggregator.",
+    "stars": 3,
+    "lang": "Go",
+    "url": "https://github.com/dalryan/ip-enrich",
+    "created": "2024-05-23T14:01:10Z",
+    "updated": "2026-06-19T08:29:47Z",
+    "size_kb": 2249
+  },
+  {
+    "name": "jwhitt3r/intel.overresearched.net",
+    "desc": "Automated cyber threat intelligence blog powered by the CognitiveCTI pipeline. Daily briefs, weekly reports, monthly lan",
+    "stars": 3,
+    "lang": "SCSS",
+    "url": "https://github.com/jwhitt3r/intel.overresearched.net",
+    "created": "2026-03-16T00:13:38Z",
+    "updated": "2026-06-20T20:34:43Z",
+    "size_kb": 1087
+  },
+  {
+    "name": "ajokunu/MatchBox",
+    "desc": "Home SOC on k3s \u2014 Wazuh SIEM/XDR, OpenCTI threat intel, TheHive/Cortex incident response, Grafana monitoring, and MCP se",
+    "stars": 3,
+    "lang": "Svelte",
+    "url": "https://github.com/ajokunu/MatchBox",
+    "created": "2026-02-26T22:37:33Z",
+    "updated": "2026-06-17T17:33:16Z",
+    "size_kb": 754
+  },
+  {
+    "name": "ElysiumCodes/Reverse-Shell",
+    "desc": "Repo contains code to run on both server and client. Client makes an outgoing connecting from within the firewall and th",
+    "stars": 2,
+    "lang": "C",
+    "url": "https://github.com/ElysiumCodes/Reverse-Shell",
+    "created": "2026-06-20T17:24:17Z",
+    "updated": "2026-06-21T12:53:14Z",
+    "size_kb": 11
+  },
+  {
+    "name": "iPmartNetwork/TunnelMaster",
+    "desc": "Deploy and manage multiple reverse-tunnel types from one unified toolkit",
+    "stars": 2,
+    "lang": "Shell",
+    "url": "https://github.com/iPmartNetwork/TunnelMaster",
+    "created": "2026-06-16T20:01:15Z",
+    "updated": "2026-06-18T08:53:29Z",
+    "size_kb": 59
+  },
+  {
+    "name": "sathikaSethumjith/Cyrus",
+    "desc": "\ud83d\udcbb Embed Metasploit Android Meterpreter payloads into existing APKs effortlessly with Cyrus, simplifying your workflow fo",
+    "stars": 2,
+    "lang": "Shell",
+    "url": "https://github.com/sathikaSethumjith/Cyrus",
+    "created": "2025-06-02T19:37:49Z",
+    "updated": "2026-06-22T02:37:44Z",
+    "size_kb": 3902
+  },
+  {
+    "name": "Dragon-Lady/HereWeGoAgain-incident-scanner",
+    "desc": "Here We Go Again\u201d is an active npm/PyPI supply-chain worm, not just a credential stealer. ",
+    "stars": 2,
+    "lang": "JavaScript",
+    "url": "https://github.com/Dragon-Lady/HereWeGoAgain-incident-scanner",
+    "created": "2026-05-12T19:07:43Z",
+    "updated": "2026-06-19T18:56:01Z",
+    "size_kb": 225
+  }
+]
