@@ -6,7 +6,7 @@ Si vous decouvrez une vulnerabilite de securite dans ce projet, merci de ne pas 
 
 ### Comment signaler
 
-1. Envoyez un email a **security@example.com** avec :
+1. Envoyez un email a **security@eurinhash.com** avec :
    - Une description de la vulnerabilite
    - Les etapes pour la reproduire
    - L'impact potentiel
