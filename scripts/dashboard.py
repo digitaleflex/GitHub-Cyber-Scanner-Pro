@@ -24,7 +24,7 @@ def generate_html(repos):
         rows += f"""
         <tr>
             <td><a href="{r['url']}" target="_blank">{r['name']}</a></td>
-            <td>{r['stars']}</td>
+            <td>{r['stars']:,}</td>
             <td>{r['lang'] or '?'}</td>
             <td>{r['desc'][:80]}</td>
             <td>{r['updated'][:10]}</td>
@@ -40,8 +40,9 @@ def generate_html(repos):
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }}
         h1 {{ color: #58a6ff; margin-bottom: 10px; }}
-        .stats {{ display: flex; gap: 20px; margin: 20px 0; }}
-        .stat {{ background: #161b22; padding: 15px 25px; border-radius: 8px; border: 1px solid #30363d; }}
+        .subtitle {{ color: #8b949e; margin-bottom: 20px; }}
+        .stats {{ display: flex; gap: 20px; margin: 20px 0; flex-wrap: wrap; }}
+        .stat {{ background: #161b22; padding: 15px 25px; border-radius: 8px; border: 1px solid #30363d; min-width: 150px; }}
         .stat .number {{ font-size: 28px; font-weight: bold; color: #58a6ff; }}
         .stat .label {{ color: #8b949e; font-size: 12px; }}
         table {{ width: 100%; border-collapse: collapse; margin-top: 20px; background: #161b22; border-radius: 8px; overflow: hidden; }}
@@ -51,28 +52,37 @@ def generate_html(repos):
         a {{ color: #58a6ff; text-decoration: none; }}
         a:hover {{ text-decoration: underline; }}
         .empty {{ text-align: center; padding: 40px; color: #8b949e; }}
+        .footer {{ margin-top: 30px; padding-top: 20px; border-top: 1px solid #30363d; color: #8b949e; font-size: 12px; }}
     </style>
 </head>
 <body>
     <h1>CyberScan Dashboard</h1>
-    <p style="color: #8b949e;">Dernier scan : {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+    <p class="subtitle">Dernier scan : {datetime.now().strftime('%d/%m/%Y %H:%M')} | Source : GitHub API</p>
     
     <div class="stats">
         <div class="stat">
-            <div class="number">{len(repos)}</div>
+            <div class="number">{len(repos):,}</div>
             <div class="label">Nouveaux outils</div>
         </div>
         <div class="stat">
-            <div class="number">{sum(r['stars'] for r in repos)}</div>
+            <div class="number">{sum(r['stars'] for r in repos):,}</div>
             <div class="label">Etoiles totales</div>
         </div>
         <div class="stat">
             <div class="number">{len(set(r['lang'] for r in repos if r['lang']))}</div>
             <div class="label">Langages</div>
         </div>
+        <div class="stat">
+            <div class="number">{max(r['stars'] for r in repos) if repos else 0:,}</div>
+            <div class="label">Max etoiles</div>
+        </div>
     </div>
 
     {"<table><tr><th>Repository</th><th>Stars</th><th>Langage</th><th>Description</th><th>Mis a jour</th></tr>" + rows + "</table>" if repos else '<div class="empty">Pas de donnees. Lance le scan d\'abord.</div>'}
+    
+    <div class="footer">
+        Genere par CyberBook Collector | <a href="https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro">GitHub</a>
+    </div>
 </body>
 </html>"""
 
