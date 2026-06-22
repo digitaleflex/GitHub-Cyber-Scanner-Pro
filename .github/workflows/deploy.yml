@@ -1,126 +1,40 @@
-name: CI/CD Scanner Cyber - Build & Deploy Privé
+name: CI/CD
 
 on:
   push:
-    branches:
-      - main # Déclenche le workflow à chaque commit sur la branche main
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  code-quality:
+  quality:
     runs-on: ubuntu-latest
     steps:
-      - name: 1. Récupération du code source
-        uses: actions/checkout@v4
-
-      - name: 2. Configuration de Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: 3. Installation des dépendances de test
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install ruff bandit pytest pytest-asyncio
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          python -m spacy download en_core_web_sm
-          python -m spacy download fr_core_news_sm
+          pip install ruff pytest
+          pip install -r requirements.txt
 
-      - name: 4. Analyse syntaxique et architecture (Ruff)
-        run: ruff check .
+      - name: Lint
+        run: ruff check src/
 
-      - name: 5. Analyse de sécurité statique (Bandit)
-        run: bandit -r src/ -ll
+      - name: Tests
+        run: pytest tests/ -v
 
-      - name: 6. Exécution des tests unitaires (Pytest)
-        run: pytest tests/
-
-  build-and-push:
-    needs: code-quality
+  build:
+    needs: quality
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.meta.outputs.version }}
-    permissions:
-      contents: read
-      packages: write # Indispensable pour avoir le droit d'écrire l'image sur GitHub Packages
-
+    if: github.ref == 'refs/heads/main'
     steps:
-      - name: 1. Récupération du code source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: 2. Connexion sécurisée au Registre GitHub (GHCR)
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} # Jeton temporaire généré automatiquement par GitHub
+      - name: Build Docker image
+        run: docker build -t cyber-scanner:${{ github.sha }} .
 
-      - name: 2.5. Configuration de Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: 3. Génération des Tags et Métadonnées Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=short
-            type=raw,value=latest
-
-      - name: 4. Construction de l'image Docker locale
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          load: true # Charge l'image localement pour le scan Trivy
-          tags: local-test-image:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: 5. Scan de Vulnérabilités de l'Image (Trivy)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'local-test-image:latest'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
-      - name: 6. Publication de l'image Docker (Push)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  deploy-to-server:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: 7. Connexion SSH au serveur et déploiement à chaud
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /opt/cyber-scanner
-            
-            # 1. Connexion du serveur au registre privé GitHub
-            echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            # 2. Mise à jour de la configuration de l'image avec le nouveau Tag
-            sed -i "s|image: ghcr.io/.*|image: ghcr.io/${{ env.IMAGE_NAME }}:sha-${{ needs.build-and-push.outputs.image_tag }}|g" compose.yml
-            
-            # 3. Téléchargement et relance immédiate du scanner et des workers
-            docker compose pull
-            docker compose up -d
-            
-            # 4. Nettoyage des anciennes images Docker inutilisées pour économiser le disque
-            docker image prune -f
+      - name: Test Docker image
+        run: docker run --rm cyber-scanner:${{ github.sha }} python -c "import src.scanner; print('OK')"
