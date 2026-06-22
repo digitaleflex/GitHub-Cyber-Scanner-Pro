@@ -1,5 +1,10 @@
 # CyberBook Collector
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI/CD](https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/actions/workflows/deploy.yml/badge.svg)](https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/actions/workflows/deploy.yml)
+[![CyberScan](https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/actions/workflows/scan.yml/badge.svg)](https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/actions/workflows/scan.yml)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+
 Outil simple pour decouvrir les nouveaux outils cybersecurite sur GitHub.
 
 ## Ce que fait l'outil
@@ -139,9 +144,19 @@ Le scan tourne automatiquement **tous les 3 jours** sur GitHub Actions.
 ├── src/
 │   ├── scanner.py        # Scanner complet (avec API)
 │   └── database.py       # PostgreSQL (pour plus tard)
-├── .github/workflows/
-│   ├── scan.yml          # Scan auto tous les 3 jours
-│   └── deploy.yml        # CI/CD (lint + tests)
+├── .github/
+│   ├── workflows/
+│   │   ├── scan.yml      # Scan auto tous les 3 jours
+│   │   └── deploy.yml    # CI/CD (lint + tests)
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── PULL_REQUEST_TEMPLATE.md
+├── LICENSE               # MIT
+├── CODE_OF_CONDUCT.md    # Code de conduite
+├── CONTRIBUTING.md       # Guide de contribution
+├── SECURITY.md           # Politique de securite
+├── CHANGELOG.md          # Historique
 ├── requirements.txt
 └── README.md
 ```
@@ -200,6 +215,14 @@ Plus tard. Pour l'instant, les fichiers JSON suffisent.
 
 Verifie https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/actions. Si c'est rouge, clique pour voir l'erreur.
 
+## Contribuer
+
+Lisez [CONTRIBUTING.md](CONTRIBUTING.md) pour les regles de contribution.
+
+## Securite
+
+Lisez [SECURITY.md](SECURITY.md) pour la politique de securite.
+
 ## Dependances
 
 ```
@@ -212,9 +235,9 @@ C'est tout. Pas de Docker. Pas de PostgreSQL. Pas de NLP.
 
 1. **Maintenant** : Lance le scan, regarde les resultats
 2. **Semaine 2** : Envoie le rapport a 3 analystes CTI
-3. **Si validé** : Ajoute PostgreSQL, scoring, dashboard avance
+3. **Si valide** : Ajoute PostgreSQL, scoring, dashboard avance
 4. **Si non** : Arrete ou pivote
 
 ## Licence
 
-Projet open source.
+Distribue sous la licence [MIT](LICENSE).
