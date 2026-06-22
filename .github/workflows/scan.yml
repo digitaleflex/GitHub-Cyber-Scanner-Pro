@@ -1,9 +1,9 @@
-name: CyberScan Weekly
+name: CyberScan
 
 on:
   schedule:
-    - cron: '0 8 * * 1'  # Chaque lundi a 8h UTC
-  workflow_dispatch:      # Pour lancer manuellement
+    - cron: '0 8 */3 * *'  # Tous les 3 jours a 8h UTC
+  workflow_dispatch:        # Pour lancer manuellement
 
 permissions:
   contents: read
@@ -30,13 +30,13 @@ jobs:
       - name: Generate report
         run: python scripts/report.py
 
-      - name: Save JSON data
+      - name: Save output
         run: |
           mkdir -p output
           cp data/last_scan.json output/scan_$(date +%Y%m%d).json
           cp data/seen.json output/seen.json
 
-      - name: Upload report
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: cyberreport-${{ github.run_number }}
