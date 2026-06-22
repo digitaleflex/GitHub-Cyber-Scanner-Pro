@@ -1,162 +1,219 @@
 # CyberBook Collector
 
-Outil simple et autonome pour decouvrir et cataloguer tous les depots GitHub qui partagent des livres, cours et ressources sur la cybersecurite.
+Outil simple pour decouvrir les nouveaux outils cybersecurite sur GitHub.
 
-## Fonctionnalites
+## Ce que fait l'outil
 
-- **Scan GitHub** : 26+ requetes ciblees pour trouver les repos pertinents
-- **Parsing README** : Extraction automatique des liens (livres, PDFs, cheatsheets, outils)
-- **Categorisation** : Offensive, Defensive, Certification, Général
-- **Export** : Excel et JSON, tries par pertinence
-- **Dashboard** : Interface web simple pour consulter les resultats
-- **API** : Endpoints REST pour integrer a vos propres outils
+1. **Scanne GitHub** tous les 3 jours avec 13 requetes ciblees
+2. **Filtre le bruit** (repos vides, forks, awesome-lists)
+3. **Genere un rapport** (dashboard HTML + markdown + JSON)
 
-## Installation
+## Installation rapide
 
 ```bash
-# Cloner le repo
 git clone https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro.git
 cd GitHub-Cyber-Scanner-Pro
-
-# Installer les dependances
-pip install -r requirements.txt
+pip install requests
 ```
 
 ## Configuration
 
-Creer un fichier `.env` a la racine :
+### Option 1 : Token GitHub (recommande)
 
-```env
-# Token GitHub (requis pour l'API GitHub)
-GITHUB_TOKENS=ghp_votre_token
-
-# Repo pour les issues (optionnel)
-GITHUB_REPO=votre_user/votre_repo
-
-# Base de donnees PostgreSQL
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=scanner_db
-DB_USER=postgres
-DB_PASSWORD=votre_password
-```
-
-### Obtenir un token GitHub
+Sans token, l'API GitHub limite a 10 requetes/minute. Avec token : 30/minute.
 
 1. Aller sur https://github.com/settings/tokens
 2. Generer un token (Classic)
-3. Donner les permissions `public_repo` (lecture des depots publics)
+3. Permissions : `public_repo` uniquement
+4. Creer le fichier `.env` :
+
+```env
+GITHUB_TOKENS=ghp_votre_token_ici
+```
+
+### Option 2 : Sans token
+
+Le script marche sans token, mais sera plus lent (rate limit).
 
 ## Utilisation
 
-### Lancer le scan
+### Lancer un scan
 
 ```bash
-python src/scanner.py
+python scripts/scan.py
 ```
 
-Ceci lance :
-- Le scan automatique des depots GitHub (toutes les 30 minutes)
-- Le serveur web FastAPI sur http://localhost:8000
+Resultat :
+```
+data/last_scan.json    → les repos trouves cette session
+data/seen.json         → historique (deduplication)
+```
 
-### Endpoints API
-
-| Methode | Endpoint | Description |
-|---------|----------|-------------|
-| GET | `/` | Dashboard HTML |
-| GET | `/api/stats` | Nombre de repos et livres |
-| GET | `/api/books` | Liste des livres et ressources |
-| GET | `/api/books?q=python` | Recherche par titre ou categorie |
-| GET | `/api/repositories` | Liste des depots scannes |
-| GET | `/api/download` | Export Excel |
-| GET | `/api/download/json` | Export JSON |
-| POST | `/api/scan` | Declencher un scan manuel |
-
-### Docker (optionnel)
+### Generer le rapport
 
 ```bash
-docker compose up -d --build
+python scripts/report.py
 ```
+
+Resultat :
+```
+reports/rapport_YYYYMMDD.md    → rapport markdown
+```
+
+### Generer le dashboard
+
+```bash
+python scripts/dashboard.py
+```
+
+Resultat :
+```
+reports/dashboard_YYYYMMDD.html    → ouvre dans le navigateur
+```
+
+### Tout d'un coup
+
+```bash
+python scripts/scan.py && python scripts/report.py && python scripts/dashboard.py
+```
+
+## Dashboard
+
+Ouvre `reports/dashboard_*.html` dans ton navigateur :
+
+```
+┌─────────────────────────────────────────────────┐
+│  CyberScan Dashboard                           │
+│                                                 │
+│  ┌──────┐  ┌──────┐  ┌──────┐                 │
+│  │  12  │  │ 4521 │  │  5   │                 │
+│  │outils│  │stars │  │langs │                 │
+│  └──────┘  └──────┘  └──────┘                 │
+│                                                 │
+│  Repository          Stars  Lang  Description  │
+│  ─────────────────────────────────────────────  │
+│  berylliumsec/nebula  981   Py   AI pentest... │
+│  tirrenotechnologies  1.4k  PHP  Threat det... │
+└─────────────────────────────────────────────────┘
+```
+
+## Automatisation (GitHub Actions)
+
+Le scan tourne automatiquement **tous les 3 jours** sur GitHub Actions.
+
+### Comment ca marche
+
+1. GitHub Actions allume un serveur Ubuntu
+2. Lance `scripts/scan.py`
+3. Genere le rapport et le dashboard
+4. Sauvegarde les fichiers en artefacts (90 jours)
+
+### Voir les resultats
+
+1. Va sur https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/actions
+2. Clique sur le dernier scan
+3. En bas, clique sur **"cyberreport-xxx"** (Artifacts)
+4. Telecharge le zip
+
+### Lancer manuellement
+
+1. Va sur l'onglet Actions
+2. Clique sur "CyberScan"
+3. Clique "Run workflow"
 
 ## Structure du projet
 
 ```
 .
-├── src/
-│   ├── scanner.py          # Scanner GitHub + parser README + API FastAPI
-│   ├── database.py         # Connexion PostgreSQL et operations CRUD
-│   └── __init__.py
-├── templates/
-│   └── index.html          # Dashboard web integre
+├── scripts/
+│   ├── scan.py           # Scan GitHub (13 requetes)
+│   ├── report.py         # Rapport markdown
+│   └── dashboard.py      # Dashboard HTML
 ├── data/
-│   ├── init.sql            # Schema de la base de donnees
-│   ├── cyber_security_catalogues.json   # Export JSON
-│   └── cyber_security_catalogues.xlsx   # Export Excel
-├── tests/
-│   └── test_database.py    # Tests unitaires
-├── requirements.txt        # Dependances Python
-├── compose.yml             # Configuration Docker
-├── Dockerfile              # Image Docker
-├── .env.example            # Template de configuration
-└── README.md               # Ce fichier
+│   ├── last_scan.json    # Dernier scan
+│   ├── seen.json         # Historique
+│   └── init.sql          # Schema SQL (pour plus tard)
+├── reports/
+│   ├── rapport_*.md      # Rapports markdown
+│   └── dashboard_*.html  # Dashboards HTML
+├── src/
+│   ├── scanner.py        # Scanner complet (avec API)
+│   └── database.py       # PostgreSQL (pour plus tard)
+├── .github/workflows/
+│   ├── scan.yml          # Scan auto tous les 3 jours
+│   └── deploy.yml        # CI/CD (lint + tests)
+├── requirements.txt
+└── README.md
 ```
 
-## Comment ca marche
+## Comment ca marche (technique)
 
-### 1. Scan GitHub
-
-Le scanner utilise 26+ requetes pour couvrir tous les aspects de la cybersecurite :
+### Les 13 requetes GitHub
 
 ```
-cybersecurity books
-hacking resources
-pentest cheatsheet
-CTF write-ups
-malware analysis
-incident response
-digital forensics
-blue team resources
-red team tools
-...
+C2 framework pushed:>DATE stars:>1
+phishing kit pushed:>DATE stars:>1
+reverse shell pushed:>DATE stars:>1
+credential stealer pushed:>DATE stars:>1
+RAT malware pushed:>DATE stars:>1
+exploit tool pushed:>DATE stars:>1
+red team tool pushed:>DATE stars:>2
+pentest tool pushed:>DATE stars:>2
+malware analysis pushed:>DATE stars:>2
+threat intel pushed:>DATE stars:>2
+osint tool pushed:>DATE stars:>2
+security tool pushed:>DATE stars:>3 language:go
+security tool pushed:>DATE stars:>3 language:rust
 ```
 
-Les requetes sont decoupees par tranche d'etoiles (1-10, 10-50, 50-100, etc.) pour contourner la limite de 1000 resultats de l'API GitHub.
+### Filtre anti-bruit
 
-### 2. Parsing README
+Le script elimine :
+- Les repos sans description
+- Les forks
+- Les repos avec 0 etoiles et 0 forks
+- Les "awesome lists", "tutorials", "courses"
 
-Pour chaque depot decouvert, le scanner :
-1. Telecharge le fichier README
-2. Extrait tous les liens (URLs) avec des expressions regulieres
-3. Filtre les liens pertinents (PDFs, sites de livres, cheatsheets)
-4. Categorise chaque lien (Offensive, Defensive, Certification, General)
+### Deduplication
 
-### 3. Export
+Chaque repo est hash (MD5) et stocke dans `data/seen.json`. Les doublons sont ignores.
 
-Les donnees sont exportees dans deux formats :
-- **Excel** : Fichier multi-lignes avec toutes les informations
-- **JSON** : Format hierarchique pour l'integration programmatique
+## FAQ
 
-## Base de donnees
+### "Est-ce que ca marche sans token ?"
 
-Le schema PostgreSQL contient 3 tables :
+Oui, mais plus lentement. L'API GitHub limite a 10 requetes/minute sans token.
 
-- **repositories** : Les depots GitHub decouverts
-- **books** : Les liens extraits des README
-- **etag_cache** : Cache des requetes API GitHub
+### "Combien de temps dure un scan ?"
 
-Voir `data/init.sql` pour le schema complet.
+~2-3 minutes (13 requetes * 3 secondes de pause).
+
+### "Ou sont les donnees ?"
+
+Dans `data/` (JSON) et `reports/` (HTML/MD). Pas de base de donnees pour l'instant.
+
+### "Comment ajouter une base de donnees ?"
+
+Plus tard. Pour l'instant, les fichiers JSON suffisent.
+
+### "Le CI/CD ne marche pas"
+
+Verifie https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/actions. Si c'est rouge, clique pour voir l'erreur.
 
 ## Dependances
 
 ```
-requests          # Appels API GitHub
-pandas            # Manipulation de donnees
-openpyxl          # Export Excel
-python-dotenv     # Configuration .env
-fastapi           # API web
-uvicorn           # Serveur ASGI
-psycopg2          # Client PostgreSQL
+requests    # Appels API GitHub
 ```
+
+C'est tout. Pas de Docker. Pas de PostgreSQL. Pas de NLP.
+
+## Prochaines etapes
+
+1. **Maintenant** : Lance le scan, regarde les resultats
+2. **Semaine 2** : Envoie le rapport a 3 analystes CTI
+3. **Si validé** : Ajoute PostgreSQL, scoring, dashboard avance
+4. **Si non** : Arrete ou pivote
 
 ## Licence
 
