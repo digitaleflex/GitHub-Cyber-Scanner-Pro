@@ -13,12 +13,7 @@ from fastapi import BackgroundTasks, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 
-# Importer nos modules sémantiques et de base de données
 from src import database
-from src import nlp_processor
-from src import security_analyzer
-from src import llm_summarizer
-from src import orchestrator
 
 # Reconfigurer la sortie standard en UTF-8 sur Windows pour supporter l'affichage d'emojis
 if sys.platform == "win32":
@@ -740,25 +735,6 @@ def read_index():
     return "<h1>Erreur : Fichier templates/index.html introuvable.</h1>"
 
 
-@app.get("/api/search")
-def search_semantic(q: str):
-    """Recherche sémantique intelligente basée sur le sens de la requête."""
-    if not q or len(q) < 2:
-        return []
-
-    logging.info(f"🔍 Requête sémantique : '{q}'")
-    try:
-        # 1. Vectorisation de la requête utilisateur via l'IA locale
-        encoder = nlp_processor.get_encoder()
-        query_vector = encoder.encode(q).tolist()
-
-        # 2. Recherche des plus proches voisins dans Qdrant
-        results = database.search_qdrant(query_vector, limit=12)
-        return results
-    except Exception as e:
-        logging.error(f"❌ Erreur API recherche : {e}")
-        return {"error": str(e)}
-
 @app.get("/api/stats")
 def get_stats():
     """Retourne les statistiques de la base de données et le statut du scanner."""
@@ -775,12 +751,6 @@ def get_stats():
 def get_repositories_api():
     """Renvoie la liste des dépôts."""
     return database.get_repositories()
-
-
-@app.get("/api/resources")
-def get_resources_api():
-    """Renvoie la liste des ressources multi-sources (OSINT)."""
-    return database.get_all_resources()
 
 
 @app.get("/api/books")
@@ -829,105 +799,12 @@ def start_scan(background_tasks: BackgroundTasks):
     return {"message": "Le scan en arrière-plan a été démarré !"}
 
 
-def run_security_scan_daemon():
-    """Démon de scan de sécurité SAST périodique."""
-    logging.info("🚀 Démarrage du démon d'analyse de sécurité (SAST)...")
-    analyzer = security_analyzer.SecurityAnalyzer()
-    
-    while True:
-        try:
-            repos_to_scan = database.get_repos_to_analyze(5)
-            if not repos_to_scan:
-                time.sleep(300) # Attendre 5 min si rien à scanner
-                continue
-                
-            for repo in repos_to_scan:
-                repo_id = repo["id"]
-                repo_url = repo["html_url"]
-                repo_name = repo["full_name"]
-                
-                logging.info(f"🛡️ Audit de sécurité en cours pour {repo_name}...")
-                results = analyzer.analyze_repository(repo_url)
-                
-                verdict = results.get("verdict", "ERROR")
-                database.update_repo_security(repo_id, verdict, results)
-                logging.info(f"✅ Verdict pour {repo_name} : {verdict}")
-                
-                time.sleep(5) # Pause entre les scans pour le CPU
-                
-        except Exception as e:
-            logging.error(f"❌ Erreur dans le démon de sécurité : {e}")
-            time.sleep(60)
-
-
-def run_llm_summary_daemon():
-    """Démon de génération de fiches de synthèse via Ollama."""
-    logging.info("🚀 Démarrage du démon de synthèse IA (Ollama)...")
-    summarizer = llm_summarizer.LLMSummarizer()
-    
-    while True:
-        try:
-            repos_to_summarize = database.get_repos_needing_summary(5)
-            if not repos_to_summarize:
-                time.sleep(300)
-                continue
-                
-            for repo in repos_to_summarize:
-                repo_id = repo["id"]
-                full_name = repo["full_name"]
-                description = repo["description"]
-                
-                logging.info(f"🤖 Génération de la fiche IA pour {full_name}...")
-                
-                # Récupérer le README pour avoir plus de contexte
-                readme_text = ""
-                readme_url = f"https://api.github.com/repos/{full_name}/readme"
-                headers = {"Accept": "application/vnd.github.v3.raw"}
-                if GITHUB_TOKEN:
-                    headers["Authorization"] = f"token {GITHUB_TOKEN}"
-                try:
-                    res = requests.get(readme_url, headers=headers, timeout=15)
-                    if res.status_code == 200:
-                        readme_text = res.text
-                except Exception:
-                    logging.debug("Readme fetch failed safely")
-                
-                summary = summarizer.generate_summary(readme_text, description)
-                if summary:
-                    database.update_repo_llm_summary(repo_id, summary)
-                    logging.info(f"✅ Fiche IA générée avec succès pour {full_name}")
-                
-                time.sleep(10) # Pause pour le LLM
-                
-        except Exception as e:
-            logging.error(f"❌ Erreur dans le démon LLM : {e}")
-            time.sleep(60)
-
-
 if __name__ == "__main__":
-    # 1. Attendre et initialiser la base PostgreSQL
     database.init_db()
 
-    # 2. Migrer les anciennes données SQLite (si existantes) vers Postgres
-    migrate_sqlite_to_postgres()
-
-    # 3. Lancer les démons d'arrière-plan
     daemon_thread = threading.Thread(target=run_scanner_daemon, daemon=True)
     daemon_thread.start()
 
-    validator_thread = threading.Thread(target=run_link_validator_daemon, daemon=True)
-    validator_thread.start()
-
-    security_thread = threading.Thread(target=run_security_scan_daemon, daemon=True)
-    security_thread.start()
-
-    llm_thread = threading.Thread(target=run_llm_summary_daemon, daemon=True)
-    llm_thread.start()
-
-    orchestrator_thread = threading.Thread(target=orchestrator.run_orchestrator_daemon, daemon=True)
-    orchestrator_thread.start()
-
-    # 4. Lancer le serveur web
     import uvicorn
-    logging.info("🔌 Lancement du serveur Web FastAPI sur le port 8000...")
-    uvicorn.run(app, host="0.0.0.0", port=8000) # nosec B104
+    logging.info("Lancement du serveur Web FastAPI sur le port 8000...")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
