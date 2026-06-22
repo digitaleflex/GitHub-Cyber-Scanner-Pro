@@ -23,23 +23,21 @@ def generate():
     filename = f"{report_dir}/rapport_{now.strftime('%Y%m%d')}.md"
 
     lines = []
-    lines.append(f"# CyberScan — Rapport Hebdomadaire")
+    lines.append(f"# CyberScan — Rapport")
     lines.append(f"**{now.strftime('%d %B %Y')}**\n")
     lines.append(f"## Resume")
-    lines.append(f"- Nouveaux outils decouverts : **{len(repos)}**")
-    lines.append(f"- Etoiles totales : **{sum(r['stars'] for r in repos)}**")
+    lines.append(f"- Nouveaux outils : **{len(repos)}**")
+    lines.append(f"- Etoiles totales : **{sum(r['stars'] for r in repos):,}**")
     lines.append(f"")
 
-    # Top 10
     lines.append(f"## Top 10\n")
     for i, r in enumerate(repos[:10], 1):
         lines.append(f"### {i}. [{r['name']}]({r['url']})")
-        lines.append(f"★ {r['stars']} | {r['lang'] or '?'} | Mis a jour: {r['updated'][:10]}")
+        lines.append(f"★ {r['stars']:,} | {r['lang'] or '?'} | {r['updated'][:10]}")
         lines.append(f"")
         lines.append(f">{r['desc']}")
         lines.append(f"")
 
-    # Par langue
     langs = {}
     for r in repos:
         lang = r["lang"] or "Inconnu"
@@ -50,7 +48,7 @@ def generate():
         lines.append(f"- **{lang}** : {count} outils")
 
     lines.append(f"\n---")
-    lines.append(f"*Genere automatiquement par CyberScan*")
+    lines.append(f"*Genere automatiquement par CyberBook Collector*")
 
     report = "\n".join(lines)
 
