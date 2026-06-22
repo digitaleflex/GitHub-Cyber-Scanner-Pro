@@ -33,6 +33,9 @@ __pycache__/
 .venv/
 venv/
 
+# Fichiers personnels
+MESSAGE_EXPERTS.md
+
 # Systèmes
 .DS_Store
 Thumbs.db
