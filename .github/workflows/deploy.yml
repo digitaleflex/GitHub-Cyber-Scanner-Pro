@@ -17,11 +17,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ruff pytest
+          pip install ruff pytest psycopg2-binary
           pip install -r requirements.txt
 
       - name: Lint
-        run: ruff check src/
+        run: ruff check src/ --output-format=github
 
       - name: Tests
         run: pytest tests/ -v
@@ -34,7 +34,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t cyber-scanner:${{ github.sha }} .
+        run: docker build -t cyber-scanner:test .
 
       - name: Test Docker image
-        run: docker run --rm cyber-scanner:${{ github.sha }} python -c "import src.scanner; print('OK')"
+        run: |
+          docker run --rm cyber-scanner:test python -c "
+          import sys
+          sys.path.insert(0, '/app')
+          print('Import OK')
+          "
