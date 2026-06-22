@@ -1,63 +1,70 @@
-# 📓 Journal des Modifications (CHANGELOG) - GitHub Cyber Scanner Pro
+# Journal des Modifications
 
-Toutes les modifications notables de ce projet seront documentées dans ce fichier. Le format est basé sur [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+Toutes les modifications notables sont documentees dans ce fichier. Format : [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+---
+
+## [2.0.0] - 2026-06-22
+
+### Simplification majeure
+
+Retour a l'objectif initial : un outil simple pour collecter les livres et ressources cybersecurite sur GitHub.
+
+#### Supprime
+- Moteur NLP (spacy, sentence-transformers, TF-IDF)
+- Moteur LLM (Ollama, Mistral, Flash Cards)
+- Scanner de securite SAST (Trivy, Semgrep, Bandit, Gitleaks)
+- 21 connecteurs OSINT (NIST, ExploitDB, arXiv, etc.)
+- Frontend React (TanStack Start)
+- Moteur vectoriel Qdrant
+- Workers Celery + Redis
+- Moteur OSINT SearXNG
+- CLI Rich
+
+#### Simplifie
+- `database.py` : 729 -> 319 lignes (suppression Qdrant, pgvector, security, LLM)
+- `scanner.py` : nettoyage des daemons overkill
+- `requirements.txt` : 16 -> 7 dependances
+- `compose.yml` : 9 -> 1 service Docker
+- `Dockerfile` : image minimaliste (suppression Trivy, PyTorch, spacy)
+- Documentation : 16 -> 3 fichiers
 
 ---
 
 ## [1.6.0] - 2026-06-13
-### 🚀 Plateforme Cyber Intelligence Pro : Sécurité & OSINT Massive
-Cette version majeure transforme le scanner en une plateforme complète d'intelligence cyber souveraine.
 
-#### 🛡️ Sécurité & Confiance (Chantier 1)
-*   **Pipeline SAST Automatisé** : Intégration de Bandit et Semgrep pour scanner les dépôts clonés.
-*   **Verdict de Sécurité** : Ajout d'une analyse automatique (SAIN/SUSPECT/CRITIQUE) stockée en base.
-*   **Dashboard Visual** : Badges de sécurité en temps réel sur l'interface web.
+### Plateforme Cyber Intelligence Pro
 
-#### 🤖 Intelligence Artificielle (Chantier 2)
-*   **Ollama local** : Intégration complète d'un LLM souverain.
-*   **Fiches Flash IA** : Génération automatique de résumés (Objectif/Prérequis/Commande) pour chaque outil découvert.
+Version majeure transformant le scanner en plateforme d'intelligence cyber.
 
-#### 🌐 Intelligence OSINT Massive (20 Connecteurs)
-*   **20 Connecteurs stratégiques** : Connexion aux sources mondiales (arXiv, NIST, Exploit-DB, CISA KEV, Malpedia, etc.).
-*   **Grand Orchestrateur** : Démon asynchrone qui synchronise toutes les sources et les centralise dans une nouvelle structure de données universelle.
-
-#### 🛠️ Usability & DevOps
-*   **Interface CLI** : Nouvel outil `cyber` pour piloter la plateforme en ligne de commande.
-*   **One-Click Launch** : Scripts `run_platform.bat` et `run_platform.sh` pour un démarrage instantané.
-*   **Architecture Distribuée** : Support Docker-in-Docker pour des audits isolés.
-
-#### 🏗️ Architecture & Infrastructure
-*   **Migration Docker Compose V2** : Renommage de `docker-compose.yml` en `compose.yml` selon les derniers standards.
-*   **Orchestration Distribuée** : Intégration de **Celery** (Workers) et **Redis** (Broker) pour le traitement asynchrone des tâches (Harvester, NLP, Security).
-*   **Moteur Sémantique** : Intégration native de **Qdrant** pour la recherche vectorielle haute performance.
-*   **Base de Données** : Création du script `data/scanner_sqlite_dump.sql` (PostgreSQL) incluant le support JSONB, le scoring cyber et l'historique des scans de sécurité.
-*   **Supervision** : Ajout de **Flower** pour le monitoring en temps réel des tâches Celery.
-
-#### 🛠️ Choix de la Stack (Souveraineté & Performance)
-*   **Frontend Pro** : Adoption de **TanStack Start** (React) pour un auto-hébergement souverain et performant (Exit Next.js/Vercel).
-*   **Gestionnaire pnpm** : Passage à **pnpm** pour des builds Docker ultra-rapides et une consommation de RAM optimisée.
-*   **Backend robuste** : Confirmation de **FastAPI** pour l'API et de **Python 3.11** pour le pipeline IA.
-
-#### 🤝 Gouvernance & Workflow GitHub
-*   **Guide de Contribution** : Création de `CONTRIBUTING.md` définissant les normes de code, de sécurité (SAST) et les conventions de commit.
-*   **Templates d'Issues** : Mise en place de formulaires interactifs (`feature_request.yml`, `bug_report.yml`) pour structurer le développement dès la source.
-*   **Documentation technique** : Création de `docs/stack_technique.md` et `docs/architecture_orchestration.md`.
+#### Ajoute
+- Pipeline SAST automatise (Bandit + Semgrep)
+- Verdict de securite (SAIN/SUSPECT/CRITIQUE)
+- Ollama local pour les Flash Cards IA
+- 20 connecteurs OSINT strategiques
+- CLI pour piloter la plateforme
+- Architecture distribuee (Celery + Redis)
+- Moteur semantique Qdrant
+- Frontend TanStack Start
 
 ---
 
 ## [1.4.0] - 2026-06-13
-### Pipeline OSINT Souveraine & Moteur de Recherche (Zéro API)
-Transition stratégique vers une infrastructure entièrement auto-hébergée.
 
-#### Ajouté
-*   **Conteneur SearXNG** : Intégration du méta-moteur open-source dans `compose.yml` pour le Google Dorking gratuit.
-*   **Feuille de route 2026** : Création de `docs/roadmap_strategique_2026.md`.
-*   **Validation Sécurité** : Intégration du socket Docker pour piloter **Trivy**, **Semgrep** et **Gitleaks** localement.
+### Pipeline OSINT Souveraine
+
+Transition vers une infrastructure auto-hebergee.
+
+#### Ajoute
+- Conteneur SearXNG pour le Google Dorking
+- Integration Trivy, Semgrep, Gitleaks
 
 ---
 
 ## [1.3.0] - 2026-06-12
-### Initialisation du Projet
-*   Structure initiale du scanner Python.
-*   Support SQLite et exportation Excel (Pandas).
-*   Modèle NLP de base (SpaCy).
+
+### Initialisation
+
+- Structure initiale du scanner Python
+- Support SQLite et export Excel
+- Modele NLP de base (SpaCy)

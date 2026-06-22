@@ -1,39 +1,54 @@
-# 🤝 Guide de Contribution (GitHub Cyber Scanner)
+# Guide de Contribution
 
-Bienvenue sur le projet **GitHub Cyber Scanner** ! Ce document définit les standards de développement pour garantir la robustesse de notre architecture distribuée.
+Bienvenue sur CyberBook Collector ! Ce document explique comment contribuer au projet.
 
-## 🚀 Workflow de Développement
+## Workflow
 
-1.  **Issue d'abord** : Toute modification doit commencer par une Issue GitHub (utilisez les templates fournis).
-2.  **Branche dédiée** : Créez une branche avec un nom explicite : `feature/nom-tache` ou `fix/nom-bug`.
-3.  **Pull Request (PR)** : Soumettez une PR vers la branche `main`. Une revue de code est obligatoire.
+1. **Issue d'abord** : Toute modification commence par une Issue GitHub
+2. **Branche dediee** : Creer une branche `feature/nom-tache` ou `fix/nom-bug`
+3. **Pull Request** : Soumettre une PR vers `main` avec une description claire
 
-## 🏗️ Architecture & Standards de Code
+## Standards de code
 
-*   **Langage** : Python 3.11+. Respectez la norme **PEP 8**.
-*   **Asynchronisme** : Utilisez `aiohttp` pour les requêtes réseau de masse et `Celery` pour les tâches de fond.
-*   **Sécurité (Mandatoire)** :
-    *   Ne jamais coder de clés d'API en dur. Utilisez les variables d'environnement (`.env`).
-    *   Toute nouvelle brique de scan doit être isolée dans un conteneur éphémère si possible.
-*   **Documentation** : Tout nouveau composant doit être documenté dans le dossier `docs/` et ajouté au schéma de l'architecture.
+- **Langage** : Python 3.11+
+- **Style** : PEP 8 (verifie avec `ruff check src/`)
+- **Securite** : Jamais de cles API en dur, toujours utiliser `.env`
+- **Tests** : Ajouter des tests pour les nouvelles fonctionnalites
 
-## 🐳 Docker & Environnement
+## Conventions de commits
 
-Le projet utilise exclusivement `compose.yml`. Assurez-vous que votre modification ne casse pas la liaison entre les différents services (Redis, Qdrant, Postgres).
+```
+feat: ajout d'une nouvelle fonctionnalite
+fix: correction d'un bug
+docs: mise a jour de la documentation
+refactor: amelioration du code sans changement de comportement
+test: ajout de tests
+chore: taches de maintenance
+```
 
-## 📝 Conventions de Commit
+Exemple : `feat: ajout de la categorie forensique`
 
-Nous utilisons des messages de commit clairs :
-*   `feat:` pour une nouvelle fonctionnalité.
-*   `fix:` pour une correction.
-*   `docs:` pour la documentation.
-*   `refactor:` pour une amélioration du code sans changement de comportement.
+## Lancer localement
 
-*Exemple : `feat: ajout du worker d'analyse semgrep`*
+```bash
+# Installer les dependances
+pip install -r requirements.txt
 
-## 🛡️ Politique de Sécurité
+# Configurer l'environnement
+cp .env.example .env
+# Editer .env avec vos tokens
 
-Si vous découvrez une faille de sécurité critique dans le scanner, merci de ne pas ouvrir d'issue publique. Contactez directement les mainteneurs via une issue privée ou un canal sécurisé.
+# Lancer le scanner
+python src/scanner.py
+```
 
----
-Merci de contribuer à rendre la cyber-veille plus intelligente et souveraine !
+## Linter
+
+```bash
+ruff check src/
+ruff format src/
+```
+
+## Securite
+
+Les vulnerabilites critiques ne doivent pas etre signalees en public. Contactez les mainteneurs en prive.
