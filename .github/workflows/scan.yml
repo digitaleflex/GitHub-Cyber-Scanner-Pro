@@ -30,6 +30,9 @@ jobs:
       - name: Generate report
         run: python scripts/report.py
 
+      - name: Generate dashboard
+        run: python scripts/dashboard.py
+
       - name: Save output
         run: |
           mkdir -p output
