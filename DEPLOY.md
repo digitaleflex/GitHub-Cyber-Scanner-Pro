@@ -5,15 +5,15 @@ Guide complet pour deployer CyberScan sur un VPS avec interface web, API, et SSL
 ## Architecture
 
 ```
-Internet → Caddy (SSL) → FastAPI (uvicorn) → data/*.json
-                          + React frontend (statique)
+Internet → Traefik (SSL) → FastAPI (uvicorn) → data/*.json
+                           + React frontend (statique)
 ```
 
 ## Pre-requis
 
 - VPS avec **Docker** et **Docker Compose** (v2+)
-- Un **domaine** pointe vers l'IP de votre VPS (ex: `cyberscan.example.com`)
-- Ports **80** et **443** ouverts
+- **Traefik** deja installe et configure (reseau `traefik`)
+- Un **domaine** pointe vers l'IP de votre VPS
 
 ## Installation rapide
 
@@ -25,23 +25,22 @@ ssh root@votre-vps
 git clone https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro.git
 cd GitHub-Cyber-Scanner-Pro
 
-# 3. Configurer le domaine
-# Editez Caddyfile et remplacez cyberscan.example.com par votre domaine
-nano Caddyfile
+# 3. Editer .env avec votre domaine
+nano .env
+# → DOMAIN=cyberbook.eurin.tech
 
 # 4. Lancer la stack
 docker compose -f compose.prod.yml up -d
 ```
 
-Caddy genere automatiquement les certificats SSL Let's Encrypt. Votre site est en ligne sur `https://votre-domaine.com` en quelques secondes.
+Traefik detecte automatiquement le conteneur via les labels et genere le certificat SSL Let's Encrypt. Votre site est en ligne sur `https://cyberbook.eurin.tech` en quelques secondes.
 
 ## Structure des fichiers
 
 ```
 /opt/cyberscan/
-├── compose.prod.yml    # Stack de production (backend + Caddy)
-├── Caddyfile           # Reverse proxy + SSL automatique
-├── .env                # Variables d'environnement
+├── compose.prod.yml    # Stack de production (backend + labels Traefik)
+├── .env                # Variables d'environnement (domaine)
 ├── data/               # Donnees de scan (volume persistant)
 │   ├── last_scan.json  # Dernier scan
 │   └── seen.json       # Historique des repos deja vus
@@ -99,32 +98,9 @@ Le frontend en dev tourne sur `http://localhost:5173` avec proxy vers l'API sur 
 | `GET /reports/{fichier}` | Contenu d'un rapport (.md) |
 | `GET /dashboards/{fichier}` | Dashboard HTML archive |
 
-## Personnalisation
-
-### Changer de port
-
-Editez `compose.prod.yml` :
-```yaml
-services:
-  cyber-scanner:
-    expose:
-      - "8000"  # Port interne (ne pas changer)
-```
-
-Caddy ecoute sur 80/443, pas besoin de changer le port expose.
-
-### Ajouter un sous-domaine
-
-Dans `Caddyfile` :
-```
-cyberscan.example.com, autre.example.com {
-    reverse_proxy cyber-scanner:8000
-}
-```
-
 ## Securite
 
-- Caddy gere SSL automatiquement (Let's Encrypt)
+- Traefik gere SSL automatiquement (Let's Encrypt)
 - Le backend n'expose que le port 8000 en interne
 - Les donnees sont persistees dans des volumes Docker
 - Aucune base de donnees externe requise

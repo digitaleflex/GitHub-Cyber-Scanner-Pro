@@ -8,21 +8,16 @@ services:
     volumes:
       - ./data:/app/data
       - ./reports:/app/reports
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cyberscan.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.cyberscan.tls=true"
+      - "traefik.http.routers.cyberscan.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cyberscan.loadbalancer.server.port=8000"
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: cyber_caddy
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - cyber-scanner
-
-volumes:
-  caddy_data:
-  caddy_config:
+networks:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik}
