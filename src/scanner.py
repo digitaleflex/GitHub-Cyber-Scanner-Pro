@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from src import database
+import src.nlp_processor as nlp_processor
 
 # Reconfigurer la sortie standard en UTF-8 sur Windows pour supporter l'affichage d'emojis
 if sys.platform == "win32":
@@ -686,6 +687,7 @@ def scan_cycle():
     new_discoveries_total = 0
     any_success = False
 
+    # Phase 1: scan avec les queries statiques
     for query in QUERIES:
         # 1. Recherche par popularité (stars)
         logging.info(f"🔍 Recherche (Popularité) pour : {query}...")
@@ -716,6 +718,42 @@ def scan_cycle():
             new_discoveries_total += new_discoveries
 
         time.sleep(2.5)
+
+    # Phase 2: générer des queries dynamiques via NLP et scanner les nouveaux mots-clés
+    try:
+        conn = database.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT description FROM repositories WHERE description IS NOT NULL AND description != ''")
+        descriptions = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        conn.close()
+
+        if descriptions:
+            dynamic_queries = nlp_processor.extract_keywords(descriptions, top_n=30)
+            if dynamic_queries:
+                logging.info(f"🧠 Phase NLP: {len(dynamic_queries)} nouvelles queries dynamiques")
+                for query in dynamic_queries:
+                    logging.info(f"🔍 (NLP) Recherche (Popularité) pour : {query}...")
+                    raw_items, rate_hit = fetch_github_data(query, sort_by="stars")
+                    if rate_hit:
+                        break
+                    if raw_items:
+                        any_success = True
+                        new = database.save_repositories(raw_items)
+                        new_discoveries_total += new
+                    time.sleep(2.5)
+
+                    logging.info(f"🔍 (NLP) Recherche (Nouveautés) pour : {query}...")
+                    raw_items, rate_hit = fetch_github_data(query, sort_by="updated")
+                    if rate_hit:
+                        break
+                    if raw_items:
+                        any_success = True
+                        new = database.save_repositories(raw_items)
+                        new_discoveries_total += new
+                    time.sleep(2.5)
+    except Exception as e:
+        logging.error(f"❌ Erreur lors de la phase NLP dynamique: {e}")
 
     if any_success:
         if new_discoveries_total > 0:
