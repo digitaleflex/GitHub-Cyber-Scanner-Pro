@@ -44,7 +44,7 @@ export function useRepos(query?: string, page: number = 1) {
   const params = new URLSearchParams()
   if (query) params.set('q', query)
   params.set('page', String(page))
-  params.set('per_page', '50')
+  params.set('per_page', '20')
   return useQuery<ApiReposResponse>({
     queryKey: ['repos', query, page],
     queryFn: () => fetchJson<ApiReposResponse>(`/repos?${params}`),
