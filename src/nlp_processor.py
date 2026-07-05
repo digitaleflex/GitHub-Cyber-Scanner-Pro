@@ -1,7 +1,7 @@
 import logging
 import re
 from collections import Counter
-from typing import List, Optional
+
 
 STOP_WORDS = {
     "a", "an", "the", "and", "or", "for", "of", "to", "in", "on", "at",
@@ -30,7 +30,7 @@ QUERY_TEMPLATES = [
 ]
 
 
-def extract_keywords(texts: List[str], top_n: int = 40) -> List[str]:
+def extract_keywords(texts: list[str], top_n: int = 40) -> list[str]:
     texts = [t for t in texts if t and len(t) > 20]
     if not texts:
         return []
@@ -84,11 +84,11 @@ def extract_keywords(texts: List[str], top_n: int = 40) -> List[str]:
 
 
 # Backward-compatible stubs for scanner.py
-def clean_and_lemmatize(text: str) -> List[str]:
+def clean_and_lemmatize(text: str) -> list[str]:
     return text.lower().split()
 
 
-def categorize_by_semantic_ontology(title: str, description: str, lemmas: List[str]) -> str:
+def categorize_by_semantic_ontology(title: str, description: str, lemmas: list[str]) -> str:
     return "General"
 
 
