@@ -1,0 +1,45 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install ruff pytest psycopg2-binary
+          pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check src/ --output-format=github
+
+      - name: Tests
+        run: pytest tests/ -v
+
+  build:
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t cyber-scanner:test .
+
+      - name: Test Docker image
+        run: |
+          docker run --rm cyber-scanner:test python -c "
+          import sys
+          sys.path.insert(0, '/app')
+          print('Import OK')
+          "

@@ -1,0 +1,55 @@
+name: CyberScan
+
+on:
+  schedule:
+    - cron: '0 8 */3 * *'  # Tous les 3 jours a 8h UTC
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Nombre de jours a scanner (defaut: 7)'
+        required: false
+        default: '7'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run scan
+        run: python scripts/scan.py ${{ inputs.days || '7' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate report
+        run: python scripts/report.py
+
+      - name: Generate dashboard
+        run: python scripts/dashboard.py
+
+      - name: Save output
+        run: |
+          mkdir -p output
+          cp data/last_scan.json output/scan_$(date +%Y%m%d).json
+          cp data/seen.json output/seen.json
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cyberreport-${{ github.run_number }}
+          path: |
+            reports/
+            output/
+          retention-days: 90
