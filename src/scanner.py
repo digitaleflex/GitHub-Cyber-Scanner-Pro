@@ -847,15 +847,11 @@ def get_stats():
 
 
 @app.get("/api/repos")
-def get_repos_api(q: str = None):
-    """Renvoie les dépôts au format attendu par le frontend React."""
-    repos = database.get_repos_frontend()
-    if q:
-        ql = q.lower()
-        repos = [r for r in repos if ql in (r.get("name") or "").lower()
-                 or ql in (r.get("desc") or "").lower()
-                 or ql in (r.get("lang") or "").lower()]
-    return {"total": len(repos), "repos": repos}
+def get_repos_api(q: str = "", page: int = 1, per_page: int = 50):
+    """Renvoie les dépôts paginés au format attendu par le frontend React."""
+    repos, total = database.search_repos_frontend(q, page, per_page)
+    pages = max(1, (total + per_page - 1) // per_page)
+    return {"total": total, "page": page, "per_page": per_page, "pages": pages, "repos": repos}
 
 
 @app.get("/api/repositories")

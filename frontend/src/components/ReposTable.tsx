@@ -1,43 +1,61 @@
-import { useState, useMemo } from 'react'
-import { useRepos } from '../lib/api'
+import { useState, useEffect } from 'react'
+import { useRepos, type Repo } from '../lib/api'
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay)
+    return () => clearTimeout(timer)
+  }, [value, delay])
+  return debounced
+}
+
+function exportCSV(repos: Repo[]) {
+  const headers = ['Nom', 'Stars', 'Langage', 'Description', 'Mis à jour']
+  const rows = repos.map((r) => [
+    r.name,
+    r.stars,
+    r.lang ?? '',
+    `"${(r.desc ?? '').replace(/"/g, '""')}"`,
+    r.updated?.slice(0, 10) ?? '',
+  ])
+  const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `cyberscan_repos_${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 export default function ReposTable() {
   const [search, setSearch] = useState('')
-  const [sortKey, setSortKey] = useState<'stars' | 'name' | 'lang' | 'updated'>('stars')
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [page, setPage] = useState(1)
+  const debouncedSearch = useDebounce(search, 300)
 
-  const { data, isLoading, error } = useRepos(search || undefined)
+  const { data, isLoading, error } = useRepos(debouncedSearch || undefined, page)
 
-  const repos = useMemo(() => {
-    if (!data?.repos) return []
-    return [...data.repos].sort((a, b) => {
-      let cmp = 0
-      if (sortKey === 'stars') cmp = a.stars - b.stars
-      else if (sortKey === 'name') cmp = a.name.localeCompare(b.name)
-      else if (sortKey === 'lang') cmp = (a.lang ?? '').localeCompare(b.lang ?? '')
-      else cmp = a.updated.localeCompare(b.updated)
-      return sortDir === 'desc' ? -cmp : cmp
-    })
-  }, [data, sortKey, sortDir])
+  useEffect(() => setPage(1), [debouncedSearch])
 
-  const handleSort = (key: typeof sortKey) => {
-    if (sortKey === key) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'))
-    else {
-      setSortKey(key)
-      setSortDir('desc')
-    }
-  }
-
-  const SortIcon = ({ col }: { col: typeof sortKey }) => {
-    if (sortKey !== col) return <span className="text-gray-700 ml-1">↕</span>
-    return <span className="text-indigo-400 ml-1">{sortDir === 'desc' ? '↓' : '↑'}</span>
-  }
+  const repos = data?.repos ?? []
+  const pages = data?.pages ?? 1
 
   return (
     <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5">
-      <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4">
-        Tous les outils
-      </h2>
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
+          Tous les outils
+        </h2>
+        {data && data.total > 0 && (
+          <button
+            onClick={() => exportCSV(repos)}
+            className="ml-auto text-xs text-gray-500 hover:text-indigo-400 transition-colors px-3 py-1.5 border border-white/[0.08] rounded-lg"
+          >
+            Export CSV
+          </button>
+        )}
+      </div>
 
       <input
         type="text"
@@ -57,40 +75,18 @@ export default function ReposTable() {
         <p className="text-red-400 text-sm py-4 text-center">Erreur de chargement</p>
       ) : repos.length === 0 ? (
         <p className="text-gray-600 text-sm py-8 text-center">
-          {search ? 'Aucun résultat' : 'Aucune donnée disponible'}
+          {debouncedSearch ? 'Aucun résultat' : 'Aucune donnée disponible'}
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                <th
-                  className="text-left py-3 px-2 text-gray-500 font-medium cursor-pointer hover:text-gray-300 select-none"
-                  onClick={() => handleSort('name')}
-                >
-                  Nom <SortIcon col="name" />
-                </th>
-                <th
-                  className="text-right py-3 px-2 text-gray-500 font-medium cursor-pointer hover:text-gray-300 select-none w-24"
-                  onClick={() => handleSort('stars')}
-                >
-                  Stars <SortIcon col="stars" />
-                </th>
-                <th
-                  className="text-center py-3 px-2 text-gray-500 font-medium cursor-pointer hover:text-gray-300 select-none w-28"
-                  onClick={() => handleSort('lang')}
-                >
-                  Langage <SortIcon col="lang" />
-                </th>
-                <th className="text-left py-3 px-2 text-gray-500 font-medium max-md:hidden">
-                  Description
-                </th>
-                <th
-                  className="text-right py-3 px-2 text-gray-500 font-medium cursor-pointer hover:text-gray-300 select-none w-28 max-sm:hidden"
-                  onClick={() => handleSort('updated')}
-                >
-                  Mis à jour <SortIcon col="updated" />
-                </th>
+                <th className="text-left py-3 px-2 text-gray-500 font-medium">Nom</th>
+                <th className="text-right py-3 px-2 text-gray-500 font-medium w-24">Stars</th>
+                <th className="text-center py-3 px-2 text-gray-500 font-medium w-28">Langage</th>
+                <th className="text-left py-3 px-2 text-gray-500 font-medium max-md:hidden">Description</th>
+                <th className="text-right py-3 px-2 text-gray-500 font-medium w-28 max-sm:hidden">Mis à jour</th>
               </tr>
             </thead>
             <tbody>
@@ -130,10 +126,49 @@ export default function ReposTable() {
         </div>
       )}
 
+      {/* Pagination */}
+      {!isLoading && !error && pages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="px-3 py-1.5 text-sm rounded-lg border border-white/[0.08] text-gray-400 hover:text-white hover:border-white/[0.15] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            ←
+          </button>
+          {Array.from({ length: Math.min(7, pages) }, (_, i) => {
+            const start = Math.max(1, Math.min(page - 3, pages - 6))
+            const p = start + i
+            if (p > pages) return null
+            return (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  p === page
+                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                    : 'text-gray-500 hover:text-white border border-white/[0.06] hover:border-white/[0.15]'
+                }`}
+              >
+                {p}
+              </button>
+            )
+          })}
+          <button
+            onClick={() => setPage((p) => Math.min(pages, p + 1))}
+            disabled={page >= pages}
+            className="px-3 py-1.5 text-sm rounded-lg border border-white/[0.08] text-gray-400 hover:text-white hover:border-white/[0.15] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            →
+          </button>
+        </div>
+      )}
+
       {data && (
         <p className="text-gray-700 text-xs mt-4 text-center">
           {data.total} outil{data.total !== 1 ? 's' : ''} trouvé{data.total !== 1 ? 's' : ''}
-          {search ? ` pour "${search}"` : ''}
+          {debouncedSearch ? ` pour "${debouncedSearch}"` : ''}
+          {' · Page '}{data.page}/{data.pages}
         </p>
       )}
     </div>

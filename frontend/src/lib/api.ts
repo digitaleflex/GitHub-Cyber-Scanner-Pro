@@ -29,6 +29,9 @@ export type Stats = {
 
 export type ApiReposResponse = {
   total: number
+  page: number
+  per_page: number
+  pages: number
   repos: Repo[]
 }
 
@@ -37,11 +40,14 @@ export type ApiReportsResponse = {
   dashboards: string[]
 }
 
-export function useRepos(query?: string) {
-  const params = query ? `?q=${encodeURIComponent(query)}` : ''
+export function useRepos(query?: string, page: number = 1) {
+  const params = new URLSearchParams()
+  if (query) params.set('q', query)
+  params.set('page', String(page))
+  params.set('per_page', '50')
   return useQuery<ApiReposResponse>({
-    queryKey: ['repos', query],
-    queryFn: () => fetchJson<ApiReposResponse>(`/repos${params}`),
+    queryKey: ['repos', query, page],
+    queryFn: () => fetchJson<ApiReposResponse>(`/repos?${params}`),
     staleTime: 30_000,
   })
 }
