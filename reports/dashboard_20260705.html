@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberScan Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
+        h1 { color: #58a6ff; margin-bottom: 10px; }
+        .subtitle { color: #8b949e; margin-bottom: 20px; }
+        .stats { display: flex; gap: 20px; margin: 20px 0; flex-wrap: wrap; }
+        .stat { background: #161b22; padding: 15px 25px; border-radius: 8px; border: 1px solid #30363d; min-width: 150px; }
+        .stat .number { font-size: 28px; font-weight: bold; color: #58a6ff; }
+        .stat .label { color: #8b949e; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #161b22; border-radius: 8px; overflow: hidden; }
+        th { background: #21262d; padding: 12px; text-align: left; color: #58a6ff; }
+        td { padding: 10px 12px; border-top: 1px solid #30363d; }
+        tr:hover { background: #1c2128; }
+        a { color: #58a6ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .empty { text-align: center; padding: 40px; color: #8b949e; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #30363d; color: #8b949e; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>CyberScan Dashboard</h1>
+    <p class="subtitle">Dernier scan : 05/07/2026 11:45 | Source : GitHub API</p>
+    
+    <div class="stats">
+        <div class="stat">
+            <div class="number">122</div>
+            <div class="label">Nouveaux outils</div>
+        </div>
+        <div class="stat">
+            <div class="number">149,002</div>
+            <div class="label">Etoiles totales</div>
+        </div>
+        <div class="stat">
+            <div class="number">17</div>
+            <div class="label">Langages</div>
+        </div>
+        <div class="stat">
+            <div class="number">48,798</div>
+            <div class="label">Max etoiles</div>
+        </div>
+    </div>
+
+    <table><tr><th>Repository</th><th>Stars</th><th>Langage</th><th>Description</th><th>Mis a jour</th></tr>
+        <tr>
+            <td><a href="https://github.com/x64dbg/x64dbg" target="_blank">x64dbg/x64dbg</a></td>
+            <td>48,798</td>
+            <td>C++</td>
+            <td>An open-source user mode debugger for Windows. Optimized for reverse engineering</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/lissy93/web-check" target="_blank">lissy93/web-check</a></td>
+            <td>34,071</td>
+            <td>TypeScript</td>
+            <td>🕵️‍♂️ All-in-one OSINT tool for analysing any website</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/majd/ipatool" target="_blank">majd/ipatool</a></td>
+            <td>9,548</td>
+            <td>Go</td>
+            <td>Command-line tool that allows searching and downloading app packages (known as i</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/six2dez/reconftw" target="_blank">six2dez/reconftw</a></td>
+            <td>7,752</td>
+            <td>Shell</td>
+            <td>reconFTW is a tool designed to perform automated recon on a target domain by run</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/qilingframework/qiling" target="_blank">qilingframework/qiling</a></td>
+            <td>5,999</td>
+            <td>Python</td>
+            <td>A True Instrumentable Binary Emulation Framework</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/nicocha30/ligolo-ng" target="_blank">nicocha30/ligolo-ng</a></td>
+            <td>4,700</td>
+            <td>Go</td>
+            <td>An advanced, yet simple, tunneling/pivoting tool that uses a TUN interface.</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/JonathanSalwan/ROPgadget" target="_blank">JonathanSalwan/ROPgadget</a></td>
+            <td>4,445</td>
+            <td>Python</td>
+            <td>This tool lets you search your gadgets on your binaries to facilitate your ROP e</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/i-am-shodan/USBArmyKnife" target="_blank">i-am-shodan/USBArmyKnife</a></td>
+            <td>2,763</td>
+            <td>C++</td>
+            <td>USB Army Knife – the ultimate close access tool for penetration testers and red </td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Alfredredbird/tookie-osint" target="_blank">Alfredredbird/tookie-osint</a></td>
+            <td>2,531</td>
+            <td>Python</td>
+            <td>Tookie is a advanced OSINT information gathering tool that finds social media ac</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/bank-vaults/bank-vaults" target="_blank">bank-vaults/bank-vaults</a></td>
+            <td>2,257</td>
+            <td>Go</td>
+            <td>A Vault swiss-army knife: A CLI tool to init, unseal and configure Vault (auth m</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/lefayjey/linWinPwn" target="_blank">lefayjey/linWinPwn</a></td>
+            <td>2,187</td>
+            <td>Shell</td>
+            <td>linWinPwn is a bash script that streamlines the use of a number of Active Direct</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/haccer/subjack" target="_blank">haccer/subjack</a></td>
+            <td>2,100</td>
+            <td>Go</td>
+            <td>DNS Takeover tool written in Go</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/jm33-m0/emp3r0r" target="_blank">jm33-m0/emp3r0r</a></td>
+            <td>1,711</td>
+            <td>Go</td>
+            <td>Self‑healing Gossip Mesh C2 with Assisted Peer Discovery, Modular Post‑Exploitat</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/j3ssie/metabigor" target="_blank">j3ssie/metabigor</a></td>
+            <td>1,599</td>
+            <td>Go</td>
+            <td>OSINT tools and more but without API key</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/SecurityRiskAdvisors/VECTR" target="_blank">SecurityRiskAdvisors/VECTR</a></td>
+            <td>1,592</td>
+            <td>?</td>
+            <td>VECTR is a tool that facilitates tracking of your red and blue team testing acti</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/CERT-Polska/drakvuf-sandbox" target="_blank">CERT-Polska/drakvuf-sandbox</a></td>
+            <td>1,310</td>
+            <td>Python</td>
+            <td>DRAKVUF Sandbox - automated hypervisor-level malware analysis system</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/edoardottt/scilla" target="_blank">edoardottt/scilla</a></td>
+            <td>1,239</td>
+            <td>Go</td>
+            <td>Information Gathering tool - DNS / Subdomains / Ports / Directories enumeration</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/S3N4T0R-0X0/APTs-Adversary-Simulation" target="_blank">S3N4T0R-0X0/APTs-Adversary-Simulation</a></td>
+            <td>1,091</td>
+            <td>C++</td>
+            <td>This repository contains detailed adversary simulation APT campaigns targeting v</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/sethvargo/ratchet" target="_blank">sethvargo/ratchet</a></td>
+            <td>950</td>
+            <td>Go</td>
+            <td>A tool for securing CI/CD workflows with version pinning.</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/intigriti/misconfig-mapper" target="_blank">intigriti/misconfig-mapper</a></td>
+            <td>904</td>
+            <td>Go</td>
+            <td>Misconfig Mapper is a fast tool to help you uncover security misconfigurations o</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/wddadk/OSINT-for-countries" target="_blank">wddadk/OSINT-for-countries</a></td>
+            <td>862</td>
+            <td>?</td>
+            <td>Methodology, links, tools for OSINT in different countries</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/vdjagilev/nmap-formatter" target="_blank">vdjagilev/nmap-formatter</a></td>
+            <td>733</td>
+            <td>Go</td>
+            <td>A tool that allows you to convert NMAP results to html, csv, json, markdown, gra</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/C0MPL3XDEV/E4GL30S1NT" target="_blank">C0MPL3XDEV/E4GL30S1NT</a></td>
+            <td>686</td>
+            <td>Python</td>
+            <td>E4GL30S1NT - Simple Information Gathering Tool</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/frangelbarrera/OSINT-BIBLE" target="_blank">frangelbarrera/OSINT-BIBLE</a></td>
+            <td>576</td>
+            <td>?</td>
+            <td>Comprehensive 2026 OSINT guide — 450+ tools, AI intelligence, methodologies & et</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/p3nt4/Nuages" target="_blank">p3nt4/Nuages</a></td>
+            <td>536</td>
+            <td>JavaScript</td>
+            <td>A modular C2 framework</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/pablosnt/rekono" target="_blank">pablosnt/rekono</a></td>
+            <td>526</td>
+            <td>Python</td>
+            <td>Pentesting automation platform that combines hacking tools to complete assessmen</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Vyntral/god-eye" target="_blank">Vyntral/god-eye</a></td>
+            <td>512</td>
+            <td>Go</td>
+            <td>AI-powered subdomain enumeration tool with local LLM analysis via Ollama - 100% </td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/The-Osint-Toolbox/Image-Research-OSINT" target="_blank">The-Osint-Toolbox/Image-Research-OSINT</a></td>
+            <td>500</td>
+            <td>?</td>
+            <td>Learn how to research images and the tools, techniques & tradecraft required. </td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/anonymousRAID/OSINT-Mapping-Tool" target="_blank">anonymousRAID/OSINT-Mapping-Tool</a></td>
+            <td>474</td>
+            <td>JavaScript</td>
+            <td>An OSINT Mapping tool for research.</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/ADScanPro/adscan" target="_blank">ADScanPro/adscan</a></td>
+            <td>470</td>
+            <td>Python</td>
+            <td>Active Directory pentesting tool for Linux. Automated Kerberoasting, AS-REP Roas</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/hahwul/authz0" target="_blank">hahwul/authz0</a></td>
+            <td>429</td>
+            <td>Go</td>
+            <td>🔑 Authz0 is an automated authorization test tool. Unauthorized access can be ide</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/yezz123/SoIG" target="_blank">yezz123/SoIG</a></td>
+            <td>373</td>
+            <td>Python</td>
+            <td>OSINT Tool gets a range of information from an Instagram account 🛠</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/MISP/misp-modules" target="_blank">MISP/misp-modules</a></td>
+            <td>368</td>
+            <td>Python</td>
+            <td>Modules for expansion services, enrichment, import and export in MISP and other </td>
+            <td>2026-06-28</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/projectdiscovery/tldfinder" target="_blank">projectdiscovery/tldfinder</a></td>
+            <td>324</td>
+            <td>Go</td>
+            <td>A streamlined tool for discovering private TLDs for security research.</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/chainreactors/malefic" target="_blank">chainreactors/malefic</a></td>
+            <td>264</td>
+            <td>Rust</td>
+            <td>IoM implant, C2 Framework and Infrastructure</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/straylabs-ai/deadend-cli" target="_blank">straylabs-ai/deadend-cli</a></td>
+            <td>262</td>
+            <td>Python</td>
+            <td>Agentic pentest tooling. Currently achieving 81% (KIMI K2.5) on XBOW's benchmark</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/jreisinger/checkip" target="_blank">jreisinger/checkip</a></td>
+            <td>248</td>
+            <td>Go</td>
+            <td>Get (security) info about IP addresses</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/t4d/PhishingKit-Yara-Rules" target="_blank">t4d/PhishingKit-Yara-Rules</a></td>
+            <td>239</td>
+            <td>YARA</td>
+            <td>Repository of Yara rules dedicated to Phishing Kits Zip files</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/badchars/darknet-mcp-server" target="_blank">badchars/darknet-mcp-server</a></td>
+            <td>192</td>
+            <td>TypeScript</td>
+            <td>66-tool MCP server for dark web intelligence — breach data, ransomware tracking,</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/miunasu/IDA-Skill" target="_blank">miunasu/IDA-Skill</a></td>
+            <td>185</td>
+            <td>Python</td>
+            <td>使用skill让 AI Agent 像安全分析师一样分析恶意样本 | AI Agent skill for automated malware analysis</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/sjkim1127/Reversecore_MCP" target="_blank">sjkim1127/Reversecore_MCP</a></td>
+            <td>174</td>
+            <td>Python</td>
+            <td>A security-first MCP server that empowers AI agents to perform automated reverse</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/28Zaaky/khaos-c2" target="_blank">28Zaaky/khaos-c2</a></td>
+            <td>169</td>
+            <td>C</td>
+            <td>KHAOS is a modern C2 framework that routes agent traffic through cloud services </td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/fintanpyren-coder/njrat-config-analyzer" target="_blank">fintanpyren-coder/njrat-config-analyzer</a></td>
+            <td>151</td>
+            <td>HTML</td>
+            <td>Best RAT Builder Analysis Tool 2026 for Cybersecurity Education & Malware Detect</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/AndrewAltimit/template-repo" target="_blank">AndrewAltimit/template-repo</a></td>
+            <td>130</td>
+            <td>Rust</td>
+            <td>Agent orchestration & security template featuring MCP tool building, agent2agent</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/aria-tools/ARIA-tools" target="_blank">aria-tools/ARIA-tools</a></td>
+            <td>123</td>
+            <td>Python</td>
+            <td>Tools for exploiting ARIA standard products</td>
+            <td>2026-06-23</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/sneakerhax/Arsenal" target="_blank">sneakerhax/Arsenal</a></td>
+            <td>114</td>
+            <td>Python</td>
+            <td>Red Team tools, infrastructure, and hardware weaponized</td>
+            <td>2026-06-30</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Houseofmvps/ultraship" target="_blank">Houseofmvps/ultraship</a></td>
+            <td>110</td>
+            <td>JavaScript</td>
+            <td>"ULTRASHIP" Claude Code plugin — 39 skills, 33 tools, 11 agents for ship-ready w</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/chickendrop89/OneShot-Extended" target="_blank">chickendrop89/OneShot-Extended</a></td>
+            <td>105</td>
+            <td>Python</td>
+            <td>OneShot-Extended (WPS penetration testing utility) is a fork of the tool with ex</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/0liverFlow/CVE2PoC" target="_blank">0liverFlow/CVE2PoC</a></td>
+            <td>102</td>
+            <td>Python</td>
+            <td>CVE2PoC is a tool that helps penetration testers, bug hunters, and security rese</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/BullsEye0/exploit-eye" target="_blank">BullsEye0/exploit-eye</a></td>
+            <td>93</td>
+            <td>Python</td>
+            <td>Exploit Eye searches for vulnerabilities and exploits using keywords you specify</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/theaog/spirit" target="_blank">theaog/spirit</a></td>
+            <td>80</td>
+            <td>Shell</td>
+            <td>Spirit - Network Pentest Tools</td>
+            <td>2026-06-22</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Robotics-STAR-Lab/C2-Explorer" target="_blank">Robotics-STAR-Lab/C2-Explorer</a></td>
+            <td>76</td>
+            <td>C++</td>
+            <td>[IROS'26] A Flexible and Contiguous Decentralized Multi-UAV Exploration Framewor</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/nullsecuritynet/tools" target="_blank">nullsecuritynet/tools</a></td>
+            <td>72</td>
+            <td>Python</td>
+            <td>Security and Hacking Tools, Exploits, Proof of Concepts, Shellcodes, Scripts.</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/mrphrazer/binary-cartography" target="_blank">mrphrazer/binary-cartography</a></td>
+            <td>70</td>
+            <td>Dockerfile</td>
+            <td>Technical webinars on reverse engineering, malware analysis, and software protec</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/CSIT-SG/AETHER" target="_blank">CSIT-SG/AETHER</a></td>
+            <td>62</td>
+            <td>Python</td>
+            <td>An AI-powered reverse-engineering copilot for assisting tedious malware analysis</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/x-glacier/kali-pentest" target="_blank">x-glacier/kali-pentest</a></td>
+            <td>57</td>
+            <td>?</td>
+            <td>Kali Linux penetration testing skill for AI agents (Claude Code, OpenClaw, Herme</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/bobaoapae/haval-app-tool-multimidia" target="_blank">bobaoapae/haval-app-tool-multimidia</a></td>
+            <td>56</td>
+            <td>HTML</td>
+            <td>Ferramenta Android experimental para estender e aprimorar o sistema multimídia d</td>
+            <td>2026-06-26</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Rhacknarok/hacksguard" target="_blank">Rhacknarok/hacksguard</a></td>
+            <td>53</td>
+            <td>YARA</td>
+            <td> A blazingly fast, multi-threaded TUI malware analysis tool built in Rust. Featu</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/J0hnTh3Kn1ght/ExploitDB-Hunter" target="_blank">J0hnTh3Kn1ght/ExploitDB-Hunter</a></td>
+            <td>49</td>
+            <td>Python</td>
+            <td>Lightweight && straight forward command-line tool for searching and downloading </td>
+            <td>2026-06-29</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/assafkip/huntkit" target="_blank">assafkip/huntkit</a></td>
+            <td>46</td>
+            <td>Shell</td>
+            <td>Investigation toolkit for Claude Code: case management, OSINT, structured analyt</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/aw-junaid/bug-bounty" target="_blank">aw-junaid/bug-bounty</a></td>
+            <td>42</td>
+            <td>PHP</td>
+            <td>Documenting my security research journey: This repository contains detailed vuln</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/aifred0729-TW/Minerva" target="_blank">aifred0729-TW/Minerva</a></td>
+            <td>38</td>
+            <td>TypeScript</td>
+            <td>A cyberpunk-themed next-generation web UI for Mythic C2 Framework</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/sfr-development/WonderSuite-Ai-Bug-Bounty" target="_blank">sfr-development/WonderSuite-Ai-Bug-Bounty</a></td>
+            <td>37</td>
+            <td>Rust</td>
+            <td>AI-Powered Offensive Security Research Engine - desktop-native security testing </td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/kyle41111/RedTeamHelp" target="_blank">kyle41111/RedTeamHelp</a></td>
+            <td>36</td>
+            <td>PowerShell</td>
+            <td>Tools I use on red team engagements and more</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Copenhagen0x/solana-security-standard" target="_blank">Copenhagen0x/solana-security-standard</a></td>
+            <td>35</td>
+            <td>JavaScript</td>
+            <td>Solana's SOL-0XX security standard — bug-class rules distilled from $514M of rea</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/warpedatom/OffsetInspect" target="_blank">warpedatom/OffsetInspect</a></td>
+            <td>35</td>
+            <td>PowerShell</td>
+            <td>PowerShell-based utility for mapping byte offsets to source code using hex and A</td>
+            <td>2026-06-24</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/stillbigjosh/Neo" target="_blank">stillbigjosh/Neo</a></td>
+            <td>32</td>
+            <td>Python</td>
+            <td>The NeoC2 Framework </td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/UPinar/contrastapi" target="_blank">UPinar/contrastapi</a></td>
+            <td>30</td>
+            <td>Python</td>
+            <td>MCP server with 55 security intelligence tools — CVE/KEV, MITRE ATLAS+D3FEND, Si</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Erarnitox/MalvexC2" target="_blank">Erarnitox/MalvexC2</a></td>
+            <td>27</td>
+            <td>C++</td>
+            <td>A simple C2 Framework written in modern C++</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Excalibra/cybersecurity" target="_blank">Excalibra/cybersecurity</a></td>
+            <td>26</td>
+            <td>Jupyter Notebook</td>
+            <td>A structured repository designed for cybersecurity professionals and enthusiasts</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/HaxL0p4/HaxL0p4-WinDefenderBypass" target="_blank">HaxL0p4/HaxL0p4-WinDefenderBypass</a></td>
+            <td>23</td>
+            <td>C</td>
+            <td>Bypass Windows Defender with a persistent staged reverse shell using C code & me</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/fkie-cad/Sandroid_core" target="_blank">fkie-cad/Sandroid_core</a></td>
+            <td>23</td>
+            <td>Python</td>
+            <td>Android Sandbox for Automated Forensic, Malware, and Security Analysis</td>
+            <td>2026-06-24</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/cervonwong/ILSpy-MCP" target="_blank">cervonwong/ILSpy-MCP</a></td>
+            <td>23</td>
+            <td>C#</td>
+            <td>ILSpy MCP Server (Model Context Protocol) for AI-assisted reverse-engineering of</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/joaovarelas/GitRunner-C2" target="_blank">joaovarelas/GitRunner-C2</a></td>
+            <td>21</td>
+            <td>Vue</td>
+            <td>Proof-of-concept C2 framework abusing GitLab self-hosted runners as implants — V</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/s4mp0l/Malware-Development" target="_blank">s4mp0l/Malware-Development</a></td>
+            <td>21</td>
+            <td>C</td>
+            <td>Repository focused on advanced Red Team tools and techniques, mainly created wit</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/OpenCentauri/oc-installer" target="_blank">OpenCentauri/oc-installer</a></td>
+            <td>18</td>
+            <td>G-code</td>
+            <td>Exploit + Installer tools for the Centauri Carbon</td>
+            <td>2026-06-30</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/onedays12/Iris" target="_blank">onedays12/Iris</a></td>
+            <td>17</td>
+            <td>C</td>
+            <td>IrisC2 is A modular C2 framework for authorized security research, featuring Iri</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/1-3-7/disrobe" target="_blank">1-3-7/disrobe</a></td>
+            <td>17</td>
+            <td>Rust</td>
+            <td>Decompile, deobfuscate, and unpack almost anything: a universal, deterministic, </td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/0x00Jeff/CVE-2025-27591" target="_blank">0x00Jeff/CVE-2025-27591</a></td>
+            <td>15</td>
+            <td>Shell</td>
+            <td>self cleaning CVE-2025-27591 Poc that grants a root reverse shell instead of mod</td>
+            <td>2026-06-28</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/matchylabs/matchy" target="_blank">matchylabs/matchy</a></td>
+            <td>15</td>
+            <td>Rust</td>
+            <td>Fast IoC matching: scan logs for threat intel (IPs, domains, hashes).</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Trapwithme/Trap-Panel" target="_blank">Trapwithme/Trap-Panel</a></td>
+            <td>14</td>
+            <td>C#</td>
+            <td>Modular C2 framework with AES-256-CBC + HMAC encrypted TCP, 18 plugins, and C#/P</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/dest4590/CollapseScanner" target="_blank">dest4590/CollapseScanner</a></td>
+            <td>14</td>
+            <td>Rust</td>
+            <td>An advanced JAR/class file reverse engineering and analysis tool.</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/contentauth/c2pa-attacks" target="_blank">contentauth/c2pa-attacks</a></td>
+            <td>13</td>
+            <td>Rust</td>
+            <td>Content Authenticity Security Tool</td>
+            <td>2026-06-22</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/TIPExploit/TIPExploit" target="_blank">TIPExploit/TIPExploit</a></td>
+            <td>12</td>
+            <td>Python</td>
+            <td>Source code fo Red-Teaming Coding Agents from a Tool-Invocation Perspective: An </td>
+            <td>2026-06-29</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/ac0d3r/machbox" target="_blank">ac0d3r/machbox</a></td>
+            <td>12</td>
+            <td>Go</td>
+            <td>A lightweight, native macOS sandbox for malware analysis</td>
+            <td>2026-06-25</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/RedTeamOperations/RedBeacon-AI" target="_blank">RedTeamOperations/RedBeacon-AI</a></td>
+            <td>11</td>
+            <td>Python</td>
+            <td>LLM-Powered C2 Framework leveraging AI platform APIs</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/carbon-evolution/osiris" target="_blank">carbon-evolution/osiris</a></td>
+            <td>11</td>
+            <td>TypeScript</td>
+            <td>OSIRIS — real-time global OSINT map: live flights, government highway CCTV, eart</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/containerscrew/nflux" target="_blank">containerscrew/nflux</a></td>
+            <td>11</td>
+            <td>Rust</td>
+            <td>Simple network monitoring agent tool. Powered by eBPF & Rust 🐝</td>
+            <td>2026-06-29</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Iankulani/bot53" target="_blank">Iankulani/bot53</a></td>
+            <td>10</td>
+            <td>Python</td>
+            <td>Bot 53 is a comprehensive, multi-platform command-and-control (C2) simulation fr</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/SecurityRonin/issen" target="_blank">SecurityRonin/issen</a></td>
+            <td>9</td>
+            <td>Rust</td>
+            <td>Point it at disk + memory evidence; get a correlated, ATT&CK-mapped attack timel</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/DennySORA/Ops-Tools" target="_blank">DennySORA/Ops-Tools</a></td>
+            <td>9</td>
+            <td>Rust</td>
+            <td> rust devops cli terraform terragrunt ai-tools mcp-server security-scanner clean</td>
+            <td>2026-06-25</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/frangelbarrera/aegistrace-threat-intelligence" target="_blank">frangelbarrera/aegistrace-threat-intelligence</a></td>
+            <td>8</td>
+            <td>Python</td>
+            <td>Open-source cyber threat intelligence pipeline — 5 sources, IoC extraction, enri</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/frangelbarrera/osint-agent-skills" target="_blank">frangelbarrera/osint-agent-skills</a></td>
+            <td>8</td>
+            <td>PowerShell</td>
+            <td>OSINT knowledge base + MCP server for autonomous AI agents — Claude Code, Cursor</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/SidPad03/unified-mcp-gateway" target="_blank">SidPad03/unified-mcp-gateway</a></td>
+            <td>8</td>
+            <td>Rust</td>
+            <td>Unified MCP Gateway: An MCP-native aggregation, routing, and security layer. One</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Iankulani/vengeance_bot" target="_blank">Iankulani/vengeance_bot</a></td>
+            <td>7</td>
+            <td>Python</td>
+            <td>Vengeance Bot is a next-generation, modular command-and-control (C2) framework d</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/alive-xd/ReconX" target="_blank">alive-xd/ReconX</a></td>
+            <td>7</td>
+            <td>TypeScript</td>
+            <td>Client-side OSINT & Intelligence Gathering Toolkit. 80+ industry-standard tools </td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/SHAROZ221/ThreatIntel" target="_blank">SHAROZ221/ThreatIntel</a></td>
+            <td>7</td>
+            <td>HTML</td>
+            <td>A lightweight SOC-focused threat intelligence platform built with Python & Flask</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/realozk/ARKENAR" target="_blank">realozk/ARKENAR</a></td>
+            <td>7</td>
+            <td>Rust</td>
+            <td>Tool I built for the pentesting and bug hunting community.</td>
+            <td>2026-06-28</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/r74tech/virga" target="_blank">r74tech/virga</a></td>
+            <td>6</td>
+            <td>Go</td>
+            <td>A modern C2 framework with local LLM embedded in beacon implants for autonomous </td>
+            <td>2026-06-22</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/NullSec8/ShellHub" target="_blank">NullSec8/ShellHub</a></td>
+            <td>6</td>
+            <td>HTML</td>
+            <td>Lightweight web-based reverse shell session manager</td>
+            <td>2026-06-29</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/TrojanDB/EntireDatabase" target="_blank">TrojanDB/EntireDatabase</a></td>
+            <td>6</td>
+            <td>YARA</td>
+            <td>All data related to RAT Payload found on trojandb.org is in this repository.</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/lidless-labs/maltego-mcp" target="_blank">lidless-labs/maltego-mcp</a></td>
+            <td>6</td>
+            <td>TypeScript</td>
+            <td>Maltego MCP server: an LLM authors .mtgx OSINT graphs and runs whois/DNS/ASN/crt</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/arbitusgateway/arbitus" target="_blank">arbitusgateway/arbitus</a></td>
+            <td>6</td>
+            <td>Rust</td>
+            <td>Open-source security gateway for MCP tool calls — blocks secret leaks, enforces </td>
+            <td>2026-06-29</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/batmanguyy45-del/TALISMAN" target="_blank">batmanguyy45-del/TALISMAN</a></td>
+            <td>5</td>
+            <td>Python</td>
+            <td>TALISMAN is an industrial-grade security research platform built for professiona</td>
+            <td>2026-06-24</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Dilaz/feroxmute" target="_blank">Dilaz/feroxmute</a></td>
+            <td>5</td>
+            <td>Rust</td>
+            <td>Security audit & penetration testing agent with full arsenal of modern security </td>
+            <td>2026-06-30</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/SepJs/aegis-guard" target="_blank">SepJs/aegis-guard</a></td>
+            <td>5</td>
+            <td>Rust</td>
+            <td>A personal Linux security and process monitoring tool for real-time threat detec</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/muchiny/bridge-mcp" target="_blank">muchiny/bridge-mcp</a></td>
+            <td>5</td>
+            <td>Rust</td>
+            <td>MCP server for secure SSH remote management — 337 tools across 74 groups for Dev</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/schwarztim/sec-sliver-c2-mcp" target="_blank">schwarztim/sec-sliver-c2-mcp</a></td>
+            <td>4</td>
+            <td>JavaScript</td>
+            <td>MCP server for Sliver C2 - Adversary emulation framework integration for AI assi</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/fooHQ/foojank" target="_blank">fooHQ/foojank</a></td>
+            <td>4</td>
+            <td>Go</td>
+            <td>C2 framework for ethical hackers conducting red team and purple team engagements</td>
+            <td>2026-07-03</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/EpSiLoNPoInTOrI/IKEV2-POC" target="_blank">EpSiLoNPoInTOrI/IKEV2-POC</a></td>
+            <td>4</td>
+            <td>C++</td>
+            <td>IKEv2, ikeext.dll, CVE-2026-33824, double free, heap grooming, ROP, SKF fragment</td>
+            <td>2026-06-27</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/EvanJ4536/Harmony-Discord-RAT" target="_blank">EvanJ4536/Harmony-Discord-RAT</a></td>
+            <td>4</td>
+            <td>Python</td>
+            <td>A Proof of Concept remote administration tool developed for cybersecurity resear</td>
+            <td>2026-06-25</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/cpoder/wm-mcp-server" target="_blank">cpoder/wm-mcp-server</a></td>
+            <td>4</td>
+            <td>Rust</td>
+            <td>MCP server for managing webMethods Integration Server via pure HTTP API - 336 to</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/AkhrorKhasanov/net_sentinel_shield" target="_blank">AkhrorKhasanov/net_sentinel_shield</a></td>
+            <td>4</td>
+            <td>Rust</td>
+            <td>NetSentinel Shield: A high-performance, Rust-based security tool for system hard</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Iankulani/red-sparrow" target="_blank">Iankulani/red-sparrow</a></td>
+            <td>3</td>
+            <td>Python</td>
+            <td>Red Sparrow is a next-generation, cross-platform command-and-control (C2) framew</td>
+            <td>2026-06-26</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/DANG-PH/dragonboy-nginx-service" target="_blank">DANG-PH/dragonboy-nginx-service</a></td>
+            <td>3</td>
+            <td>Shell</td>
+            <td>Nginx load balancer, reverse proxy, SSL termination, and full Docker Compose sta</td>
+            <td>2026-06-24</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/humaidhahm/opencode-pentester" target="_blank">humaidhahm/opencode-pentester</a></td>
+            <td>3</td>
+            <td>Shell</td>
+            <td>Full-spectrum security assessment tool for opencode — defensive code audit (17 v</td>
+            <td>2026-07-04</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/galhazan5/C2-Framework" target="_blank">galhazan5/C2-Framework</a></td>
+            <td>2</td>
+            <td>C</td>
+            <td>A modular C2 Framework developed during the Hackeriot x BGU cyber project, featu</td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/KashmiriEthicalHacker/WINDOWS-REVERS-EHELL-C2-FRAMEWORK-" target="_blank">KashmiriEthicalHacker/WINDOWS-REVERS-EHELL-C2-FRAMEWORK-</a></td>
+            <td>2</td>
+            <td>Go</td>
+            <td>ITS MAIN WORK IS IT ABLE TO BYPASS ALL WINDOWS 11 10 SECQURITYS AND HACK SYSTEM </td>
+            <td>2026-06-30</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/itsnold/Nagomio-C2" target="_blank">itsnold/Nagomio-C2</a></td>
+            <td>2</td>
+            <td>C++</td>
+            <td>A Command and Control Framework to be released for Ubuntu 20.04/22.04</td>
+            <td>2026-07-05</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/Spring-bulid/RC4-Shell-Packer-Analysis" target="_blank">Spring-bulid/RC4-Shell-Packer-Analysis</a></td>
+            <td>2</td>
+            <td>?</td>
+            <td>RC4 Encrypted Shell Script Packer Reverse Engineering</td>
+            <td>2026-07-02</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/BenjiTrapp/RaccShells" target="_blank">BenjiTrapp/RaccShells</a></td>
+            <td>2</td>
+            <td>HTML</td>
+            <td>🦝 Self-contained reverse shell generator — zero dependencies, single HTML file. </td>
+            <td>2026-07-01</td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/payloadify/payloadify" target="_blank">payloadify/payloadify</a></td>
+            <td>2</td>
+            <td>TypeScript</td>
+            <td>Security toolkit for pentesters. JWT decoder, hash identifier, reverse shell gen</td>
+            <td>2026-07-05</td>
+        </tr></table>
+    
+    <div class="footer">
+        Genere par CyberBook Collector | <a href="https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro">GitHub</a>
+    </div>
+</body>
+</html>

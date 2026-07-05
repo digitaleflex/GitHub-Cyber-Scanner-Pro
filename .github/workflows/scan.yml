@@ -3,7 +3,13 @@ name: CyberScan
 on:
   schedule:
     - cron: '0 8 */3 * *'  # Tous les 3 jours a 8h UTC
-  workflow_dispatch:        # Pour lancer manuellement
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Nombre de jours a scanner (defaut: 7)'
+        required: false
+        default: '7'
+        type: string
 
 permissions:
   contents: read
@@ -23,7 +29,7 @@ jobs:
         run: pip install requests
 
       - name: Run scan
-        run: python scripts/scan.py
+        run: python scripts/scan.py ${{ inputs.days || '7' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
