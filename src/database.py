@@ -295,41 +295,16 @@ def get_repos_frontend():
 def search_repos_frontend(q: str = "", page: int = 1, per_page: int = 50):
     """Recherche et pagination des repos pour le frontend React."""
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-
-        where = ""
-        params: list[str] = []
+        repos = get_repos_frontend()
         if q:
-            where = "WHERE full_name ILIKE %s OR description ILIKE %s OR language ILIKE %s"
-            like_q = f"%{q}%"
-            params = [like_q, like_q, like_q]
-
-        cursor.execute(f"SELECT COUNT(*) FROM repositories {where}", params)
-        total = cursor.fetchone()["count"]
-
+            ql = q.lower()
+            repos = [r for r in repos if ql in (r.get("name") or "").lower()
+                     or ql in (r.get("desc") or "").lower()
+                     or ql in (r.get("lang") or "").lower()]
+        total = len(repos)
         offset = (page - 1) * per_page
-        cursor.execute(
-            f"""
-            SELECT full_name AS name, description AS desc, stars,
-                   language AS lang, html_url AS url, updated_at AS updated
-            FROM repositories
-            {where}
-            ORDER BY stars DESC
-            LIMIT %s OFFSET %s
-            """,
-            params + [per_page, offset],
-        )
-        rows = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        repos = []
-        for r in rows:
-            d = dict(r)
-            d["created"] = d.get("updated", "")
-            d["size_kb"] = 0
-            repos.append(d)
-        return repos, total
+        page_repos = repos[offset:offset + per_page]
+        return page_repos, total
     except Exception as e:
         logging.error(f"Erreur search_repos_frontend: {e}")
         return [], 0
