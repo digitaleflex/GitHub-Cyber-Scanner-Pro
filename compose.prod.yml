@@ -35,6 +35,12 @@ services:
       SCAN_INTERVAL_SECONDS: ${SCAN_INTERVAL_SECONDS:-86400}
     expose:
       - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/stats')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     volumes:
       - ./data:/app/data
       - ./reports:/app/reports

@@ -38,38 +38,90 @@ load_dotenv()
 
 # --- CONFIGURATION ---
 QUERIES = [
+    # --- Fondamentaux ---
     '"cybersecurity" books',
     '"cybersecurity" awesome',
     '"hacking" books',
     '"hacking" awesome',
+    '"infosec" resources',
+    # --- Red Team / Offensif ---
+    '"red team" tools',
     '"pentest" awesome',
     '"pentest" list',
-    '"infosec" resources',
-    '"red team" tools',
+    '"exploit-development"',
+    '"c2-framework"',
+    '"command-and-control" github',
+    '"phishing-framework"',
+    '"social-engineering" tools',
+    # --- Blue Team / Défensif ---
     '"blue team" tools',
-    # 1. Write-ups CTF et Bug Bounty
+    '"dfir" tools',
+    '"incident-response" playbook',
+    '"soc" automation',
+    '"siem" rules',
+    '"edr" evasion',
+    # --- Cloud & Container Security ---
+    '"cloud-security" tools',
+    '"kubernetes-security"',
+    '"docker-security"',
+    '"aws-security" tools',
+    '"gcp-security"',
+    '"azure-security"',
+    '"serverless-security"',
+    '"kubesec"',
+    # --- CTF & Bug Bounty ---
     '"ctf-writeups"',
     '"bugbounty-methodology"',
     '"walkthrough" cybersecurity',
     '"poc-exploits" cybersecurity',
-    # 2. Checklists de Durcissement (Hardening) et Conformité
+    '"bugbounty-tools"',
+    # --- Hardening & Conformité ---
     '"hardening-guide" cybersecurity',
     '"security-checklist"',
     '"cis-benchmarks"',
     '"active-directory-hardening"',
-    # 3. Modèles de Rapports d'Audit & Livrables Pro
+    '"linux-hardening"',
+    '"windows-hardening"',
+    '"compliance" asvs',
+    '"nist-framework"',
+    # --- Rapports & Livrables ---
     '"pentest-report-template"',
     '"audit-template" cybersecurity',
     '"security-policy-samples"',
-    # 4. Questions d'Entretiens & Certifs
+    '"risk-assessment" template',
+    # --- Certifications & Formation ---
     '"cybersecurity-interview-questions"',
     '"oscp-notes"',
     '"cissp-study-guide"',
-    # 5. Flux de Threat Intelligence
+    '"cisa-study"',
+    '"security-training" labs',
+    '"capture-the-flag" platform',
+    # --- Threat Intelligence ---
     '"yara-rules" malware',
     '"sigma-rules" threat',
     '"threat-intel" list',
-    '"ioc-lists" ip'
+    '"ioc-lists" ip',
+    '"osint" framework',
+    '"malware-analysis" sandbox',
+    '"ransomware" decryptor',
+    # --- DevSecOps & Supply Chain ---
+    '"devsecops" tools',
+    '"sbom" generator',
+    '"dependency-check"',
+    '"secret-scanning"',
+    '"software-supply-chain" security',
+    # --- Mobile & IoT Security ---
+    '"mobile-security" framework',
+    '"android-security"',
+    '"ios-security"',
+    '"iot-security" framework',
+    '"firmware-analysis"',
+    # --- Cryptographie & Auth ---
+    '"cryptography" library',
+    '"zero-trust" implementation',
+    '"identity-management"',
+    '"oauth2" security',
+    '"jwt" security',
 ]
 
 DATA_DIR = os.getenv("DATA_DIR", "data")
