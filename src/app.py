@@ -55,7 +55,7 @@ def dashboard():
     repos = get_repos()
     total = len(repos)
     total_stars = sum(r["stars"] for r in repos)
-    languages = len(set(r["lang"] for r in repos if r.get("lang")))
+    languages = len({r["lang"] for r in repos if r.get("lang")})
 
     last_scan = "Jamais"
     try:
@@ -284,7 +284,7 @@ def api_stats():
     repos = get_repos()
     total = len(repos)
     total_stars = sum(r["stars"] for r in repos)
-    languages = len(set(r["lang"] for r in repos if r.get("lang")))
+    languages = len({r["lang"] for r in repos if r.get("lang")})
     lang_dist = {}
     for r in repos:
         lang = r.get("lang") or "Autre"
