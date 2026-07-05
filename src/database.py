@@ -221,6 +221,29 @@ def get_stats():
         return 0, 0
 
 
+def get_frontend_stats():
+    """Retourne les stats au format attendu par le frontend React."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM repositories")
+        total_repos = cursor.fetchone()[0]
+        cursor.execute("SELECT COALESCE(SUM(stars), 0) FROM repositories")
+        total_stars = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(DISTINCT language) FROM repositories WHERE language IS NOT NULL AND language != 'Non specifiee'")
+        languages = cursor.fetchone()[0]
+        cursor.execute("SELECT language, COUNT(*) FROM repositories WHERE language IS NOT NULL AND language != 'Non specifiee' GROUP BY language ORDER BY COUNT(*) DESC")
+        lang_dist = dict(cursor.fetchall())
+        cursor.execute("SELECT MAX(discovered_at) FROM repositories")
+        last_scan = cursor.fetchone()[0]
+        cursor.close()
+        conn.close()
+        return total_repos, int(total_stars), languages, lang_dist, last_scan
+    except Exception as e:
+        logging.error(f"Erreur get_frontend_stats: {e}")
+        return 0, 0, 0, {}, None
+
+
 def get_repositories():
     try:
         conn = get_db_connection()
@@ -238,6 +261,34 @@ def get_repositories():
         return [dict(r) for r in rows]
     except Exception as e:
         logging.error(f"Erreur get_repositories: {e}")
+        return []
+
+
+def get_repos_frontend():
+    """Retourne les repos au format attendu par le frontend React."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            """
+            SELECT full_name AS name, description AS desc, stars,
+                   language AS lang, html_url AS url, updated_at AS updated
+            FROM repositories
+            ORDER BY stars DESC
+            """
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        repos = []
+        for r in rows:
+            d = dict(r)
+            d["created"] = d.get("updated", "")
+            d["size_kb"] = 0
+            repos.append(d)
+        return repos
+    except Exception as e:
+        logging.error(f"Erreur get_repos_frontend: {e}")
         return []
 
 

@@ -794,19 +794,35 @@ def read_index():
 
 @app.get("/api/stats")
 def get_stats():
-    """Retourne les statistiques de la base de données et le statut du scanner."""
+    """Retourne les statistiques (format compatible frontend React)."""
     global scanner_status
-    repos, books = database.get_stats()
+    total_repos, total_stars, languages, lang_dist, last_scan = database.get_frontend_stats()
+    last_scan_str = last_scan.isoformat() if last_scan else None
     return {
-        "total_repos": repos,
-        "total_books": books,
+        "total_repos": total_repos,
+        "total_stars": int(total_stars),
+        "languages": languages,
+        "lang_distribution": lang_dist,
+        "last_scan": last_scan_str,
         "status": scanner_status
     }
 
 
+@app.get("/api/repos")
+def get_repos_api(q: str = None):
+    """Renvoie les dépôts au format attendu par le frontend React."""
+    repos = database.get_repos_frontend()
+    if q:
+        ql = q.lower()
+        repos = [r for r in repos if ql in (r.get("name") or "").lower()
+                 or ql in (r.get("desc") or "").lower()
+                 or ql in (r.get("lang") or "").lower()]
+    return {"total": len(repos), "repos": repos}
+
+
 @app.get("/api/repositories")
 def get_repositories_api():
-    """Renvoie la liste des dépôts."""
+    """Renvoie la liste des dépôts (format brut)."""
     return database.get_repositories()
 
 
