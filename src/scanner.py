@@ -5,6 +5,7 @@ import re
 import sys
 import threading
 import time
+from pathlib import Path
 
 import pandas as pd
 import requests
@@ -12,6 +13,7 @@ from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from src import database
 
@@ -797,6 +799,50 @@ def start_scan(background_tasks: BackgroundTasks):
 
     background_tasks.add_task(run_scan_once_manual)
     return {"message": "Le scan en arrière-plan a été démarré !"}
+
+
+# --- FRONTEND SERVING (React SPA + Reports) ---
+
+FRONTEND_DIR = Path("frontend/dist")
+if FRONTEND_DIR.exists() and (FRONTEND_DIR / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="frontend_assets")
+
+REPORTS_DIR = Path("reports")
+
+
+@app.get("/api/reports")
+def api_reports():
+    if not REPORTS_DIR.exists():
+        return {"reports": [], "dashboards": []}
+    reports = sorted([f.name for f in REPORTS_DIR.glob("rapport_*.md")], reverse=True)
+    dashboards = sorted([f.name for f in REPORTS_DIR.glob("dashboard_*.html")], reverse=True)
+    return {"reports": reports, "dashboards": dashboards}
+
+
+@app.get("/reports/{filename}")
+def serve_report(filename: str):
+    filepath = REPORTS_DIR / filename
+    if filepath.exists() and filepath.suffix in (".md", ".html"):
+        return FileResponse(filepath)
+    return HTMLResponse("<h1>404</h1>", status_code=404)
+
+
+@app.get("/dashboards/{filename}")
+def serve_dashboard(filename: str):
+    filepath = REPORTS_DIR / filename
+    if filepath.exists() and filepath.suffix == ".html":
+        return FileResponse(filepath)
+    return HTMLResponse("<h1>404</h1>", status_code=404)
+
+
+@app.get("/{path:path}")
+def serve_frontend(path: str):
+    if path.startswith("api/") or path.startswith("reports/") or path.startswith("dashboards/"):
+        return HTMLResponse("<h1>404</h1>", status_code=404)
+    index = FRONTEND_DIR / "index.html" if FRONTEND_DIR.exists() else None
+    if index and index.exists():
+        return HTMLResponse(index.read_text())
+    return HTMLResponse("<h1>CyberScan API</h1><p>Frontend non disponible</p>")
 
 
 if __name__ == "__main__":

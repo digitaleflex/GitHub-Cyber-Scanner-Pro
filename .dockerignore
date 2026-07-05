@@ -2,11 +2,7 @@
 .gitignore
 *.md
 frontend/node_modules
-frontend/src
-frontend/public
-frontend/*.json
-frontend/*.ts
-frontend/*.config.*
+frontend/vite-env.d.ts
 __pycache__
 *.pyc
 .env
