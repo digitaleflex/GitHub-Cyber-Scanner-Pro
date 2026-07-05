@@ -30,6 +30,9 @@ def generate_html(repos):
             <td>{r['updated'][:10]}</td>
         </tr>"""
 
+    # Pre-compute to avoid backslash in f-string expression (Python 3.11 compat)
+    empty_msg = '<div class="empty">Pas de donnees. Lance le scan d\u2019abord.</div>'
+
     html = f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -69,7 +72,7 @@ def generate_html(repos):
             <div class="label">Etoiles totales</div>
         </div>
         <div class="stat">
-            <div class="number">{len(set(r['lang'] for r in repos if r['lang']))}</div>
+            <div class="number">{len({r['lang'] for r in repos if r['lang']})}</div>
             <div class="label">Langages</div>
         </div>
         <div class="stat">
@@ -78,7 +81,7 @@ def generate_html(repos):
         </div>
     </div>
 
-    {"<table><tr><th>Repository</th><th>Stars</th><th>Langage</th><th>Description</th><th>Mis a jour</th></tr>" + rows + "</table>" if repos else '<div class="empty">Pas de donnees. Lance le scan d\'abord.</div>'}
+    {"<table><tr><th>Repository</th><th>Stars</th><th>Langage</th><th>Description</th><th>Mis a jour</th></tr>" + rows + "</table>" if repos else empty_msg}
     
     <div class="footer">
         Genere par CyberBook Collector | <a href="https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro">GitHub</a>
