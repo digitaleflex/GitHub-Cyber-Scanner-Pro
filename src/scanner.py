@@ -781,12 +781,15 @@ def run_scanner_daemon():
 
 @app.get("/", response_class=HTMLResponse)
 def read_index():
-    """Sert l'interface HTML principale."""
-    index_path = "templates/index.html"
-    if os.path.exists(index_path):
-        with open(index_path, encoding="utf-8") as f:
+    """Sert le frontend React ou l'interface HTML de secours."""
+    react_index = FRONTEND_DIR / "index.html"
+    if react_index.exists():
+        return HTMLResponse(react_index.read_text())
+    fallback = "templates/index.html"
+    if os.path.exists(fallback):
+        with open(fallback, encoding="utf-8") as f:
             return f.read()
-    return "<h1>Erreur : Fichier templates/index.html introuvable.</h1>"
+    return "<h1>Erreur : Frontend non disponible.</h1>"
 
 
 @app.get("/api/stats")
