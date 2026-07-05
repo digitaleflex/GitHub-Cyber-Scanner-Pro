@@ -2,7 +2,7 @@ name: CyberScan
 
 on:
   schedule:
-    - cron: '0 8 */3 * *'  # Tous les 3 jours a 8h UTC
+    - cron: '0 6 * * *'  # Tous les jours a 6h UTC
   workflow_dispatch:
     inputs:
       days:
@@ -15,9 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  scan:
+  scan-ci:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -53,3 +52,11 @@ jobs:
             reports/
             output/
           retention-days: 90
+
+  scan-db:
+    runs-on: [self-hosted, cyber-scanner]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Trigger DB scan via API
+        run: |
+          curl -sf -X POST http://localhost:8000/api/scan || echo "Scanner daemon deja actif"

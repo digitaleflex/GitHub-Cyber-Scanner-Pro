@@ -43,3 +43,11 @@ jobs:
           sys.path.insert(0, '/app')
           print('Import OK')
           "
+
+  deploy:
+    needs: build
+    runs-on: [self-hosted, cyber-scanner]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to production
+        run: sudo bash /opt/cyberscan/scripts/deploy.sh deploy
