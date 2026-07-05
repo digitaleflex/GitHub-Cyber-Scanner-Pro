@@ -38,7 +38,7 @@ function RootLayout() {
               <Link
                 key={l.to}
                 to={l.to}
-                className="text-gray-400 hover:text-white transition-colors text-sm font-medium [&.active]:text-indigo-400"
+                className="text-gray-400 hover:text-white transition-colors text-sm font-medium [&.active]:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded"
               >
                 {l.label}
               </Link>
@@ -48,8 +48,8 @@ function RootLayout() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-gray-400 hover:text-white transition-colors"
-            aria-label="Menu"
+            className="md:hidden text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded"
+            aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
           >
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>

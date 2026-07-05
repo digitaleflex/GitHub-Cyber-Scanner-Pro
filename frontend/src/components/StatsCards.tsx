@@ -55,6 +55,8 @@ export default function StatsCards() {
           key={card.key}
           className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 backdrop-blur-sm hover:bg-white/[0.06] hover:-translate-y-0.5 transition-all duration-300 animate-fade-in-up"
           style={{ animationDelay: `${i * 80}ms` }}
+          role="status"
+          aria-label={`${card.label}: ${card.value(data)}`}
         >
           <div className="text-indigo-400 mb-3"><card.icon size={24} /></div>
           <div className="text-2xl font-bold text-white">{card.value(data)}</div>

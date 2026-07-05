@@ -10,7 +10,7 @@ function RepoRow({ repo, rank }: { repo: Repo; rank: number }) {
             href={repo.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-indigo-400 hover:text-indigo-300 transition-colors text-sm font-medium truncate block"
+            className="text-indigo-400 hover:text-indigo-300 transition-colors text-sm font-medium truncate block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded"
           >
             {repo.name}
           </a>
