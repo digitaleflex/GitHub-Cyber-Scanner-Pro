@@ -1,3 +1,4 @@
+import { Shield, Star, Code2, Database, type LucideIcon } from 'lucide-react'
 import { useStats } from '../lib/api'
 
 function timeAgo(dateStr: string): string {
@@ -17,13 +18,13 @@ function timeAgo(dateStr: string): string {
 const cards: {
   key: string
   label: string
-  icon: string
+  icon: LucideIcon
   value: (data: NonNullable<ReturnType<typeof useStats>["data"]>) => string
 }[] = [
-  { key: 'total_repos', label: 'Outils trouvés', icon: '🛠️', value: (d) => d.total_repos.toLocaleString() },
-  { key: 'total_stars', label: 'Étoiles totales', icon: '⭐', value: (d) => d.total_stars.toLocaleString() },
-  { key: 'languages', label: 'Langages', icon: '🔤', value: (d) => d.languages.toString() },
-  { key: 'last_scan', label: 'Dernier scan', icon: '📦', value: (d) => d.last_scan ? timeAgo(d.last_scan) : '-' },
+  { key: 'total_repos', label: 'Outils trouvés', icon: Shield, value: (d) => d.total_repos.toLocaleString() },
+  { key: 'total_stars', label: 'Étoiles totales', icon: Star, value: (d) => d.total_stars.toLocaleString() },
+  { key: 'languages', label: 'Langages', icon: Code2, value: (d) => d.languages.toString() },
+  { key: 'last_scan', label: 'Dernier scan', icon: Database, value: (d) => d.last_scan ? timeAgo(d.last_scan) : '-' },
 ]
 
 export default function StatsCards() {
@@ -54,7 +55,7 @@ export default function StatsCards() {
           key={card.key}
           className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 backdrop-blur-sm hover:bg-white/[0.06] transition-colors"
         >
-          <div className="text-2xl mb-2">{card.icon}</div>
+          <div className="text-indigo-400 mb-3"><card.icon size={24} /></div>
           <div className="text-2xl font-bold text-white">{card.value(data)}</div>
           <div className="text-sm text-gray-500 mt-1">{card.label}</div>
         </div>
