@@ -42,7 +42,7 @@ export default function ReposTable() {
   const pages = data?.pages ?? 1
 
   return (
-    <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 hover:bg-white/[0.06] hover:-translate-y-0.5 transition-all duration-300">
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
           Tous les outils

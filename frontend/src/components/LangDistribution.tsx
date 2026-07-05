@@ -37,13 +37,13 @@ export default function LangDistribution() {
   }
 
   return (
-    <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 hover:bg-white/[0.06] hover:-translate-y-0.5 transition-all duration-300">
       <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4">
         Langages
       </h2>
       <div className="space-y-2">
         {entries.map(([lang, count], i) => (
-          <div key={lang} className="flex items-center gap-3">
+          <div key={lang} className="flex items-center gap-3 animate-fade-in-up" style={{ animationDelay: `${i * 60}ms` }}>
             <span className="text-gray-400 text-sm w-20 truncate shrink-0">{lang}</span>
             <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
               <div

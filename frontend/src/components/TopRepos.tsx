@@ -53,14 +53,18 @@ export default function TopRepos() {
     .slice(0, 5)
 
   return (
-    <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 hover:bg-white/[0.06] hover:-translate-y-0.5 transition-all duration-300">
       <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4">
         Top 5
       </h2>
       {top5.length === 0 ? (
         <p className="text-gray-600 text-sm py-4 text-center">Aucune donnée</p>
       ) : (
-        top5.map((repo, i) => <RepoRow key={repo.name} repo={repo} rank={i + 1} />)
+        top5.map((repo, i) => (
+          <div key={repo.name} className="animate-fade-in-up" style={{ animationDelay: `${i * 60}ms` }}>
+            <RepoRow repo={repo} rank={i + 1} />
+          </div>
+        ))
       )}
     </div>
   )
