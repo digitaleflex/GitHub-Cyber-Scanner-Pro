@@ -3,6 +3,11 @@ services:
     image: pgvector/pgvector:pg16
     container_name: cyber_scanner_db
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "512M"
     environment:
       POSTGRES_DB: ${DB_NAME:-scanner_db}
       POSTGRES_USER: ${DB_USER:-postgres}
@@ -22,6 +27,11 @@ services:
     build: .
     container_name: cyber_github_scanner
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: "1G"
     depends_on:
       db:
         condition: service_healthy

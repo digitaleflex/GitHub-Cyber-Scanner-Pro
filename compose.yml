@@ -3,6 +3,11 @@ services:
     build: .
     container_name: cyber_github_scanner
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: "1G"
     ports:
       - "8000:8000"
     volumes:
