@@ -1,0 +1,3 @@
+cyberscan.example.com {
+    reverse_proxy cyber-scanner:8000
+}
