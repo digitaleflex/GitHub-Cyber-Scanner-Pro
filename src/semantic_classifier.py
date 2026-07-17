@@ -130,7 +130,7 @@ def _build():
         _idf[ng] = math.log(total / (doc_count + 1)) + 1
 
     cat_ngram_map: dict[str, Counter[str]] = {}
-    for (_cat, _desc), ngrams in zip(all_docs, doc_ngrams):
+    for (_cat, _desc), ngrams in zip(all_docs, doc_ngrams, strict=False):
         if _cat not in cat_ngram_map:
             cat_ngram_map[_cat] = Counter()
         for ng in ngrams:
