@@ -1,0 +1,100 @@
+import logging
+import os
+import time
+
+import requests
+
+from src import database
+
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+
+BULK_TOPICS = [
+    "security", "cybersecurity", "pentest", "penetration-testing", "red-team",
+    "blue-team", "malware", "exploit", "vulnerability", "cve", "infosec",
+    "reverse-engineering", "forensics", "encryption", "cryptography", "firewall",
+    "ids", "ips", "siem", "soar", "threat-intelligence", "osint", "recon",
+    "fuzzing", "payload", "ransomware", "botnet", "phishing", "scanner",
+    "vulnerability-scanner", "owasp", "devsecops", "hardening", "incident-response",
+    "cloud-security", "container-security", "kubernetes-security", "api-security",
+    "web-security", "network-security", "endpoint-security", "mobile-security",
+    "iot-security", "zero-trust", "sast", "dast", "secrets-detection", "sbom",
+    "c2", "rat", "keylogger", "rootkit", "trojan", "worm", "backdoor", "implant",
+    "lateral-movement", "privilege-escalation", "active-directory", "kerberos",
+    "windows-exploit", "linux-exploit", "buffer-overflow", "rce", "sqli", "xss",
+    "auth-bypass", "token", "credential", "brute-force", "ddos", "proxy",
+    "vpn", "tor", "anonymity", "steganography", "honeypot", "sandbox",
+    "yara", "sigma", "snort", "suricata", "wireshark", "pcap", "packet",
+    "powershell", "bash", "python", "go", "rust", "c", "cpp", "assembly",
+    "exploit-development", "shellcode", "injection", "hooking", "debugger",
+    "disassembler", "decompiler", "obfuscation", "packer", "cracker", "cracking",
+    "waf", "bypass", "evasion", "persistence", "exfiltration", "c2-framework",
+    "phishing-kit", "carding", "skimmer", "clipper", "stealer", "spyware",
+    "adware", "cryptominer", "loader", "dropper", "crypter", "binder",
+]
+
+STAR_BUCKETS = [
+    (0, 5), (5, 10), (10, 25), (25, 50), (50, 100), (100, 250),
+    (250, 500), (500, 1000), (1000, 2500), (2500, 5000), (5000, 10000),
+    (10000, 50000), (50000, 1000000),
+]
+
+
+def _search_repos(query, per_page=100, page=1, sort_by="stars"):
+    url = "https://api.github.com/search/repositories"
+    params = {"q": query, "sort": sort_by, "order": "desc", "per_page": per_page, "page": page}
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+    for _attempt in range(4):
+        try:
+            r = requests.get(url, params=params, headers=headers, timeout=20)
+            if r.status_code == 200:
+                return r.json().get("items", []), False
+            if r.status_code == 403:
+                reset = r.headers.get("X-RateLimit-Reset")
+                wait = max(1, float(reset) - time.time()) + 5 if reset else 60
+                logging.warning(f"⏸️ Rate limit search. Pause {int(wait)}s")
+                time.sleep(wait)
+                continue
+            if r.status_code == 422:
+                return [], False
+            time.sleep(3)
+        except Exception as e:
+            logging.error(f"❌ Erreur search {query}: {e}")
+            time.sleep(5)
+    return [], True
+
+
+def bulk_seed(topics=None, buckets=None, max_pages_per_bucket=10):
+    """Scan massif multi-topics avec buckets de popularité pour dépasser la limite 1000 résultats."""
+    topics = topics or BULK_TOPICS
+    buckets = buckets or STAR_BUCKETS
+    total_new = 0
+    total_seen = 0
+    interrupted = False
+
+    for topic in topics:
+        for lo, hi in buckets:
+            if interrupted:
+                break
+            star_filter = f"stars:{lo}..{hi}" if hi < 1000000 else f"stars:>{lo}"
+            query = f"topic:{topic} {star_filter}"
+            for page in range(1, max_pages_per_bucket + 1):
+                items, rate_hit = _search_repos(query, page=page)
+                if rate_hit:
+                    interrupted = True
+                    break
+                if not items:
+                    break
+                total_seen += len(items)
+                new = database.save_repositories(items)
+                total_new += new
+                logging.info(f"🌱 [{topic} {star_filter}] p{page}: +{new} nouveaux ({total_new} cumul)")
+                time.sleep(2)
+            if interrupted:
+                break
+        if interrupted:
+            break
+
+    logging.info(f"✅ Bulk-seed terminé: {total_new} nouveaux repos sur {total_seen} vus")
+    return {"new": total_new, "seen": total_seen}

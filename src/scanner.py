@@ -1346,6 +1346,29 @@ def start_scan(background_tasks: BackgroundTasks):
     return {"message": "Le scan en arrière-plan a été démarré !"}
 
 
+@app.post("/api/bulk-seed")
+def start_bulk_seed(background_tasks: BackgroundTasks, max_pages_per_bucket: int = 10):
+    """Scan massif multi-topics pour monter en charge vers 1M de dépôts."""
+    global scan_in_progress
+    if scan_in_progress:
+        return {"message": "Un scan est déjà en cours (bulk-seed ou scan classique)."}
+
+    def _run():
+        global scanner_status
+        scanner_status = "Bulk-seed en cours..."
+        try:
+            import src.bulk_seed as bulk_seed
+            result = bulk_seed.bulk_seed(max_pages_per_bucket=max_pages_per_bucket)
+            logging.info(f"🌱 Bulk-seed terminé: {result}")
+        except Exception as e:
+            logging.error(f"❌ Erreur bulk-seed: {e}")
+        finally:
+            scanner_status = "Prêt / En sommeil"
+
+    background_tasks.add_task(_run)
+    return {"message": "Bulk-seed lancé en arrière-plan.", "max_pages_per_bucket": max_pages_per_bucket}
+
+
 # --- FRONTEND SERVING (React SPA + Reports) ---
 
 FRONTEND_DIR = Path("frontend/dist")
