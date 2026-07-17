@@ -39,3 +39,4 @@ MESSAGE_EXPERTS.md
 # Systèmes
 .DS_Store
 Thumbs.db
+.env.prod

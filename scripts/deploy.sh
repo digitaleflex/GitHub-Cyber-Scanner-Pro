@@ -50,8 +50,9 @@ deploy() {
     cd "$PROJECT_DIR"
 
     info "Pulling latest code..."
-    git -C "$PROJECT_DIR" stash --include-untracked 2>/dev/null || true
-    git pull --ff-only origin main
+    git fetch origin main
+    git reset --hard origin/main
+    git clean -fdq -e .env -e .env.prod || true
 
     # GITHUB_TOKEN optionnel : si non fourni par le runner, on le lit depuis .env.prod existant
     GITHUB_TOKEN="${GITHUB_TOKEN:-}"
