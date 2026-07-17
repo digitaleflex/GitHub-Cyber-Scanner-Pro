@@ -11,9 +11,9 @@ DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "scanner_db")
 DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-if not DB_PASSWORD:
-    raise ValueError("DB_PASSWORD must be set in environment")
+DB_PASSWORD = os.getenv("DB_PASSWORD") or "cyberpass"
+if DB_PASSWORD == "cyberpass":
+    logging.warning("DB_PASSWORD not set — using default 'cyberpass' (insecure for production)")
 
 
 def get_db_connection():
