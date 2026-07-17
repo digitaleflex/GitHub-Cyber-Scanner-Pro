@@ -4,8 +4,8 @@ import {
 } from 'recharts'
 
 const COLORS = [
-  '#6366f1', '#10b981', '#f59e0b', '#ef4444',
-  '#06b6d4', '#8b5cf6', '#ec4899', '#14b8a6',
+  '#00f0ff', '#ff00aa', '#00ff66', '#ffbb00',
+  '#ff0044', '#8b5cf6', '#ec4899', '#14b8a6',
 ]
 
 export default function LangDistribution() {
@@ -13,8 +13,8 @@ export default function LangDistribution() {
 
   if (isLoading) {
     return (
-      <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5">
-        <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4">
+      <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5 neon-border-cyan">
+        <h2 className="text-neon-cyan text-sm font-semibold uppercase tracking-wider mb-4 font-cyber">
           Langages
         </h2>
         {[...Array(6)].map((_, i) => (
@@ -29,11 +29,11 @@ export default function LangDistribution() {
 
   if (entries.length === 0) {
     return (
-      <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5">
-        <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4">
+      <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5 neon-border-cyan">
+        <h2 className="text-neon-cyan text-sm font-semibold uppercase tracking-wider mb-4 font-cyber">
           Langages
         </h2>
-        <p className="text-gray-600 text-sm py-4 text-center">Aucune donnée</p>
+        <p className="text-gray-600 text-sm py-4 text-center font-mono">Aucune donnée</p>
       </div>
     )
   }
@@ -41,8 +41,8 @@ export default function LangDistribution() {
   const chartData = entries.map(([lang, count]) => ({ lang, count }))
 
   return (
-    <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 hover:bg-white/[0.06] hover:-translate-y-0.5 transition-all duration-300">
-      <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4">
+    <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5 neon-border-cyan hover:neon-glow-cyan transition-all duration-300">
+      <h2 className="text-neon-cyan text-sm font-semibold uppercase tracking-wider mb-4 font-cyber">
         Langages
       </h2>
       <div className="animate-fade-in-up">
@@ -52,24 +52,44 @@ export default function LangDistribution() {
             <YAxis
               type="category"
               dataKey="lang"
-              tick={{ fill: '#9ca3af', fontSize: 12 }}
+              tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
               axisLine={false}
               tickLine={false}
               width={80}
             />
             <Tooltip
               contentStyle={{
-                background: '#1a1f2e',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: '#0d1225',
+                border: '1px solid rgba(0, 240, 255, 0.2)',
                 borderRadius: '8px',
-                color: '#e5e7eb',
-                fontSize: '13px',
+                color: '#00f0ff',
+                fontSize: '12px',
+                fontFamily: 'JetBrains Mono, monospace',
+                boxShadow: '0 0 20px rgba(0, 240, 255, 0.1)',
               }}
               formatter={(value: number) => [`${value} repos`, 'Nombre']}
             />
-            <Bar dataKey="count" radius={[0, 6, 6, 0]} animationDuration={600} animationBegin={0}>
+            <defs>
               {chartData.map((_, i) => (
-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                <linearGradient key={`grad-${i}`} id={`barGlow-${i}`} x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor={COLORS[i % COLORS.length]} stopOpacity={0.6} />
+                  <stop offset="100%" stopColor={COLORS[i % COLORS.length]} stopOpacity={0.9} />
+                </linearGradient>
+              ))}
+            </defs>
+            <Bar
+              dataKey="count"
+              radius={[0, 4, 4, 0]}
+              animationDuration={800}
+              animationBegin={0}
+              maxBarSize={20}
+            >
+              {chartData.map((entry, i) => (
+                <Cell
+                  key={entry.lang}
+                  fill={`url(#barGlow-${i})`}
+                  style={{ filter: `drop-shadow(0 0 6px ${COLORS[i % COLORS.length]}40)` }}
+                />
               ))}
             </Bar>
           </BarChart>

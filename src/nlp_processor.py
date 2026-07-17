@@ -132,11 +132,62 @@ CYBER_CATEGORIES = {
             "applocker-bypass", "wdac-bypass", "defender-bypass",
         ],
     },
+    "malware": {
+        "keywords": [
+            "malware-source", "ransomware-source", "stealer", "trojan-source",
+            "remote-access-trojan", "rat-source", "botnet-source", "keylogger",
+            "loader-malware", "crypter", "dropper-malware", "worm-source",
+            "bootkit", "rootkit-source", "shellcode-loader", "pe-injector",
+            "process-injection", "process-hollowing", "dll-injection",
+            "reflective-dll", "direct-syscall", "amsi-bypass", "etw-bypass",
+            "sandbox-evasion", "vm-detection", "anti-debug", "obfuscator",
+            "packer-malware", "c2-panel", "infostealer", "clipper-malware",
+            "banking-trojan", "form-grabber", "discord-stealer",
+            "telegram-stealer", "payload-generator", "macro-malware",
+            "exploit-kit", "malware-devkit", "evil-twin",
+            "rdp-bruteforce", "dns-tunnel", "icmp-tunnel", "lsass-dump",
+            "mimikatz-source", "nightmare", "plugx-source", "njrat",
+            "quasar-rat", "asyncrat", "darkcomet", "nanocore-rat",
+            "fodcha", "mirai-source", "gafgyt", "qbot", "emotet-source",
+            "zeus-source", "cryptominer-source", "ddos-bot", "spreader",
+            "adversary-in-the-middle", "callstack-spoof", "sleep-obfuscation",
+            "stack-strings", "memory-execution", "nt-create-thread",
+            "shinject", "srdi", "wlmp-bypass", "windows-defender-bypass",
+            "evasion-technique", "anti-disassemble", "protector-malware",
+        ],
+    },
 }
 
-CYBER_TERMS = []
-for cat in CYBER_CATEGORIES.values():
-    CYBER_TERMS.extend(cat["keywords"])
+CYBER_TERMS: list[str] = []
+_cyber_terms_built = False
+
+
+def _build_cyber_terms():
+    global CYBER_TERMS, _cyber_terms_built
+    if _cyber_terms_built:
+        return
+    CYBER_TERMS = []
+    for cat in CYBER_CATEGORIES.values():
+        CYBER_TERMS.extend(cat["keywords"])
+    try:
+        from database import get_approved_keywords
+        approved = get_approved_keywords()
+        approved_count = 0
+        for kw in approved:
+            term = kw.get("term")
+            if term and term not in CYBER_TERMS:
+                CYBER_TERMS.append(term)
+                approved_count += 1
+        logging.info("CYBER_TERMS enrichi: %d termes approuvés ajoutes", approved_count)
+    except Exception:
+        pass
+    _cyber_terms_built = True
+
+
+def refresh_cyber_terms():
+    global _cyber_terms_built
+    _cyber_terms_built = False
+    _build_cyber_terms()
 
 
 def _stem(word: str) -> str:
@@ -156,6 +207,7 @@ def _tfidf_weight(term: str, doc_freq: int, total_docs: int, term_freq: int) -> 
 
 
 def extract_keywords(texts: list[str], top_n: int = 40) -> list[str]:
+    _build_cyber_terms()
     texts = [t for t in texts if t and len(t) > 20]
     if not texts:
         return []
@@ -256,6 +308,15 @@ def categorize_by_semantic_ontology(title: str, description: str, lemmas: list[s
         score = sum(1 for kw in cat_data["keywords"] if kw in combined)
         if score > 0:
             scores[cat_name] = score
+
+    try:
+        from semantic_classifier import classify_semantic
+        sem_cat, sem_score = classify_semantic(description, title)
+        if sem_score > 0.35:
+            scores[sem_cat] = scores.get(sem_cat, 0) + int(sem_score * 10)
+    except Exception:
+        pass
+
     if not scores:
         return "General"
     return max(scores, key=scores.get)
@@ -282,6 +343,45 @@ def detect_resource_type(title: str, description: str, url: str, category: str) 
         if any(kw in combined for kw in keywords):
             return type_id
     return "link"
+
+
+def generate_synopsis(description: str, lang: str, stars: int, verdict: str | None, vitality: int | None, semantic_category: str | None = None) -> str:
+    _build_cyber_terms()
+    if not description:
+        return "Aucune description disponible."
+    desc = description.lower()
+    cat_words: dict[str, int] = {cat: sum(1 for kw in data["keywords"] if kw in desc)
+                 for cat, data in CYBER_CATEGORIES.items()}
+    if semantic_category and semantic_category != "general":
+        cat_words[semantic_category] = cat_words.get(semantic_category, 0) + 5
+
+    active_cats = [cat for cat, score in sorted(cat_words.items(), key=lambda x: -x[1]) if score > 0]
+
+    parts = []
+    if active_cats:
+        cat_labels = {"pentest": "pentest", "defense": "défense", "osint": "OSINT",
+                      "mobile": "mobile", "iot": "IoT", "crypto": "cryptographie",
+                      "red-team": "red-team", "malware": "malware"}
+        labels = [cat_labels.get(c, c) for c in active_cats[:3]]
+        parts.append(f"Dépôt {'/'.join(labels)}")
+
+    if lang and lang not in ("Non specifiee", "?"):
+        parts.append(f"écrit en {lang}")
+
+    if stars:
+        tier = "très populaire" if stars > 10000 else "populaire" if stars > 1000 else "de niche"
+        parts.append(tier)
+
+    if verdict:
+        parts.append(verdict.lower())
+
+    if vitality is not None:
+        v = "excellente vitalité" if vitality >= 70 else "vitalité modérée" if vitality >= 40 else "faible vitalité"
+        parts.append(v)
+
+    if not parts:
+        return description[:120] + ("..." if len(description) > 120 else "")
+    return parts[0].capitalize() + ", " + ", ".join(parts[1:]) + "."
 
 
 class CyberTextAnalyzer:

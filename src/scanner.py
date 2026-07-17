@@ -20,6 +20,7 @@ from src import database
 import src.nlp_processor as nlp_processor
 import src.sast_scanner as sast_scanner
 import src.threat_intel as threat_intel
+import src.rss_feed as rss_feed
 
 # Reconfigurer la sortie standard en UTF-8 sur Windows pour supporter l'affichage d'emojis
 if sys.platform == "win32":
@@ -126,6 +127,101 @@ QUERIES = [
     '"identity-management"',
     '"oauth2" security',
     '"jwt" security',
+    # --- Malware Public (Source & Samples) ---
+    '"malware-source" python',
+    '"malware-source" go',
+    '"malware-source" cpp',
+    '"ransomware" source',
+    '"ransomware-source"',
+    '"stealer" source',
+    '"remote-access-trojan"',
+    '"rat" source',
+    '"botnet" source',
+    '"keylogger" source',
+    '"loader" malware',
+    '"crypter" source',
+    '"process-injection"',
+    '"rootkit" source',
+    '"bootkit"',
+    '"bypass-uac"',
+    '"credential-dumper"',
+    '"ddos" bot source',
+    '"cryptominer" source',
+    '"dropper" source',
+    '"malware" sample collection',
+    '"spreader" worm',
+    '"reverse-shell" source',
+    '"web-shell" source',
+    '"webshell" source',
+    '"form-grabber"',
+    '"rdp-bruteforce"',
+    '"bruteforce" rdp',
+    '"adversary-in-the-middle"',
+    '"evil-twin"',
+    '"dns-tunnel" source',
+    '"icmp-tunnel" source',
+    '"lsass-dump"',
+    '"mimikatz" source',
+    '"sharphound" source',
+    '"payload-generator"',
+    '"macro-malware"',
+    '"vba-macro" source',
+    '"office-exploit" source',
+    '"pdf-exploit" source',
+    '"browser-exploit"',
+    '"usb-rubber-ducky" payload',
+    '"bad-usb" source',
+    '"fodcha" source',
+    '"mirai" source',
+    '"botnet" malware source',
+    '"infostealer" source',
+    '"clipper" malware',
+    '"banking-trojan" source',
+    '"worm-source"',
+    '"plugx" source',
+    '"njrat" source',
+    '"quasar" rat source',
+    '"asyncrat" source',
+    '"darkcomet" source',
+    '"nanocore" rat source',
+    '"cobalt-strike" source',
+    '"metasploit" payload',
+    '"sliver" c2 source',
+    '"havoc" c2 source',
+    '"payload" injection',
+    '"dll-injection" source',
+    '"reflective-dll" source',
+    '"process-hollowing" source',
+    '"shinject" source',
+    '"srdi" source',
+    '"nt-create-thread"',
+    '"direct-syscall" source',
+    '"syscall" inject',
+    '"etw-bypass"',
+    '"amsi-bypass"',
+    '"wlmp-bypass"',
+    '"callstack-spoof"',
+    '"sleep-obfuscation"',
+    '"stack-strings"',
+    '"shellcode-loader"',
+    '"loader-dropper" source',
+    '"pe-injector"',
+    '"memory-execution"',
+    '"malware-devkit"',
+    '"exploit-kit" source',
+    '"c2-panel" source',
+    '"discord" stealer',
+    '"telegram" stealer',
+    '"bypass-windows-defender"',
+    '"windows-defender-bypass"',
+    '"evasion-technique"',
+    '"sandbox-evasion"',
+    '"vm-detection"',
+    '"anti-debug" source',
+    '"anti-disassemble"',
+    '"obfuscator" malware',
+    '"packer" source',
+    '"protector" malware',
 ]
 
 DATA_DIR = os.getenv("DATA_DIR", "data")
@@ -134,7 +230,7 @@ if not os.path.exists(DATA_DIR):
 
 EXCEL_FILE = os.path.join(DATA_DIR, "cyber_security_catalogues.xlsx")
 JSON_FILE = os.path.join(DATA_DIR, "cyber_security_catalogues.json")
-SCAN_INTERVAL_SECONDS = int(os.getenv("SCAN_INTERVAL_SECONDS", 3600))
+SCAN_INTERVAL_SECONDS = int(os.getenv("SCAN_INTERVAL_SECONDS", 1800))
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 # Variables d'état
@@ -782,10 +878,12 @@ def migrate_sqlite_to_postgres():
             if not vector:
                 vector = None
 
+            sem_cat, _ = nlp_processor.classify_semantic(r["description"], r["full_name"])
+
             pg_cursor.execute(
                 """
-                INSERT INTO repositories (id, full_name, stars, description, html_url, language, updated_at, readme_parsed, score_qualite, vecteur_semantique)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO repositories (id, full_name, stars, description, html_url, language, updated_at, readme_parsed, score_qualite, vecteur_semantique, semantic_category)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (id) DO UPDATE
                 SET full_name = EXCLUDED.full_name,
                     stars = EXCLUDED.stars,
@@ -795,7 +893,8 @@ def migrate_sqlite_to_postgres():
                     updated_at = EXCLUDED.updated_at,
                     readme_parsed = EXCLUDED.readme_parsed,
                     score_qualite = EXCLUDED.score_qualite,
-                    vecteur_semantique = EXCLUDED.vecteur_semantique
+                    vecteur_semantique = EXCLUDED.vecteur_semantique,
+                    semantic_category = EXCLUDED.semantic_category
                 """,
                 (
                     str(r["id"]),
@@ -807,7 +906,8 @@ def migrate_sqlite_to_postgres():
                     r["updated_at"],
                     r["readme_parsed"],
                     score_qualite,
-                    vector
+                    vector,
+                    sem_cat
                 )
             )
             if pg_cursor.rowcount > 0:
@@ -875,6 +975,44 @@ def migrate_sqlite_to_postgres():
         logging.info(f"✨ Migration réussie : {migrated_repos} dépôts et {migrated_books} livres importés dans PostgreSQL avec calcul de score et embeddings sémantiques.")
     except Exception as e:
         logging.error(f"❌ Erreur lors de la migration SQLite -> PostgreSQL : {e}")
+
+
+def _run_keyword_miner():
+    """Extrait, score et sauvegarde de nouveaux mots-clés depuis le corpus de repos."""
+    import keyword_miner
+    from database import get_db_connection
+    from psycopg2.extras import RealDictCursor
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("""
+        SELECT description, full_name
+        FROM repositories
+        WHERE description IS NOT NULL AND description != 'Aucune description.'
+        ORDER BY stars DESC
+        LIMIT 3000
+    """)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    descriptions = [r["description"] for r in rows]
+    news = []
+    try:
+        from database import get_cyber_news
+        for n in get_cyber_news(limit=100):
+            news.append(f"{n.get('title', '')} {n.get('summary', '')}")
+    except Exception:
+        pass
+
+    candidates = keyword_miner.mine_keywords(descriptions, news, top_n=200)
+    if candidates:
+        from database import save_discovered_keywords, auto_approve_keywords, refresh_cyber_terms
+        saved = save_discovered_keywords(candidates)
+        approved = auto_approve_keywords(min_score=0.75, min_sources=3)
+        if saved or approved:
+            refresh_cyber_terms()
+            logger.info(f"⛏️ Keyword miner: {saved} candidats, {approved} auto-approuvés")
 
 
 def scan_cycle():
@@ -985,6 +1123,35 @@ def scan_cycle():
                 logger.info(f"🔬 Analyse SAST terminee pour {scanned} depot(s)")
         except Exception as e:
             logger.error(f"❌ Erreur lors de l'analyse SAST: {e}")
+        try:
+            vitality_updated = database.recalculate_vitality_scores()
+            if vitality_updated:
+                logger.info(f"📊 Scores de vitalite recalculés pour {vitality_updated} depot(s)")
+        except Exception as e:
+            logger.error(f"❌ Erreur lors du recalcul des scores de vitalite: {e}")
+        try:
+            sem_backfilled = database.backfill_semantic_categories(batch_size=500)
+            if sem_backfilled:
+                logger.info(f"🧠 Catégories sémantiques backfillées pour {sem_backfilled} dépôt(s)")
+        except Exception as e:
+            logger.error(f"❌ Erreur lors du backfill des catégories sémantiques: {e}")
+        try:
+            _run_keyword_miner()
+        except Exception as e:
+            logger.error(f"❌ Erreur lors du minage de mots-clés: {e}")
+        try:
+            feeds = rss_feed.fetch_all_feeds()
+            if feeds:
+                saved = database.save_cyber_news(feeds)
+                logger.info(f"📰 {saved} article(s) RSS enregistré(s) depuis CERT-FR / ANSSI")
+        except Exception as e:
+            logger.error(f"❌ Erreur lors de la récupération des flux RSS: {e}")
+        try:
+            corr = database.correlate_news_with_repos()
+            if corr:
+                logger.info(f"🔗 {corr} corrélation(s) news → repos établie(s)")
+        except Exception as e:
+            logger.error(f"❌ Erreur lors de la corrélation news/repos: {e}")
         export_to_excel()
         export_to_json()
         export_reports()
@@ -1058,7 +1225,8 @@ def read_index():
 def get_stats():
     """Retourne les statistiques (format compatible frontend React)."""
     global scanner_status
-    total_repos, total_stars, languages, lang_dist, last_scan, critique, suspect, unscanned = database.get_frontend_stats()
+    (total_repos, total_stars, languages, lang_dist, last_scan, critique,
+     suspect, unscanned, avg_vitality, top_vitality, low_vitality, dead_vitality) = database.get_frontend_stats()
     last_scan_str = last_scan.isoformat() if last_scan else None
     return {
         "total_repos": total_repos,
@@ -1070,13 +1238,17 @@ def get_stats():
         "security_critique": critique,
         "security_suspect": suspect,
         "security_unscanned": unscanned,
+        "avg_vitality": round(float(avg_vitality), 1),
+        "top_vitality": top_vitality,
+        "low_vitality": low_vitality,
+        "dead_vitality": dead_vitality,
     }
 
 
 @app.get("/api/repos")
-def get_repos_api(q: str = "", page: int = 1, per_page: int = 50):
+def get_repos_api(q: str = "", page: int = 1, per_page: int = 50, sort_by: str = "stars", vitality_min: int = 0):
     """Renvoie les dépôts paginés au format attendu par le frontend React."""
-    repos, total = database.search_repos_frontend(q, page, per_page)
+    repos, total = database.search_repos_frontend(q, page, per_page, sort_by, vitality_min)
     pages = max(1, (total + per_page - 1) // per_page)
     return {"total": total, "page": page, "per_page": per_page, "pages": pages, "repos": repos}
 
@@ -1094,6 +1266,48 @@ def get_books_api(q: str = None):
     Si le paramètre q est fourni, effectue une recherche sémantique intelligente.
     """
     return database.get_books(q)
+
+
+@app.get("/api/news")
+def get_news_api(limit: int = 15):
+    """Renvoie les actualités cyber avec leurs repos corrélés."""
+    return database.get_news_with_correlations(limit)
+
+
+@app.get("/api/keywords")
+def get_keywords_api(status: str = "pending", limit: int = 100, min_score: float = 0.0):
+    """Liste les mots-clés découverts par le miner."""
+    if status == "approved":
+        return {"keywords": database.get_approved_keywords()[:limit]}
+    return {"keywords": database.get_pending_keywords(limit, min_score)}
+
+
+@app.post("/api/keywords/{term}/approve")
+def approve_keyword_api(term: str, category: str = None):
+    ok = database.approve_keyword(term, "approved", category)
+    if ok:
+        from nlp_processor import refresh_cyber_terms
+        refresh_cyber_terms()
+    return {"success": ok, "term": term}
+
+
+@app.post("/api/keywords/{term}/reject")
+def reject_keyword_api(term: str):
+    ok = database.approve_keyword(term, "rejected")
+    return {"success": ok, "term": term}
+
+
+@app.post("/api/enrich-ontology")
+def enrich_ontology_api(background_tasks: BackgroundTasks):
+    """Télécharge MITRE ATT&CK / CAPEC / CWE et enrichit l'ontologie."""
+    background_tasks.add_task(_run_ontology_enrichment)
+    return {"message": "Enrichissement de l'ontologie lancé en arrière-plan"}
+
+
+def _run_ontology_enrichment():
+    import ontology_enricher
+    count = ontology_enricher.import_ontology_to_db()
+    logging.info(f"🧬 Enrichissement ontologique terminé : {count} termes")
 
 
 @app.get("/api/download")
@@ -1177,8 +1391,27 @@ def serve_frontend(path: str):
     return HTMLResponse("<h1>CyberScan API</h1><p>Frontend non disponible</p>")
 
 
+def _bootstrap_ontology():
+    """Importe l'ontologie MITRE au premier démarrage si la base est vide."""
+    try:
+        approved = database.get_approved_keywords()
+        if len(approved) >= 1000:
+            logging.info("🧬 Ontologie déjà chargée (%d termes)", len(approved))
+            from nlp_processor import refresh_cyber_terms
+            refresh_cyber_terms()
+            return
+        import ontology_enricher
+        count = ontology_enricher.import_ontology_to_db()
+        logging.info("🧬 Ontologie bootstrap: %d termes importes", count)
+    except Exception as e:
+        logging.error(f"❌ Erreur bootstrap ontologie: {e}")
+
+
 if __name__ == "__main__":
     database.init_db()
+
+    bootstrap_thread = threading.Thread(target=_bootstrap_ontology, daemon=True)
+    bootstrap_thread.start()
 
     daemon_thread = threading.Thread(target=run_scanner_daemon, daemon=True)
     daemon_thread.start()

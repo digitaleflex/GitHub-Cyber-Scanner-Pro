@@ -2,16 +2,94 @@
 
 @theme {
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: JetBrains Mono, ui-monospace, monospace;
+  --font-cyber: Orbitron, sans-serif;
   --animate-fade-in-up: fade-in-up 0.4s ease-out both;
+  --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+  --animate-glitch: glitch 0.3s ease-in-out;
+  --color-neon-cyan: #00f0ff;
+  --color-neon-magenta: #ff00aa;
+  --color-neon-green: #00ff66;
+  --color-neon-amber: #ffbb00;
+  --color-neon-red: #ff0044;
+  --color-cyber-bg: #060b18;
+  --color-cyber-card: rgba(0, 240, 255, 0.03);
 }
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, 0); }
+  80% { transform: translate(1px, 1px); }
+  100% { transform: translate(0); }
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 240, 255, 0.15) transparent;
+}
+
+body {
+  background: #060b18;
+  background-image:
+    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.neon-cyan {
+  color: #00f0ff;
+}
+.neon-magenta {
+  color: #ff00aa;
+}
+.neon-green {
+  color: #00ff66;
+}
+.neon-amber {
+  color: #ffbb00;
+}
+
+.neon-border-cyan {
+  box-shadow: inset 0 0 0 1px rgba(0, 240, 255, 0.1), 0 0 20px rgba(0, 240, 255, 0.05);
+}
+.neon-border-cyan:hover {
+  box-shadow: inset 0 0 0 1px rgba(0, 240, 255, 0.25), 0 0 30px rgba(0, 240, 255, 0.1);
+}
+
+.neon-glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.15), 0 0 40px rgba(0, 240, 255, 0.05);
+}
+
+.neon-glow-magenta {
+  box-shadow: 0 0 20px rgba(255, 0, 170, 0.15), 0 0 40px rgba(255, 0, 170, 0.05);
+}
+
+.scanline-overlay::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 240, 255, 0.06);
+  pointer-events: none;
+  z-index: 9999;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
 }

@@ -18,6 +18,9 @@ export type Repo = {
   updated: string
   size_kb: number
   security_verdict: string | null
+  vitality_score: number | null
+  synopsis: string | null
+  semantic_category: string | null
 }
 
 export type Stats = {
@@ -30,6 +33,10 @@ export type Stats = {
   security_critique: number
   security_suspect: number
   security_unscanned: number
+  avg_vitality: number
+  top_vitality: number
+  low_vitality: number
+  dead_vitality: number
 }
 
 export type ApiReposResponse = {
@@ -45,13 +52,15 @@ export type ApiReportsResponse = {
   dashboards: string[]
 }
 
-export function useRepos(query?: string, page: number = 1) {
+export function useRepos(query?: string, page: number = 1, sortBy: string = 'stars', vitalityMin: number = 0) {
   const params = new URLSearchParams()
   if (query) params.set('q', query)
   params.set('page', String(page))
   params.set('per_page', '20')
+  params.set('sort_by', sortBy)
+  if (vitalityMin > 0) params.set('vitality_min', String(vitalityMin))
   return useQuery<ApiReposResponse>({
-    queryKey: ['repos', query, page],
+    queryKey: ['repos', query, page, sortBy, vitalityMin],
     queryFn: () => fetchJson<ApiReposResponse>(`/repos?${params}`),
     staleTime: 30_000,
   })
