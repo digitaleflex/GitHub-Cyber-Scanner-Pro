@@ -241,6 +241,8 @@ scan_in_progress = False
 bulk_lock = threading.Lock()
 bulk_in_progress = False
 
+harvest_in_progress = False
+
 # Initialiser l'application FastAPI
 app = FastAPI(title="GitHub Cyber Scanner Semantic API")
 
@@ -1154,6 +1156,13 @@ def scan_cycle():
                 logging.info(f"🔗 {corr} corrélation(s) news → repos établie(s)")
         except Exception as e:
             logging.error(f"❌ Erreur lors de la corrélation news/repos: {e}")
+        try:
+            import src.harvest_artifacts as harvest_artifacts
+            hres = harvest_artifacts.harvest_batch(limit=80)
+            if hres["issues"] or hres["commits"]:
+                logging.info(f"🌾 Harvest: {hres['issues']} issues, {hres['commits']} commits")
+        except Exception as e:
+            logging.error(f"❌ Erreur lors de la récolte d'artifacts: {e}")
         export_to_excel()
         export_to_json()
         export_reports()
@@ -1379,6 +1388,37 @@ def bulk_status_api():
     """Retourne l'état d'avancement du dernier bulk-seed."""
     import src.bulk_seed as bulk_seed
     return bulk_seed.get_bulk_status()
+
+
+@app.post("/api/harvest")
+def start_harvest(background_tasks: BackgroundTasks, limit: int = 50, max_issues_pages: int = 3, max_commits_pages: int = 3):
+    """Récolte les issues/commits des repos pour exploser le volume de données."""
+    global harvest_in_progress
+    if harvest_in_progress:
+        return {"message": "Une récolte d'artifacts est déjà en cours."}
+
+    def _run():
+        global harvest_in_progress, scanner_status
+        harvest_in_progress = True
+        scanner_status = "Récolte issues/commits en cours..."
+        try:
+            import src.harvest_artifacts as harvest_artifacts
+            result = harvest_artifacts.harvest_batch(limit, max_issues_pages, max_commits_pages)
+            logging.info(f"🌾 Harvest terminé: {result}")
+        except Exception as e:
+            logging.error(f"❌ Erreur harvest: {e}")
+        finally:
+            harvest_in_progress = False
+            scanner_status = "Prêt / En sommeil"
+
+    background_tasks.add_task(_run)
+    return {"message": "Récolte d'artifacts lancée en arrière-plan.", "limit": limit}
+
+
+@app.get("/api/data-points")
+def data_points_api():
+    """Retourne le nombre total de points de données (repos + issues + commits + ...)."""
+    return database.count_total_data_points()
 
 
 # --- FRONTEND SERVING (React SPA + Reports) ---

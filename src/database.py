@@ -154,6 +154,57 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS repo_issues (
+            id BIGSERIAL PRIMARY KEY,
+            repo_id VARCHAR(50) REFERENCES repositories(id) ON DELETE CASCADE,
+            issue_number INTEGER,
+            title TEXT,
+            body TEXT,
+            state VARCHAR(20),
+            labels TEXT,
+            author VARCHAR(100),
+            created_at VARCHAR(100),
+            updated_at VARCHAR(100),
+            html_url VARCHAR(500),
+            is_security BOOLEAN DEFAULT FALSE,
+            discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(repo_id, issue_number)
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS repo_commits (
+            id BIGSERIAL PRIMARY KEY,
+            repo_id VARCHAR(50) REFERENCES repositories(id) ON DELETE CASCADE,
+            sha VARCHAR(64),
+            message TEXT,
+            author VARCHAR(100),
+            date VARCHAR(100),
+            html_url VARCHAR(500),
+            discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(repo_id, sha)
+        )
+    """)
+
+    cursor.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'repositories' AND column_name = 'issues_harvested'
+            ) THEN
+                ALTER TABLE repositories ADD COLUMN issues_harvested INTEGER DEFAULT 0;
+            END IF;
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'repositories' AND column_name = 'commits_harvested'
+            ) THEN
+                ALTER TABLE repositories ADD COLUMN commits_harvested INTEGER DEFAULT 0;
+            END IF;
+        END $$;
+    """)
+
     conn.commit()
     cursor.close()
     conn.close()
@@ -244,6 +295,127 @@ def save_repositories(items):
     cursor.close()
     conn.close()
     return new_discoveries
+
+
+SECURITY_ISSUE_KEYWORDS = [
+    "vulnerability", "cve", "exploit", "security", "xss", "sqli", "rce", "csrf",
+    "ssrf", "injection", "overflow", "malware", "backdoor", "auth", "bypass",
+    "leak", "secret", "token", "credential", "payload", "0day", "zeroday",
+    "vuln", "breach", "attack", "threat", "ransomware", "trojan", "rootkit",
+]
+
+
+def save_repo_issues(repo_id, issues):
+    if not issues:
+        return 0
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    count = 0
+    for it in issues:
+        title = (it.get("title") or "")
+        body = (it.get("body") or "")[:5000]
+        text = (title + " " + body).lower()
+        is_sec = any(k in text for k in SECURITY_ISSUE_KEYWORDS)
+        labels = ",".join(l.get("name", "") for l in (it.get("labels") or []) if isinstance(l, dict))
+        author = (it.get("user") or {}).get("login", "")
+        try:
+            cursor.execute(
+                """
+                INSERT INTO repo_issues
+                    (repo_id, issue_number, title, body, state, labels, author, created_at, updated_at, html_url, is_security)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (repo_id, issue_number) DO NOTHING
+                """,
+                (
+                    repo_id, it.get("number"), title, body, it.get("state"),
+                    labels, author, it.get("created_at"), it.get("updated_at"),
+                    it.get("html_url"), is_sec,
+                )
+            )
+            if cursor.rowcount > 0:
+                count += 1
+        except Exception as e:
+            logging.error(f"Erreur save issue {repo_id}: {e}")
+    cursor.execute("UPDATE repositories SET issues_harvested = (SELECT COUNT(*) FROM repo_issues WHERE repo_id=%s) WHERE id=%s", (repo_id, repo_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return count
+
+
+def save_repo_commits(repo_id, commits):
+    if not commits:
+        return 0
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    count = 0
+    for c in commits:
+        sha = c.get("sha")
+        if not sha:
+            continue
+        commit = c.get("commit", {})
+        msg = (commit.get("message") or "")[:2000]
+        author = (commit.get("author") or {}).get("name", "") if commit.get("author") else (c.get("author") or {}).get("login", "")
+        date = commit.get("committer", {}).get("date", "") if commit.get("committer") else c.get("commit", {}).get("committer", {}).get("date", "")
+        try:
+            cursor.execute(
+                """
+                INSERT INTO repo_commits (repo_id, sha, message, author, date, html_url)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                ON CONFLICT (repo_id, sha) DO NOTHING
+                """,
+                (repo_id, sha, msg, author, date, c.get("html_url"))
+            )
+            if cursor.rowcount > 0:
+                count += 1
+        except Exception as e:
+            logging.error(f"Erreur save commit {repo_id}: {e}")
+    cursor.execute("UPDATE repositories SET commits_harvested = (SELECT COUNT(*) FROM repo_commits WHERE repo_id=%s) WHERE id=%s", (repo_id, repo_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return count
+
+
+def get_unharvested_repositories(limit=50):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, full_name FROM repositories WHERE issues_harvested = 0 ORDER BY stars DESC NULLS LAST LIMIT %s",
+        (limit,)
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+
+def count_total_data_points():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM repositories")
+        repos = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM repo_issues")
+        issues = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM repo_commits")
+        commits = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM books")
+        books = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM cyber_news")
+        news = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM discovered_keywords")
+        keywords = cursor.fetchone()[0]
+        cursor.close()
+        conn.close()
+        return {
+            "repositories": repos, "issues": issues, "commits": commits,
+            "books": books, "news": news, "keywords": keywords,
+            "total": repos + issues + commits + books + news + keywords,
+        }
+    except Exception as e:
+        logging.error(f"Erreur count_total_data_points: {e}")
+        return {"total": 0}
 
 
 def get_unprocessed_repositories():
