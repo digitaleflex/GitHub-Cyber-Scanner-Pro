@@ -51,6 +51,7 @@ function RootLayout() {
 
   const navLinks = [
     { to: '/', label: 'Dashboard' },
+    { to: '/news', label: 'Actualités' },
     { to: '/reports', label: 'Rapports' },
   ]
 
