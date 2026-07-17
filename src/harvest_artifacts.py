@@ -79,16 +79,31 @@ def harvest_repo(repo_id, full_name, max_issues_pages=3, max_commits_pages=3):
     return new_issues, new_commits
 
 
-def harvest_batch(limit=50, max_issues_pages=3, max_commits_pages=3):
-    """Récolte artifacts pour un lot de repos non encore récoltés."""
-    repos = database.get_unharvested_repositories(limit)
+def harvest_batch(limit=50, max_issues_pages=3, max_commits_pages=3, continuous=True, max_repos=None):
+    """Récolte artifacts pour les repos non encore récoltés.
+
+    Boucle par tranches de `limit` jusqu'à épuisement (ou max_repos atteint)
+    pour monter en charge vers 1M de données.
+    """
     total_issues = 0
     total_commits = 0
-    for repo_id, full_name in repos:
-        ni, nc = harvest_repo(repo_id, full_name, max_issues_pages, max_commits_pages)
-        total_issues += ni
-        total_commits += nc
-        logging.info(f"🌾 {full_name}: +{ni} issues, +{nc} commits ({total_issues}/{total_commits} cumul)")
-        time.sleep(0.3)
-    logging.info(f"✅ Harvest batch: {total_issues} issues, {total_commits} commits sur {len(repos)} repos")
-    return {"issues": total_issues, "commits": total_commits, "repos": len(repos)}
+    total_repos = 0
+
+    while True:
+        repos = database.get_unharvested_repositories(limit)
+        if not repos:
+            break
+        for repo_id, full_name in repos:
+            ni, nc = harvest_repo(repo_id, full_name, max_issues_pages, max_commits_pages)
+            total_issues += ni
+            total_commits += nc
+            total_repos += 1
+            logging.info(f"🌾 {full_name}: +{ni} issues, +{nc} commits ({total_issues}/{total_commits} cumul)")
+            time.sleep(0.3)
+            if max_repos and total_repos >= max_repos:
+                break
+        if max_repos and total_repos >= max_repos:
+            break
+
+    logging.info(f"✅ Harvest batch: {total_issues} issues, {total_commits} commits sur {total_repos} repos")
+    return {"issues": total_issues, "commits": total_commits, "repos": total_repos}
