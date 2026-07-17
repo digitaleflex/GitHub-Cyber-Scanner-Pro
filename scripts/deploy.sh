@@ -40,6 +40,13 @@ deploy() {
         exit 1
     fi
 
+    # Valeurs par défaut pour les variables sensibles si non fournies
+    DOMAIN="${DOMAIN:-cyberbook.eurin.tech}"
+    DB_NAME="${DB_NAME:-scanner_db}"
+    DB_USER="${DB_USER:-postgres}"
+    DB_PASSWORD="${DB_PASSWORD:-cyberpass}"
+    SCAN_INTERVAL_SECONDS="${SCAN_INTERVAL_SECONDS:-1800}"
+
     cd "$PROJECT_DIR"
 
     info "Pulling latest code..."
