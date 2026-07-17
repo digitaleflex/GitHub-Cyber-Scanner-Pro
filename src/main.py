@@ -1,7 +1,7 @@
 import logging
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional, List
+from typing import Optional
 import database
 
 # Configuration du logging
@@ -62,7 +62,7 @@ async def get_stats():
             "cloud_cost": 0,
             "security_scans": 3109 # Simulé pour le moment
         }
-    except Exception as e:
+    except Exception:
         return {"total_repositories": 0, "total_resources": 0, "cloud_cost": 0}
 
 if __name__ == "__main__":

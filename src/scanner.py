@@ -274,7 +274,6 @@ def fetch_github_data(query, sort_by="stars"):
     for attempt in range(max_retries):
         try:
             response = requests.get(url, params=params, headers=headers, timeout=15)
-            rate_remaining = response.headers.get("X-RateLimit-Remaining")
             rate_reset = response.headers.get("X-RateLimit-Reset")
 
             if response.status_code == 200:
@@ -690,7 +689,7 @@ def export_reports():
         verdict_badge = {"Critique": "🔴", "Suspect": "🟡", "Sain": "🟢"}
 
         md_lines = [
-            f"# CyberScan — Rapport de Scan",
+            "# CyberScan — Rapport de Scan",
             f"**{date_str}**\n",
             "## Résumé",
             f"- Total dépôts : **{total_repos:,}**",
@@ -709,10 +708,10 @@ def export_reports():
             badge = verdict_badge.get(verdict, "⚪")
             md_lines.append(f"### {i}. [{name}]({url})")
             md_lines.append(f"★ {stars:,} | {lang or '?'} | {updated[:10] if updated else 'N/A'} | {badge} {verdict or 'Non analysé'}")
-            md_lines.append(f"")
+            md_lines.append("")
             if desc:
                 md_lines.append(f"> {desc[:200]}")
-                md_lines.append(f"")
+                md_lines.append("")
 
         if flagged_repos:
             md_lines.extend(["## Alertes Sécurité", ""])
@@ -1012,7 +1011,7 @@ def _run_keyword_miner():
         approved = auto_approve_keywords(min_score=0.75, min_sources=3)
         if saved or approved:
             refresh_cyber_terms()
-            logger.info(f"⛏️ Keyword miner: {saved} candidats, {approved} auto-approuvés")
+            logging.info(f"⛏️ Keyword miner: {saved} candidats, {approved} auto-approuvés")
 
 
 def scan_cycle():
@@ -1120,38 +1119,38 @@ def scan_cycle():
         try:
             scanned = sast_scanner.process_unscanned_repos(limit=10)
             if scanned:
-                logger.info(f"🔬 Analyse SAST terminee pour {scanned} depot(s)")
+                logging.info(f"🔬 Analyse SAST terminee pour {scanned} depot(s)")
         except Exception as e:
-            logger.error(f"❌ Erreur lors de l'analyse SAST: {e}")
+            logging.error(f"❌ Erreur lors de l'analyse SAST: {e}")
         try:
             vitality_updated = database.recalculate_vitality_scores()
             if vitality_updated:
-                logger.info(f"📊 Scores de vitalite recalculés pour {vitality_updated} depot(s)")
+                logging.info(f"📊 Scores de vitalite recalculés pour {vitality_updated} depot(s)")
         except Exception as e:
-            logger.error(f"❌ Erreur lors du recalcul des scores de vitalite: {e}")
+            logging.error(f"❌ Erreur lors du recalcul des scores de vitalite: {e}")
         try:
             sem_backfilled = database.backfill_semantic_categories(batch_size=500)
             if sem_backfilled:
-                logger.info(f"🧠 Catégories sémantiques backfillées pour {sem_backfilled} dépôt(s)")
+                logging.info(f"🧠 Catégories sémantiques backfillées pour {sem_backfilled} dépôt(s)")
         except Exception as e:
-            logger.error(f"❌ Erreur lors du backfill des catégories sémantiques: {e}")
+            logging.error(f"❌ Erreur lors du backfill des catégories sémantiques: {e}")
         try:
             _run_keyword_miner()
         except Exception as e:
-            logger.error(f"❌ Erreur lors du minage de mots-clés: {e}")
+            logging.error(f"❌ Erreur lors du minage de mots-clés: {e}")
         try:
             feeds = rss_feed.fetch_all_feeds()
             if feeds:
                 saved = database.save_cyber_news(feeds)
-                logger.info(f"📰 {saved} article(s) RSS enregistré(s) depuis CERT-FR / ANSSI")
+                logging.info(f"📰 {saved} article(s) RSS enregistré(s) depuis CERT-FR / ANSSI")
         except Exception as e:
-            logger.error(f"❌ Erreur lors de la récupération des flux RSS: {e}")
+            logging.error(f"❌ Erreur lors de la récupération des flux RSS: {e}")
         try:
             corr = database.correlate_news_with_repos()
             if corr:
-                logger.info(f"🔗 {corr} corrélation(s) news → repos établie(s)")
+                logging.info(f"🔗 {corr} corrélation(s) news → repos établie(s)")
         except Exception as e:
-            logger.error(f"❌ Erreur lors de la corrélation news/repos: {e}")
+            logging.error(f"❌ Erreur lors de la corrélation news/repos: {e}")
         export_to_excel()
         export_to_json()
         export_reports()

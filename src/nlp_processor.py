@@ -2,7 +2,6 @@ import logging
 import math
 import re
 from collections import Counter
-from pathlib import Path
 
 STOP_WORDS = {
     "a", "an", "the", "and", "or", "for", "of", "to", "in", "on", "at",

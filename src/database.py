@@ -572,7 +572,7 @@ def correlate_news_with_repos():
         for news_id, title, summary, category in news_items:
             news_text = ((title or '') + ' ' + (summary or '')).lower()
             cves = set(cve_pattern.findall(news_text))
-            news_words = set(w for w in re.sub(r'[^a-z0-9\-]', ' ', news_text).split() if len(w) > 3)
+            news_words = {w for w in re.sub(r'[^a-z0-9\-]', ' ', news_text).split() if len(w) > 3}
 
             for repo_id, repo_text, repo_name in repo_data:
                 score = 0
@@ -593,7 +593,7 @@ def correlate_news_with_repos():
                         match_type = match_type or 'category'
 
                 # Keyword overlap
-                repo_words = set(w for w in repo_text.split() if len(w) > 3)
+                repo_words = {w for w in repo_text.split() if len(w) > 3}
                 overlap = news_words & repo_words
                 if len(overlap) >= 3:
                     score += min(30, len(overlap) * 3)

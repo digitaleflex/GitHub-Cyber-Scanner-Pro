@@ -255,7 +255,7 @@ def import_ontology_to_db() -> int:
             })
 
     # Insert or update as pending then approve
-    saved = save_discovered_keywords(keywords)
+    save_discovered_keywords(keywords)
 
     # Approve all terms from ontology
     approved = 0

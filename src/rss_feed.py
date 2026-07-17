@@ -2,7 +2,6 @@ import logging
 import urllib.request
 import urllib.error
 import xml.etree.ElementTree as ET
-from datetime import datetime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 

@@ -4,7 +4,7 @@ import re
 from collections import Counter
 from typing import Iterable
 
-from semantic_classifier import classify_semantic, CATEGORY_DESCRIPTIONS
+from semantic_classifier import classify_semantic
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ STOP_WORDS = {
     "why", "how", "all", "any", "some", "many", "much", "few", "more", "most", "other", "another", "such", "only",
     "own", "same", "each", "every", "both", "either", "neither", "one", "two", "three", "first", "last", "new",
     "old", "good", "bad", "big", "small", "long", "short", "high", "low", "right", "left", "here", "there", "now",
-    "then", "today", "tomorrow", "yesterday", "way", "just", "also", "too", "very", "quite", "rather", "still",
+    "today", "tomorrow", "yesterday", "way", "just", "also", "too", "very", "quite", "rather", "still",
     "yet", "already", "almost", "even", "only", "about", "above", "across", "after", "against", "along", "among",
     "around", "before", "behind", "below", "beneath", "beside", "between", "beyond", "during", "inside", "into",
     "near", "off", "onto", "out", "outside", "over", "through", "throughout", "till", "toward", "under", "until",
