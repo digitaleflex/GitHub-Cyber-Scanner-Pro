@@ -1374,6 +1374,13 @@ def start_bulk_seed(background_tasks: BackgroundTasks, max_pages_per_bucket: int
     return {"message": "Bulk-seed lancé en arrière-plan.", "max_pages_per_bucket": max_pages_per_bucket}
 
 
+@app.get("/api/bulk-status")
+def bulk_status_api():
+    """Retourne l'état d'avancement du dernier bulk-seed."""
+    import src.bulk_seed as bulk_seed
+    return bulk_seed.get_bulk_status()
+
+
 # --- FRONTEND SERVING (React SPA + Reports) ---
 
 FRONTEND_DIR = Path("frontend/dist")
