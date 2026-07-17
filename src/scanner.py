@@ -5,6 +5,7 @@ import re
 import sys
 import threading
 import time
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -17,6 +18,8 @@ from fastapi.staticfiles import StaticFiles
 
 from src import database
 import src.nlp_processor as nlp_processor
+import src.sast_scanner as sast_scanner
+import src.threat_intel as threat_intel
 
 # Reconfigurer la sortie standard en UTF-8 sur Windows pour supporter l'affichage d'emojis
 if sys.platform == "win32":
@@ -539,6 +542,199 @@ def export_to_json():
         logging.error(f"❌ Erreur lors de la génération du fichier JSON : {e}")
 
 
+def export_reports():
+    """Génère le rapport Markdown et le dashboard HTML du scan depuis la base."""
+    try:
+        conn = database.get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT COUNT(*) FROM repositories")
+        total_repos = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COALESCE(SUM(stars), 0) FROM repositories")
+        total_stars = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(DISTINCT language) FROM repositories WHERE language IS NOT NULL AND language != 'Non specifiee'")
+        total_langs = cursor.fetchone()[0]
+
+        cursor.execute("""
+            SELECT full_name, stars, description, html_url, language, updated_at, security_verdict
+            FROM repositories ORDER BY stars DESC LIMIT 10
+        """)
+        top_repos = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT language, COUNT(*) FROM repositories
+            WHERE language IS NOT NULL AND language != 'Non specifiee'
+            GROUP BY language ORDER BY COUNT(*) DESC LIMIT 10
+        """)
+        lang_dist = cursor.fetchall()
+
+        cursor.execute("SELECT COUNT(*) FROM repositories WHERE security_verdict = 'Critique'")
+        critique_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM repositories WHERE security_verdict = 'Suspect'")
+        suspect_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT full_name, security_verdict FROM repositories WHERE security_verdict IN ('Critique', 'Suspect') ORDER BY security_scan_date DESC NULLS LAST LIMIT 10")
+        flagged_repos = cursor.fetchall()
+
+        cursor.execute("SELECT full_name, stars FROM repositories ORDER BY stars DESC LIMIT 5")
+        top5 = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        now = datetime.now()
+        date_str = now.strftime("%d/%m/%Y %H:%M")
+        file_date = now.strftime("%Y%m%d_%H%M%S")
+        reports_dir = REPORTS_DIR
+        reports_dir.mkdir(parents=True, exist_ok=True)
+
+        verdict_badge = {"Critique": "🔴", "Suspect": "🟡", "Sain": "🟢"}
+
+        md_lines = [
+            f"# CyberScan — Rapport de Scan",
+            f"**{date_str}**\n",
+            "## Résumé",
+            f"- Total dépôts : **{total_repos:,}**",
+            f"- Total étoiles : **{total_stars:,}**",
+            f"- Langages distincts : **{total_langs}**",
+            f"- Dépôts critique : **{critique_count}**",
+            f"- Dépôts suspect : **{suspect_count}**",
+            "",
+            "## Top 5 par étoiles",
+        ]
+        for i, (name, stars) in enumerate(top5, 1):
+            md_lines.append(f"{i}. ★ **{stars:,}** — {name}")
+
+        md_lines.extend(["", "## Top 10", ""])
+        for i, (name, stars, desc, url, lang, updated, verdict) in enumerate(top_repos, 1):
+            badge = verdict_badge.get(verdict, "⚪")
+            md_lines.append(f"### {i}. [{name}]({url})")
+            md_lines.append(f"★ {stars:,} | {lang or '?'} | {updated[:10] if updated else 'N/A'} | {badge} {verdict or 'Non analysé'}")
+            md_lines.append(f"")
+            if desc:
+                md_lines.append(f"> {desc[:200]}")
+                md_lines.append(f"")
+
+        if flagged_repos:
+            md_lines.extend(["## Alertes Sécurité", ""])
+            for name, verdict in flagged_repos:
+                badge = verdict_badge.get(verdict, "⚪")
+                md_lines.append(f"- {badge} **{verdict}** — {name}")
+            md_lines.append("")
+
+        md_lines.extend(["## Distribution par Langage", ""])
+        for lang, count in lang_dist:
+            md_lines.append(f"- **{lang}** : {count}")
+        md_lines.append("")
+
+        md_lines.append("---")
+        md_lines.append(f"*Généré automatiquement par CyberScan Pro — {date_str}*")
+
+        md_report = "\n".join(md_lines)
+        md_filename = reports_dir / f"rapport_{file_date}.md"
+        md_filename.write_text(md_report, encoding="utf-8")
+        logging.info(f"📄 Rapport Markdown généré : [{md_filename}]")
+
+        lang_rows = ""
+        if lang_dist:
+            max_lang = lang_dist[0][1]
+            colors = ["#6366f1","#10b981","#f59e0b","#ef4444","#06b6d4","#8b5cf6","#ec4899","#14b8a6","#f97316","#84cc16"]
+            for i, (lang, count) in enumerate(lang_dist):
+                pct = max(5, count / max_lang * 100)
+                lang_rows += f'<div class="lang-bar"><span style="width:80px;font-size:0.85rem;color:#94a3b8;">{lang}</span><div class="bar-wrap"><div class="bar-fill" style="width:{pct}%;background:{colors[i % 10]};"></div></div><span class="count">{count}</span></div>'
+
+        flag_rows = ""
+        if flagged_repos:
+            for name, verdict in flagged_repos:
+                color = "#ef4444" if verdict == "Critique" else "#eab308"
+                flag_rows += f'<tr><td style="color:{color};font-weight:600;">{verdict}</td><td>{name}</td></tr>'
+
+        top_rows = ""
+        for i, (name, stars, desc, url, lang, updated, verdict) in enumerate(top_repos, 1):
+            color = {"Critique": "#ef4444", "Suspect": "#eab308", "Sain": "#22c55e"}.get(verdict, "#64748b")
+            badge = verdict or "N/A"
+            top_rows += f"""<tr>
+                <td>{i}</td>
+                <td><a href="{url}" target="_blank" style="color:#818cf8;text-decoration:none;">{name}</a></td>
+                <td style="color:#f59e0b;">★{stars:,}</td>
+                <td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.75rem;background:rgba(99,102,241,0.15);color:#a5b4fc;">{lang or '?'}</span></td>
+                <td style="color:{color};font-weight:600;">{badge}</td>
+                <td style="color:#94a3b8;font-size:0.8rem;">{(updated or '')[:10]}</td>
+            </tr>"""
+
+        html = f"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberScan — Rapport {file_date}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* {{ margin:0; padding:0; box-sizing:border-box; }}
+body {{ font-family:'Inter',sans-serif; background:#0a0e17; color:#e2e8f0; min-height:100vh; }}
+.wrapper {{ max-width:1200px; margin:0 auto; padding:2rem; }}
+h1 {{ font-size:1.75rem; font-weight:800; background:linear-gradient(135deg,#a5b4fc,#6366f1,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.5rem; }}
+.subtitle {{ color:#64748b; font-size:0.9rem; margin-bottom:2rem; }}
+.stats {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin-bottom:2rem; }}
+.stat-card {{ background:rgba(17,25,45,0.75); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:1.25rem; backdrop-filter:blur(12px); }}
+.stat-card .num {{ font-size:1.5rem; font-weight:700; color:#e2e8f0; }}
+.stat-card .label {{ font-size:0.8rem; color:#64748b; margin-top:4px; }}
+.card {{ background:rgba(17,25,45,0.75); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem; }}
+.card h2 {{ font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:#94a3b8; }}
+table {{ width:100%; border-collapse:collapse; font-size:0.85rem; }}
+th {{ text-align:left; padding:0.75rem 0.5rem; color:#64748b; font-weight:500; border-bottom:1px solid rgba(255,255,255,0.06); }}
+td {{ padding:0.6rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.03); }}
+tr:hover td {{ background:rgba(99,102,241,0.04); }}
+a:hover {{ text-decoration:underline !important; }}
+.lang-bar {{ display:flex; align-items:center; gap:0.5rem; padding:0.3rem 0; }}
+.lang-bar .bar-wrap {{ flex:1; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }}
+.lang-bar .bar-fill {{ height:100%; border-radius:3px; }}
+.lang-bar .count {{ font-size:0.8rem; color:#64748b; min-width:2rem; text-align:right; }}
+.footer {{ text-align:center; padding:2rem 0; color:#475569; font-size:0.8rem; }}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<h1>CyberScan — Rapport de Scan</h1>
+<p class="subtitle">{date_str}</p>
+<div class="stats">
+<div class="stat-card"><div class="num">{total_repos:,}</div><div class="label">Dépôts</div></div>
+<div class="stat-card"><div class="num">{total_stars:,}</div><div class="label">Étoiles</div></div>
+<div class="stat-card"><div class="num">{total_langs}</div><div class="label">Langages</div></div>
+<div class="stat-card"><div class="num" style="color:#ef4444;">{critique_count}</div><div class="label">Critique</div></div>
+<div class="stat-card"><div class="num" style="color:#eab308;">{suspect_count}</div><div class="label">Suspect</div></div>
+</div>
+
+<div class="card">
+<h2>Top 10</h2>
+<table><thead><tr><th>#</th><th>Nom</th><th>Stars</th><th>Langage</th><th>Sécurité</th><th>Mis à jour</th></tr></thead>
+<tbody>{top_rows}</tbody></table>
+</div>
+
+<div class="card">
+<h2>Distribution par Langage</h2>
+{lang_rows}
+</div>
+
+{'<div class="card"><h2 style="color:#ef4444;">Alertes Sécurité</h2><table><thead><tr><th>Verdict</th><th>Dépôt</th></tr></thead><tbody>' + flag_rows + '</tbody></table></div>' if flag_rows else ''}
+
+<footer class="footer">Généré par CyberScan Pro — {date_str}</footer>
+</div>
+</body>
+</html>"""
+
+        html_filename = reports_dir / f"dashboard_{file_date}.html"
+        html_filename.write_text(html, encoding="utf-8")
+        logging.info(f"📊 Dashboard HTML généré : [{html_filename}]")
+
+    except Exception as e:
+        logging.error(f"❌ Erreur lors de la génération des rapports : {e}")
+
+
 def migrate_sqlite_to_postgres():
     """Migre de manière unique les données existantes de la base SQLite vers PostgreSQL au premier démarrage."""
     sqlite_db = "data/scanner.db"
@@ -755,6 +951,27 @@ def scan_cycle():
     except Exception as e:
         logging.error(f"❌ Erreur lors de la phase NLP dynamique: {e}")
 
+    # Phase 3: Threat Intelligence — nouveaux mots-clés depuis CISA, CERT-FR, MITRE
+    try:
+        threat_kw = threat_intel.aggregate_threat_keywords()
+        if threat_kw:
+            threat_queries = []
+            for kw in threat_kw[:20]:
+                for template in threat_intel.THREAT_TEMPLATES:
+                    threat_queries.append(template.format(kw))
+            logging.info(f"🛡️ Phase ThreatIntel: {len(threat_queries)} nouvelles queries")
+            for query in threat_queries[:30]:
+                raw_items, rate_hit = fetch_github_data(query, sort_by="stars")
+                if rate_hit:
+                    break
+                if raw_items:
+                    any_success = True
+                    new = database.save_repositories(raw_items)
+                    new_discoveries_total += new
+                time.sleep(2.5)
+    except Exception as e:
+        logging.error(f"❌ Erreur lors de la phase ThreatIntel: {e}")
+
     if any_success:
         if new_discoveries_total > 0:
             logging.info(f"✨ {new_discoveries_total} nouvelle(s) pépite(s) découverte(s) lors de ce cycle !")
@@ -762,8 +979,15 @@ def scan_cycle():
             logging.info("ℹ️ Données existantes synchronisées. Aucun nouveau dépôt.")
 
         parse_unprocessed_readmes()
+        try:
+            scanned = sast_scanner.process_unscanned_repos(limit=10)
+            if scanned:
+                logger.info(f"🔬 Analyse SAST terminee pour {scanned} depot(s)")
+        except Exception as e:
+            logger.error(f"❌ Erreur lors de l'analyse SAST: {e}")
         export_to_excel()
         export_to_json()
+        export_reports()
 
 
 def run_scan_once_manual():
@@ -834,7 +1058,7 @@ def read_index():
 def get_stats():
     """Retourne les statistiques (format compatible frontend React)."""
     global scanner_status
-    total_repos, total_stars, languages, lang_dist, last_scan = database.get_frontend_stats()
+    total_repos, total_stars, languages, lang_dist, last_scan, critique, suspect, unscanned = database.get_frontend_stats()
     last_scan_str = last_scan.isoformat() if last_scan else None
     return {
         "total_repos": total_repos,
@@ -842,7 +1066,10 @@ def get_stats():
         "languages": languages,
         "lang_distribution": lang_dist,
         "last_scan": last_scan_str,
-        "status": scanner_status
+        "status": scanner_status,
+        "security_critique": critique,
+        "security_suspect": suspect,
+        "security_unscanned": unscanned,
     }
 
 

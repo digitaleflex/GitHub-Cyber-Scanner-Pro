@@ -31,15 +31,24 @@ function ReportsPage() {
               </h3>
               <div className="flex flex-wrap gap-3">
                 {data.dashboards.map((name) => (
-                  <a
-                    key={name}
-                    href={`/dashboards/${name}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-5 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-300 hover:bg-indigo-500/20 transition-colors text-sm font-medium"
-                  >
-                    {name.replace('dashboard_', '').replace('.html', '')}
-                  </a>
+                  <div key={name} className="flex items-center gap-2">
+                    <a
+                      href={`/dashboards/${name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-300 hover:bg-indigo-500/20 transition-colors text-sm font-medium"
+                    >
+                      {name.replace('dashboard_', '').replace('.html', '')}
+                    </a>
+                    <a
+                      href={`/reports/${name}`}
+                      download
+                      className="p-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+                      title="Télécharger"
+                    >
+                      ↓
+                    </a>
+                  </div>
                 ))}
               </div>
             </section>
@@ -52,15 +61,24 @@ function ReportsPage() {
               </h3>
               <div className="flex flex-wrap gap-3">
                 {data.reports.map((name) => (
-                  <a
-                    key={name}
-                    href={`/reports/${name}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-5 py-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-gray-300 hover:bg-white/[0.08] transition-colors text-sm font-medium"
-                  >
-                    {name.replace('rapport_', '').replace('.md', '')}
-                  </a>
+                  <div key={name} className="flex items-center gap-2">
+                    <a
+                      href={`/reports/${name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-gray-300 hover:bg-white/[0.08] transition-colors text-sm font-medium"
+                    >
+                      {name.replace('rapport_', '').replace('.md', '')}
+                    </a>
+                    <a
+                      href={`/reports/${name}`}
+                      download
+                      className="p-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+                      title="Télécharger"
+                    >
+                      ↓
+                    </a>
+                  </div>
                 ))}
               </div>
             </section>

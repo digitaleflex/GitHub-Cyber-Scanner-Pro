@@ -1,19 +1,32 @@
 import { useRepos, type Repo } from '../lib/api'
 
+const SECURITY_COLORS: Record<string, string> = {
+  Critique: 'bg-red-500/20 text-red-300 border-red-500/30',
+  Suspect: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+  Sain: 'bg-green-500/20 text-green-300 border-green-500/30',
+}
+
 function RepoRow({ repo, rank }: { repo: Repo; rank: number }) {
   return (
     <div className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-0">
       <div className="flex items-center gap-3 min-w-0">
         <span className="text-gray-600 text-sm w-5 text-right shrink-0">#{rank}</span>
         <div className="min-w-0">
-          <a
-            href={repo.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-indigo-400 hover:text-indigo-300 transition-colors text-sm font-medium truncate block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded"
-          >
-            {repo.name}
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href={repo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-400 hover:text-indigo-300 transition-colors text-sm font-medium truncate block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded"
+            >
+              {repo.name}
+            </a>
+            {repo.security_verdict && (
+              <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium border ${SECURITY_COLORS[repo.security_verdict] ?? 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
+                {repo.security_verdict}
+              </span>
+            )}
+          </div>
           <p className="text-gray-600 text-xs truncate mt-0.5">{repo.desc}</p>
         </div>
       </div>

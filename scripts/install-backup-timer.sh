@@ -15,7 +15,7 @@ Requires=docker.service
 Type=oneshot
 ExecStart=$SCRIPT_PATH
 User=root
-Environment=DB_HOST=localhost DB_PORT=5432 DB_NAME=scanner_db DB_USER=postgres DB_PASSWORD=cyberpass BACKUP_DIR=/opt/cyberscan/reports/backups
+Environment=DB_HOST=localhost DB_PORT=5432 DB_NAME=scanner_db DB_USER=postgres DB_PASSWORD=${DB_PASSWORD} BACKUP_DIR=/opt/cyberscan/reports/backups
 EOF
 
 # Create systemd timer (daily at 03:00)

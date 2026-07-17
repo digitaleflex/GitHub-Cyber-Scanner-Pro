@@ -45,6 +45,18 @@ deploy() {
     info "Pulling latest code..."
     git pull --ff-only origin main
 
+    info "Writing .env from secrets..."
+    cat > "$PROJECT_DIR/.env" <<EOF
+DOMAIN=$DOMAIN
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=$DB_NAME
+DB_USER=$DB_USER
+DB_PASSWORD=$DB_PASSWORD
+GITHUB_TOKEN=$GITHUB_TOKEN
+SCAN_INTERVAL_SECONDS=$SCAN_INTERVAL_SECONDS
+EOF
+
     info "Building Docker image..."
     docker compose -f "$COMPOSE_FILE" build --pull "$SERVICE"
 

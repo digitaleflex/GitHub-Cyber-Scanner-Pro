@@ -5,3 +5,5 @@ python-dotenv>=1.0.1
 fastapi>=0.100.0
 uvicorn>=0.22.0
 psycopg2-binary==2.9.10
+bandit>=1.7.0
+semgrep>=1.50.0

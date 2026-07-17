@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME:-scanner_db}
       POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-cyberpass}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./data/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -30,7 +30,7 @@ services:
       DB_PORT: "5432"
       DB_NAME: ${DB_NAME:-scanner_db}
       DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-cyberpass}
+      DB_PASSWORD: ${DB_PASSWORD}
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       SCAN_INTERVAL_SECONDS: ${SCAN_INTERVAL_SECONDS:-86400}
     expose:

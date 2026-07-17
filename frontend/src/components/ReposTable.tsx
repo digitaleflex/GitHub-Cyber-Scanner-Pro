@@ -1,5 +1,21 @@
 import { useState, useEffect } from 'react'
-import { useRepos, type Repo } from '../lib/api'
+import { useRepos, useStats, type Repo } from '../lib/api'
+
+const SECURITY_COLORS: Record<string, string> = {
+  Critique: 'bg-red-500/20 text-red-300 border-red-500/30',
+  Suspect: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+  Sain: 'bg-green-500/20 text-green-300 border-green-500/30',
+}
+
+function SecurityBadge({ verdict }: { verdict: string | null }) {
+  if (!verdict) return <span className="text-gray-700 text-xs">—</span>
+  const cls = SECURITY_COLORS[verdict] ?? 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${cls}`}>
+      {verdict}
+    </span>
+  )
+}
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value)
@@ -32,13 +48,18 @@ function exportCSV(repos: Repo[]) {
 export default function ReposTable() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [verdictFilter, setVerdictFilter] = useState<string | null>(null)
   const debouncedSearch = useDebounce(search, 300)
 
   const { data, isLoading, error } = useRepos(debouncedSearch || undefined, page)
+  const { data: stats } = useStats()
 
   useEffect(() => setPage(1), [debouncedSearch])
 
-  const repos = data?.repos ?? []
+  let repos = data?.repos ?? []
+  if (verdictFilter) {
+    repos = repos.filter((r) => r.security_verdict === verdictFilter)
+  }
   const pages = data?.pages ?? 1
 
   return (
@@ -51,15 +72,39 @@ export default function ReposTable() {
         <h2 className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
           Tous les outils
         </h2>
-        {data && data.total > 0 && (
-          <button
-            onClick={() => exportCSV(repos)}
-            className="ml-auto text-xs text-gray-500 hover:text-indigo-400 transition-colors px-3 py-1.5 border border-white/[0.08] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
-            aria-label="Exporter les résultats en CSV"
-          >
-            Export CSV
-          </button>
-        )}
+        <div className="flex items-center gap-2 ml-auto">
+          {stats && (stats.security_critique > 0 || stats.security_suspect > 0) && (
+            <div className="flex items-center gap-1 mr-2">
+              {[
+                { key: null, label: 'Tous' },
+                { key: 'Critique', label: `Critique ${stats.security_critique}`, cls: 'text-red-400 border-red-500/30' },
+                { key: 'Suspect', label: `Suspect ${stats.security_suspect}`, cls: 'text-yellow-400 border-yellow-500/30' },
+                { key: 'Sain', label: 'Sain', cls: 'text-green-400 border-green-500/30' },
+              ].map((opt) => (
+                <button
+                  key={opt.key ?? 'all'}
+                  onClick={() => setVerdictFilter(opt.key)}
+                  className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${
+                    verdictFilter === opt.key
+                      ? `${opt.cls} bg-white/[0.06]`
+                      : 'text-gray-600 border-white/[0.06] hover:text-gray-400'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {data && data.total > 0 && (
+            <button
+              onClick={() => exportCSV(repos)}
+              className="text-xs text-gray-500 hover:text-indigo-400 transition-colors px-3 py-1.5 border border-white/[0.08] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
+              aria-label="Exporter les résultats en CSV"
+            >
+              Export CSV
+            </button>
+          )}
+        </div>
       </div>
 
       <input
@@ -90,6 +135,7 @@ export default function ReposTable() {
               <tr className="border-b border-white/[0.06]">
                 <th className="text-left py-3 px-2 text-gray-500 font-medium">Nom</th>
                 <th className="text-right py-3 px-2 text-gray-500 font-medium w-24">Stars</th>
+                <th className="text-center py-3 px-2 text-gray-500 font-medium w-20">Sécurité</th>
                 <th className="text-center py-3 px-2 text-gray-500 font-medium w-28">Langage</th>
                 <th className="text-left py-3 px-2 text-gray-500 font-medium max-md:hidden">Description</th>
                 <th className="text-right py-3 px-2 text-gray-500 font-medium w-28 max-sm:hidden">Mis à jour</th>
@@ -113,6 +159,9 @@ export default function ReposTable() {
                   </td>
                   <td className="py-2.5 px-2 text-right text-amber-400 font-semibold">
                     ★ {repo.stars.toLocaleString()}
+                  </td>
+                  <td className="py-2.5 px-2 text-center">
+                    <SecurityBadge verdict={repo.security_verdict} />
                   </td>
                   <td className="py-2.5 px-2 text-center">
                     <span className="inline-block px-2 py-0.5 rounded text-xs bg-indigo-500/10 text-indigo-300">

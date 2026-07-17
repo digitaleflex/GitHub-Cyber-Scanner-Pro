@@ -17,6 +17,7 @@ export type Repo = {
   created: string
   updated: string
   size_kb: number
+  security_verdict: string | null
 }
 
 export type Stats = {
@@ -25,6 +26,9 @@ export type Stats = {
   languages: number
   lang_distribution: Record<string, number>
   last_scan: string | null
+  security_critique: number
+  security_suspect: number
+  security_unscanned: number
 }
 
 export type ApiReposResponse = {

@@ -52,8 +52,34 @@ def init_db():
             language VARCHAR(100),
             updated_at VARCHAR(100),
             readme_parsed INTEGER DEFAULT 0,
+            security_verdict VARCHAR(20),
+            security_details TEXT,
+            security_scan_date TIMESTAMP,
             discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
+    """)
+    cursor.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'repositories' AND column_name = 'security_verdict'
+            ) THEN
+                ALTER TABLE repositories ADD COLUMN security_verdict VARCHAR(20);
+            END IF;
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'repositories' AND column_name = 'security_details'
+            ) THEN
+                ALTER TABLE repositories ADD COLUMN security_details TEXT;
+            END IF;
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'repositories' AND column_name = 'security_scan_date'
+            ) THEN
+                ALTER TABLE repositories ADD COLUMN security_scan_date TIMESTAMP;
+            END IF;
+        END $$;
     """)
 
     cursor.execute("""
@@ -236,12 +262,18 @@ def get_frontend_stats():
         lang_dist = dict(cursor.fetchall())
         cursor.execute("SELECT MAX(discovered_at) FROM repositories")
         last_scan = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM repositories WHERE security_verdict = 'Critique'")
+        critique = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM repositories WHERE security_verdict = 'Suspect'")
+        suspect = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM repositories WHERE security_verdict IS NULL")
+        unscanned = cursor.fetchone()[0]
         cursor.close()
         conn.close()
-        return total_repos, int(total_stars), languages, lang_dist, last_scan
+        return total_repos, int(total_stars), languages, lang_dist, last_scan, critique, suspect, unscanned
     except Exception as e:
         logging.error(f"Erreur get_frontend_stats: {e}")
-        return 0, 0, 0, {}, None
+        return 0, 0, 0, {}, None, 0, 0, 0
 
 
 def get_repositories():
@@ -272,7 +304,8 @@ def get_repos_frontend():
         cursor.execute(
             """
             SELECT full_name AS name, description AS desc, stars,
-                   language AS lang, html_url AS url, updated_at AS updated
+                   language AS lang, html_url AS url, updated_at AS updated,
+                   security_verdict
             FROM repositories
             ORDER BY stars DESC
             """
@@ -386,3 +419,46 @@ def update_book_status(book_id, is_dead, last_checked=True):
         conn.close()
     except Exception as e:
         logging.error(f"Erreur update_book_status: {e}")
+
+
+def get_repos_without_sast(limit=20):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, full_name, html_url
+            FROM repositories
+            WHERE security_verdict IS NULL
+            LIMIT %s
+            """,
+            (limit,)
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return rows
+    except Exception as e:
+        logging.error(f"Erreur get_repos_without_sast: {e}")
+        return []
+
+
+def update_repo_security_verdict(repo_id, verdict, details=None):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE repositories
+            SET security_verdict = %s,
+                security_details = %s,
+                security_scan_date = CURRENT_TIMESTAMP
+            WHERE id = %s
+            """,
+            (verdict, details, repo_id)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        logging.error(f"Erreur update_repo_security_verdict: {e}")

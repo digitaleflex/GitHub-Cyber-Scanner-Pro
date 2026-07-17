@@ -1,4 +1,4 @@
-import { Shield, Star, Code2, Database, type LucideIcon } from 'lucide-react'
+import { Shield, Star, Code2, Database, AlertTriangle, ShieldAlert, type LucideIcon } from 'lucide-react'
 import { useStats } from '../lib/api'
 
 function timeAgo(dateStr: string): string {
@@ -20,11 +20,14 @@ const cards: {
   label: string
   icon: LucideIcon
   value: (data: NonNullable<ReturnType<typeof useStats>["data"]>) => string
+  accent?: string
 }[] = [
   { key: 'total_repos', label: 'Outils trouvés', icon: Shield, value: (d) => d.total_repos.toLocaleString() },
   { key: 'total_stars', label: 'Étoiles totales', icon: Star, value: (d) => d.total_stars.toLocaleString() },
   { key: 'languages', label: 'Langages', icon: Code2, value: (d) => d.languages.toString() },
   { key: 'last_scan', label: 'Dernier scan', icon: Database, value: (d) => d.last_scan ? timeAgo(d.last_scan) : '-' },
+  { key: 'security_critique', label: 'Critique', icon: ShieldAlert, value: (d) => d.security_critique.toString(), accent: 'text-red-400' },
+  { key: 'security_suspect', label: 'Suspect', icon: AlertTriangle, value: (d) => d.security_suspect.toString(), accent: 'text-yellow-400' },
 ]
 
 export default function StatsCards() {
@@ -32,11 +35,11 @@ export default function StatsCards() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-24 bg-white/5 rounded-xl animate-pulse" />
-        ))}
-      </div>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="h-24 bg-white/5 rounded-xl animate-pulse" />
+      ))}
+    </div>
     )
   }
 
@@ -49,7 +52,7 @@ export default function StatsCards() {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
       {cards.map((card, i) => (
         <div
           key={card.key}
@@ -58,8 +61,8 @@ export default function StatsCards() {
           role="status"
           aria-label={`${card.label}: ${card.value(data)}`}
         >
-          <div className="text-indigo-400 mb-3"><card.icon size={24} /></div>
-          <div className="text-2xl font-bold text-white">{card.value(data)}</div>
+          <div className={card.accent ?? 'text-indigo-400'}><card.icon size={24} /></div>
+          <div className={`text-2xl font-bold ${card.accent ?? 'text-white'}`}>{card.value(data)}</div>
           <div className="text-sm text-gray-500 mt-1">{card.label}</div>
         </div>
       ))}
