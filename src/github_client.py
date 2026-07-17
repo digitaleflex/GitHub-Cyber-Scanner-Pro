@@ -23,7 +23,7 @@ if not TOKENS:
     logging.warning("⚠️ Aucun token GitHub configuré (GITHUB_TOKEN / GITHUB_TOKENS)")
 
 # État de quota par token : on mémorise le timestamp de reset pour éviter de retenter un token bloqué
-_token_reset = {t: 0.0 for t in TOKENS}
+_token_reset = dict.fromkeys(TOKENS, 0.0)
 _token_lock = None  # pas de verrou strict nécessaire pour le round-robin simple
 
 

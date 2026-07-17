@@ -205,6 +205,21 @@ def init_db():
         END $$;
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS cve_entries (
+            id SERIAL PRIMARY KEY,
+            cve_id VARCHAR(30) UNIQUE NOT NULL,
+            description TEXT,
+            published DATE,
+            last_modified DATE,
+            severity VARCHAR(20),
+            cvss_score FLOAT,
+            references_urls TEXT,
+            weaknesses TEXT,
+            discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit()
     cursor.close()
     conn.close()
@@ -377,6 +392,45 @@ def save_repo_commits(repo_id, commits):
     return count
 
 
+def save_cve_entries(entries):
+    if not entries:
+        return 0
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    count = 0
+    for e in entries:
+        cve_id = e.get("cve_id")
+        if not cve_id:
+            continue
+        try:
+            cursor.execute(
+                """
+                INSERT INTO cve_entries
+                    (cve_id, description, published, last_modified, severity, cvss_score, references_urls, weaknesses)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (cve_id) DO NOTHING
+                """,
+                (
+                    cve_id,
+                    e.get("description", "")[:8000],
+                    e.get("published"),
+                    e.get("last_modified"),
+                    e.get("severity"),
+                    e.get("cvss_score"),
+                    e.get("references_urls", ""),
+                    e.get("weaknesses", ""),
+                )
+            )
+            if cursor.rowcount > 0:
+                count += 1
+        except Exception as ex:
+            logging.error(f"Erreur save CVE {cve_id}: {ex}")
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return count
+
+
 def get_unharvested_repositories(limit=50):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -406,12 +460,14 @@ def count_total_data_points():
         news = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM discovered_keywords")
         keywords = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM cve_entries")
+        cves = cursor.fetchone()[0]
         cursor.close()
         conn.close()
         return {
             "repositories": repos, "issues": issues, "commits": commits,
-            "books": books, "news": news, "keywords": keywords,
-            "total": repos + issues + commits + books + news + keywords,
+            "books": books, "news": news, "keywords": keywords, "cves": cves,
+            "total": repos + issues + commits + books + news + keywords + cves,
         }
     except Exception as e:
         logging.error(f"Erreur count_total_data_points: {e}")

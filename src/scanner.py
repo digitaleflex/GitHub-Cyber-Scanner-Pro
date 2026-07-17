@@ -243,6 +243,8 @@ bulk_in_progress = False
 
 harvest_in_progress = False
 
+cve_in_progress = False
+
 # Initialiser l'application FastAPI
 app = FastAPI(title="GitHub Cyber Scanner Semantic API")
 
@@ -1426,6 +1428,39 @@ def harvest_status_api():
     """Retourne l'état d'avancement de la récolte d'artifacts."""
     import src.harvest_artifacts as harvest_artifacts
     return harvest_artifacts.get_harvest_status()
+
+
+@app.post("/api/import-cve")
+def start_cve_import(background_tasks: BackgroundTasks, max_entries_per_year: int = 0):
+    """Importe les feeds NVD/CVE (2002-2025) pour ~300k+ vulnérabilités."""
+    global cve_in_progress
+    if cve_in_progress:
+        return {"message": "Un import CVE est déjà en cours."}
+
+    def _run():
+        global cve_in_progress, scanner_status
+        cve_in_progress = True
+        scanner_status = "Import CVE NVD en cours..."
+        try:
+            import src.cve_importer as cve_importer
+            lim = max_entries_per_year if max_entries_per_year > 0 else None
+            result = cve_importer.import_cve_all(max_entries_per_year=lim)
+            logging.info(f"🛡️ Import CVE terminé: {result}")
+        except Exception as e:
+            logging.error(f"❌ Erreur import CVE: {e}")
+        finally:
+            cve_in_progress = False
+            scanner_status = "Prêt / En sommeil"
+
+    background_tasks.add_task(_run)
+    return {"message": "Import CVE NVD lancé en arrière-plan."}
+
+
+@app.get("/api/cve-status")
+def cve_status_api():
+    """Retourne l'état d'avancement de l'import CVE."""
+    import src.cve_importer as cve_importer
+    return cve_importer.get_cve_status()
 
 
 # --- FRONTEND SERVING (React SPA + Reports) ---
