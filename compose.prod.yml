@@ -32,6 +32,7 @@ services:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD}
       GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GH_TOKENS: ${GH_TOKENS}
       SCAN_INTERVAL_SECONDS: ${SCAN_INTERVAL_SECONDS:-86400}
     expose:
       - "8000"

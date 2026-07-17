@@ -58,6 +58,10 @@ deploy() {
     if [[ -z "$GITHUB_TOKEN" && -f "$PROJECT_DIR/.env.prod" ]]; then
         GITHUB_TOKEN=$(grep -E '^GITHUB_TOKEN=' "$PROJECT_DIR/.env.prod" | head -1 | cut -d= -f2-)
     fi
+    GITHUB_TOKENS="${GH_TOKENS:-}"
+    if [[ -z "$GITHUB_TOKENS" && -f "$PROJECT_DIR/.env.prod" ]]; then
+        GITHUB_TOKENS=$(grep -E '^GH_TOKENS=' "$PROJECT_DIR/.env.prod" | head -1 | cut -d= -f2-)
+    fi
 
     info "Writing .env from secrets..."
     cat > "$PROJECT_DIR/.env" <<EOF
@@ -68,6 +72,7 @@ DB_NAME=$DB_NAME
 DB_USER=$DB_USER
 DB_PASSWORD=$DB_PASSWORD
 GITHUB_TOKEN=$GITHUB_TOKEN
+GH_TOKENS=$GITHUB_TOKENS
 SCAN_INTERVAL_SECONDS=$SCAN_INTERVAL_SECONDS
 EOF
     # Conserver une copie pour les prochains deploys sans secrets

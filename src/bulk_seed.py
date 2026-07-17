@@ -3,11 +3,8 @@ import logging
 import os
 import time
 
-import requests
-
 from src import database
-
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+from src import github_client
 
 STATUS_FILE = os.getenv("DATA_DIR", "data") + "/bulk_status.json"
 
@@ -64,27 +61,10 @@ STAR_BUCKETS = [
 def _search_repos(query, per_page=100, page=1, sort_by="stars"):
     url = "https://api.github.com/search/repositories"
     params = {"q": query, "sort": sort_by, "order": "desc", "per_page": per_page, "page": page}
-    headers = {"Accept": "application/vnd.github.v3+json"}
-    if GITHUB_TOKEN:
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
-    for _attempt in range(4):
-        try:
-            r = requests.get(url, params=params, headers=headers, timeout=20)
-            if r.status_code == 200:
-                return r.json().get("items", []), False
-            if r.status_code == 403:
-                reset = r.headers.get("X-RateLimit-Reset")
-                wait = max(1, float(reset) - time.time()) + 5 if reset else 60
-                logging.warning(f"⏸️ Rate limit search. Pause {int(wait)}s")
-                time.sleep(wait)
-                continue
-            if r.status_code == 422:
-                return [], False
-            time.sleep(3)
-        except Exception as e:
-            logging.error(f"❌ Erreur search {query}: {e}")
-            time.sleep(5)
-    return [], True
+    data, rate_hit = github_client.get_json(url, params=params)
+    if rate_hit:
+        return [], True
+    return data.get("items", []), False
 
 
 def bulk_seed(topics=None, buckets=None, max_pages_per_bucket=10):

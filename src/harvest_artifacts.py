@@ -3,14 +3,11 @@ import logging
 import os
 import time
 
-import requests
-
 from src import database
-
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+from src import github_client
 
 PER_PAGE = 100
-PAGE_DELAY = 0.6
+PAGE_DELAY = 0.3
 
 STATUS_FILE = os.getenv("DATA_DIR", "data") + "/harvest_status.json"
 
@@ -34,28 +31,8 @@ def get_harvest_status():
     return {"running": False, "issues": 0, "commits": 0, "repos": 0, "current": None, "error": None}
 
 
-def _api_get(url, params=None, max_retries=4):
-    headers = {"Accept": "application/vnd.github.v3+json"}
-    if GITHUB_TOKEN:
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
-    for _ in range(max_retries):
-        try:
-            r = requests.get(url, params=params, headers=headers, timeout=20)
-            if r.status_code == 200:
-                return r.json(), False
-            if r.status_code == 403:
-                reset = r.headers.get("X-RateLimit-Reset")
-                wait = max(1, float(reset) - time.time()) + 5 if reset else 60
-                logging.warning(f"⏸️ Rate limit artifacts. Pause {int(wait)}s")
-                time.sleep(wait)
-                continue
-            if r.status_code in (404, 410):
-                return [], False
-            time.sleep(3)
-        except Exception as e:
-            logging.error(f"❌ Erreur API artifacts {url}: {e}")
-            time.sleep(5)
-    return [], True
+def _api_get(url, params=None, max_retries=6):
+    return github_client.get_json(url, params=params)
 
 
 def harvest_repo(repo_id, full_name, max_issues_pages=3, max_commits_pages=3):
