@@ -43,6 +43,7 @@ deploy() {
     cd "$PROJECT_DIR"
 
     info "Pulling latest code..."
+    git -C "$PROJECT_DIR" stash --include-untracked 2>/dev/null || true
     git pull --ff-only origin main
 
     info "Writing .env from secrets..."
