@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euxo pipefail
 
 PROJECT_DIR="/opt/cyberscan"
 COMPOSE_FILE="compose.prod.yml"
@@ -61,6 +61,10 @@ deploy() {
     GITHUB_TOKENS="${GH_TOKENS:-}"
     if [[ -z "$GITHUB_TOKENS" && -f "$PROJECT_DIR/.env.prod" ]]; then
         GITHUB_TOKENS=$(grep -E '^GH_TOKENS=' "$PROJECT_DIR/.env.prod" | head -1 | cut -d= -f2-)
+    fi
+    # Si GITHUB_TOKEN vide mais GH_TOKENS présent, utiliser le 1er token comme token principal
+    if [[ -z "$GITHUB_TOKEN" && -n "$GITHUB_TOKENS" ]]; then
+        GITHUB_TOKEN=$(echo "$GITHUB_TOKENS" | cut -d, -f1)
     fi
 
     info "Writing .env from secrets..."
