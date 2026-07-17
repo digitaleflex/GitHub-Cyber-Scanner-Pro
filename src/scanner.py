@@ -653,7 +653,7 @@ def export_reports():
                 flag_rows += f'<tr><td style="color:{color};font-weight:600;">{verdict}</td><td>{name}</td></tr>'
 
         top_rows = ""
-        for i, (name, stars, desc, url, lang, updated, verdict) in enumerate(top_repos, 1):
+        for i, (name, stars, _desc, url, lang, updated, verdict) in enumerate(top_repos, 1):
             color = {"Critique": "#ef4444", "Suspect": "#eab308", "Sain": "#22c55e"}.get(verdict, "#64748b")
             badge = verdict or "N/A"
             top_rows += f"""<tr>

@@ -195,7 +195,7 @@ def extract_keywords(texts: list[str], top_n: int = 40) -> list[str]:
         for term in top_terms:
             if term not in text_lower:
                 continue
-            for cat_name, cat_data in CYBER_CATEGORIES.items():
+            for cat_data in CYBER_CATEGORIES.values():
                 for kw in cat_data["keywords"]:
                     if kw in text_lower and kw not in seen_phrases and kw != term:
                         seen_phrases.add(kw)
