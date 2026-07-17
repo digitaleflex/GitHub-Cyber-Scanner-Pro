@@ -4,8 +4,6 @@ import time
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from nlp_processor import generate_synopsis
-from semantic_classifier import classify_semantic
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -202,6 +200,8 @@ def get_etag_from_cache(query):
 def save_repositories(items):
     if not items:
         return 0
+
+    from semantic_classifier import classify_semantic
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -824,6 +824,7 @@ def get_repositories():
 
 def get_repos_frontend(sort_by: str = "stars"):
     """Retourne les repos au format attendu par le frontend React."""
+    from nlp_processor import generate_synopsis
     try:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
