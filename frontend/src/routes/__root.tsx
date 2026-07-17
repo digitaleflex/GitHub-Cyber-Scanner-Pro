@@ -1,10 +1,48 @@
-import { useState } from 'react'
-import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
-import { Menu, X } from 'lucide-react'
+import { useState, useCallback } from 'react'
+import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
+import { Menu, X, Play } from 'lucide-react'
+import { startScan, useScanStatus } from '../lib/api'
 
 export const Route = createRootRoute({
   component: RootLayout,
 })
+
+function ScanButton() {
+  const { data, refetch } = useScanStatus()
+  const [scanning, setScanning] = useState(false)
+  const router = useRouter()
+
+  const isScanning = scanning || data?.status?.includes('en cours')
+
+  const handleScan = useCallback(async () => {
+    if (isScanning) return
+    setScanning(true)
+    try {
+      await startScan()
+      setTimeout(() => { refetch(); router.invalidate() }, 1000)
+    } catch { /* ignore */ }
+    setTimeout(() => setScanning(false), 2000)
+  }, [isScanning, refetch, router])
+
+  return (
+    <div className="flex items-center gap-3">
+      {data?.status && (
+        <div className="hidden sm:flex items-center gap-1.5 text-xs">
+          <span className={`w-1.5 h-1.5 rounded-full ${isScanning ? 'bg-green-400 animate-pulse' : 'bg-gray-600'}`} />
+          <span className="text-gray-500">{isScanning ? 'Scan en cours...' : 'Prêt'}</span>
+        </div>
+      )}
+      <button
+        onClick={handleScan}
+        disabled={isScanning}
+        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
+      >
+        <Play size={14} className={isScanning ? 'animate-pulse' : ''} />
+        {isScanning ? 'Scan...' : 'Scan'}
+      </button>
+    </div>
+  )
+}
 
 function RootLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -43,6 +81,7 @@ function RootLayout() {
                 {l.label}
               </Link>
             ))}
+            <ScanButton />
           </nav>
 
           {/* Mobile hamburger */}
@@ -68,6 +107,9 @@ function RootLayout() {
                 {l.label}
               </Link>
             ))}
+            <div className="px-3 pt-2">
+              <ScanButton />
+            </div>
           </nav>
         )}
 

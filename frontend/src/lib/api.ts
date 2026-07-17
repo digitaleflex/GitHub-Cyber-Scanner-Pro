@@ -26,6 +26,7 @@ export type Stats = {
   languages: number
   lang_distribution: Record<string, number>
   last_scan: string | null
+  status: string
   security_critique: number
   security_suspect: number
   security_unscanned: number
@@ -69,5 +70,20 @@ export function useReports() {
     queryKey: ['reports'],
     queryFn: () => fetchJson<ApiReportsResponse>('/reports'),
     staleTime: 60_000,
+  })
+}
+
+export async function startScan(): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/scan`, { method: 'POST' })
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+  return res.json()
+}
+
+export function useScanStatus() {
+  return useQuery<Stats>({
+    queryKey: ['stats'],
+    queryFn: () => fetchJson<Stats>('/stats'),
+    refetchInterval: (query) =>
+      query.state.data?.status?.includes('en cours') ? 3000 : false,
   })
 }
