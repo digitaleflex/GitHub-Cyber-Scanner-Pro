@@ -238,6 +238,9 @@ scanner_status = "Prêt / En sommeil"
 scanner_lock = threading.Lock()
 scan_in_progress = False
 
+bulk_lock = threading.Lock()
+bulk_in_progress = False
+
 # Initialiser l'application FastAPI
 app = FastAPI(title="GitHub Cyber Scanner Semantic API")
 
@@ -1349,12 +1352,13 @@ def start_scan(background_tasks: BackgroundTasks):
 @app.post("/api/bulk-seed")
 def start_bulk_seed(background_tasks: BackgroundTasks, max_pages_per_bucket: int = 10):
     """Scan massif multi-topics pour monter en charge vers 1M de dépôts."""
-    global scan_in_progress
-    if scan_in_progress:
-        return {"message": "Un scan est déjà en cours (bulk-seed ou scan classique)."}
+    global bulk_in_progress
+    if bulk_in_progress:
+        return {"message": "Un bulk-seed est déjà en cours."}
 
     def _run():
-        global scanner_status
+        global bulk_in_progress, scanner_status
+        bulk_in_progress = True
         scanner_status = "Bulk-seed en cours..."
         try:
             import src.bulk_seed as bulk_seed
@@ -1363,6 +1367,7 @@ def start_bulk_seed(background_tasks: BackgroundTasks, max_pages_per_bucket: int
         except Exception as e:
             logging.error(f"❌ Erreur bulk-seed: {e}")
         finally:
+            bulk_in_progress = False
             scanner_status = "Prêt / En sommeil"
 
     background_tasks.add_task(_run)
