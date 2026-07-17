@@ -1463,6 +1463,13 @@ def cve_status_api():
     return cve_importer.get_cve_status()
 
 
+@app.get("/api/token-status")
+def token_status_api():
+    """Retourne le nombre de tokens configurés (sans exposer les valeurs)."""
+    from src import github_client
+    return {"token_count": github_client.token_count(), "has_tokens": github_client.token_count() > 0}
+
+
 # --- FRONTEND SERVING (React SPA + Reports) ---
 
 FRONTEND_DIR = Path("frontend/dist")

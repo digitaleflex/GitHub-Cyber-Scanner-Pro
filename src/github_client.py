@@ -39,6 +39,10 @@ def _request(url, params=None, headers_extra=None, max_retries=6, timeout=20):
     if headers_extra:
         base_headers.update(headers_extra)
 
+    if not TOKENS:
+        logging.error("❌ Aucun token GitHub configuré (GITHUB_TOKEN / GH_TOKENS)")
+        return [], True
+
     for attempt in range(max_retries):
         avail = _available_tokens()
         if not avail:
