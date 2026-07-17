@@ -53,6 +53,12 @@ deploy() {
     git -C "$PROJECT_DIR" stash --include-untracked 2>/dev/null || true
     git pull --ff-only origin main
 
+    # GITHUB_TOKEN optionnel : si non fourni par le runner, on le lit depuis .env.prod existant
+    GITHUB_TOKEN="${GITHUB_TOKEN:-}"
+    if [[ -z "$GITHUB_TOKEN" && -f "$PROJECT_DIR/.env.prod" ]]; then
+        GITHUB_TOKEN=$(grep -E '^GITHUB_TOKEN=' "$PROJECT_DIR/.env.prod" | head -1 | cut -d= -f2-)
+    fi
+
     info "Writing .env from secrets..."
     cat > "$PROJECT_DIR/.env" <<EOF
 DOMAIN=$DOMAIN
@@ -64,6 +70,8 @@ DB_PASSWORD=$DB_PASSWORD
 GITHUB_TOKEN=$GITHUB_TOKEN
 SCAN_INTERVAL_SECONDS=$SCAN_INTERVAL_SECONDS
 EOF
+    # Conserver une copie pour les prochains deploys sans secrets
+    cp "$PROJECT_DIR/.env" "$PROJECT_DIR/.env.prod"
 
     info "Building Docker image..."
     docker compose -f "$COMPOSE_FILE" build --pull "$SERVICE"
