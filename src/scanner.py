@@ -1421,6 +1421,13 @@ def data_points_api():
     return database.count_total_data_points()
 
 
+@app.get("/api/harvest-status")
+def harvest_status_api():
+    """Retourne l'état d'avancement de la récolte d'artifacts."""
+    import src.harvest_artifacts as harvest_artifacts
+    return harvest_artifacts.get_harvest_status()
+
+
 # --- FRONTEND SERVING (React SPA + Reports) ---
 
 FRONTEND_DIR = Path("frontend/dist")
