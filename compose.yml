@@ -5,6 +5,57 @@ services:
     restart: always
     ports:
       - "8000:8000"
+    environment:
+      - MINIFLUX_URL=http://miniflux:8080
+      - MINIFLUX_TOKEN=${MINIFLUX_TOKEN}
+      - MINIFLUX_ENABLED=true
+    depends_on:
+      - miniflux
     volumes:
       - ./data:/app/data
       - ./reports:/app/reports
+
+  miniflux-db:
+    image: postgres:15
+    container_name: cyber_miniflux_db
+    restart: always
+    environment:
+      - POSTGRES_USER=miniflux
+      - POSTGRES_PASSWORD=${MINIFLUX_DB_PASSWORD:-minifluxpass}
+      - POSTGRES_DB=miniflux
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U miniflux -d miniflux"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - miniflux-db-data:/var/lib/postgresql/data
+
+  miniflux:
+    image: miniflux/miniflux:latest
+    container_name: cyber_miniflux
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      miniflux-db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://miniflux:${MINIFLUX_DB_PASSWORD:-minifluxpass}@miniflux-db:5432/miniflux?sslmode=disable
+      - RUN_MIGRATIONS=1
+      - CREATE_ADMIN=${MINIFLUX_CREATE_ADMIN:-1}
+      - ADMIN_USERNAME=${MINIFLUX_ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${MINIFLUX_ADMIN_PASSWORD:-changeme}
+      - BASE_URL=http://localhost:8080
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - miniflux-db-data:/var/lib/postgresql/data
+
+volumes:
+  miniflux-db-data:

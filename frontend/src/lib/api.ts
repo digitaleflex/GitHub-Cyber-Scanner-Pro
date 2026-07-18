@@ -96,3 +96,72 @@ export function useScanStatus() {
       query.state.data?.status?.includes('en cours') ? 3000 : false,
   })
 }
+
+export type NewsHealth = {
+  collector: 'miniflux' | 'builtin'
+  feeds_total: number
+  feeds_usable: number
+  feeds_dead: string[]
+  feeds_blocked_antibot: string[]
+  miniflux?: { enabled: boolean; reachable?: boolean; feeds?: number; error?: string }
+}
+
+export function useNewsHealth() {
+  return useQuery<NewsHealth>({
+    queryKey: ['news-health'],
+    queryFn: () => fetchJson<NewsHealth>('/news/health'),
+    staleTime: 60_000,
+    retry: 1,
+  })
+}
+
+export type NewsCountry = { country: string; count: number }
+
+export function useNewsCountries() {
+  return useQuery<NewsCountry[]>({
+    queryKey: ['news-countries'],
+    queryFn: () => fetchJson<NewsCountry[]>('/news/countries'),
+    staleTime: 120_000,
+    retry: 1,
+  })
+}
+
+export type IncidentNewsItem = {
+  id: number
+  title: string
+  link: string
+  summary?: string
+  source_name?: string
+  country?: string
+  published?: string
+  category?: string
+}
+
+export type Incident = {
+  incident_id: number
+  title: string
+  cves: string[]
+  products: string[]
+  domains: string[]
+  hashes: string[]
+  ips: string[]
+  attack_details: { technique: string; name: string; tactic: string }[]
+  sources: string[]
+  countries: string[]
+  num_sources: number
+  severity_score: number
+  news: IncidentNewsItem[]
+  primary_link: string
+}
+
+export function useNewsIncidents(limit = 50, country?: string) {
+  const params = new URLSearchParams()
+  params.set('limit', String(limit))
+  if (country) params.set('country', country)
+  return useQuery<{ incidents: Incident[] }>({
+    queryKey: ['news-incidents', limit, country ?? 'all'],
+    queryFn: () => fetchJson<{ incidents: Incident[] }>(`/news/incidents?${params.toString()}`),
+    staleTime: 60_000,
+    retry: 1,
+  })
+}

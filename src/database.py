@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+from typing import Optional
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -125,9 +126,34 @@ def init_db():
             summary TEXT,
             source_name VARCHAR(100),
             category VARCHAR(50),
+            country VARCHAR(5),
             published TIMESTAMP,
             discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
+    """)
+    cursor.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'cyber_news' AND column_name = 'country'
+            ) THEN
+                ALTER TABLE cyber_news ADD COLUMN country VARCHAR(5);
+            END IF;
+        END $$;
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS news_entities (
+            id SERIAL PRIMARY KEY,
+            news_id INTEGER REFERENCES cyber_news(id) ON DELETE CASCADE,
+            entity_type VARCHAR(20),
+            entity_value VARCHAR(255),
+            discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(news_id, entity_type, entity_value)
+        )
+    """)
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_news_entities_value ON news_entities(entity_type, entity_value);
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS news_repo_correlation (
@@ -552,8 +578,8 @@ def save_cyber_news(items: list[dict]) -> int:
             published = _parse_rss_date(item.get("published", ""))
             try:
                 cursor.execute("""
-                    INSERT INTO cyber_news (title, link, summary, source_name, category, published)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    INSERT INTO cyber_news (title, link, summary, source_name, category, country, published)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (link) DO NOTHING
                 """, (
                     item["title"][:500],
@@ -561,6 +587,7 @@ def save_cyber_news(items: list[dict]) -> int:
                     item.get("summary", "")[:2000],
                     item.get("source_name", "unknown"),
                     item.get("category", "general"),
+                    (item.get("country") or "")[:5],
                     published,
                 ))
                 if cursor.rowcount > 0:
@@ -857,18 +884,28 @@ def correlate_news_with_repos():
         return 0
 
 
-def get_news_with_correlations(limit: int = 15) -> list[dict]:
-    """Retourne les news avec leurs repos corrélés."""
+def get_news_with_correlations(limit: int = 15, country: Optional[str] = None) -> list[dict]:
+    """Retourne les news avec leurs repos corrélés. Filtre optionnel par pays (code ISO)."""
     try:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("""
-            SELECT cn.id, cn.title, cn.link, cn.summary, cn.source_name,
-                   cn.category, cn.published, cn.discovered_at
-            FROM cyber_news cn
-            ORDER BY COALESCE(cn.published, cn.discovered_at) DESC
-            LIMIT %s
-        """, (limit,))
+        if country:
+            cursor.execute("""
+                SELECT cn.id, cn.title, cn.link, cn.summary, cn.source_name,
+                       cn.category, cn.published, cn.discovered_at
+                FROM cyber_news cn
+                WHERE cn.country = %s
+                ORDER BY COALESCE(cn.published, cn.discovered_at) DESC
+                LIMIT %s
+            """, (country, limit))
+        else:
+            cursor.execute("""
+                SELECT cn.id, cn.title, cn.link, cn.summary, cn.source_name,
+                       cn.category, cn.published, cn.discovered_at
+                FROM cyber_news cn
+                ORDER BY COALESCE(cn.published, cn.discovered_at) DESC
+                LIMIT %s
+            """, (limit,))
         news_rows = cursor.fetchall()
         news_list = [dict(r) for r in news_rows]
 
@@ -907,6 +944,155 @@ def get_news_with_correlations(limit: int = 15) -> list[dict]:
     except Exception as e:
         logging.error(f"Erreur get_news_with_correlations: {e}")
         return []
+
+
+def get_news_countries() -> list[dict]:
+    """Retourne les pays (code ISO) presents dans cyber_news avec leur nombre d'articles."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT country, COUNT(*) AS cnt
+            FROM cyber_news
+            WHERE country IS NOT NULL AND country <> ''
+            GROUP BY country
+            ORDER BY cnt DESC
+        """)
+        rows = [{"country": r[0], "count": r[1]} for r in cursor.fetchall()]
+        cursor.close()
+        conn.close()
+        return rows
+    except Exception as e:
+        logging.error(f"Erreur get_news_countries: {e}")
+        return []
+
+
+def save_news_entities(news_id: int, entities: list[dict]) -> int:
+    """Sauvegarde les entites (CVE/IOC/ATT&CK) extraites d'un article."""
+    if not entities or not news_id:
+        return 0
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        saved = 0
+        for e in entities:
+            try:
+                cursor.execute("""
+                    INSERT INTO news_entities (news_id, entity_type, entity_value)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (news_id, entity_type, entity_value) DO NOTHING
+                """, (news_id, e.get("type"), e.get("value")[:255]))
+                if cursor.rowcount > 0:
+                    saved += 1
+            except Exception:
+                pass
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return saved
+    except Exception as ex:
+        logging.error(f"Erreur save_news_entities: {ex}")
+        return 0
+
+
+def get_incidents(limit: int = 50, country: str = None) -> list[dict]:
+    """
+    Retourne les incidents unifies (regroupement par CVE/produit/IOC)
+    en utilisant news_enricher.build_incidents.
+    """
+    try:
+        import src.news_enricher as news_enricher
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        if country:
+            cursor.execute("""
+                SELECT cn.id, cn.title, cn.link, cn.summary, cn.source_name,
+                       cn.category, cn.country, cn.published, cn.discovered_at
+                FROM cyber_news cn
+                WHERE cn.country = %s
+                ORDER BY COALESCE(cn.published, cn.discovered_at) DESC
+                LIMIT %s
+            """, (country, limit * 4))
+        else:
+            cursor.execute("""
+                SELECT cn.id, cn.title, cn.link, cn.summary, cn.source_name,
+                       cn.category, cn.country, cn.published, cn.discovered_at
+                FROM cyber_news cn
+                ORDER BY COALESCE(cn.published, cn.discovered_at) DESC
+                LIMIT %s
+            """, (limit * 4,))
+        rows = [dict(r) for r in cursor.fetchall()]
+
+        # Ajoute les entites stockees a chaque news
+        if rows:
+            ids = tuple(n["id"] for n in rows)
+            cursor.execute("""
+                SELECT news_id, entity_type, entity_value
+                FROM news_entities
+                WHERE news_id IN %s
+            """, (ids,))
+            ent_map = {}
+            for r in cursor.fetchall():
+                ent_map.setdefault(r["news_id"], []).append({
+                    "type": r["entity_type"], "value": r["entity_value"]
+                })
+            for n in rows:
+                n["content"] = ""
+                n["entities"] = ent_map.get(n["id"], [])
+
+        cursor.close()
+        conn.close()
+
+        incidents = news_enricher.build_incidents(rows)
+        return incidents[:limit]
+    except Exception as e:
+        logging.error(f"Erreur get_incidents: {e}")
+        return []
+
+
+def enrich_unenriched_news(limit: int = 300) -> int:
+    """
+    Extrait et sauvegarde les entites (CVE/IOC/ATT&CK) des articles
+    qui n'ont pas encore ete enrichis. Idempotent via la table news_entities.
+    Retourne le nombre d'articles enrichis.
+    """
+    try:
+        import src.news_enricher as news_enricher
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("""
+            SELECT cn.id, cn.title, cn.summary, cn.content, cn.source_name, cn.country
+            FROM cyber_news cn
+            WHERE cn.id NOT IN (
+                SELECT DISTINCT news_id FROM news_entities WHERE news_id IS NOT NULL
+            )
+            ORDER BY COALESCE(cn.published, cn.discovered_at) DESC
+            LIMIT %s
+        """, (limit,))
+        rows = cursor.fetchall()
+        enriched = 0
+        for r in rows:
+            news_id = r["id"]
+            text = f"{r.get('title') or ''}\n{r.get('summary') or ''}\n{r.get('content') or ''}"
+            enriched_obj = news_enricher.enrich_news(
+                news_id=news_id,
+                title=r.get("title") or "",
+                summary=r.get("summary") or "",
+                content=r.get("content") or "",
+                source_name=r.get("source_name") or "",
+                country=r.get("country") or "",
+            )
+            ents = [{"type": e.type, "value": e.value} for e in enriched_obj.entities]
+            if ents:
+                database_save = save_news_entities(news_id, ents)
+                if database_save > 0:
+                    enriched += 1
+        cursor.close()
+        conn.close()
+        return enriched
+    except Exception as e:
+        logging.error(f"Erreur enrich_unenriched_news: {e}")
+        return 0
 
 
 def get_stats():

@@ -1146,10 +1146,22 @@ def scan_cycle():
         except Exception as e:
             logging.error(f"❌ Erreur lors du minage de mots-clés: {e}")
         try:
-            feeds = rss_feed.fetch_all_feeds()
-            if feeds:
-                saved = database.save_cyber_news(feeds)
-                logging.info(f"📰 {saved} article(s) RSS enregistré(s) depuis CERT-FR / ANSSI")
+            import src.miniflux_bridge as miniflux_bridge
+            if miniflux_bridge.MINIFLUX_ENABLED and miniflux_bridge.MINIFLUX_TOKEN:
+                bridge_res = miniflux_bridge.run_bridge()
+                logging.info(f"📰 Pont Miniflux: {bridge_res}")
+            else:
+                # Fallback : collecteur maison (anti-bot/dead auto-desactive)
+                feeds = rss_feed.fetch_all_feeds()
+                if feeds:
+                    saved = database.save_cyber_news(feeds)
+                    logging.info(f"📰 {saved} article(s) RSS enregistré(s) (collecteur maison)")
+                health = rss_feed.count_usable_feeds()
+                logging.info(f"📊 Flux RSS utilisables: {health['usable']}/{health['total']} (morts/bloqués: {len(health['dead']) + len(health['blocked_antibot'])})")
+            # Enrichissement CVE/IOC/ATT&CK (idempotent)
+            enriched = database.enrich_unenriched_news(limit=300)
+            if enriched:
+                logging.info(f"🔍 {enriched} article(s) enrichi(s) en entités cyber")
         except Exception as e:
             logging.error(f"❌ Erreur lors de la récupération des flux RSS: {e}")
         try:
@@ -1282,9 +1294,48 @@ def get_books_api(q: str = None):
 
 
 @app.get("/api/news")
-def get_news_api(limit: int = 15):
-    """Renvoie les actualités cyber avec leurs repos corrélés."""
-    return database.get_news_with_correlations(limit)
+def get_news_api(limit: int = 15, country: str = None):
+    """Renvoie les actualités cyber avec leurs repos corrélés. Filtre optionnel par pays (code ISO)."""
+    return database.get_news_with_correlations(limit, country)
+
+
+@app.get("/api/news/health")
+def get_news_health_api():
+    import src.miniflux_bridge as miniflux_bridge
+    health = rss_feed.count_usable_feeds()
+    miniflux_status = {"enabled": miniflux_bridge.MINIFLUX_ENABLED}
+    if miniflux_bridge.MINIFLUX_ENABLED and miniflux_bridge.MINIFLUX_TOKEN:
+        try:
+            import requests
+            resp = requests.get(
+                f"{miniflux_bridge.MINIFLUX_URL}/healthcheck",
+                timeout=5,
+            )
+            miniflux_status["reachable"] = resp.status_code == 200
+            miniflux_status["feeds"] = miniflux_bridge.sync_feeds()
+        except Exception as e:
+            miniflux_status["reachable"] = False
+            miniflux_status["error"] = str(e)[:120]
+    return {
+        "collector": "miniflux" if (miniflux_bridge.MINIFLUX_ENABLED and miniflux_bridge.MINIFLUX_TOKEN) else "builtin",
+        "feeds_total": health["total"],
+        "feeds_usable": health["usable"],
+        "feeds_dead": health["dead"],
+        "feeds_blocked_antibot": health["blocked_antibot"],
+        "miniflux": miniflux_status,
+    }
+
+
+@app.get("/api/news/countries")
+def get_news_countries_api():
+    """Liste les pays (codes ISO) disponibles dans les actualités, avec leur nombre."""
+    return database.get_news_countries()
+
+
+@app.get("/api/news/incidents")
+def get_news_incidents_api(limit: int = 50, country: str = None):
+    """Retourne les incidents unifies (plusieurs flux corrélés par CVE/IOC/produit)."""
+    return {"incidents": database.get_incidents(limit=limit, country=country)}
 
 
 @app.get("/api/keywords")

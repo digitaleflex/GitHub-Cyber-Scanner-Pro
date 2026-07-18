@@ -61,14 +61,15 @@ function formatTime(dateStr: string | null): string {
 type Props = {
   limit?: number
   showAll?: boolean
+  country?: string | null
 }
 
-export default function CyberNewsFeed({ limit = 15, showAll = false }: Props) {
+export default function CyberNewsFeed({ limit = 15, showAll = false, country = null }: Props) {
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
   const { data, isLoading } = useQuery<NewsItem[]>({
-    queryKey: ['news', limit],
-    queryFn: () => fetch(`/api/news?limit=${limit}`).then((r) => r.json()),
+    queryKey: ['news', limit, country],
+    queryFn: () => fetch(`/api/news?limit=${limit}${country ? `&country=${country}` : ''}`).then((r) => r.json()),
     staleTime: 120_000,
   })
 
