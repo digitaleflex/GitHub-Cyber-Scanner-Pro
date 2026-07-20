@@ -1235,14 +1235,10 @@ def run_scanner_daemon():
 
 @app.get("/", response_class=HTMLResponse)
 def read_index():
-    """Sert le frontend React ou l'interface HTML de secours."""
+    """Sert le frontend React SPA."""
     react_index = FRONTEND_DIR / "index.html"
     if react_index.exists():
         return HTMLResponse(react_index.read_text())
-    fallback = "templates/index.html"
-    if os.path.exists(fallback):
-        with open(fallback, encoding="utf-8") as f:
-            return f.read()
     return "<h1>Erreur : Frontend non disponible.</h1>"
 
 
@@ -1271,9 +1267,9 @@ def get_stats():
 
 
 @app.get("/api/repos")
-def get_repos_api(q: str = "", page: int = 1, per_page: int = 50, sort_by: str = "stars", vitality_min: int = 0):
+def get_repos_api(q: str = "", page: int = 1, per_page: int = 50, sort_by: str = "stars", vitality_min: int = 0, security_verdict: str = None):
     """Renvoie les dépôts paginés au format attendu par le frontend React."""
-    repos, total = database.search_repos_frontend(q, page, per_page, sort_by, vitality_min)
+    repos, total = database.search_repos_frontend(q, page, per_page, sort_by, vitality_min, security_verdict)
     pages = max(1, (total + per_page - 1) // per_page)
     return {"total": total, "page": page, "per_page": per_page, "pages": pages, "repos": repos}
 
@@ -1294,7 +1290,7 @@ def get_books_api(q: str = None):
 
 
 @app.get("/api/news")
-def get_news_api(limit: int = 15, country: str = None):
+def get_news_api(limit: int = 50, country: str = None):
     """Renvoie les actualités cyber avec leurs repos corrélés. Filtre optionnel par pays (code ISO)."""
     return database.get_news_with_correlations(limit, country)
 
@@ -1586,6 +1582,32 @@ if __name__ == "__main__":
 
     bootstrap_thread = threading.Thread(target=_bootstrap_ontology, daemon=True)
     bootstrap_thread.start()
+
+    from mcp.server.fastmcp import FastMCP
+    from src.mcp_server import register_tools
+
+    mcp_app = FastMCP("Cyber Scanner Pro")
+    register_tools(mcp_app)
+
+    from mcp.server.sse import SseServerTransport
+    from fastapi import Request
+
+    sse_transport = SseServerTransport("/mcp/messages/")
+
+    @app.get("/mcp/sse")
+    async def mcp_sse(request: Request):
+        async with sse_transport.connect_sse(
+            request.scope, request.receive, request._send
+        ) as streams:
+            await mcp_app.run(streams[0], streams[1])
+
+    @app.post("/mcp/messages/")
+    async def mcp_messages(request: Request):
+        await sse_transport.handle_post_message(
+            request.scope, request.receive, request._send
+        )
+
+    logging.info("MCP Server: /mcp/sse (SSE), /mcp/messages/ (POST)")
 
     daemon_thread = threading.Thread(target=run_scanner_daemon, daemon=True)
     daemon_thread.start()

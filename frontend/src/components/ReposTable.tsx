@@ -78,15 +78,12 @@ export default function ReposTable() {
   const [selectedRepo, setSelectedRepo] = useState<Repo | null>(null)
   const debouncedSearch = useDebounce(search, 300)
 
-  const { data, isLoading, error } = useRepos(debouncedSearch || undefined, page, sortBy, vitalityMin)
+  const { data, isLoading, error } = useRepos(debouncedSearch || undefined, page, sortBy, vitalityMin, verdictFilter)
   const { data: stats } = useStats()
 
-  useEffect(() => setPage(1), [debouncedSearch, sortBy, vitalityMin])
+  useEffect(() => setPage(1), [debouncedSearch, sortBy, vitalityMin, verdictFilter])
 
-  let repos = data?.repos ?? []
-  if (verdictFilter) {
-    repos = repos.filter((r) => r.security_verdict === verdictFilter)
-  }
+  const repos = data?.repos ?? []
   const pages = data?.pages ?? 1
 
   return (

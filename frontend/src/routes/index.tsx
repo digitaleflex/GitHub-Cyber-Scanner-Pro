@@ -4,6 +4,7 @@ import StatsCards from '../components/StatsCards'
 import TopRepos from '../components/TopRepos'
 import LangDistribution from '../components/LangDistribution'
 import ReposTable from '../components/ReposTable'
+import BooksTable from '../components/BooksTable'
 import ActivityFeed from '../components/ActivityFeed'
 import CyberRadar from '../components/CyberRadar'
 import CyberNews from '../components/CyberNews'
@@ -30,6 +31,10 @@ function DashboardPage() {
       </div>
 
       <ReposTable />
+
+      <div className="mt-8">
+        <BooksTable />
+      </div>
     </div>
   )
 }

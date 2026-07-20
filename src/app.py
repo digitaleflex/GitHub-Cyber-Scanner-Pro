@@ -30,10 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-FRONTEND_DIR = Path("frontend/dist")
-if FRONTEND_DIR.exists():
-    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="frontend_assets")
-
 
 def load_json(path):
     try:
@@ -52,12 +48,7 @@ def get_repos():
 def dashboard():
     if FRONTEND_DIR.exists() and (FRONTEND_DIR / "index.html").exists():
         return HTMLResponse((FRONTEND_DIR / "index.html").read_text())
-    repos = get_repos()
-    total = len(repos)
-    total_stars = sum(r["stars"] for r in repos)
-    languages = len({r["lang"] for r in repos if r.get("lang")})
-
-    last_scan = "Jamais"
+    return HTMLResponse("<h1>CyberScan API</h1><p>Frontend non disponible. Lancer <code>cd frontend && npm run build</code></p>")
     try:
         mtime = os.path.getmtime(LAST_SCAN_FILE)
         last_scan = datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M")

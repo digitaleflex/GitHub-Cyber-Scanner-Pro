@@ -47,21 +47,43 @@ export type ApiReposResponse = {
   repos: Repo[]
 }
 
+export type Book = {
+  id: number
+  title: string
+  url: string
+  category: string
+  type_ressource: string
+  repo_name: string
+  repo_url: string
+  is_dead: number
+  last_checked: string | null
+}
+
 export type ApiReportsResponse = {
   reports: string[]
   dashboards: string[]
 }
 
-export function useRepos(query?: string, page: number = 1, sortBy: string = 'stars', vitalityMin: number = 0) {
+export function useRepos(query?: string, page: number = 1, sortBy: string = 'stars', vitalityMin: number = 0, securityVerdict?: string | null) {
   const params = new URLSearchParams()
   if (query) params.set('q', query)
   params.set('page', String(page))
   params.set('per_page', '20')
   params.set('sort_by', sortBy)
   if (vitalityMin > 0) params.set('vitality_min', String(vitalityMin))
+  if (securityVerdict) params.set('security_verdict', securityVerdict)
   return useQuery<ApiReposResponse>({
-    queryKey: ['repos', query, page, sortBy, vitalityMin],
+    queryKey: ['repos', query, page, sortBy, vitalityMin, securityVerdict],
     queryFn: () => fetchJson<ApiReposResponse>(`/repos?${params}`),
+    staleTime: 30_000,
+  })
+}
+
+export function useBooks(query?: string) {
+  const params = query ? `?q=${encodeURIComponent(query)}` : ''
+  return useQuery<Book[]>({
+    queryKey: ['books', query ?? ''],
+    queryFn: () => fetchJson<Book[]>(`/books${params}`),
     staleTime: 30_000,
   })
 }

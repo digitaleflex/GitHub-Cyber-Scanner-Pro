@@ -4,6 +4,7 @@ import time
 import urllib.request
 import urllib.error
 import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Optional
@@ -17,7 +18,7 @@ CONTENT_NS = "{http://purl.org/rss/1.0/modules/content/}"
 # Fichier de suivi de sante des flux (succes/echecs, anti-bot detecte).
 HEALTH_FILE = Path("data/rss_health.json")
 # Nombre d'echecs consecutifs avant de desactiver automatiquement un flux.
-MAX_CONSECUTIVE_FAILURES = 2
+MAX_CONSECUTIVE_FAILURES = 5
 # Code HTTP consideres comme "anti-bot / bloque" (flux inutilisable sans contournement).
 BOT_BLOCK_CODES = {401, 403, 429}
 
@@ -308,46 +309,66 @@ def count_usable_feeds() -> dict:
     }
 
 
-def fetch_all_feeds() -> list[dict]:
+def _process_source(source: FeedSource, health: dict) -> list[dict]:
+    """Fetches a single RSS source, updates health, returns articles."""
+    h = health.get(source.url, {"failures": 0, "successes": 0, "disabled": False})
+    if h.get("disabled"):
+        return []
+    items, ok, reason = fetch_rss_feed(source)
+    if ok:
+        h["failures"] = 0
+        h["successes"] = h.get("successes", 0) + 1
+        h["disabled"] = False
+        h["reason"] = None
+        h["last_ok"] = time.time()
+    else:
+        h["failures"] = h.get("failures", 0) + 1
+        h["reason"] = reason
+        h["last_error"] = time.time()
+        if h["failures"] >= MAX_CONSECUTIVE_FAILURES:
+            h["disabled"] = True
+            if reason and reason.startswith("bot_block"):
+                logging.warning(f"🚫 Flux anti-bot desactive (auto): {source.name}")
+            else:
+                logging.warning(f"🚫 Flux mort desactive (auto): {source.name} -> {reason}")
+    health[source.url] = h
+
+    for item in items:
+        item["source_name"] = source.name
+        item["lang"] = source.lang
+        item["country"] = source.country
+        item["category"] = categorize_article(item["title"], item["summary"]) or source.category
+    if items:
+        logging.info(f"   → {len(items)} articles de {source.name}")
+    return items
+
+def fetch_all_feeds(max_workers: int = 10) -> list[dict]:
     health = _load_health()
+    sources = [s for s in RSS_FEEDS if not health.get(s.url, {}).get("disabled")]
     all_items = []
     seen_links = set()
-    for source in RSS_FEEDS:
-        h = health.get(source.url, {"failures": 0, "successes": 0, "disabled": False})
-        if h.get("disabled"):
-            continue
-        logging.info(f"📡 Récupération flux RSS: {source.name} [{source.lang}/{source.category}]")
-        items, ok, reason = fetch_rss_feed(source)
-        if ok:
-            h["failures"] = 0
-            h["successes"] = h.get("successes", 0) + 1
-            h["disabled"] = False
-            h["reason"] = None
-            h["last_ok"] = time.time()
-        else:
-            h["failures"] = h.get("failures", 0) + 1
-            h["reason"] = reason
-            h["last_error"] = time.time()
-            if h["failures"] >= MAX_CONSECUTIVE_FAILURES:
-                h["disabled"] = True
-                if reason and reason.startswith("bot_block"):
-                    logging.warning(f"🚫 Flux anti-bot desactive (auto): {source.name}")
-                else:
-                    logging.warning(f"🚫 Flux mort desactive (auto): {source.name} -> {reason}")
-        health[source.url] = h
-        for item in items:
-            item["source_name"] = source.name
-            item["lang"] = source.lang
-            item["country"] = source.country
-            item["category"] = categorize_article(item["title"], item["summary"]) or source.category
-            dedup_key = item["link"] or item["title"]
-            if dedup_key not in seen_links:
-                seen_links.add(dedup_key)
-                all_items.append(item)
-        logging.info(f"   → {len(items)} articles de {source.name}")
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(_process_source, s, health): s for s in sources}
+        for future in as_completed(futures):
+            try:
+                items = future.result(timeout=20)
+                all_items.extend(items)
+            except Exception as e:
+                src = futures[future]
+                logging.warning(f"❌ Erreur sur {src.name}: {e}")
+
     _save_health(health)
-    all_items.sort(key=lambda x: x.get("published", ""), reverse=True)
-    return all_items
+    # Deduplicate by link
+    deduped = []
+    for item in all_items:
+        dedup_key = item.get("link") or item.get("title", "")
+        if dedup_key not in seen_links:
+            seen_links.add(dedup_key)
+            deduped.append(item)
+    deduped.sort(key=lambda x: x.get("published", ""), reverse=True)
+    logging.info(f"📰 Total: {len(deduped)} articles depuis {len(sources)} sources")
+    return deduped
 
 
 # ---------------------------------------------------------------------------

@@ -16,8 +16,8 @@ type NewsItem = {
 
 export default function CyberNews() {
   const { data, isLoading } = useQuery<NewsItem[]>({
-    queryKey: ['news', 15],
-    queryFn: () => fetch('/api/news?limit=15').then((r) => r.json()),
+    queryKey: ['news', 50],
+    queryFn: () => fetch('/api/news?limit=50').then((r) => r.json()),
     staleTime: 120_000,
   })
 
@@ -56,11 +56,11 @@ export default function CyberNews() {
         </Link>
       </div>
 
-      <CyberNewsFeed limit={15} />
+      <CyberNewsFeed limit={50} />
 
       <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center gap-2 text-[10px] text-gray-700 font-mono">
         <span className="w-1 h-1 rounded-full bg-neon-cyan/40" />
-        <span>FLUX RSS — CERT-FR</span>
+        <span>FLUX RSS — {data.length} articles récents</span>
       </div>
     </div>
   )

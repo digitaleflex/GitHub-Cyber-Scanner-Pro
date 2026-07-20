@@ -111,6 +111,35 @@ def init_db():
     """)
 
     cursor.execute("""
+        DO $$ BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'books' AND column_name = 'lemmas_str'
+            ) THEN
+                ALTER TABLE books ADD COLUMN lemmas_str TEXT;
+            END IF;
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'books' AND column_name = 'score_qualite'
+            ) THEN
+                ALTER TABLE books ADD COLUMN score_qualite INTEGER DEFAULT 0;
+            END IF;
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'books' AND column_name = 'type_ressource'
+            ) THEN
+                ALTER TABLE books ADD COLUMN type_ressource VARCHAR(50) DEFAULT 'link';
+            END IF;
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'books' AND column_name = 'tsv_content'
+            ) THEN
+                ALTER TABLE books ADD COLUMN tsv_content TSVECTOR;
+            END IF;
+        END $$;
+    """)
+
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS etag_cache (
             query VARCHAR(500) PRIMARY KEY,
             etag VARCHAR(500),
@@ -519,19 +548,22 @@ def mark_repo_as_parsed(repo_id, readme_parsed=1):
     conn.close()
 
 
-def save_book(repo_id, title, url, category):
+def save_book(repo_id, title, url, category, lemmas_str=None, type_ressource=None):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(
             """
-            INSERT INTO books (repo_id, title, url, category)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO books (repo_id, title, url, category, lemmas_str, type_ressource, tsv_content)
+            VALUES (%s, %s, %s, %s, %s, %s, to_tsvector('simple', COALESCE(%s, '')))
             ON CONFLICT (url) DO UPDATE 
             SET title = EXCLUDED.title,
-                category = EXCLUDED.category
+                category = EXCLUDED.category,
+                lemmas_str = COALESCE(EXCLUDED.lemmas_str, books.lemmas_str),
+                type_ressource = COALESCE(EXCLUDED.type_ressource, books.type_ressource),
+                tsv_content = COALESCE(to_tsvector('simple', COALESCE(EXCLUDED.lemmas_str, '')), books.tsv_content)
             """,
-            (repo_id, title, url, category)
+            (repo_id, title, url, category, lemmas_str, type_ressource, lemmas_str)
         )
         conn.commit()
         return True
@@ -773,7 +805,7 @@ def auto_approve_keywords(min_score: float = 0.75, min_sources: int = 3) -> int:
         return 0
 
 
-def get_cyber_news(limit: int = 20) -> list[dict]:
+def get_cyber_news(limit: int = 100) -> list[dict]:
     try:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -1282,12 +1314,14 @@ def get_repos_frontend(sort_by: str = "stars"):
         return []
 
 
-def search_repos_frontend(q: str = "", page: int = 1, per_page: int = 50, sort_by: str = "stars", vitality_min: int = 0):
+def search_repos_frontend(q: str = "", page: int = 1, per_page: int = 50, sort_by: str = "stars", vitality_min: int = 0, security_verdict: str = None):
     """Recherche et pagination des repos pour le frontend React."""
     try:
         repos = get_repos_frontend(sort_by)
         if vitality_min > 0:
             repos = [r for r in repos if (r.get("vitality_score") or 0) >= vitality_min]
+        if security_verdict:
+            repos = [r for r in repos if (r.get("security_verdict") or "") == security_verdict]
         if q:
             ql = q.lower()
             repos = [r for r in repos if ql in (r.get("name") or "").lower()
@@ -1310,20 +1344,27 @@ def get_books(search_query=None):
         if search_query:
             cursor.execute(
                 """
-                SELECT b.id, b.title, b.url, b.category, r.full_name AS repo_name, r.html_url AS repo_url, b.is_dead, b.last_checked
-                FROM books b 
-                LEFT JOIN repositories r ON b.repo_id = r.id 
-                WHERE b.title ILIKE %s OR b.category ILIKE %s
-                ORDER BY b.discovered_at DESC
+                SELECT b.id, b.title, b.url, b.category, b.type_ressource,
+                       r.full_name AS repo_name, r.html_url AS repo_url,
+                       b.is_dead, b.last_checked
+                FROM books b
+                LEFT JOIN repositories r ON b.repo_id = r.id
+                WHERE b.tsv_content @@ plainto_tsquery('simple', %s)
+                   OR b.title ILIKE %s
+                   OR b.category ILIKE %s
+                ORDER BY ts_rank(b.tsv_content, plainto_tsquery('simple', %s)) DESC,
+                         b.discovered_at DESC
                 """,
-                (f"%{search_query}%", f"%{search_query}%")
+                (search_query, f"%{search_query}%", f"%{search_query}%", search_query)
             )
         else:
             cursor.execute(
                 """
-                SELECT b.id, b.title, b.url, b.category, r.full_name AS repo_name, r.html_url AS repo_url, b.is_dead, b.last_checked
-                FROM books b 
-                LEFT JOIN repositories r ON b.repo_id = r.id 
+                SELECT b.id, b.title, b.url, b.category, b.type_ressource,
+                       r.full_name AS repo_name, r.html_url AS repo_url,
+                       b.is_dead, b.last_checked
+                FROM books b
+                LEFT JOIN repositories r ON b.repo_id = r.id
                 ORDER BY b.discovered_at DESC
                 """
             )
