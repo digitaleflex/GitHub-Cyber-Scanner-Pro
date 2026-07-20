@@ -39,6 +39,7 @@ export type Stats = {
   dead_vitality: number
   total_cves: number
   pending_keywords: number
+  new_repos_24h: number
 }
 
 export type ApiReposResponse = {

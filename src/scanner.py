@@ -1248,7 +1248,7 @@ def get_stats():
     global scanner_status
     (total_repos, total_stars, languages, lang_dist, last_scan, critique,
      suspect, unscanned, avg_vitality, top_vitality, low_vitality, dead_vitality,
-     total_cves, pending_keywords) = database.get_frontend_stats()
+     total_cves, pending_keywords, new_repos_24h) = database.get_frontend_stats()
     last_scan_str = last_scan.isoformat() if last_scan else None
     return {
         "total_repos": total_repos,
@@ -1266,6 +1266,7 @@ def get_stats():
         "dead_vitality": dead_vitality,
         "total_cves": total_cves,
         "pending_keywords": pending_keywords,
+        "new_repos_24h": new_repos_24h,
     }
 
 
