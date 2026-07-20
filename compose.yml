@@ -57,5 +57,21 @@ services:
     volumes:
       - miniflux-db-data:/var/lib/postgresql/data
 
+  neo4j:
+    image: neo4j:5
+    container_name: cyber_neo4j
+    restart: always
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    environment:
+      - NEO4J_AUTH=none
+      - NEO4J_dbms_memory_pagecache_size=512M
+      - NEO4J_dbms.memory.heap.initial_size=512M
+      - NEO4J_dbms.memory.heap.max_size=1G
+    volumes:
+      - neo4j-data:/data
+
 volumes:
   miniflux-db-data:
+  neo4j-data:

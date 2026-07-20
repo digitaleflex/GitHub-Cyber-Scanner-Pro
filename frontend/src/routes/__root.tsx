@@ -53,6 +53,7 @@ function RootLayout() {
     { to: '/', label: 'Dashboard' },
     { to: '/cves', label: 'CVEs' },
     { to: '/keywords', label: 'Keywords' },
+    { to: '/graph', label: 'Graph' },
     { to: '/news', label: 'Actualités' },
     { to: '/incidents', label: 'Incidents' },
     { to: '/reports', label: 'Rapports' },

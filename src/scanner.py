@@ -1523,6 +1523,34 @@ def token_status_api():
     return {"token_count": github_client.token_count(), "has_tokens": github_client.token_count() > 0}
 
 
+# --- Social Graph Neo4j ---
+
+@app.get("/api/graph/stats")
+def graph_stats_api():
+    from src.social_graph import get_graph_stats
+    return get_graph_stats()
+
+
+@app.get("/api/graph/query")
+def graph_query_api(label: str = "", limit: int = 50):
+    from src.social_graph import query_graph
+    return query_graph(label, limit)
+
+
+@app.post("/api/graph/seed")
+def graph_seed_api():
+    from src.social_graph import init_graph, seed_from_repos, seed_from_cves
+    from src import database
+    init_graph()
+    repos = database.get_repos_frontend()
+    seed_from_repos(repos)
+    cves_data = database.search_cves(page=1, per_page=500)
+    seed_from_cves(cves_data.get("cves", []))
+    from src.social_graph import link_collaborations
+    collabs = link_collaborations()
+    return {"message": "Graph seeded", "repos": len(repos), "cves": len(cves_data.get("cves", [])), "collaborations": collabs}
+
+
 # --- FRONTEND SERVING (React SPA + Reports) ---
 
 FRONTEND_DIR = Path("frontend/dist")

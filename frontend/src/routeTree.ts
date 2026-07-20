@@ -5,5 +5,6 @@ import { Route as IncidentsRoute } from './routes/incidents'
 import { Route as ReportsRoute } from './routes/reports'
 import { Route as CvesRoute } from './routes/cves'
 import { Route as KeywordsRoute } from './routes/keywords'
+import { Route as GraphRoute } from './routes/graph'
 
-export const routeTree = RootRoute.addChildren([IndexRoute, NewsRoute, IncidentsRoute, ReportsRoute, CvesRoute, KeywordsRoute])
+export const routeTree = RootRoute.addChildren([IndexRoute, NewsRoute, IncidentsRoute, ReportsRoute, CvesRoute, KeywordsRoute, GraphRoute])

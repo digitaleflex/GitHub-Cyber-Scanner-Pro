@@ -55,8 +55,23 @@ services:
       - "traefik.http.routers.cyberscan.tls.certresolver=letsencrypt"
       - "traefik.http.services.cyberscan.loadbalancer.server.port=8000"
 
+  neo4j:
+    image: neo4j:5
+    container_name: cyber_neo4j
+    restart: always
+    environment:
+      - NEO4J_AUTH=${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-cybergraph}
+      - NEO4J_dbms_memory_pagecache_size=512M
+      - NEO4J_dbms.memory.heap.initial_size=512M
+      - NEO4J_dbms.memory.heap.max_size=1G
+    volumes:
+      - neo4j-data:/data
+    networks:
+      - internal
+
 volumes:
   pgdata:
+  neo4j-data:
 
 networks:
   internal:

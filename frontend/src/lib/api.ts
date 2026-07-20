@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 
 const API_BASE = '/api'
 
-async function fetchJson<T>(url: string): Promise<T> {
+export async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(`${API_BASE}${url}`)
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
   return res.json()
