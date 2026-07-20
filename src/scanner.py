@@ -1643,6 +1643,22 @@ if __name__ == "__main__":
 
     logging.info("MCP Server: /mcp/sse (SSE), /mcp/messages/ (POST)")
 
+    def _seed_graph():
+        try:
+            from src.social_graph import init_graph, seed_from_repos, seed_from_cves, link_collaborations
+            if init_graph():
+                repos = database.get_repos_frontend()
+                r_count = seed_from_repos(repos)
+                cves_data = database.search_cves(page=1, per_page=500)
+                c_count = seed_from_cves(cves_data.get("cves", []))
+                collabs = link_collaborations()
+                logging.info("Graph Neo4j seeder: %d repos, %d CVEs, %d collaborations", r_count, c_count, collabs)
+        except Exception as e:
+            logging.warning("Graph Neo4j non disponible au demarrage: %s", e)
+
+    graph_thread = threading.Thread(target=_seed_graph, daemon=True)
+    graph_thread.start()
+
     daemon_thread = threading.Thread(target=run_scanner_daemon, daemon=True)
     daemon_thread.start()
 
