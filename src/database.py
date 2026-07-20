@@ -1323,13 +1323,18 @@ def get_frontend_stats():
         low_vitality = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM repositories WHERE vitality_score = 0")
         dead_vitality = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM cve_entries")
+        total_cves = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM discovered_keywords WHERE status='pending'")
+        pending_keywords = cursor.fetchone()[0]
         cursor.close()
         conn.close()
         return (total_repos, int(total_stars), languages, lang_dist, last_scan,
-                critique, suspect, unscanned, avg_vitality, top_vitality, low_vitality, dead_vitality)
+                critique, suspect, unscanned, avg_vitality, top_vitality, low_vitality, dead_vitality,
+                total_cves, pending_keywords)
     except Exception as e:
         logging.error(f"Erreur get_frontend_stats: {e}")
-        return 0, 0, 0, {}, None, 0, 0, 0, 0, 0, 0, 0
+        return 0, 0, 0, {}, None, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
 def get_repositories():

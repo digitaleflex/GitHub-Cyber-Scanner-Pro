@@ -1,4 +1,4 @@
-import { Shield, Star, Code2, AlertTriangle, ShieldAlert, Activity, type LucideIcon } from 'lucide-react'
+import { Shield, Star, Code2, AlertTriangle, ShieldAlert, Activity, Bug, Tags, type LucideIcon } from 'lucide-react'
 import { useStats } from '../lib/api'
 
 const cards: {
@@ -19,6 +19,10 @@ const cards: {
     value: (d) => d.total_stars.toLocaleString(),
     borderClass: 'hover:neon-glow-magenta', glowClass: 'from-neon-magenta/20 via-neon-magenta/5 to-transparent',
     iconClass: 'text-neon-magenta', textClass: 'text-neon-magenta' },
+  { key: 'total_cves', label: 'CVEs', icon: Bug,
+    value: (d) => d.total_cves.toLocaleString(),
+    borderClass: 'hover:neon-glow-cyan', glowClass: 'from-neon-red/20 via-neon-red/5 to-transparent',
+    iconClass: 'text-neon-red', textClass: 'text-neon-red' },
   { key: 'languages', label: 'Langages', icon: Code2,
     value: (d) => d.languages.toString(),
     borderClass: 'hover:neon-glow-cyan', glowClass: 'from-neon-cyan/20 via-neon-cyan/5 to-transparent',
@@ -35,6 +39,10 @@ const cards: {
     value: (d) => d.security_suspect.toString(),
     borderClass: 'hover:neon-glow-cyan', glowClass: 'from-neon-amber/20 via-neon-amber/5 to-transparent',
     iconClass: 'text-neon-amber', textClass: 'text-neon-amber' },
+  { key: 'pending_keywords', label: 'Keywords en attente', icon: Tags,
+    value: (d) => d.pending_keywords.toString(),
+    borderClass: 'hover:neon-glow-cyan', glowClass: 'from-neon-cyan/20 via-neon-cyan/5 to-transparent',
+    iconClass: 'text-neon-cyan', textClass: 'text-neon-cyan' },
 ]
 
 export default function StatsCards() {
@@ -42,8 +50,8 @@ export default function StatsCards() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        {[...Array(6)].map((_, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
+        {[...Array(8)].map((_, i) => (
           <div key={i} className="h-24 bg-white/5 rounded-xl animate-pulse" />
         ))}
       </div>
@@ -59,11 +67,11 @@ export default function StatsCards() {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
       {cards.map((card, i) => (
         <div
           key={card.key}
-          className={`relative overflow-hidden bg-white/[0.03] border border-white/[0.08] rounded-xl p-5 backdrop-blur-sm transition-all duration-300 animate-fade-in-up ${card.borderClass}`}
+          className={`relative overflow-hidden bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 backdrop-blur-sm transition-all duration-300 animate-fade-in-up ${card.borderClass}`}
           style={{ animationDelay: `${i * 80}ms` }}
           role="status"
           aria-label={`${card.label}: ${card.value(data)}`}

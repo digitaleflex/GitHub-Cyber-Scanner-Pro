@@ -90,7 +90,7 @@ export default function CyberRadar() {
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 h-72 animate-fade-in-up">
+        <div className="lg:col-span-2 h-52 md:h-72 animate-fade-in-up">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={chartData} margin={{ top: 10, right: 30, bottom: 10, left: 10 }}>
               <PolarGrid
