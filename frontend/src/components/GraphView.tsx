@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchJson } from '../lib/api'
 
 type GraphNode = {
@@ -93,10 +93,17 @@ export default function GraphView() {
   const [dim, setDim] = useState({ w: 900, h: 600 })
   const [selected, setSelected] = useState<SimNode | null>(null)
 
+  const qc = useQueryClient()
+
   const { data, isLoading } = useQuery<GraphData>({
     queryKey: ['graph', labelFilter],
     queryFn: () => fetchJson<GraphData>(`/graph/query?label=${labelFilter}&limit=80`),
     staleTime: 30_000,
+  })
+
+  const seedMutation = useMutation({
+    mutationFn: () => fetchJson<{ message: string }>('/graph/seed'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['graph'] }),
   })
 
   useEffect(() => {
@@ -181,6 +188,13 @@ export default function GraphView() {
               {l || 'Tout'}
             </button>
           ))}
+          <button
+            onClick={() => seedMutation.mutate()}
+            disabled={seedMutation.isPending}
+            className="text-xs px-3 py-1 rounded-full border border-neon-cyan/20 text-neon-cyan hover:bg-neon-cyan/10 transition-colors font-mono disabled:opacity-40"
+          >
+            {seedMutation.isPending ? 'Seed...' : '⟳ Seed'}
+          </button>
         </div>
       </div>
 

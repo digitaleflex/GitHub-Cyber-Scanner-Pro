@@ -12,18 +12,22 @@ _driver = None
 
 def get_driver():
     global _driver
-    if _driver is None:
-        try:
+    try:
+        if _driver is None:
             if NEO4J_AUTH_NONE:
                 _driver = GraphDatabase.driver(NEO4J_URI, auth=None)
             else:
                 _driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
             _driver.verify_connectivity()
             logging.info("Connecte a Neo4j (%s)", NEO4J_URI)
-        except Exception as e:
-            logging.warning("Neo4j non disponible: %s", e)
-            return None
-    return _driver
+        return _driver
+    except Exception as e:
+        logging.warning("Neo4j non disponible: %s", e)
+        if _driver:
+            try: _driver.close()
+            except: pass
+            _driver = None
+        return None
 
 
 def close():
