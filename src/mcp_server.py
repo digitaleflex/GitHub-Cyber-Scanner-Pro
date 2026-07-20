@@ -105,7 +105,8 @@ def register_tools(mcp):
         try:
             (total_repos, total_stars, languages, lang_dist, last_scan,
              critique, suspect, unscanned, avg_vitality,
-             _top_vitality, _low_vitality, _dead_vitality) = database.get_frontend_stats()
+             _top_vitality, _low_vitality, _dead_vitality,
+             _total_cves, _pending_kw, _new_24h) = database.get_frontend_stats()
         except Exception:
             return "Statistiques non disponibles."
         return (
