@@ -18,7 +18,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ src/
-COPY templates/ templates/
 COPY --from=frontend /build/dist frontend/dist/
 COPY scripts/ scripts/
 COPY data/ data/
