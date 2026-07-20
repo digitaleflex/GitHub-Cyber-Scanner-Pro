@@ -1617,6 +1617,21 @@ if __name__ == "__main__":
     bootstrap_thread = threading.Thread(target=_bootstrap_ontology, daemon=True)
     bootstrap_thread.start()
 
+    def _run_cve_updater():
+        import src.cve_importer as cve_importer
+        time.sleep(30)
+        while True:
+            try:
+                logging.info("CVE updater: import NVD...")
+                cve_importer.import_cve_all()
+                logging.info("CVE updater: terminé, prochain dans 24h")
+            except Exception as e:
+                logging.error(f"CVE updater error: {e}")
+            time.sleep(86400)
+
+    cve_thread = threading.Thread(target=_run_cve_updater, daemon=True)
+    cve_thread.start()
+
     from mcp.server.fastmcp import FastMCP
     from src.mcp_server import register_tools
 
