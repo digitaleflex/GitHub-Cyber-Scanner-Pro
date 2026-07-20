@@ -1337,9 +1337,7 @@ def get_news_incidents_api(limit: int = 50, country: str = None):
 @app.get("/api/keywords")
 def get_keywords_api(status: str = "pending", limit: int = 100, min_score: float = 0.0):
     """Liste les mots-clés découverts par le miner."""
-    if status == "approved":
-        return {"keywords": database.get_approved_keywords()[:limit]}
-    return {"keywords": database.get_pending_keywords(limit, min_score)}
+    return {"keywords": database.get_keywords(status, limit, min_score)}
 
 
 @app.post("/api/keywords/{term}/approve")
@@ -1501,6 +1499,11 @@ def start_cve_import(background_tasks: BackgroundTasks, max_entries_per_year: in
 
     background_tasks.add_task(_run)
     return {"message": "Import CVE NVD lancé en arrière-plan."}
+
+
+@app.get("/api/cves")
+def get_cves_api(q: str = "", severity: str = "", page: int = 1, per_page: int = 20):
+    return database.search_cves(q, severity, page, per_page)
 
 
 @app.get("/api/cve-status")

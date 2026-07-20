@@ -499,6 +499,56 @@ def get_unharvested_repositories(limit=50):
     return rows
 
 
+def search_cves(q: str = "", severity: str = "", page: int = 1, per_page: int = 20):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    conditions = []
+    params = []
+    if q:
+        conditions.append(
+            "(cve_id ILIKE %s OR description ILIKE %s OR weaknesses ILIKE %s)"
+        )
+        like = f"%{q}%"
+        params.extend([like, like, like])
+    if severity:
+        conditions.append("severity = %s")
+        params.append(severity)
+    where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+    count_sql = f"SELECT COUNT(*) FROM cve_entries {where}"
+    cursor.execute(count_sql, params)
+    total = cursor.fetchone()[0]
+    offset = (page - 1) * per_page
+    data_sql = f"""
+        SELECT cve_id, description, published, last_modified, severity, cvss_score, weaknesses
+        FROM cve_entries {where}
+        ORDER BY published DESC NULLS LAST, cvss_score DESC NULLS LAST
+        LIMIT %s OFFSET %s
+    """
+    cursor.execute(data_sql, params + [per_page, offset])
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    cves = [
+        {
+            "cve_id": r[0],
+            "description": (r[1][:500] + "...") if r[1] and len(r[1]) > 500 else (r[1] or ""),
+            "published": str(r[2]) if r[2] else None,
+            "last_modified": str(r[3]) if r[3] else None,
+            "severity": r[4] or "",
+            "cvss_score": r[5],
+            "weaknesses": (r[6] or "").split(",") if r[6] else [],
+        }
+        for r in rows
+    ]
+    return {
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "pages": max(1, (total + per_page - 1) // per_page),
+        "cves": cves,
+    }
+
+
 def count_total_data_points():
     try:
         conn = get_db_connection()
@@ -713,6 +763,40 @@ def save_discovered_keywords(keywords: list[dict]) -> int:
     except Exception as e:
         logging.error(f"Erreur save_discovered_keywords: {e}")
         return 0
+
+
+def get_keywords(status: str = "pending", limit: int = 100, min_score: float = 0.0) -> list[dict]:
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        if status == "all":
+            cursor.execute(
+                """
+                SELECT term, category_guess, score, sources, source_samples, status, discovered_at, reviewed_at
+                FROM discovered_keywords
+                ORDER BY score DESC, sources DESC
+                LIMIT %s
+                """,
+                (limit,)
+            )
+        else:
+            cursor.execute(
+                """
+                SELECT term, category_guess, score, sources, source_samples, status, discovered_at, reviewed_at
+                FROM discovered_keywords
+                WHERE status = %s AND score >= %s
+                ORDER BY score DESC, sources DESC
+                LIMIT %s
+                """,
+                (status, min_score, limit)
+            )
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return [dict(r) for r in rows]
+    except Exception as e:
+        logging.error(f"Erreur get_keywords: {e}")
+        return []
 
 
 def get_pending_keywords(limit: int = 100, min_score: float = 0.0) -> list[dict]:

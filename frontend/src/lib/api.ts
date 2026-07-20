@@ -176,6 +176,69 @@ export type Incident = {
   primary_link: string
 }
 
+export type CveEntry = {
+  cve_id: string
+  description: string
+  published: string | null
+  last_modified: string | null
+  severity: string
+  cvss_score: number | null
+  weaknesses: string[]
+}
+
+export type ApiCvesResponse = {
+  total: number
+  page: number
+  per_page: number
+  pages: number
+  cves: CveEntry[]
+}
+
+export type Keyword = {
+  term: string
+  category_guess: string | null
+  score: number
+  sources: number
+  source_samples: string | null
+  status: string
+  discovered_at: string | null
+  reviewed_at: string | null
+}
+
+export function useKeywords(status: string = 'pending', limit: number = 200) {
+  return useQuery<{ keywords: Keyword[] }>({
+    queryKey: ['keywords', status],
+    queryFn: () => fetchJson<{ keywords: Keyword[] }>(`/keywords?status=${status}&limit=${limit}`),
+    staleTime: 15_000,
+  })
+}
+
+export async function approveKeyword(term: string, category?: string): Promise<{ success: boolean }> {
+  const params = category ? `?category=${encodeURIComponent(category)}` : ''
+  const res = await fetch(`${API_BASE}/keywords/${encodeURIComponent(term)}/approve${params}`, { method: 'POST' })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+export async function rejectKeyword(term: string): Promise<{ success: boolean }> {
+  const res = await fetch(`${API_BASE}/keywords/${encodeURIComponent(term)}/reject`, { method: 'POST' })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+export function useCves(q?: string, severity?: string, page: number = 1) {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  if (severity) params.set('severity', severity)
+  params.set('page', String(page))
+  params.set('per_page', '20')
+  return useQuery<ApiCvesResponse>({
+    queryKey: ['cves', q ?? '', severity ?? '', page],
+    queryFn: () => fetchJson<ApiCvesResponse>(`/cves?${params}`),
+    staleTime: 30_000,
+  })
+}
+
 export function useNewsIncidents(limit = 50, country?: string) {
   const params = new URLSearchParams()
   params.set('limit', String(limit))
