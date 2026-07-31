@@ -10,8 +10,10 @@ GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 HF_KEY = os.getenv("HF_API_KEY", "")
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-HF_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3"
+HF_URL = "https://router.huggingface.co/v1/chat/completions"
+HF_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 
 
 def llm_complete(prompt: str, max_tokens: int = 300, temperature: float = 0.3, timeout: int = 20) -> str:
@@ -46,6 +48,23 @@ def llm_complete(prompt: str, max_tokens: int = 300, temperature: float = 0.3, t
             logging.warning(f"Gemini fallback: {r.status_code} {r.text[:100]}")
         except Exception as e:
             logging.warning(f"Gemini error: {e}")
+
+    # 3. HuggingFace (OpenAI-compatible)
+    if HF_KEY:
+        try:
+            r = requests.post(
+                HF_URL,
+                headers={"Authorization": f"Bearer {HF_KEY}", "Content-Type": "application/json"},
+                json={"model": HF_MODEL,
+                      "messages": [{"role": "user", "content": prompt}],
+                      "max_tokens": max_tokens, "temperature": temperature},
+                timeout=timeout,
+            )
+            if r.status_code == 200:
+                return r.json()["choices"][0]["message"]["content"]
+            logging.warning(f"HF fallback: {r.status_code} {r.text[:100]}")
+        except Exception as e:
+            logging.warning(f"HF error: {e}")
 
     return ""
 
