@@ -149,7 +149,9 @@ function RootLayout() {
         {/* Footer */}
         <footer className="py-8 border-t border-white/[0.03] flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] sm:text-xs text-slate-600">
           <div className="flex items-center gap-3">
-            <span>CyberScan Pro v2.2</span>
+            <span>CyberScan Pro v3.1</span>
+            <span className="w-1 h-1 rounded-full bg-slate-700" />
+            <Link to="/about" className="hover:text-slate-400 transition">A propos</Link>
             <span className="w-1 h-1 rounded-full bg-slate-700" />
             <span>https://cyberbook.eurin.tech</span>
           </div>

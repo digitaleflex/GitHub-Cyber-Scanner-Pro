@@ -165,6 +165,23 @@ function DigestSection() {
             </div>
           </div>
         )}
+
+        {/* CVE du jour avec exploits */}
+        {d.top_threats?.filter((t: any) => t.severity === 'CRITIQUE').length > 0 && (
+          <div className="mt-4 pt-4 border-t border-rose-500/10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-rose-400 pulse-ring" />
+              <h4 className="text-[10px] uppercase tracking-widest text-rose-400">Correlations critiques</h4>
+            </div>
+            {d.top_threats.filter((t: any) => t.severity === 'CRITIQUE').slice(0, 3).map((t: any, i: number) => (
+              <div key={i} className="flex items-center gap-2 text-xs mb-1">
+                <span className="text-rose-400 font-mono shrink-0">{t.name}</span>
+                <span className="text-slate-600">—</span>
+                <span className="text-slate-400 truncate">{t.description?.slice(0, 80)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Trust badges */}
