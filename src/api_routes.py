@@ -451,6 +451,14 @@ def osint_investigate_v2(free_text: str = ""):
     return result
 
 
+@app.post("/api/slicer/scan")
+def slicer_scan_api(queries: int = 10, _u: str = Depends(src.auth.verify_admin)):
+    """GitHub Slicer: decouverte massive par tranches (admin)."""
+    import src.github_slicer as slicer
+    import src.github_client as gc
+    return slicer.run_slicing_scan(gc.TOKENS, max_queries=queries)
+
+
 @app.post("/api/osint/dorks")
 def osint_dorks_api(name: str = "", location: str = "", extract: bool = False):
     """Multi-engine dorking OSINT (DuckDuckGo, Bing, SearX)."""

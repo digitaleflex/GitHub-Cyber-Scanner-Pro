@@ -268,6 +268,16 @@ def scan_cycle():
                 logging.info(f"📰 Blog scan: {n} articles")
         except Exception as e:
             logging.error(f"❌ Erreur Blog: {e}")
+        try:
+            import src.github_slicer as slicer
+            import src.github_client as gc
+            result = slicer.run_slicing_scan(gc.TOKENS, max_queries=30)
+            if result.get("repos_saved"):
+                logging.info(f"🧩 GitHub Slicer: +{result['repos_saved']} repos ({result['repos_found']} trouves)")
+            else:
+                logging.info(f"🧩 GitHub Slicer: {result.get('error', '0 repos')}")
+        except Exception as e:
+            logging.error(f"❌ Erreur Slicer: {e}")
 
 
 def run_scan_once_manual():
