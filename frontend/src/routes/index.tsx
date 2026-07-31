@@ -68,8 +68,10 @@ function ExplorePage() {
       {/* Home sections (when no search) */}
       {!hasResults && !isLoading && (
         <div className="space-y-4 sm:space-y-6 animate-fade">
+          <StatsBar />
           <DigestSection />
           <ThreatSection />
+          <AiLabSection />
           <BlogSection />
           <TrendingSection />
         </div>
@@ -201,3 +203,69 @@ function ThreatSection() {
     </div>
   )
 }
+
+function AiLabSection() {
+  const [q, setQ] = useState('')
+  const [result, setResult] = useState<any>(null)
+  const testClassify = async () => {
+    const r = await fetch(`/api/hf/classify?text=${encodeURIComponent(q)}`).then(r => r.json())
+    setResult(r)
+  }
+  return (
+    <div className="glass-card rounded-2xl p-4 sm:p-6">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="w-6 h-6 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-400 text-xs">AI</span>
+        <h3 className="text-sm sm:text-base font-semibold text-white">Lab IA — Testez nos modeles</h3>
+        <span className="text-[10px] text-slate-600 ml-auto">22 modeles</span>
+      </div>
+      <div className="flex gap-2 mb-3">
+        <input value={q} onChange={e => setQ(e.target.value)}
+          placeholder="Ex: outil de scan reseau pour pentest..."
+          className="flex-1 px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500" />
+        <button onClick={testClassify} className="px-4 py-2 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-lg text-xs font-medium hover:bg-violet-500/20">Classifier</button>
+      </div>
+      {result && result.all && (
+        <div className="text-xs space-y-1">
+          <p className="text-slate-400">Classification IA (zero-shot multilingue):</p>
+          {Object.entries(result.all as Record<string,number>).slice(0,4).map(([k,v]) => (
+            <div key={k} className="flex items-center gap-2">
+              <span className="text-slate-300 w-24">{k}</span>
+              <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-violet-500/50 rounded-full" style={{width: `${(v as number)*100}%`}} />
+              </div>
+              <span className="text-slate-500 w-10 text-right">{(v as number*100).toFixed(0)}%</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function StatsBar() {
+  const { data: s } = useQuery({ queryKey: ['stats-bar'], queryFn: () => Promise.all([
+    fetch('/api/stats').then(r=>r.json()),
+    fetch('/api/blog/sources').then(r=>r.json()),
+  ]).then(([stats, sources]) => ({...stats, blogSources: sources?.length || 0})), staleTime: 120_000 })
+  if (!s) return null
+  return (
+    <div className="glass-card rounded-2xl p-3 sm:p-4">
+      <div className="grid grid-cols-4 gap-2 text-center">
+        {[
+          { label: 'Outils', value: s.total_repos?.toLocaleString() || '0' },
+          { label: 'CVE', value: (s.total_cves || 0).toLocaleString() },
+          { label: 'Blogs', value: `${s.blogSources || 0} sources` },
+          { label: 'IA', value: '22 modeles' },
+        ].map((x, i) => (
+          <div key={i}>
+            <div className="text-sm sm:text-base font-bold text-white">{x.value}</div>
+            <div className="text-[9px] sm:text-[10px] text-slate-500">{x.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Replace the empty-state return in ExplorePage to include new sections
+// Actually, just add the sections to the home layout
