@@ -1,0 +1,26 @@
+[Unit]
+Description=RTerm Backend (headless RTerm-as-a-service)
+After=network.target
+Documentation=https://github.com/DrOlu/RTerm
+
+[Service]
+Type=simple
+User=rterm
+Group=rterm
+Environment=GYBACKEND_WS_ENABLE=1
+Environment=GYBACKEND_WS_HOST=0.0.0.0
+Environment=GYBACKEND_WS_PORT=17888
+Environment=GYBACKEND_DATA_DIR=/var/lib/rterm-backend
+# Create the data dir if it doesn't exist (requires systemd >= 235 for StateDirectory)
+StateDirectory=rterm-backend
+ExecStart=/usr/bin/env gybackend
+Restart=on-failure
+RestartSec=5
+# Hardening (optional; comment out if native modules need broader access)
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

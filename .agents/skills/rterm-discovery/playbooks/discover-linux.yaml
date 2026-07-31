@@ -1,0 +1,21 @@
+name: Discover Linux Fleet
+description: Agentless Linux discovery (SSH) across the linux-fleet group; writes each host to the CMDB via inventory:upsert.
+groupId: linux-fleet
+onError: continue
+steps:
+  - name: Base detection
+    kind: command
+    command: base-detect.sh {{host}}
+  - name: Collect asset
+    kind: command
+    command: bash linux.sh {{host}}
+    captureVar:
+      name: asset
+      pattern: '(?s).*'
+      regex: true
+  - name: Upsert into CMDB
+    kind: command
+    command: rterm-rpc inventory:upsert --host {{host}}
+    validate:
+      expect: ok
+      expectMode: substring

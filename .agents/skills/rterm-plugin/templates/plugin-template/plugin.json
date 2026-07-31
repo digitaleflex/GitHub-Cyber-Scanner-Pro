@@ -1,0 +1,8 @@
+{
+  "name": "plugin-template",
+  "version": "1.0.0",
+  "description": "A minimal RTerm plugin template",
+  "entry": "index.ts",
+  "tools": ["plugin_template_action"],
+  "permissions": ["exec_command", "read_ledger"]
+}

@@ -1,0 +1,21 @@
+name: Discover Databases
+description: Extended database discovery (MS SQL/Oracle/MySQL/Sybase) across the db-tier group; builds DB→server instance-of links in the CMDB.
+groupId: db-tier
+onError: continue
+steps:
+  - name: Base detection
+    kind: command
+    command: base-detect.sh {{host}}
+  - name: Collect DB engines
+    kind: command
+    command: bash databases.sh {{host}} auto
+    captureVar:
+      name: dbout
+      pattern: '(?s).*'
+      regex: true
+  - name: Upsert into CMDB
+    kind: command
+    command: rterm-rpc inventory:upsert --host {{host}}
+    validate:
+      expect: ok
+      expectMode: substring

@@ -1,0 +1,18 @@
+name: Discover Virtualization
+description: vCenter + ESXi discovery (HTTPS API / govc / SSH) across the esx-hosts group; builds VM→ESX→datastore links in the CMDB.
+groupId: esx-hosts
+onError: continue
+steps:
+  - name: Collect vCenter + VMs
+    kind: command
+    command: VCENTER_HOST={{host}} bash vcenter.sh
+    captureVar:
+      name: vcout
+      pattern: '(?s).*'
+      regex: true
+  - name: Upsert into CMDB
+    kind: command
+    command: rterm-rpc inventory:upsert --host {{host}}
+    validate:
+      expect: ok
+      expectMode: substring

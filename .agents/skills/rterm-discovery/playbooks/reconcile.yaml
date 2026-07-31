@@ -1,0 +1,12 @@
+name: Reconcile CMDB
+description: Mark assets unseen in 3 scans as stale/missing, dedupe by hash, refresh relationship links.
+steps:
+  - name: Mark stale/missing
+    kind: command
+    command: rterm-rpc inventory:markMissing --scans 3
+  - name: Dedupe + refresh links
+    kind: command
+    command: rterm-rpc inventory:query --dedupe true
+    validate:
+      expect: ok
+      expectMode: substring

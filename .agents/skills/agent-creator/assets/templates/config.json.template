@@ -1,0 +1,40 @@
+{
+  "id": "{{uuid}}",
+  "name": "{{profile-name}}",
+  "provider": "{{provider}}",
+  "model": "{{model}}",
+  "maxIterations": {{max-iterations}},
+  "minTimeBetweenToolCalls": {{min-time-between-tool-calls}},
+  {{#if max-tokens}}"maxTokens": {{max-tokens}},{{/if}}
+  {{#if temperature}}"temperature": {{temperature}},{{/if}}
+  "enabledServers": [
+    {{#each enabled-servers}}"{{this}}"{{#unless @last}},{{/unless}}{{/each}}
+  ],
+  "toolApprovals": {
+    {{#each tool-approvals}}"{{@key}}": "{{this}}"{{#unless @last}},{{/unless}}{{/each}}
+  },
+  "toolSettings": {
+    {{#if bash-allowed-pattern}}"power---bash": {
+      "allowedPattern": "{{bash-allowed-pattern}}",
+      "deniedPattern": "{{bash-denied-pattern}}"
+    }{{/if}}
+  },
+  "includeContextFiles": {{include-context-files}},
+  "includeRepoMap": {{include-repo-map}},
+  "usePowerTools": {{use-power-tools}},
+  "useAiderTools": {{use-aider-tools}},
+  "useTodoTools": {{use-todo-tools}},
+  "useSubagents": {{use-subagents}},
+  "useTaskTools": {{use-task-tools}},
+  "useMemoryTools": {{use-memory-tools}},
+  "useSkillsTools": {{use-skills-tools}},
+  "customInstructions": "{{custom-instructions}}",
+  "subagent": {
+    "enabled": {{subagent-enabled}},
+    "contextMemory": "{{subagent-context-memory}}",
+    "systemPrompt": "{{subagent-system-prompt}}",
+    "invocationMode": "{{subagent-invocation-mode}}",
+    "color": "{{subagent-color}}",
+    "description": "{{subagent-description}}"
+  }
+}

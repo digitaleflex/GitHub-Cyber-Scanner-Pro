@@ -1,0 +1,42 @@
+{
+  "id": "sample-profile-id-550e8400-e29b-41d4-a716-446655440000",
+  "name": "Sample Agent Profile",
+  "provider": "anthropic",
+  "model": "claude-sonnet-4-5-20250929",
+  "maxIterations": 250,
+  "minTimeBetweenToolCalls": 0,
+  "maxTokens": null,
+  "temperature": null,
+  "enabledServers": [],
+  "toolApprovals": {
+    "power---file_read": "always",
+    "power---file_write": "ask",
+    "power---file_edit": "ask",
+    "power---glob": "always",
+    "power---grep": "always",
+    "power---semantic_search": "always",
+    "power---bash": "ask",
+    "power---fetch": "ask",
+    "memory---store_memory": "always",
+    "memory---retrieve_memory": "always"
+  },
+  "toolSettings": {},
+  "includeContextFiles": true,
+  "includeRepoMap": true,
+  "usePowerTools": true,
+  "useAiderTools": false,
+  "useTodoTools": true,
+  "useSubagents": false,
+  "useTaskTools": true,
+  "useMemoryTools": true,
+  "useSkillsTools": true,
+  "customInstructions": "This is a sample agent profile. Customize the customInstructions field to provide specific guidance to the agent.",
+  "subagent": {
+    "enabled": false,
+    "contextMemory": "last-message",
+    "systemPrompt": "",
+    "invocationMode": "on-demand",
+    "color": "#3b82f6",
+    "description": ""
+  }
+}

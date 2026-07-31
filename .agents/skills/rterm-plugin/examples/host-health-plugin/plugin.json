@@ -1,0 +1,10 @@
+{
+  "name": "host-health-plugin",
+  "version": "1.0.0",
+  "description": "Evaluate host health from the metrics ledger and alert on high CPU",
+  "entry": "index.ts",
+  "tools": ["host_health_evaluate", "host_health_report"],
+  "triggers": [{ "name": "host-cpu-high", "kind": "threshold", "metric": "cpuUsagePercent", "op": "gt", "value": 90 }],
+  "panels": ["host-health-board"],
+  "permissions": ["read_ledger"]
+}

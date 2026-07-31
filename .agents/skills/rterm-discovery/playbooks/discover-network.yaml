@@ -1,0 +1,21 @@
+name: Discover Network Devices
+description: Agentless network-device discovery (SSH show commands + SNMP fallback) across the core-net group; writes each device + CDP/LLDP links to the CMDB.
+groupId: core-net
+onError: continue
+steps:
+  - name: Base detection
+    kind: command
+    command: base-detect.sh {{host}}
+  - name: Capture show commands
+    kind: command
+    command: show version && show inventory && show ip interface brief && show cdp neighbors detail && show lldp neighbors detail
+    captureVar:
+      name: showout
+      pattern: '(?s).*'
+      regex: true
+  - name: Normalize + upsert
+    kind: command
+    command: bash network-device.sh {{host}} <<< "{{showout}}"
+    validate:
+      expect: '"type":"netdevice"'
+      expectMode: substring

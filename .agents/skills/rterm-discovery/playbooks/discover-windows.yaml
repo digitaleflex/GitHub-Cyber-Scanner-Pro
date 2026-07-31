@@ -1,0 +1,21 @@
+name: Discover Windows Fleet
+description: Agentless Windows discovery (WinRM/PowerShell) across the win-fleet group; writes each host to the CMDB via inventory:upsert.
+groupId: win-fleet
+onError: continue
+steps:
+  - name: Base detection
+    kind: command
+    command: base-detect.sh {{host}}
+  - name: Collect Windows asset (PowerShell)
+    kind: command
+    command: powershell -NoProfile -File windows.ps1
+    captureVar:
+      name: asset
+      pattern: '(?s).*'
+      regex: true
+  - name: Upsert into CMDB
+    kind: command
+    command: rterm-rpc inventory:upsert --host {{host}}
+    validate:
+      expect: ok
+      expectMode: substring

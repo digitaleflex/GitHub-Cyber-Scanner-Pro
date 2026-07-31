@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ng.hyperspace.neuralos</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/gybackend</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>GYBACKEND_WS_ENABLE</key><string>1</string>
+    <key>GYBACKEND_WS_HOST</key><string>127.0.0.1</string>
+    <key>GYBACKEND_WS_PORT</key><string>17888</string>
+    <!-- EDIT: point at a real data dir (or your RTerm app settings dir) -->
+    <key>GYBACKEND_DATA_DIR</key><string>/Users/REPLACE_ME/.neuralos</string>
+  </dict>
+
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>10</integer>
+
+  <key>StandardOutPath</key><string>/tmp/neuralos.out.log</string>
+  <key>StandardErrorPath</key><string>/tmp/neuralos.err.log</string>
+</dict>
+</plist>
