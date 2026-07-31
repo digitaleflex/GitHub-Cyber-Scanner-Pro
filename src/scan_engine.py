@@ -217,6 +217,14 @@ def scan_cycle():
                 logging.info(f"📰 Digest IA: {digest.get('title','?')}")
         except Exception as e:
             logging.error(f"❌ Erreur digest IA: {e}")
+        try:
+            import src.osint_enricher as osint
+            osint_res = osint.run_osint_enrichment()
+            total = sum(v for v in osint_res.values() if isinstance(v, int))
+            if total:
+                logging.info(f"🌐 OSINT: {total} entrees enrichies ({osint_res})")
+        except Exception as e:
+            logging.error(f"❌ Erreur OSINT: {e}")
 
 
 def run_scan_once_manual():

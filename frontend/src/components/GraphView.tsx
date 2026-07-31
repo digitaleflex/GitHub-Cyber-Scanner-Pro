@@ -167,13 +167,13 @@ export default function GraphView() {
   const labels = ['', 'Hacker', 'APTCampaign', 'Tool', 'CVE', 'Repo']
 
   return (
-    <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5 neon-border-cyan hover:neon-glow-cyan transition-all duration-300">
+    <div className="glass-card rounded-2xl p-5">
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <h2 className="text-neon-cyan text-sm font-semibold uppercase tracking-wider font-cyber">
+        <h2 className="text-indigo-400 text-sm font-semibold uppercase tracking-wider">
           Social Graph
         </h2>
         {data && (
-          <span className="text-xs text-gray-600 font-mono">
+          <span className="text-xs text-slate-600 ">
             {data.nodes.length} nœuds · {data.links.length} relations
           </span>
         )}
@@ -183,10 +183,10 @@ export default function GraphView() {
             <button
               key={l || 'all'}
               onClick={() => setLabelFilter(l)}
-              className={`text-xs px-3 py-1 rounded-full border transition-colors font-mono ${
+              className={`text-xs px-3 py-1 rounded-full border transition-colors  ${
                 labelFilter === l
-                  ? 'bg-white/[0.06] text-white border-white/20'
-                  : 'text-gray-600 border-white/[0.06] hover:text-gray-400'
+                  ? 'bg-slate-800 text-white border-slate-600'
+                  : 'text-slate-600 border-slate-700 hover:text-slate-400'
               }`}
             >
               {l || 'Tout'}
@@ -195,7 +195,7 @@ export default function GraphView() {
           <button
             onClick={() => seedMutation.mutate()}
             disabled={seedMutation.isPending}
-            className="text-xs px-3 py-1 rounded-full border border-neon-cyan/20 text-neon-cyan hover:bg-neon-cyan/10 transition-colors font-mono disabled:opacity-40"
+            className="text-xs px-3 py-1 rounded-full border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/10 transition-colors  disabled:opacity-40"
           >
             {seedMutation.isPending ? 'Seed...' : '⟳ Seed'}
           </button>
@@ -203,14 +203,14 @@ export default function GraphView() {
       </div>
 
       {isLoading ? (
-        <div className="h-96 bg-white/5 rounded animate-pulse" />
+        <div className="h-96 bg-slate-800/50 rounded animate-pulse" />
       ) : !data?.available ? (
         <div className="h-96 flex items-center justify-center">
-          <p className="text-gray-600 text-sm font-mono">Neo4j non disponible</p>
+          <p className="text-slate-600 text-sm ">Neo4j non disponible</p>
         </div>
       ) : simNodes.length === 0 ? (
         <div className="h-96 flex items-center justify-center">
-          <p className="text-gray-600 text-sm font-mono">Aucune donnée dans le graphe</p>
+          <p className="text-slate-600 text-sm ">Aucune donnée dans le graphe</p>
         </div>
       ) : (
         <div className="relative">
@@ -259,28 +259,28 @@ export default function GraphView() {
             })}
           </svg>
           {selected && (
-            <div className="absolute top-2 right-2 bg-gray-900/95 border border-white/[0.1] rounded-lg p-4 max-w-xs text-xs font-mono">
+            <div className="absolute top-2 right-2 bg-slate-900/95 border border-slate-700 rounded-lg p-4 max-w-xs text-xs ">
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: LABEL_COLORS[selected.label] ?? '#fff' }} />
                 <span className="text-white font-semibold">{selected.label}</span>
               </div>
-              <div className="text-gray-400 mb-1">{selected.name}</div>
+              <div className="text-slate-400 mb-1">{selected.name}</div>
               {selected.label === 'Hacker' && (
-                <a href={selected.properties.profile_url as string} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-neon-cyan">
+                <a href={selected.properties.profile_url as string} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-400">
                   Voir le profil
                 </a>
               )}
               {selected.label === 'CVE' && (
-                <a href={`https://nvd.nist.gov/vuln/detail/${selected.name}`} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-neon-cyan">
+                <a href={`https://nvd.nist.gov/vuln/detail/${selected.name}`} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-400">
                   Voir sur NVD
                 </a>
               )}
               {selected.label === 'Repo' && (
-                <a href={`https://github.com/${selected.name}`} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-neon-cyan">
+                <a href={`https://github.com/${selected.name}`} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-400">
                   Voir sur GitHub
                 </a>
               )}
-              <button onClick={() => setSelected(null)} className="mt-2 text-gray-600 hover:text-white transition-colors text-[10px]">
+              <button onClick={() => setSelected(null)} className="mt-2 text-slate-600 hover:text-white transition-colors text-[10px]">
                 Fermer
               </button>
             </div>

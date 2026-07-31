@@ -252,6 +252,13 @@ def generate_digest_api(_u: str = Depends(src.auth.verify_admin)):
     return ai_digest.generate_digest()
 
 
+@app.post("/api/osint/enrich")
+def osint_enrich_api(_u: str = Depends(src.auth.verify_admin)):
+    """Enrichissement OSINT: CISA KEV, GTFOBins, Awesome Lists (admin)."""
+    import src.osint_enricher as osint
+    return osint.run_osint_enrichment()
+
+
 @app.post("/api/ai-keywords")
 def run_ai_keywords(limit: int = 25, _u: str = Depends(src.auth.verify_admin)):
     """Decouvre des mots-cles cyber emergents via l'IA (Groq)."""
