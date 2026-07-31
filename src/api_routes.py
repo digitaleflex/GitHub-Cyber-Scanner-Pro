@@ -317,6 +317,21 @@ def tools_by_category_api(category: str = "all", limit: int = 30):
     return {"tools": rows, "category": category}
 
 
+@app.post("/api/agents/github/categorize")
+def github_categorize_api(limit: int = 15, _u: str = Depends(src.auth.verify_admin)):
+    """Categorise les repos sans categorie IA (admin)."""
+    import src.agents.github_agent as gh
+    n = gh.batch_categorize(limit=limit)
+    return {"categorized": n}
+
+
+@app.get("/api/trends")
+def trends_api():
+    """Tendances emergentes detectees par l'agent IA."""
+    import src.agents.trend_agent as trend
+    return trend.detect_trends()
+
+
 @app.get("/api/threats/top")
 def top_threats_api(limit: int = 20):
     """Top menaces classees par Threat Priority Score."""

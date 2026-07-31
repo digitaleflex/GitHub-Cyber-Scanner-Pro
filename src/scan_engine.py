@@ -247,6 +247,13 @@ def scan_cycle():
                 logging.info(f"🤖 CVE Agent: {n} CVE analysees par IA")
         except Exception as e:
             logging.error(f"❌ Erreur CVE Agent: {e}")
+        try:
+            import src.agents.github_agent as github_agent
+            n = github_agent.batch_categorize(limit=15)
+            if n:
+                logging.info(f"🏷️ GitHub Agent: {n} repos categorises par IA")
+        except Exception as e:
+            logging.error(f"❌ Erreur GitHub Agent: {e}")
 
 
 def run_scan_once_manual():
