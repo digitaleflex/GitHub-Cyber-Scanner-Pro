@@ -117,5 +117,84 @@ def get_cve_detail(cve_id: str) -> dict:
     cve["exploits"] = get_exploits_for_cve(cve_id)
     cve["tools"] = get_tools_for_cve(cve_id)
     cve["is_kev"] = bool(cve.get("weaknesses") and "CISA_KEV" in str(cve.get("weaknesses", "")))
+    cve["threat_priority"] = compute_threat_priority(cve)
 
     return cve
+
+
+def compute_threat_priority(cve: dict) -> dict:
+    """Calcule un Threat Priority Score (0-100) multi-facteurs."""
+    cvss = cve.get("cvss_score") or 0
+    is_kev = cve.get("is_kev", False)
+    exploits = cve.get("exploits", [])
+    published = cve.get("published")
+
+    score = 0
+    factors = {}
+
+    # CVSS (0-40 points)
+    cvss_points = min(cvss * 4, 40)
+    score += cvss_points
+    factors["cvss"] = round(cvss_points, 1)
+
+    # CISA KEV: activement exploite (+30)
+    if is_kev:
+        score += 30
+        factors["kev"] = 30
+
+    # Exploit disponible (+25)
+    if exploits:
+        exploit_points = min(len(exploits) * 5, 25)
+        score += exploit_points
+        factors["exploit"] = exploit_points
+
+    # Age: si > 2 ans, penalite (-10); si > 5 ans, pas d'alerte
+    if published:
+        from datetime import datetime, timezone
+        try:
+            age_days = (datetime.now(timezone.utc) - published).days if hasattr(published, 'days') else \
+                       (datetime.now(timezone.utc) - datetime.fromisoformat(str(published).replace("Z", "+00:00"))).days
+            if age_days > 365 * 5:
+                factors["age_penalty"] = -20
+                score += factors["age_penalty"]
+            elif age_days > 365 * 2:
+                factors["age_penalty"] = -10
+                score += factors["age_penalty"]
+        except Exception:
+            pass
+
+    score = max(0, min(100, round(score)))
+    return {"score": score, "factors": factors, "label": "CRITIQUE" if score >= 75 else "ELEVE" if score >= 50 else "MOYEN" if score >= 25 else "BAS"}
+
+
+def get_top_threats(limit: int = 20) -> list[dict]:
+    """Retourne les CVE les plus menacees selon le Threat Priority Score."""
+    from src.database import get_db_connection
+    from psycopg2.extras import RealDictCursor
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("""
+        SELECT cve_id, description, severity, cvss_score, published, weaknesses
+        FROM cve_entries
+        WHERE (weaknesses ILIKE '%%CISA_KEV%%' OR severity = 'CRITICAL' OR cvss_score >= 9)
+        ORDER BY
+            CASE WHEN weaknesses ILIKE '%%CISA_KEV%%' THEN 0 ELSE 1 END,
+            cvss_score DESC NULLS LAST,
+            published DESC NULLS LAST
+        LIMIT %s
+    """, (limit,))
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    threats = []
+    for r in rows:
+        cve = dict(r)
+        cve["is_kev"] = bool(cve.get("weaknesses") and "CISA_KEV" in str(cve.get("weaknesses", "")))
+        cve["exploits"] = get_exploits_for_cve(cve["cve_id"])
+        cve["priority"] = compute_threat_priority(cve)
+        threats.append(cve)
+
+    threats.sort(key=lambda t: t["priority"]["score"], reverse=True)
+    return threats[:limit]

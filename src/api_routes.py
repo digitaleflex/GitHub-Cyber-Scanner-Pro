@@ -218,13 +218,17 @@ def tool_detail_api(name: str):
 
     tool = dict(tool)
 
-    # Trust score (0-100)
+    # Trust score (0-100) — multi-facteurs
     stars_norm = min((tool.get("stars") or 0) / 5000, 1.0)
     vitality = (tool.get("vitality_score") or 0) / 100
     verdict_bonus = {"Sain": 0.3, None: 0, "Suspect": -0.2, "Critique": -0.5}.get(tool.get("security_verdict"), 0)
     trust = round(max(0, min(100, (stars_norm * 40 + vitality * 30 + (verdict_bonus + 0.5) * 30) * 100 / 100)))
-
     tool["trust_score"] = trust
+    tool["trust_breakdown"] = {
+        "stars": round(stars_norm * 40, 1),
+        "vitality": round(vitality * 30, 1),
+        "verdict": round((verdict_bonus + 0.5) * 30, 1),
+    }
 
     # Similar tools (via semantic search on description)
     try:
@@ -311,6 +315,14 @@ def tools_by_category_api(category: str = "all", limit: int = 30):
     rows = [dict(r) for r in cursor.fetchall()]
     cursor.close(); conn.close()
     return {"tools": rows, "category": category}
+
+
+@app.get("/api/threats/top")
+def top_threats_api(limit: int = 20):
+    """Top menaces classees par Threat Priority Score."""
+    import src.correlation as corr
+    threats = corr.get_top_threats(limit=limit)
+    return {"count": len(threats), "threats": threats}
 
 
 @app.get("/api/cve/{cve_id}")
