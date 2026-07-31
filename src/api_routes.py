@@ -332,6 +332,28 @@ def trends_api():
     return trend.detect_trends()
 
 
+@app.post("/api/blog/scan")
+def blog_scan_api(_u: str = Depends(src.auth.verify_admin)):
+    """Lance le scan des blogs securite (admin)."""
+    import src.blog_scanner as blog
+    n = blog.scan_all()
+    return {"saved": n}
+
+
+@app.get("/api/blog/posts")
+def blog_posts_api(limit: int = 20, source: str = None):
+    """Derniers articles de blogs securite."""
+    import src.blog_scanner as blog
+    return blog.get_posts(limit=limit, source=source)
+
+
+@app.get("/api/blog/sources")
+def blog_sources_api():
+    """Sources de blogs disponibles."""
+    import src.blog_scanner as blog
+    return blog.get_sources()
+
+
 @app.post("/api/social/reddit")
 def reddit_scan_api(limit: int = 10, _u: str = Depends(src.auth.verify_admin)):
     """Scan Reddit pour nouveaux outils (admin)."""

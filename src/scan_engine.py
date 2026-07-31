@@ -261,6 +261,13 @@ def scan_cycle():
                 logging.info(f"📱 Reddit: {n} nouveaux repos")
         except Exception as e:
             logging.error(f"❌ Erreur Reddit: {e}")
+        try:
+            import src.blog_scanner as blog
+            n = blog.scan_all()
+            if n:
+                logging.info(f"📰 Blog scan: {n} articles")
+        except Exception as e:
+            logging.error(f"❌ Erreur Blog: {e}")
 
 
 def run_scan_once_manual():
