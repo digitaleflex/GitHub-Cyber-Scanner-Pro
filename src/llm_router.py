@@ -13,7 +13,15 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 HF_URL = "https://router.huggingface.co/v1/chat/completions"
-HF_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+
+# Modeles HF par priorite (du plus puissant au plus rapide)
+HF_MODELS = {
+    "best": "Qwen/Qwen2.5-72B-Instruct",         # 72B — qualite max
+    "balanced": "meta-llama/Llama-3.3-70B-Instruct",  # 70B — equivalent Groq
+    "fast": "Qwen/Qwen2.5-7B-Instruct",           # 7B — rapide
+    "code": "Qwen/Qwen3-Coder-480B-A35B-Instruct", # specialiste code
+    "long": "moonshotai/Kimi-K2-Instruct",         # 1M contexte
+}
 
 
 def llm_complete(prompt: str, max_tokens: int = 300, temperature: float = 0.3, timeout: int = 20) -> str:
@@ -55,7 +63,7 @@ def llm_complete(prompt: str, max_tokens: int = 300, temperature: float = 0.3, t
             r = requests.post(
                 HF_URL,
                 headers={"Authorization": f"Bearer {HF_KEY}", "Content-Type": "application/json"},
-                json={"model": HF_MODEL,
+                json={"model": HF_MODELS["balanced"],
                       "messages": [{"role": "user", "content": prompt}],
                       "max_tokens": max_tokens, "temperature": temperature},
                 timeout=timeout,
