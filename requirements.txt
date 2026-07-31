@@ -15,3 +15,4 @@ pyyaml>=6.0
 sherlock-project>=0.15.0
 maigret>=0.5.0
 holehe>=1.60.0
+PySocks>=1.7.1

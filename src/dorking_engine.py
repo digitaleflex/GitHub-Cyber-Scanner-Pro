@@ -6,6 +6,8 @@ from urllib.parse import quote
 
 import requests
 
+import src.proxy as proxy
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -39,7 +41,8 @@ def _search(engine: str, query: str, max_results: int = 20) -> list[dict]:
     if not cfg:
         return []
     try:
-        r = requests.get(
+        session = proxy.get_session()
+        r = session.get(
             cfg["url"],
             params={**cfg["params"], "q": query},
             headers=HEADERS, timeout=15,
