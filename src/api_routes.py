@@ -376,6 +376,70 @@ def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     return {"flagged": n}
 
 
+@app.post("/api/osint/pro/email")
+def osint_email_api(email: str = ""):
+    """Email OSINT: breaches + pastebin."""
+    import src.osint_pro as pro
+    return {
+        "breaches": pro.check_email_breaches(email),
+        "pastebin": pro.search_pastebin(email),
+    }
+
+
+@app.post("/api/osint/pro/phone")
+def osint_phone_api(phone: str = ""):
+    """Phone OSINT: analyse numero."""
+    import src.osint_pro as pro
+    return pro.analyze_phone(phone)
+
+
+@app.post("/api/osint/pro/domain")
+def osint_domain_api(domain: str = ""):
+    """Domain OSINT: WHOIS/RDAP."""
+    import src.osint_pro as pro
+    return pro.lookup_domain(domain)
+
+
+@app.post("/api/osint/pro/report")
+def osint_report_api(free_text: str = "", email: str = "", phone: str = "", domain: str = ""):
+    """Rapport OSINT professionnel complet (toutes les sources)."""
+    import src.osint_pro as pro
+    import src.osint_lab as lab
+    import src.github_client as gc
+
+    findings = {}
+
+    # Pipeline standard
+    if free_text:
+        extracted = lab.ai_extract_person(free_text)
+        name = extracted.get("name", "")
+        location = extracted.get("location", "")
+        username = (extracted.get("probable_usernames") or [""])[0]
+        findings["github_profiles"] = lab.search_github_user(name, location, gc.TOKENS) if name else []
+        findings["social_presence"] = lab.check_social_presence(username) if username else []
+    else:
+        extracted = {"name": "", "location": ""}
+
+    # Email OSINT
+    if email:
+        findings["email_breaches"] = pro.check_email_breaches(email)
+        findings["email_pastebin"] = pro.search_pastebin(email)
+
+    # Phone OSINT
+    if phone:
+        findings["phone_analysis"] = pro.analyze_phone(phone)
+
+    # Domain OSINT
+    if domain:
+        findings["domain_info"] = pro.lookup_domain(domain)
+
+    return pro.generate_report(
+        target={"free_text": free_text, "email": email, "phone": phone, "domain": domain,
+                "extracted": extracted},
+        findings=findings,
+    )
+
+
 @app.get("/api/osint/tools")
 def osint_tools_status():
     """Etat des outils OSINT disponibles."""
