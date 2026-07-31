@@ -451,6 +451,19 @@ def osint_investigate_v2(free_text: str = ""):
     return result
 
 
+@app.post("/api/osint/dorks")
+def osint_dorks_api(name: str = "", location: str = "", extract: bool = False):
+    """Multi-engine dorking OSINT (DuckDuckGo, Bing, SearX)."""
+    import src.dorking_engine as dk
+    report = dk.run_osint_dorks(name, location)
+    if extract and report.get("top_findings"):
+        all_urls = []
+        for cat in report["top_findings"].values():
+            all_urls.extend([u["url"] for u in cat])
+        report["extracted_info"] = dk.extract_info_from_urls(all_urls)
+    return report
+
+
 @app.get("/api/osint/tools")
 def osint_tools_status():
     """Etat des outils OSINT disponibles."""
