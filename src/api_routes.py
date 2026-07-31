@@ -313,6 +313,25 @@ def tools_by_category_api(category: str = "all", limit: int = 30):
     return {"tools": rows, "category": category}
 
 
+@app.get("/api/cve/{cve_id}")
+def cve_detail_api(cve_id: str):
+    """Detail complet d'une CVE avec exploits et outils associes."""
+    import src.correlation as corr
+    return corr.get_cve_detail(cve_id)
+
+
+@app.get("/api/cve/{cve_id}/exploits")
+def cve_exploits_api(cve_id: str):
+    import src.correlation as corr
+    return {"cve_id": cve_id, "exploits": corr.get_exploits_for_cve(cve_id)}
+
+
+@app.get("/api/cve/{cve_id}/tools")
+def cve_tools_api(cve_id: str):
+    import src.correlation as corr
+    return {"cve_id": cve_id, "tools": corr.get_tools_for_cve(cve_id)}
+
+
 @app.post("/api/ioc/enrich")
 def ioc_enrich_api(_u: str = Depends(src.auth.verify_admin)):
     """Enrichissement IOC via abuse.ch APIs (admin)."""
