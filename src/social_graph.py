@@ -80,46 +80,6 @@ def seed_from_repos(repos: list[dict]):
     return count
 
 
-def seed_from_news(news: list[dict]):
-    driver = get_driver()
-    if not driver:
-        return 0
-    count = 0
-    with driver.session() as session:
-        for item in news:
-            title = (item.get("title") or "")[:200]
-            if not title:
-                continue
-            tags = item.get("tags") or item.get("categories") or []
-            for tag in tags:
-                tag_str = str(tag).strip()
-                if not tag_str or len(tag_str) > 80:
-                    continue
-                session.run(
-                    """
-                    MERGE (t:Tool {name: $name})
-                    SET t.source = 'news', t.label = $name
-                    """,
-                    name=tag_str.lower(),
-                )
-                count += 1
-            desc = (item.get("description") or item.get("summary") or "")[:2000]
-            if desc:
-                import re
-                apt_matches = re.findall(r'\bAPT\d+\b', desc, re.IGNORECASE)
-                for apt in set(apt_matches):
-                    session.run(
-                        """
-                        MERGE (c:APTCampaign {name: $name})
-                        SET c.description = $desc
-                        """,
-                        name=apt.upper(),
-                        desc=desc[:1000],
-                    )
-                    count += 1
-    return count
-
-
 def seed_from_cves(cves: list[dict]):
     driver = get_driver()
     if not driver:

@@ -3,6 +3,8 @@ services:
     image: pgvector/pgvector:pg16
     container_name: cyber_scanner_db
     restart: always
+    mem_limit: 1g
+    cpus: "1.0"
     environment:
       POSTGRES_DB: ${DB_NAME:-scanner_db}
       POSTGRES_USER: ${DB_USER:-postgres}
@@ -22,6 +24,8 @@ services:
     build: .
     container_name: cyber_github_scanner
     restart: always
+    mem_limit: 2g
+    cpus: "2.0"
     depends_on:
       db:
         condition: service_healthy
@@ -62,6 +66,8 @@ services:
     image: neo4j:5
     container_name: cyber_neo4j
     restart: always
+    mem_limit: 2g
+    cpus: "1.0"
     environment:
       - NEO4J_AUTH=${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-cybergraph}
       - NEO4J_dbms_memory_pagecache_size=512M

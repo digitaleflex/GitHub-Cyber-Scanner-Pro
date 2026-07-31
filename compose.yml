@@ -1,69 +1,68 @@
 services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: cyber_scanner_db
+    restart: always
+    mem_limit: 1g
+    cpus: "1.0"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-scanner_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./data/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-scanner_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   cyber-scanner:
     build: .
     container_name: cyber_github_scanner
     restart: always
-    ports:
-      - "8000:8000"
-    environment:
-      - MINIFLUX_URL=http://miniflux:8080
-      - MINIFLUX_TOKEN=${MINIFLUX_TOKEN}
-      - MINIFLUX_ENABLED=true
+    mem_limit: 1g
+    cpus: "1.0"
     depends_on:
-      - miniflux
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-scanner_db}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DOMAIN: ${DOMAIN:-cyberbook.eurin.tech}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GH_TOKENS: ${GH_TOKENS}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      MINIFLUX_ENABLED: ${MINIFLUX_ENABLED:-false}
+      NEO4J_AUTH_NONE: "true"
+    networks:
+      - default
+      - proxy
     volumes:
       - ./data:/app/data
       - ./reports:/app/reports
-
-  miniflux-db:
-    image: postgres:15
-    container_name: cyber_miniflux_db
-    restart: always
-    environment:
-      - POSTGRES_USER=miniflux
-      - POSTGRES_PASSWORD=${MINIFLUX_DB_PASSWORD:-minifluxpass}
-      - POSTGRES_DB=miniflux
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U miniflux -d miniflux"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    volumes:
-      - miniflux-db-data:/var/lib/postgresql/data
-
-  miniflux:
-    image: miniflux/miniflux:latest
-    container_name: cyber_miniflux
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      miniflux-db:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=postgres://miniflux:${MINIFLUX_DB_PASSWORD:-minifluxpass}@miniflux-db:5432/miniflux?sslmode=disable
-      - RUN_MIGRATIONS=1
-      - CREATE_ADMIN=${MINIFLUX_CREATE_ADMIN:-1}
-      - ADMIN_USERNAME=${MINIFLUX_ADMIN_USER:-admin}
-      - ADMIN_PASSWORD=${MINIFLUX_ADMIN_PASSWORD:-changeme}
-      - BASE_URL=http://localhost:8080
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthcheck"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-    volumes:
-      - miniflux-db-data:/var/lib/postgresql/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cyberscan.rule=Host(`${DOMAIN:-cyberbook.eurin.tech}`)"
+      - "traefik.http.routers.cyberscan.entrypoints=websecure"
+      - "traefik.http.routers.cyberscan.tls=true"
+      - "traefik.http.routers.cyberscan.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.cyberscan.priority=100"
+      - "traefik.http.services.cyberscan.loadbalancer.server.port=8000"
 
   neo4j:
     image: neo4j:5
     container_name: cyber_neo4j
     restart: always
+    mem_limit: 2g
+    cpus: "1.0"
     ports:
-      - "7687:7687"
-      - "7474:7474"
+      - "127.0.0.1:7687:7687"
+      - "127.0.0.1:7474:7474"
     environment:
       - NEO4J_AUTH=none
       - NEO4J_dbms_memory_pagecache_size=512M
@@ -73,5 +72,9 @@ services:
       - neo4j-data:/data
 
 volumes:
-  miniflux-db-data:
+  pgdata:
   neo4j-data:
+
+networks:
+  proxy:
+    external: true

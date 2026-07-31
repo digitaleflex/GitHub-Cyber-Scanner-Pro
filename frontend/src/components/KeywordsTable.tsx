@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKeywords, approveKeyword, rejectKeyword, type Keyword } from '../lib/api'
+import { useKeywords, approveKeyword, rejectKeyword, enrichKeywords, enrichOntology, type Keyword } from '../lib/api'
 import { useQueryClient } from '@tanstack/react-query'
 
 const TABS = [
@@ -46,6 +46,20 @@ export default function KeywordsTable() {
             {keywords.length} mots-clés
           </span>
         )}
+        <div className="ml-auto flex gap-2">
+          <button
+            onClick={async () => { await enrichKeywords(); qc.invalidateQueries({ queryKey: ['keywords'] }) }}
+            className="text-xs px-3 py-1 rounded border border-white/[0.12] text-gray-400 hover:text-white hover:border-white/30 transition-colors font-mono"
+          >
+            + Sources externes
+          </button>
+          <button
+            onClick={async () => { await enrichOntology(); qc.invalidateQueries({ queryKey: ['keywords'] }) }}
+            className="text-xs px-3 py-1 rounded border border-white/[0.12] text-gray-400 hover:text-white hover:border-white/30 transition-colors font-mono"
+          >
+            + MITRE/CAPEC
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 mb-4 flex-wrap">

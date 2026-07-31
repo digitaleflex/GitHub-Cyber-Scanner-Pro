@@ -99,6 +99,75 @@ export function useStats() {
   })
 }
 
+export type SearchResultType = 'repo' | 'cve' | 'book' | 'keyword'
+
+export type SearchResult = {
+  name: string
+  desc: string | null
+  result_type: SearchResultType
+  stars?: number
+  lang?: string
+  url?: string
+  security_verdict?: string
+  vitality_score?: number
+  severity?: string
+  cvss_score?: number
+  published?: string
+  source_name?: string
+  category?: string
+  score?: number
+  status?: string
+  repo_name?: string
+}
+
+export type SearchFacets = {
+  types: Record<SearchResultType, number>
+  languages: { lang: string | null; count: number }[]
+  severities: Record<string, number>
+  categories: { category: string | null; count: number }[]
+}
+
+export type SearchResponse = {
+  query: string
+  total: number
+  page: number
+  per_page: number
+  pages: number
+  results: SearchResult[]
+  facets: SearchFacets
+}
+
+export type SearchParams = {
+  q: string
+  page?: number
+  per_page?: number
+  types?: SearchResultType[]
+  language?: string
+  severity?: string
+  security_verdict?: string
+  category?: string
+  sort?: 'relevance' | 'stars' | 'updated' | 'cvss' | 'published'
+}
+
+export function useSearch(params: SearchParams) {
+  const { q } = params
+  return useQuery<SearchResponse>({
+    queryKey: ['search', params],
+    queryFn: () => {
+      const sp = new URLSearchParams({ q, page: String(params.page ?? 1), per_page: String(params.per_page ?? 20) })
+      if (params.types?.length) sp.set('types', params.types.join(','))
+      if (params.language) sp.set('language', params.language)
+      if (params.severity) sp.set('severity', params.severity)
+      if (params.security_verdict) sp.set('security_verdict', params.security_verdict)
+      if (params.category) sp.set('category', params.category)
+      if (params.sort && params.sort !== 'relevance') sp.set('sort', params.sort)
+      return fetchJson<SearchResponse>(`/search?${sp.toString()}`)
+    },
+    enabled: q.length >= 2,
+    staleTime: 15_000,
+  })
+}
+
 export function useReports() {
   return useQuery<ApiReportsResponse>({
     queryKey: ['reports'],
@@ -120,63 +189,6 @@ export function useScanStatus() {
     refetchInterval: (query) =>
       query.state.data?.status?.includes('en cours') ? 3000 : false,
   })
-}
-
-export type NewsHealth = {
-  collector: 'miniflux' | 'builtin'
-  feeds_total: number
-  feeds_usable: number
-  feeds_dead: string[]
-  feeds_blocked_antibot: string[]
-  miniflux?: { enabled: boolean; reachable?: boolean; feeds?: number; error?: string }
-}
-
-export function useNewsHealth() {
-  return useQuery<NewsHealth>({
-    queryKey: ['news-health'],
-    queryFn: () => fetchJson<NewsHealth>('/news/health'),
-    staleTime: 60_000,
-    retry: 1,
-  })
-}
-
-export type NewsCountry = { country: string; count: number }
-
-export function useNewsCountries() {
-  return useQuery<NewsCountry[]>({
-    queryKey: ['news-countries'],
-    queryFn: () => fetchJson<NewsCountry[]>('/news/countries'),
-    staleTime: 120_000,
-    retry: 1,
-  })
-}
-
-export type IncidentNewsItem = {
-  id: number
-  title: string
-  link: string
-  summary?: string
-  source_name?: string
-  country?: string
-  published?: string
-  category?: string
-}
-
-export type Incident = {
-  incident_id: number
-  title: string
-  cves: string[]
-  products: string[]
-  domains: string[]
-  hashes: string[]
-  ips: string[]
-  attack_details: { technique: string; name: string; tactic: string }[]
-  sources: string[]
-  countries: string[]
-  num_sources: number
-  severity_score: number
-  news: IncidentNewsItem[]
-  primary_link: string
 }
 
 export type CveEntry = {
@@ -229,6 +241,18 @@ export async function rejectKeyword(term: string): Promise<{ success: boolean }>
   return res.json()
 }
 
+export async function enrichKeywords(): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/enrich-keywords`, { method: 'POST' })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+export async function enrichOntology(): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/enrich-ontology`, { method: 'POST' })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
 export function useCves(q?: string, severity?: string, page: number = 1) {
   const params = new URLSearchParams()
   if (q) params.set('q', q)
@@ -242,14 +266,4 @@ export function useCves(q?: string, severity?: string, page: number = 1) {
   })
 }
 
-export function useNewsIncidents(limit = 50, country?: string) {
-  const params = new URLSearchParams()
-  params.set('limit', String(limit))
-  if (country) params.set('country', country)
-  return useQuery<{ incidents: Incident[] }>({
-    queryKey: ['news-incidents', limit, country ?? 'all'],
-    queryFn: () => fetchJson<{ incidents: Incident[] }>(`/news/incidents?${params.toString()}`),
-    staleTime: 60_000,
-    retry: 1,
-  })
-}
+

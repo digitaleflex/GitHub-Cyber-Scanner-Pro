@@ -2,9 +2,12 @@
 Setup du collecteur RSS Miniflux pour CyberScan Pro.
 
 - Verifie que Miniflux repond (healthcheck).
-- Se connecte avec admin/user + password et genere un token API.
+- S'authentifie via HTTP Basic Auth (admin/user + password) et genere un token API.
 - Ecrit MINIFLUX_TOKEN dans le .env (sans ecraser les autres variables).
 - Pousse les flux RSS (src/rss_feed.RSS_FEEDS) vers Miniflux.
+
+Attention: depuis Miniflux 2.3, /v1/auth/login et /v1/me/api-key ont disparu.
+L'auth passe par HTTP Basic Auth, et les cles API se creent via POST /v1/api-keys.
 
 Usage:
     python scripts/setup_miniflux.py
@@ -12,8 +15,8 @@ Usage:
 """
 
 import argparse
+import base64
 import os
-import re
 import sys
 
 try:
@@ -81,27 +84,31 @@ def main() -> int:
         print(f"❌ Miniflux inaccessible: {e}")
         return 1
 
-    # Login -> token de session
-    r = requests.post(
-        f"{base}/v1/auth/login",
-        json={"username": user, "password": password},
+    # Auth via HTTP Basic Auth (Miniflux >= 2.3)
+    b64 = base64.b64encode(f"{user}:{password}".encode()).decode()
+    headers = {"Authorization": f"Basic {b64}", "Content-Type": "application/json"}
+    r = requests.get(f"{base}/v1/me", headers=headers, timeout=10)
+    if r.status_code != 200:
+        print(f"❌ Echec authentification ({r.status_code}): {r.text[:120]}")
+        print("   Verifiez MINIFLUX_ADMIN_USER / MINIFLUX_ADMIN_PASSWORD dans le .env.")
+        return 1
+    print(f"✅ Authentifie en tant que '{r.json().get('username')}' (Basic Auth)")
+
+    # Genere un token API dedie (endpoint /v1/api-keys)
+    ak = requests.post(
+        f"{base}/v1/api-keys",
+        headers=headers,
+        json={"description": "CyberScan-Pro bridge"},
         timeout=10,
     )
-    if r.status_code != 200:
-        print(f"❌ Echec login ({r.status_code}): {r.text[:120]}")
+    if ak.status_code != 201:
+        print(f"❌ Creation de la cle API impossible ({ak.status_code}): {ak.text[:120]}")
         return 1
-    session_token = r.json().get("token")
-    headers = {"X-Auth-Token": session_token, "Content-Type": "application/json"}
-
-    # Genere un token API dedie (endpoint /v1/me/api-key)
-    ak = requests.post(f"{base}/v1/me/api-key", headers=headers, timeout=10)
-    if ak.status_code == 200:
-        api_token = ak.json().get("api_key")
-        print(f"🔑 Token API genere.")
-    else:
-        # Fallback: reutilise le token de session
-        api_token = session_token
-        print(f"⚠️  Endpoint api-key indispo ({ak.status_code}), utilisation du token de session.")
+    api_token = ak.json().get("token") or ak.json().get("api_key")
+    if not api_token:
+        print(f"❌ Reponse inattendue de /v1/api-keys: {ak.text[:200]}")
+        return 1
+    print(f"🔑 Token API genere.")
 
     # Ecrit le token dans .env
     save_env_key(ENV_PATH, "MINIFLUX_TOKEN", api_token)

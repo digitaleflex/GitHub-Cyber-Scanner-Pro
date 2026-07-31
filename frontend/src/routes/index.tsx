@@ -7,7 +7,6 @@ import ReposTable from '../components/ReposTable'
 import BooksTable from '../components/BooksTable'
 import ActivityFeed from '../components/ActivityFeed'
 import CyberRadar from '../components/CyberRadar'
-import CyberNews from '../components/CyberNews'
 
 function DashboardPage() {
   return (
@@ -19,7 +18,6 @@ function DashboardPage() {
           <TopRepos />
         </div>
         <ActivityFeed />
-        <CyberNews />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

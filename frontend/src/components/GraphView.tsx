@@ -102,7 +102,11 @@ export default function GraphView() {
   })
 
   const seedMutation = useMutation({
-    mutationFn: () => fetchJson<{ message: string }>('/graph/seed'),
+    mutationFn: async () => {
+      const res = await fetch('/api/graph/seed', { method: 'POST' })
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+      return res.json() as Promise<{ message: string }>
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['graph'] }),
   })
 

@@ -3,7 +3,6 @@
 import logging
 
 from src import database
-from src import rss_feed
 from src.scanner import scanner_status
 
 logger = logging.getLogger(__name__)
@@ -60,46 +59,6 @@ def register_tools(mcp):
         return "\n".join(lines) if books else "Aucune ressource."
 
     @mcp.tool()
-    def get_news(limit: int = 15, country: str | None = None) -> str:
-        """Recupere les actualites cybersecurite des flux RSS (170+ sources).
-
-        Args:
-            limit: Nombre d'articles (max 50).
-            country: Filtre par code ISO pays (ex: FR, US).
-        """
-        news = database.get_news_with_correlations(limit=limit, country=country)
-        lines = [f"  {len(news)} actualite(s)"]
-        for n in news:
-            src = n.get("source_name") or "?"
-            cat = n.get("category") or "general"
-            lines.append(f"  [{cat}] {n['title']} - {src}")
-            repos = n.get("correlated_repos", [])
-            if repos:
-                lines.append(f"         -> {len(repos)} depot(s) correle(s)")
-        return "\n".join(lines) if news else "Aucune actualite."
-
-    @mcp.tool()
-    def get_incidents(limit: int = 10, country: str | None = None) -> str:
-        """Recupere les incidents cyber unifies (CVE/IOC/produits correles).
-
-        Args:
-            limit: Nombre d'incidents.
-            country: Filtre par code ISO pays.
-        """
-        incidents = database.get_incidents(limit=limit, country=country)
-        lines = [f"  {len(incidents)} incident(s)"]
-        for inc in incidents:
-            cves = ", ".join(inc.get("cves", [])[:3])
-            products = ", ".join(inc.get("products", [])[:3])
-            lines.append(f"  {inc.get('title', '?')}")
-            if cves:
-                lines.append(f"     CVE: {cves}")
-            if products:
-                lines.append(f"     Produits: {products}")
-            lines.append(f"     Score: {inc.get('severity_score', '?')}/100")
-        return "\n".join(lines) if incidents else "Aucun incident."
-
-    @mcp.tool()
     def get_stats() -> str:
         """Recupere les statistiques globales de la plateforme."""
         try:
@@ -144,31 +103,12 @@ def register_tools(mcp):
                 )
         return f"Depot '{repo_name}' introuvable."
 
-    @mcp.tool()
-    def get_feed_health() -> str:
-        """Retourne l'etat de sante des flux RSS (nombre de sources actives/mortes)."""
-        health = rss_feed.count_usable_feeds()
-        return (
-            f"Sante des flux RSS\n"
-            f"  Total: {health['total']} sources\n"
-            f"  Actives: {health['usable']}\n"
-            f"  Morts: {len(health['dead'])}\n"
-            f"  Bloques anti-bot: {len(health['blocked_antibot'])}\n"
-            f"  Morts: {', '.join(health['dead'][:10]) if health['dead'] else 'aucun'}\n"
-            f"  Bloques: {', '.join(health['blocked_antibot'][:10]) if health['blocked_antibot'] else 'aucun'}"
-        )
-
     # ── RESOURCES ──────────────────────────────────────────────────────────────
 
     @mcp.resource("cyberscan://stats")
     def stats_resource() -> str:
         """Statistiques globales de la plateforme."""
         return get_stats()
-
-    @mcp.resource("cyberscan://feed-health")
-    def feed_health_resource() -> str:
-        """Sante des flux RSS."""
-        return get_feed_health()
 
     @mcp.resource("cyberscan://repos/{name}")
     def repo_resource(name: str) -> str:
@@ -179,13 +119,3 @@ def register_tools(mcp):
     def books_search_resource(query: str) -> str:
         """Resultats de recherche de livres."""
         return search_books(query)
-
-    @mcp.resource("cyberscan://news/latest")
-    def news_latest_resource() -> str:
-        """Dernieres actualites cyber."""
-        return get_news(limit=20)
-
-    @mcp.resource("cyberscan://incidents/latest")
-    def incidents_latest_resource() -> str:
-        """Derniers incidents cyber."""
-        return get_incidents(limit=10)
