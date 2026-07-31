@@ -13,7 +13,19 @@ STAR_RANGES = [
     (100, 500, "100-500"),
     (50, 100, "50-100"),
     (10, 50, "10-50"),
-    (0, 10, "0-10"),
+    (3, 10, "3-10"),
+    (0, 3, "0-3"),
+]
+
+# Sous-tranches pour les ranges qui retournent > 1000 resultats
+DATE_RANGES = [
+    ("2026-01-01", None, "2026"),
+    ("2025-01-01", "2025-12-31", "2025"),
+    ("2024-01-01", "2024-12-31", "2024"),
+    ("2023-01-01", "2023-12-31", "2023"),
+    ("2022-01-01", "2022-12-31", "2022"),
+    ("2020-01-01", "2021-12-31", "2020-2021"),
+    (None, "2019-12-31", "<2020"),
 ]
 
 LANGUAGES = [
@@ -32,36 +44,47 @@ SECURITY_KEYWORDS = [
     "ssl", "tls", "waf", "firewall", "ids", "ips",
     "privacy", "anonymity", "encryption", "cryptography",
     "owasp", "cve", "mitre", "sigma", "yara", "splunk",
+    "adversary", "emulation", "deception", "honeypot", "sandbox",
+    "obfuscation", "evasion", "persistence", "lateral-movement",
+    "credential", "kerberos", "ldap", "dns", "smb",
+    "reconnaissance", "enumeration", "brute-force", "password",
+    "token", "jwt", "oauth", "saml", "openid",
+    "xss", "sqli", "csrf", "ssrf", "rce", "lfi", "rfi",
+    "deserialization", "injection", "traversal", "spoofing",
+    "misconfiguration", "exposure", "disclosure", "leak",
+    "container-security", "kubernetes", "docker-security",
+    "cloud-security", "aws-security", "azure-security", "gcp-security",
+    "supply-chain", "sbom", "dependency", "package-security",
+    "binary-analysis", "static-analysis", "dynamic-analysis",
+    "memory-corruption", "buffer-overflow", "use-after-free",
+    "iot-security", "mobile-security", "android-security", "ios-security",
 ]
 
 HEADERS = {"Accept": "application/vnd.github.v3+json",
            "User-Agent": "Mozilla/5.0 (compatible; CyberScan-Pro/2.3)"}
 
 
-def generate_queries(max_per_star_range: int = 3) -> list[dict]:
-    """Genere les queries de slicing: stars × langues × keywords."""
+def generate_queries() -> list[dict]:
+    """Genere les queries de slicing: large d'abord, puis raffine."""
     queries = []
-    for min_stars, max_stars, label in STAR_RANGES:
-        if len(queries) >= 500:
-            break
-        for lang in LANGUAGES:
-            if len(queries) >= 500:
-                break
-            # Top keywords first
-            for kw in SECURITY_KEYWORDS[:max_per_star_range]:
-                q = f"{kw} language:{lang}"
-                if min_stars or max_stars:
-                    q += f" stars:{min_stars}..{max_stars or ''}"
-                queries.append({
-                    "query": q,
-                    "lang": lang,
-                    "stars_range": label,
-                    "keyword": kw,
-                })
-                if len(queries) >= 500:
-                    break
-    logging.info(f"🧩 GitHub Slicer: {len(queries)} requetes generees ({len(LANGUAGES)} langues × {len(STAR_RANGES)} tranches × keywords)")
-    return queries
+
+    # Phase 1: Balayage large (langue × keywords, sans filtre stars)
+    for lang in LANGUAGES[:15]:
+        for kw in SECURITY_KEYWORDS[:3]:  # 3 keywords par langue
+            queries.append({"query": f"{kw} language:{lang}", "type": "broad"})
+            if len(queries) >= 50:
+                return queries[:50]
+
+    # Phase 2: Stars × langues (plus specifique)
+    for min_s, max_s, label in STAR_RANGES[:4]:  # Top 4 ranges
+        for lang in LANGUAGES[:8]:
+            q = f"security language:{lang} stars:{min_s}..{max_s or ''}"
+            queries.append({"query": q, "type": "stars_lang"})
+            if len(queries) >= 100:
+                return queries[:100]
+
+    return queries[:100]
+    return queries[:200]
 
 
 def search_slice(query: str, token: str, per_page: int = 100) -> list[dict]:
@@ -106,13 +129,13 @@ def run_slicing_scan(tokens: list[str], max_queries: int = 20, per_page: int = 1
         return {"error": "Aucun token disponible", "discovered": 0}
 
     queries = generate_queries()
-    # Limiter le nombre de queries par cycle (sinon 500+ requêtes)
-    queries = random.sample(queries, min(max_queries, len(queries)))
+    queries = queries[:max_queries]
 
     total_saved = 0
     total_repos = 0
     for i, q in enumerate(queries):
         token = random.choice(tokens)
+        saved = 0
         repos = search_slice(q["query"], token, per_page)
         if repos:
             total_repos += len(repos)
@@ -122,7 +145,7 @@ def run_slicing_scan(tokens: list[str], max_queries: int = 20, per_page: int = 1
             except Exception:
                 pass
             if saved:
-                logging.info(f"🧩 Slice {i+1}/{len(queries)}: +{saved} ({q['stars_range']} | {q['lang']} | {q['keyword'][:15]})")
+                logging.info(f"🧩 Slice {i+1}/{len(queries)}: +{saved} | {q['query'][:70]}")
         time.sleep(0.5)
 
     return {
