@@ -332,6 +332,14 @@ def trends_api():
     return trend.detect_trends()
 
 
+@app.post("/api/hf/guard")
+def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
+    """Content safety scan via Granite Guardian (admin)."""
+    import src.hf_client as hf
+    n = hf.batch_scan_suspect_repos(limit=limit)
+    return {"flagged": n}
+
+
 @app.get("/api/hf/status")
 def hf_status():
     """Etat des services HuggingFace."""

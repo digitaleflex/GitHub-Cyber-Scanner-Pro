@@ -188,3 +188,39 @@ def hf_status() -> dict:
     except Exception:
         status["models_available"] = "unreachable"
     return status
+
+# ── 7. CONTENT SAFETY (Granite Guardian — API only) ─────────────────────
+
+def scan_content_safety(text: str) -> dict:
+    """Verifie si un contenu est malveillant via Granite Guardian (API)."""
+    result = hf_api(
+        "hf-inference/models/ibm-granite/granite-guardian-hap-125m",
+        {"inputs": text[:1000]},
+    )
+    if isinstance(result, list):
+        return {"flagged": True, "raw": result}
+    return {"flagged": False}
+
+
+def batch_scan_suspect_repos(limit: int = 20) -> int:
+    """Scanne les repos suspects via Granite Guardian. Retourne nb flagges."""
+    from src.database import get_db_connection
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, full_name, description FROM repositories
+        WHERE security_verdict IN ('Suspect', 'Critique')
+          AND description IS NOT NULL
+        ORDER BY stars DESC LIMIT %s
+    """, (limit,))
+    rows = cursor.fetchall()
+    flagged = 0
+    for repo_id, name, desc in rows:
+        r = scan_content_safety(desc or name)
+        if r["flagged"]:
+            cursor.execute("UPDATE repositories SET ai_category = 'Content Flagged' WHERE id = %s", (repo_id,))
+            flagged += 1
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return flagged
