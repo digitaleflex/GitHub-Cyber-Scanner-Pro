@@ -376,6 +376,17 @@ def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     return {"flagged": n}
 
 
+@app.post("/api/osint/investigate")
+def osint_investigate_api(name: str = "", location: str = "", email: str = "", username: str = ""):
+    """Enquete OSINT sur une personne (methodologie pro)."""
+    import src.osint_lab as osint_lab
+    import src.github_client as gc
+    return osint_lab.investigate_person(
+        name=name, location=location, email=email, username=username,
+        tokens=gc.TOKENS if gc.TOKENS else [],
+    )
+
+
 @app.get("/api/hf/qa")
 def hf_qa_api(question: str = "", context: str = ""):
     """Question Answering via HF (roberta-squad2)."""
