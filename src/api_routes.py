@@ -8,6 +8,8 @@ from src.config import app, FRONTEND_DIR, DOMAIN, EXCEL_FILE, JSON_FILE
 from src import database
 import src.ontology_enricher as ontology_enricher
 import src.keyword_sources as keyword_sources
+import src.auth
+from fastapi import Depends
 import src.nlp_processor as nlp_processor
 import src.scan_engine as _engine
 from src.exports import export_to_excel, export_to_json, export_reports
@@ -108,7 +110,7 @@ def get_keywords_api(status: str = "pending", limit: int = 100, min_score: float
 
 
 @app.post("/api/keywords/{term}/approve")
-def approve_keyword_api(term: str, category: str = None):
+def approve_keyword_api(term: str, category: str = None, _u: str = Depends(src.auth.verify_admin)):
     ok = database.approve_keyword(term, "approved", category)
     if ok:
         from nlp_processor import refresh_cyber_terms
@@ -117,7 +119,7 @@ def approve_keyword_api(term: str, category: str = None):
 
 
 @app.post("/api/keywords/{term}/reject")
-def reject_keyword_api(term: str):
+def reject_keyword_api(term: str, _u: str = Depends(src.auth.verify_admin)):
     ok = database.approve_keyword(term, "rejected")
     return {"success": ok, "term": term}
 
@@ -142,7 +144,7 @@ def semantic_search_api(q: str = "", limit: int = 20):
 
 
 @app.post("/api/embeddings/build")
-def build_embeddings_api(limit: int = 200):
+def build_embeddings_api(limit: int = 200, _u: str = Depends(src.auth.verify_admin)):
     """Genere les embeddings pour les repos sans."""
     import src.embeddings as embeddings
     n = embeddings.embed_unembedded_repos(limit=limit)
@@ -157,15 +159,101 @@ def embeddings_status_api():
 
 
 @app.post("/api/ai-verdict")
-def run_ai_verdict(limit: int = 30):
+def run_ai_verdict(limit: int = 30, _u: str = Depends(src.auth.verify_admin)):
     """Lance l'audit IA sur les repos sans verdict de securite."""
     import src.ai_verdict as ai_verdict
     n = ai_verdict.batch_analyze_unverified(limit=limit)
     return {"audited": n, "message": f"{n} depot(s) audite(s) par l'IA"}
 
 
+@app.get("/api/trending")
+def trending_api(days: int = 7, limit: int = 20):
+    """Outils tendance des N derniers jours."""
+    import src.database as db
+    conn = db.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """SELECT full_name, description, stars, language, html_url, security_verdict
+           FROM repositories
+           WHERE discovered_at >= NOW() - %s::INTERVAL
+           ORDER BY stars DESC NULLS LAST LIMIT %s""",
+        (f"{days} days", limit),
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return {"days": days, "count": len(rows), "tools": [
+        {"name": r[0], "desc": r[1], "stars": r[2], "lang": r[3], "url": r[4], "verdict": r[5]}
+        for r in rows
+    ]}
+
+
+@app.get("/api/v1/repos")
+def public_api(q: str = "", page: int = 1, per_page: int = 20, sort: str = "stars"):
+    """API publique REST pour les outils."""
+    import src.database as db
+    repos, total = db.search_repos_frontend(q, page, per_page, sort)
+    return {"api_version": "v1", "total": total, "page": page, "per_page": per_page, "results": repos}
+
+
+@app.get("/api/tool/{name:path}")
+def tool_detail_api(name: str):
+    """Fiche detaillee d'un outil avec score de confiance et similaires."""
+    import src.database as db
+    from psycopg2.extras import RealDictCursor
+    conn = db.get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Fetch tool
+    cursor.execute(
+        """SELECT full_name, description, stars, language, html_url, security_verdict,
+                  security_details, vitality_score, updated_at, discovered_at
+           FROM repositories WHERE full_name = %s""",
+        (name,),
+    )
+    tool = cursor.fetchone()
+    if not tool:
+        cursor.close(); conn.close()
+        return {"error": "Outil introuvable", "name": name}
+
+    tool = dict(tool)
+
+    # Trust score (0-100)
+    stars_norm = min((tool.get("stars") or 0) / 5000, 1.0)
+    vitality = (tool.get("vitality_score") or 0) / 100
+    verdict_bonus = {"Sain": 0.3, None: 0, "Suspect": -0.2, "Critique": -0.5}.get(tool.get("security_verdict"), 0)
+    trust = round(max(0, min(100, (stars_norm * 40 + vitality * 30 + (verdict_bonus + 0.5) * 30) * 100 / 100)))
+
+    tool["trust_score"] = trust
+
+    # Similar tools (via semantic search on description)
+    try:
+        import src.embeddings as emb
+        similar = emb.semantic_search(tool.get("description") or name, limit=6, min_score=0.1)
+        tool["similar"] = [s for s in similar if s.get("name") != name][:5]
+    except Exception:
+        tool["similar"] = []
+
+    cursor.close(); conn.close()
+    return tool
+
+
+@app.get("/api/digest")
+def get_digest_api():
+    """Retourne le dernier digest IA du jour."""
+    import src.ai_digest as ai_digest
+    return ai_digest.get_latest_digest()
+
+
+@app.post("/api/digest")
+def generate_digest_api(_u: str = Depends(src.auth.verify_admin)):
+    """Genere un nouveau digest IA (admin)."""
+    import src.ai_digest as ai_digest
+    return ai_digest.generate_digest()
+
+
 @app.post("/api/ai-keywords")
-def run_ai_keywords(limit: int = 25):
+def run_ai_keywords(limit: int = 25, _u: str = Depends(src.auth.verify_admin)):
     """Decouvre des mots-cles cyber emergents via l'IA (Groq)."""
     import src.ai_keywords as ai_keywords
     n = ai_keywords.batch_discover(limit=limit)
@@ -173,7 +261,7 @@ def run_ai_keywords(limit: int = 25):
 
 
 @app.post("/api/enrich-ontology")
-def enrich_ontology_api(background_tasks: BackgroundTasks):
+def enrich_ontology_api(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
     """Télécharge MITRE ATT&CK / CAPEC / CWE et enrichit l'ontologie."""
     background_tasks.add_task(_run_ontology_enrichment)
     return {"message": "Enrichissement de l'ontologie lancé en arrière-plan"}
@@ -186,7 +274,7 @@ def _run_ontology_enrichment():
 
 
 @app.post("/api/enrich-keywords")
-def enrich_keywords_api(background_tasks: BackgroundTasks):
+def enrich_keywords_api(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
     """Extrait des mots-clés depuis CVEs, MITRE Mobile/ICS, OWASP, Exploit-DB."""
     background_tasks.add_task(_run_keyword_sources)
     return {"message": "Extraction de mots-clés lancée en arrière-plan"}
@@ -199,7 +287,7 @@ def _run_keyword_sources():
 
 
 @app.get("/api/download")
-def download_excel():
+def download_excel(_u: str = Depends(src.auth.verify_admin)):
     """Téléchargement de l'export Excel."""
     export_to_excel()
     if os.path.exists(EXCEL_FILE):
@@ -212,7 +300,7 @@ def download_excel():
 
 
 @app.get("/api/download/json")
-def download_json():
+def download_json(_u: str = Depends(src.auth.verify_admin)):
     """Téléchargement de l'export JSON."""
     export_to_json()
     if os.path.exists(JSON_FILE):
@@ -225,7 +313,7 @@ def download_json():
 
 
 @app.post("/api/scan")
-def start_scan(background_tasks: BackgroundTasks):
+def start_scan(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
     """Déclenche un scan manuel en arrière-plan."""
     # scan_in_progress handled via _engine
     if _engine.scan_in_progress:
@@ -236,7 +324,7 @@ def start_scan(background_tasks: BackgroundTasks):
 
 
 @app.post("/api/bulk-seed")
-def start_bulk_seed(background_tasks: BackgroundTasks, max_pages_per_bucket: int = 10):
+def start_bulk_seed(background_tasks: BackgroundTasks, max_pages_per_bucket: int = 10, _u: str = Depends(src.auth.verify_admin)):
     """Scan massif multi-topics pour monter en charge vers 1M de dépôts."""
     # bulk_in_progress via _engine
     if _engine.bulk_in_progress:
@@ -268,7 +356,7 @@ def bulk_status_api():
 
 
 @app.post("/api/harvest")
-def start_harvest(background_tasks: BackgroundTasks, limit: int = 50, max_issues_pages: int = 3, max_commits_pages: int = 3):
+def start_harvest(background_tasks: BackgroundTasks, limit: int = 50, max_issues_pages: int = 3, max_commits_pages: int = 3, _u: str = Depends(src.auth.verify_admin)):
     """Récolte les issues/commits des repos pour exploser le volume de données."""
     # harvest_in_progress via _engine
     if _engine.harvest_in_progress:

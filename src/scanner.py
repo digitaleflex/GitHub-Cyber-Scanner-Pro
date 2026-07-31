@@ -10,6 +10,8 @@ from src.scan_engine import (scanner_status, scan_in_progress, scanner_lock,
                             _run_keyword_miner, scan_cycle, run_scan_once_manual,
                             run_scanner_daemon)
 from src import database
+from src.auth import verify_admin
+from fastapi import Depends
 
 import json
 import threading
@@ -32,7 +34,7 @@ def graph_query_api(label: str = "", limit: int = 50):
 
 
 @app.post("/api/graph/seed")
-def graph_seed_api():
+def graph_seed_api(_u: str = Depends(verify_admin)):
     from src.social_graph import init_graph, seed_from_repos, seed_from_cves
     from src import database
     init_graph()

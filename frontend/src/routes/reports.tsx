@@ -1,96 +1,38 @@
 import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useReports } from '../lib/api'
+import AdminGuard from '../components/AdminGuard'
+import { FileText, ExternalLink } from 'lucide-react'
+
+export const Route = createRoute({
+  getParentRoute: () => RootRoute,
+  path: '/reports',
+  component: () => <AdminGuard><ReportsPage /></AdminGuard>,
+})
 
 function ReportsPage() {
   const { data, isLoading } = useReports()
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Rapports & Dashboards</h2>
-
-      {isLoading ? (
-        <div className="space-y-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-16 bg-white/5 rounded-xl animate-pulse" />
+    <div className="max-w-4xl mx-auto">
+      <h2 className="text-lg font-semibold text-white mb-4">Rapports</h2>
+      {isLoading ? <p className="text-slate-500 text-sm">Chargement...</p> : data?.reports ? (
+        <div className="space-y-2">
+          {data.reports.map((r: any, i: number) => (
+            <a key={i} href={r.url || '#'} target="_blank" rel="noopener"
+              className="flex items-center gap-3 bg-slate-900/60 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition">
+              <FileText size={16} className="text-slate-500" />
+              <div className="flex-1">
+                <span className="text-sm text-slate-200">{r.name || r.filename || r.title}</span>
+                {r.date && <span className="text-[10px] text-slate-500 ml-2">{r.date}</span>}
+              </div>
+              <ExternalLink size={13} className="text-slate-600" />
+            </a>
           ))}
         </div>
-      ) : !data || (data.reports.length === 0 && data.dashboards.length === 0) ? (
-        <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-12 text-center">
-          <p className="text-gray-600">Aucun rapport généré pour le moment</p>
-          <p className="text-gray-700 text-sm mt-2">
-            Lance un scan depuis GitHub Actions pour voir les rapports ici
-          </p>
-        </div>
       ) : (
-        <div className="space-y-8">
-          {data.dashboards.length > 0 && (
-            <section>
-              <h3 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4">
-                Dashboards
-              </h3>
-              <div className="flex flex-wrap gap-3">
-                {data.dashboards.map((name) => (
-                  <div key={name} className="flex items-center gap-2">
-                    <a
-                      href={`/dashboards/${name}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-5 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-300 hover:bg-indigo-500/20 transition-colors text-sm font-medium"
-                    >
-                      {name.replace('dashboard_', '').replace('.html', '')}
-                    </a>
-                    <a
-                      href={`/reports/${name}`}
-                      download
-                      className="p-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.08] transition-colors"
-                      title="Télécharger"
-                    >
-                      ↓
-                    </a>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {data.reports.length > 0 && (
-            <section>
-              <h3 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4">
-                Rapports Markdown
-              </h3>
-              <div className="flex flex-wrap gap-3">
-                {data.reports.map((name) => (
-                  <div key={name} className="flex items-center gap-2">
-                    <a
-                      href={`/reports/${name}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-5 py-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-gray-300 hover:bg-white/[0.08] transition-colors text-sm font-medium"
-                    >
-                      {name.replace('rapport_', '').replace('.md', '')}
-                    </a>
-                    <a
-                      href={`/reports/${name}`}
-                      download
-                      className="p-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.08] transition-colors"
-                      title="Télécharger"
-                    >
-                      ↓
-                    </a>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
+        <p className="text-slate-500 text-sm">Aucun rapport disponible.</p>
       )}
     </div>
   )
 }
-
-export const Route = createRoute({
-  getParentRoute: () => RootRoute,
-  path: '/reports',
-  component: ReportsPage,
-})

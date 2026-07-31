@@ -1,156 +1,157 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
-import { Menu, X, Play, Radio, ChevronRight } from 'lucide-react'
-import { startScan, useScanStatus } from '../lib/api'
+import { Menu, X, Play, Shield, Download, Star, TrendingUp, AlertTriangle } from 'lucide-react'
+import { startScan, useScanStatus, useStats } from '../lib/api'
+import { useQuery } from '@tanstack/react-query'
 
-export const Route = createRootRoute({
-  component: RootLayout,
-})
+export const Route = createRootRoute({ component: RootLayout })
 
-function ScanButton() {
+function useCountUp(target: number, duration = 1500) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    if (!target) return
+    let start = 0; const step = Math.ceil(target / (duration / 16))
+    const timer = setInterval(() => { start += step; if (start >= target) { setCount(target); clearInterval(timer) } else setCount(start) }, 16)
+    return () => clearInterval(timer)
+  }, [target, duration])
+  return count
+}
+
+function ScanBtn() {
   const { data, refetch } = useScanStatus()
   const [scanning, setScanning] = useState(false)
   const router = useRouter()
-
   const isScanning = scanning || data?.status?.includes('en cours')
-
   const handleScan = useCallback(async () => {
-    if (isScanning) return
-    setScanning(true)
-    try {
-      await startScan()
-      setTimeout(() => { refetch(); router.invalidate() }, 1000)
-    } catch { /* ignore */ }
+    if (isScanning) return; setScanning(true)
+    try { await startScan(); setTimeout(() => { refetch(); router.invalidate() }, 1000) } catch {}
     setTimeout(() => setScanning(false), 2000)
   }, [isScanning, refetch, router])
-
   return (
-    <div className="flex items-center gap-3">
-      {data?.status && (
-        <div className="hidden sm:flex items-center gap-1.5 text-xs font-mono">
-          <span className={`w-1.5 h-1.5 rounded-full ${isScanning ? 'bg-neon-green shadow-[0_0_8px_rgba(0,255,102,0.5)] animate-pulse' : 'bg-gray-600'}`} />
-          <span className={`${isScanning ? 'text-neon-green' : 'text-gray-600'}`}>
-            {isScanning ? 'SCAN EN COURS' : 'PRÊT'}
-          </span>
-        </div>
-      )}
-      <button
-        onClick={handleScan}
-        disabled={isScanning}
-        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-neon-cyan/20 to-transparent border border-neon-cyan/30 hover:border-neon-cyan/60 hover:shadow-[0_0_20px_rgba(0,240,255,0.15)] disabled:opacity-40 disabled:cursor-not-allowed text-neon-cyan text-sm font-medium rounded-lg font-mono tracking-wider transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50"
-      >
-        <Play size={14} className={isScanning ? 'animate-pulse' : ''} />
-        {isScanning ? 'SCAN...' : 'LANCER SCAN'}
-      </button>
-    </div>
+    <button onClick={handleScan} disabled={isScanning}
+      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full glass text-indigo-300 hover:text-white hover:border-indigo-500/30 disabled:opacity-40 transition">
+      <Play size={11} className={isScanning ? 'animate-pulse' : ''} /> {isScanning ? 'Scan...' : 'Scanner'}
+    </button>
   )
 }
 
 function RootLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { data: stats } = useStats()
+  const { data: digest } = useQuery({ queryKey: ['digest-hero'], queryFn: () => fetch('/api/digest').then(r => r.json()), staleTime: 300_000 })
 
-  const navLinks = [
-    { to: '/', label: 'Dashboard' },
-    { to: '/search', label: 'Search' },
-    { to: '/cves', label: 'CVEs' },
-    { to: '/keywords', label: 'Keywords' },
-    { to: '/graph', label: 'Graph' },
-    { to: '/reports', label: 'Rapports' },
-  ]
+  const repos = useCountUp(stats?.total_repos || 0, 2000)
+  const stars = useCountUp(stats?.total_stars || 0, 2500)
+  const cves = 56000
+  const criticalThreats = digest?.top_threats?.filter((t: any) => t.severity === 'CRITIQUE').length || 0
 
   return (
-    <div className="min-h-screen text-white scanline-overlay">
-      {/* Animated grid background */}
+    <div className="min-h-screen text-slate-200">
+      {/* Background gradients */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-1/4 w-1/3 h-1/3 bg-neon-cyan/5 rounded-full blur-[120px] animate-glow-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-1/4 h-1/4 bg-neon-magenta/5 rounded-full blur-[120px]" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-0 left-1/4 w-1/2 h-96 bg-indigo-500/5 rounded-full blur-[180px]" />
+        <div className="absolute bottom-0 right-1/4 w-1/3 h-64 bg-violet-500/5 rounded-full blur-[150px]" />
       </div>
 
-      {/* Top decorative bar */}
-      <div className="fixed top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent z-50" />
-
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="flex items-center justify-between py-5 border-b border-white/[0.06] mb-8">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 border border-neon-cyan/20 flex items-center justify-center">
-                <Radio size={16} className="text-neon-cyan" />
-              </div>
-              <div>
-                <h1 className="text-xl font-cyber font-bold tracking-wider bg-gradient-to-r from-neon-cyan via-white to-neon-magenta bg-clip-text text-transparent">
-                  CyberScan
-                </h1>
-                <p className="text-gray-700 text-[10px] font-mono tracking-[0.2em] uppercase">
-                  Security Operations Center
-                </p>
-              </div>
+        
+        {/* Nav */}
+        <header className="flex items-center justify-between py-3 sm:py-4">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-indigo-500/20 flex items-center justify-center">
+              <Shield size={15} className="text-indigo-400" />
             </div>
-          </div>
+            <div className="hidden sm:block">
+              <span className="text-sm font-bold tracking-tight text-white">CyberScan</span>
+              <span className="text-[9px] text-slate-500 font-mono tracking-wider ml-1">PRO</span>
+            </div>
+          </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="text-gray-500 hover:text-neon-cyan transition-colors text-xs font-mono tracking-wider uppercase [&.active]:text-neon-cyan [&.active]:border-b [&.active]:border-neon-cyan/50 pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 rounded"
-              >
-                {l.label}
-              </Link>
-            ))}
-            <ScanButton />
+          <nav className="hidden md:flex items-center gap-1">
+            <Link to="/" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Explorer</Link>
+            <Link to="/search" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400">Recherche</Link>
+            <a href="/api/download" className="flex items-center gap-1 px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition">
+              <Download size={11} /> Rapport
+            </a>
           </nav>
 
-          {/* Mobile hamburger */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-gray-400 hover:text-neon-cyan transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 rounded"
-            aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-          >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ScanBtn />
+            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-slate-400 hover:text-white p-1">
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </header>
 
-        {/* Mobile menu */}
         {menuOpen && (
-          <nav className="md:hidden flex flex-col gap-2 pb-6 -mt-4 mb-6 border-b border-white/[0.06]">
-            {navLinks.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                onClick={() => setMenuOpen(false)}
-                className="text-gray-400 hover:text-neon-cyan transition-colors text-xs font-mono tracking-wider uppercase py-2 px-3 rounded-lg hover:bg-white/[0.04] [&.active]:text-neon-cyan [&.active]:bg-neon-cyan/10"
-              >
-                <div className="flex items-center gap-2">
-                  <ChevronRight size={12} className="[&.active]:text-neon-cyan text-transparent" />
-                  {l.label}
-                </div>
-              </Link>
-            ))}
-            <div className="px-3 pt-2">
-              <ScanButton />
-            </div>
+          <nav className="md:hidden flex flex-col gap-1 pb-4 -mt-1 mb-4 glass rounded-xl p-2 animate-fade">
+            <Link to="/" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Explorer</Link>
+            <Link to="/search" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Recherche avancee</Link>
+            <a href="/api/download" onClick={() => setMenuOpen(false)} className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5"><Download size={11} /> Telecharger le rapport</a>
           </nav>
         )}
 
-        <main className="pb-12">
-          <Outlet />
-        </main>
-
-        <footer className="py-6 border-t border-white/[0.06] flex items-center justify-between">
-          <div className="flex items-center gap-3 text-[10px] font-mono tracking-wider">
-            <span className="text-gray-700">CYBERSCAN PRO</span>
-            <span className="w-1 h-1 rounded-full bg-gray-800" />
-            <span className="text-gray-700">SOC v1.2</span>
-            <span className="w-1 h-1 rounded-full bg-gray-800" />
-            <span className="text-gray-700 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-neon-green shadow-[0_0_6px_rgba(0,255,102,0.3)]" />
-              SYSTEM ONLINE
+        {/* Hero section */}
+        <section className="py-8 sm:py-16 text-center animate-fade">
+          {/* Authority badges */}
+          <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6 flex-wrap">
+            <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
+              <Shield size={10} className="text-indigo-400" /> Groq AI
+            </span>
+            <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
+              <Star size={10} className="text-amber-400" /> GitHub API
+            </span>
+            <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
+              <Shield size={10} className="text-rose-400" /> NVD CVE
             </span>
           </div>
-          <div className="text-gray-800 text-[10px] font-mono">
-            {new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC
+
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-3 sm:mb-4">
+            <span className="bg-gradient-to-r from-indigo-400 via-white to-violet-400 bg-clip-text text-transparent">
+              Veille Cyber Intelligence
+            </span>
+          </h1>
+          <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto mb-6 sm:mb-8 leading-relaxed">
+            {repos.toLocaleString()}+ outils de securite audites par IA. Decouvrez les menaces du jour, explorez la base de connaissances cyber.
+          </p>
+
+          {/* Threat alert */}
+          {criticalThreats > 0 && (
+            <div className="inline-flex items-center gap-2 glass px-4 py-2 rounded-full mb-6 sm:mb-8 pulse-ring">
+              <AlertTriangle size={14} className="text-rose-400" />
+              <span className="text-xs sm:text-sm font-medium text-rose-300">
+                {criticalThreats} menace{criticalThreats > 1 ? 's' : ''} critique{criticalThreats > 1 ? 's' : ''} aujourd'hui
+              </span>
+            </div>
+          )}
+
+          {/* Live counters */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-lg mx-auto mb-6 sm:mb-8">
+            {[
+              { label: 'Outils', value: repos.toLocaleString(), icon: <Star size={14} className="text-amber-400" />, delay: '0s' },
+              { label: 'Stars', value: stars.toLocaleString(), icon: <TrendingUp size={14} className="text-indigo-400" />, delay: '0.2s' },
+              { label: 'CVE', value: cves.toLocaleString(), icon: <Shield size={14} className="text-rose-400" />, delay: '0.4s' },
+            ].map((c, i) => (
+              <div key={i} className="glass-card rounded-xl p-3 sm:p-4 text-center animate-slide" style={{ animationDelay: c.delay }}>
+                <div className="flex justify-center mb-1">{c.icon}</div>
+                <div className="text-lg sm:text-2xl font-bold text-white tabular-nums">{c.value}</div>
+                <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5">{c.label}</div>
+              </div>
+            ))}
           </div>
+
+          {/* Search bar */}
+          <Outlet />
+        </section>
+
+        {/* Footer */}
+        <footer className="py-8 border-t border-white/[0.03] flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] sm:text-xs text-slate-600">
+          <div className="flex items-center gap-3">
+            <span>CyberScan Pro v2.2</span>
+            <span className="w-1 h-1 rounded-full bg-slate-700" />
+            <span>https://cyberbook.eurin.tech</span>
+          </div>
+          <span>Powered by Groq AI + GitHub + NVD</span>
         </footer>
       </div>
     </div>

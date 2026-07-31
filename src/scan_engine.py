@@ -210,6 +210,13 @@ def scan_cycle():
                 logging.info(f"🧬 Embeddings generes pour {emb_count} depot(s)")
         except Exception as e:
             logging.error(f"❌ Erreur embeddings: {e}")
+        try:
+            import src.ai_digest as ai_digest
+            digest = ai_digest.generate_digest()
+            if digest and "error" not in digest:
+                logging.info(f"📰 Digest IA: {digest.get('title','?')}")
+        except Exception as e:
+            logging.error(f"❌ Erreur digest IA: {e}")
 
 
 def run_scan_once_manual():
