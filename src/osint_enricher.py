@@ -54,6 +54,93 @@ AWESOME_QUERIES = [
     "awesome-bug-bounty stars:>10",
 ]
 
+# ── Sigma Rules ──────────────────────────────────────────────────────────
+
+SIGMA_RULES_URL = "https://api.github.com/repos/SigmaHQ/sigma/contents/rules"
+
+
+def import_sigma_rules(tokens: list[str]) -> int:
+    """Telecharge et importe les titres de regles Sigma comme mots-cles. Retourne nb."""
+    import random
+    try:
+        import yaml as _yaml
+    except ImportError:
+        logging.warning("PyYAML non installe, Sigma rules ignorees")
+        return 0
+    from src import database
+
+    if not tokens:
+        return 0
+
+    token = random.choice(tokens)
+    headers = {"Accept": "application/vnd.github.v3+json", "Authorization": f"token {token}"}
+    keywords = []
+    seen = set()
+
+    # Recursive fetch of rule directories
+    def fetch_dir(url: str, depth: int = 0):
+        if depth > 2:
+            return
+        try:
+            r = requests.get(url, headers=headers, timeout=15)
+            if r.status_code != 200:
+                return
+            for item in r.json():
+                if item["type"] == "dir" and depth < 1:
+                    fetch_dir(item["url"], depth + 1)
+                elif item["type"] == "file" and item["name"].endswith(".yml"):
+                    fetch_rule(item["download_url"])
+            time.sleep(0.3)
+        except Exception:
+            pass
+
+    def fetch_rule(url: str):
+        try:
+            r = requests.get(url, timeout=10)
+            if r.status_code != 200:
+                return
+            rule = _yaml.safe_load(r.text)
+            if not rule:
+                return
+            title = str(rule.get("title", "")).lower().strip()
+            tags = rule.get("tags", [])
+            level = rule.get("level", "")
+            # Extract meaningful terms from title
+            for word in title.replace(",", " ").replace("-", " ").split():
+                word = word.strip()
+                if len(word) > 4 and word not in seen and word not in _STOPWORDS:
+                    seen.add(word)
+                    keywords.append({
+                        "term": word.lower(),
+                        "category_guess": "sigma_detection",
+                        "score": 0.70,
+                        "sources": 1,
+                        "source_samples": f"Sigma rule: {title[:80]}",
+                    })
+        except Exception:
+            pass
+
+    fetch_dir(SIGMA_RULES_URL)
+
+    if keywords:
+        try:
+            saved = database.save_discovered_keywords(keywords)
+            logging.info(f"📏 Sigma: {saved} mots-cles extraits de regles de detection")
+            return saved
+        except Exception as e:
+            logging.error(f"Sigma import: {e}")
+    return 0
+
+
+_STOPWORDS = {
+    "about", "above", "after", "again", "against", "being", "below", "between",
+    "could", "doing", "during", "every", "first", "found", "given", "going",
+    "having", "hello", "might", "month", "never", "other", "place", "quite",
+    "rather", "right", "shall", "since", "still", "their", "there", "these",
+    "thing", "think", "those", "under", "until", "using", "value", "where",
+    "which", "while", "world", "would", "write", "years", "could", "event",
+}
+
 
 def download_source(name: str, config: dict) -> str | None:
     """Telecharge une source OSINT. Retourne le chemin du fichier ou None."""
@@ -210,7 +297,9 @@ def run_osint_enrichment(limit: int = 5) -> dict:
     # Awesome lists discovery
     if tokens:
         results["awesome_lists"] = import_awesome_lists(tokens)
+        results["sigma_rules"] = import_sigma_rules(tokens)
     else:
         results["awesome_lists"] = 0
+        results["sigma_rules"] = 0
 
     return results
