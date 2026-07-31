@@ -240,6 +240,13 @@ def scan_cycle():
                 logging.info(f"🦠 IOC: {ioc_res}")
         except Exception as e:
             logging.error(f"❌ Erreur IOC: {e}")
+        try:
+            import src.agents.cve_agent as cve_agent
+            n = cve_agent.batch_analyze_recent(limit=8)
+            if n:
+                logging.info(f"🤖 CVE Agent: {n} CVE analysees par IA")
+        except Exception as e:
+            logging.error(f"❌ Erreur CVE Agent: {e}")
 
 
 def run_scan_once_manual():

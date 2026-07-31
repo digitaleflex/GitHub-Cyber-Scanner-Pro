@@ -325,6 +325,71 @@ def top_threats_api(limit: int = 20):
     return {"count": len(threats), "threats": threats}
 
 
+@app.get("/api/cve/{cve_id}/analysis")
+def cve_analysis_api(cve_id: str):
+    """Analyse IA d'une CVE (Groq)."""
+    from src.database import get_db_connection
+    import src.correlation as corr
+    import src.agents.cve_agent as cve_agent
+
+    cached = cve_agent.get_analyzed_cve(cve_id)
+    if cached:
+        return cached
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT description, severity, cvss_score, weaknesses FROM cve_entries WHERE cve_id = %s", (cve_id.upper(),))
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not row:
+        return {"error": "CVE introuvable"}
+
+    desc, sev, cvss, weaknesses = row
+    kev = "CISA_KEV" in (weaknesses or "")
+    exploits = corr.get_exploits_for_cve(cve_id)
+    return cve_agent.analyze_cve(cve_id, desc, str(cvss or ""), sev, kev, len(exploits))
+
+
+@app.post("/api/cve/{cve_id}/analyze")
+def cve_analyze_api(cve_id: str, _u: str = Depends(src.auth.verify_admin)):
+    """Force l'analyse IA d'une CVE (admin)."""
+    from src.database import get_db_connection
+    import src.correlation as corr
+    import src.agents.cve_agent as cve_agent
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT description, severity, cvss_score, weaknesses FROM cve_entries WHERE cve_id = %s", (cve_id.upper(),))
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not row:
+        return {"error": "CVE introuvable"}
+
+    desc, sev, cvss, weaknesses = row
+    kev = "CISA_KEV" in (weaknesses or "")
+    exploits = corr.get_exploits_for_cve(cve_id)
+    result = cve_agent.analyze_cve(cve_id, desc, str(cvss or ""), sev, kev, len(exploits))
+
+    # Stocker en DB
+    if "indisponible" not in result.get("summary", ""):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        import json as _json
+        cursor.execute(
+            "UPDATE cve_entries SET weaknesses = COALESCE(weaknesses, '') || ' | AI_ANALYSIS:' || %s WHERE cve_id = %s",
+            (_json.dumps(result)[:1500], cve_id),
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        cve_agent._cve_cache[cve_id] = result
+    return result
+
+
 @app.get("/api/cve/{cve_id}")
 def cve_detail_api(cve_id: str):
     """Detail complet d'une CVE avec exploits et outils associes."""

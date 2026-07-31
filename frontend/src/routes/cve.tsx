@@ -1,7 +1,7 @@
 import { createRoute, useParams, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useQuery } from '@tanstack/react-query'
-import { Shield, ExternalLink, AlertTriangle, Bug, Star, ArrowLeft, Clock, Target } from 'lucide-react'
+import { Shield, ExternalLink, AlertTriangle, Bug, Star, ArrowLeft, Clock, Target, Brain, Wrench, ShieldCheck } from 'lucide-react'
 
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
@@ -38,6 +38,12 @@ function CveDetail() {
     queryFn: () => fetch(`/api/cve/${encodeURIComponent(id)}`).then(r => r.json()),
     staleTime: 300_000,
   })
+  const { data: analysis } = useQuery({
+    queryKey: ['cve-analysis', id],
+    queryFn: () => fetch(`/api/cve/${encodeURIComponent(id)}/analysis`).then(r => r.json()).catch(() => ({})),
+    staleTime: 3_600_000,
+  })
+  const hasAnalysis = analysis && analysis.summary && !String(analysis.summary).includes('indisponible')
 
   if (isLoading) return <div className="text-center py-16 text-slate-500">Chargement...</div>
   if (!cve || cve.error) return (
@@ -73,6 +79,49 @@ function CveDetail() {
 
             {cve.weaknesses && <div className="glass rounded-xl p-3 text-xs text-slate-500"><span className="text-slate-600">Faiblesses :</span> {String(cve.weaknesses).slice(0, 300)}</div>}
           </div>
+
+          {/* Analyse IA */}
+          {hasAnalysis && (
+            <div className="glass-card rounded-2xl p-4 sm:p-6 border border-indigo-500/20">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-indigo-500/20 flex items-center justify-center"><Brain size={14} className="text-indigo-400" /></div>
+                <h2 className="text-sm font-semibold text-white">Analyse IA</h2>
+                {analysis.exploitation_likelihood && (
+                  <span className={`ml-auto text-[10px] sm:text-xs px-2 py-0.5 rounded font-medium ${
+                    analysis.exploitation_likelihood === 'CRITIQUE' ? 'bg-rose-500/20 text-rose-300' :
+                    analysis.exploitation_likelihood === 'MOYEN' ? 'bg-amber-500/20 text-amber-300' :
+                    'bg-emerald-500/20 text-emerald-300'
+                  }`}>Exploitation: {analysis.exploitation_likelihood}</span>
+                )}
+              </div>
+
+              {analysis.summary && <p className="text-sm text-slate-200 leading-relaxed mb-3">{analysis.summary}</p>}
+
+              <div className="space-y-2">
+                {analysis.impact && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <Target size={12} className="text-rose-400 mt-0.5 shrink-0" />
+                    <div><span className="text-slate-500">Impact :</span> <span className="text-slate-300">{analysis.impact}</span></div>
+                  </div>
+                )}
+                {analysis.recommendation && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <ShieldCheck size={12} className="text-emerald-400 mt-0.5 shrink-0" />
+                    <div><span className="text-slate-500">Recommandation :</span> <span className="text-slate-300">{analysis.recommendation}</span></div>
+                  </div>
+                )}
+                {analysis.audience && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <Wrench size={12} className="text-amber-400 mt-0.5 shrink-0" />
+                    <div><span className="text-slate-500">Public :</span> <span className="text-slate-300">{analysis.audience}</span></div>
+                  </div>
+                )}
+                {analysis.patched_in && (
+                  <div className="text-xs"><span className="text-slate-500">Corrigee en :</span> <span className="text-emerald-400 font-mono">{analysis.patched_in}</span></div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Exploits */}
           {cve.exploits?.length > 0 && (
