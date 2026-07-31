@@ -440,6 +440,17 @@ def osint_report_api(free_text: str = "", email: str = "", phone: str = "", doma
     )
 
 
+@app.post("/api/osint/investigate-v2")
+def osint_investigate_v2(free_text: str = ""):
+    """Enquete OSINT 2.0: multi-candidats, scoring, decision engine."""
+    import src.osint_engine as engine
+    import src.github_client as gc
+    result = engine.run_investigation(free_text, tokens=gc.TOKENS if gc.TOKENS else [])
+    # Ajouter la comparaison visuelle
+    result["comparison"] = engine.compare_candidates(result.get("candidates", []))
+    return result
+
+
 @app.get("/api/osint/tools")
 def osint_tools_status():
     """Etat des outils OSINT disponibles."""
