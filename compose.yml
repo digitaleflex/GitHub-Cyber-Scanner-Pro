@@ -78,25 +78,24 @@ services:
     volumes:
       - neo4j-data:/data
 
-volumes:
-  pgdata:
-  neo4j-data:
 
   searxng:
     image: searxng/searxng:latest
     container_name: cyber_searxng
-    restart: always
+    restart: unless-stopped
     mem_limit: 256m
-    cpus: "0.3"
-    ports:
-      - "8888:8080"
+    cpus: "0.5"
     environment:
-      - SEARXNG_BASE_URL=http://localhost:8888/
-      - SEARXNG_SECRET=cyberscan-searxng-secret-key-change-me
+      - SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
     volumes:
       - ./data/searxng:/etc/searxng
     networks:
       - default
+
+volumes:
+  pgdata:
+  neo4j-data:
+
 
 networks:
   proxy:
