@@ -131,13 +131,59 @@ def check_social_presence(username: str) -> list[dict]:
 
 # ── 5. Person OSINT (aggregateur) ────────────────────────────────────────
 
-def investigate_person(name: str, location: str = "", email: str = "", username: str = "", tokens: list[str] = None) -> dict:
+# ── 5. Person OSINT (aggregateur) ────────────────────────────────────────
+
+def ai_extract_person(free_text: str) -> dict:
+    """Utilise Groq pour extraire les parametres OSINT d'un texte libre."""
+    import os
+    if not os.getenv("GROQ_API_KEY"):
+        return {"name": free_text[:50], "location": ""}
+    try:
+        import src.llm_router as llm
+        prompt = (
+            "Tu es un expert OSINT. Analyse ce texte et extrait les parametres de recherche.\n\n"
+            f"Texte: {free_text}\n\n"
+            "Reponds UNIQUEMENT en JSON: "
+            '{"name": "nom ou pseudo", "location": "ville ou pays", '
+            '"keywords": ["mot1", "mot2"], "probable_usernames": ["user1", "user2"], '
+            '"email": "email si mentionne", "organization": "org si mentionnee", '
+            '"search_strategy": "1 phrase decrivant la meilleure approche"}'
+        )
+        result = llm.llm_complete_json(prompt, max_tokens=300)
+        if result:
+            result.setdefault("name", free_text[:50])
+            result.setdefault("location", "")
+            return result
+    except Exception as e:
+        logging.warning(f"AI extract: {e}")
+    return {"name": free_text[:50], "location": ""}
+
+
+def investigate_person(name: str = "", location: str = "", email: str = "", username: str = "",
+                       free_text: str = "", tokens: list[str] = None) -> dict:
     """Enquete OSINT complete sur une personne. Retourne un rapport structure."""
+    
+    # AI extraction si texte libre
+    if free_text and not name:
+        extracted = ai_extract_person(free_text)
+        name = extracted.get("name", name)
+        location = extracted.get("location", location)
+        email = extracted.get("email", email)
+        username = (extracted.get("probable_usernames") or [username or ""])[0] if not username else username
+        keywords = extracted.get("keywords", [])
+        strategy = extracted.get("search_strategy", "")
+    else:
+        keywords = []
+        strategy = ""
+
     results = {
-        "query": {"name": name, "location": location, "email": email, "username": username},
+        "query": {"name": name, "location": location, "email": email, "username": username,
+                  "free_text": free_text[:200] if free_text else ""},
+        "ai_extracted": {"name": name, "location": location, "keywords": keywords,
+                         "strategy": strategy} if free_text else {},
         "timestamp": datetime.utcnow().isoformat(),
         "findings": {},
-        "methodology": "OSINT professionnel: collecte → verification → correlation → elimination des faux positifs",
+        "methodology": "OSINT pro: AI extraction → recherche multicouche → verification → rapport",
     }
 
     # 1. GitHub profiles
@@ -147,17 +193,19 @@ def investigate_person(name: str, location: str = "", email: str = "", username:
             results["findings"]["github_profiles"] = github
 
     # 2. Social media presence
-    uname = username or name.lower().replace(" ", "")
+    uname = username or name.lower().replace(" ", "").replace(".", "")
     if uname:
         social = check_social_presence(uname)
         present = [s for s in social if s["present"]]
         if present:
             results["findings"]["social_presence"] = present
 
-    # 3. Google Dorks
+    # 3. Google Dorks (avec mots-cles IA)
     dork_query = f'"{name}"'
     if location:
         dork_query += f' "{location}"'
+    for kw in keywords[:3]:
+        dork_query += f' {kw}'
     dorks = search_dork(dork_query)
     if dorks:
         results["findings"]["dorks"] = dorks[:5]
@@ -173,5 +221,7 @@ def investigate_person(name: str, location: str = "", email: str = "", username:
         results["summary"] += f'{len(results["findings"]["github_profiles"])} profils GitHub. '
     if results["findings"].get("social_presence"):
         results["summary"] += f'{len(results["findings"]["social_presence"])} comptes sociaux. '
+    if strategy:
+        results["summary"] += f'Strategie IA: {strategy[:100]}'
 
     return results

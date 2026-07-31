@@ -71,6 +71,7 @@ function ExplorePage() {
           <StatsBar />
           <DigestSection />
           <ThreatSection />
+          <OsintSection />
           <AiLabSection />
           <BlogSection />
           <TrendingSection />
@@ -269,3 +270,63 @@ function StatsBar() {
 
 // Replace the empty-state return in ExplorePage to include new sections
 // Actually, just add the sections to the home layout
+
+function OsintSection() {
+  const [text, setText] = useState('')
+  const [result, setResult] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const search = async () => {
+    if (!text.trim()) return
+    setLoading(true)
+    try {
+      const r = await fetch(`/api/osint/investigate?free_text=${encodeURIComponent(text)}`, { method: 'POST' }).then(r => r.json())
+      setResult(r)
+    } catch {}
+    setLoading(false)
+  }
+  return (
+    <div className="glass-card rounded-2xl p-4 sm:p-6">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="w-6 h-6 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-xs">OS</span>
+        <h3 className="text-sm sm:text-base font-semibold text-white">OSINT Lab — Recherche IA</h3>
+        <span className="text-[10px] text-slate-600">Decrivez, l'IA trouve</span>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-2 mb-3">
+        <textarea value={text} onChange={e => setText(e.target.value)}
+          placeholder="Ex: un chercheur en securite francais qui travaille sur les malwares Android..."
+          className="flex-1 px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500 min-h-[60px]" />
+        <button onClick={search} disabled={loading || !text.trim()}
+          className="px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-lg text-xs font-medium hover:bg-cyan-500/20 disabled:opacity-30 self-end">
+          {loading ? 'Recherche...' : 'Enqueter'}
+        </button>
+      </div>
+      {result && (
+        <div className="text-xs space-y-2">
+          <p className="text-slate-400 font-medium">{result.summary}</p>
+          {result.ai_extracted?.name && (
+            <div className="flex flex-wrap gap-1">
+              {result.ai_extracted.name && <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-[10px]">Nom: {result.ai_extracted.name}</span>}
+              {result.ai_extracted.location && <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px]">Ville: {result.ai_extracted.location}</span>}
+              {result.ai_extracted.keywords?.map((k: string, i: number) => (
+                <span key={i} className="px-2 py-0.5 rounded bg-slate-500/10 text-slate-400 text-[10px]">{k}</span>
+              ))}
+            </div>
+          )}
+          {result.ai_extracted?.strategy && (
+            <p className="text-[10px] text-slate-500 italic">{result.ai_extracted.strategy}</p>
+          )}
+          {result.findings?.github_profiles && (
+            <div>
+              <p className="text-slate-500 text-[10px] mb-1">Profils GitHub:</p>
+              {result.findings.github_profiles.slice(0,3).map((p: any, i: number) => (
+                <a key={i} href={p.url} target="_blank" rel="noopener" className="block text-indigo-400 hover:underline text-[11px]">
+                  {p.username} {p.name ? `(${p.name})` : ''} {p.location ? `- ${p.location}` : ''}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}

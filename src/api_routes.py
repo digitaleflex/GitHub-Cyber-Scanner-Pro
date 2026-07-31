@@ -377,13 +377,13 @@ def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
 
 
 @app.post("/api/osint/investigate")
-def osint_investigate_api(name: str = "", location: str = "", email: str = "", username: str = ""):
-    """Enquete OSINT sur une personne (methodologie pro)."""
+def osint_investigate_api(name: str = "", location: str = "", email: str = "", username: str = "", free_text: str = ""):
+    """Enquete OSINT sur une personne. Accepte du texte libre analyse par IA."""
     import src.osint_lab as osint_lab
     import src.github_client as gc
     return osint_lab.investigate_person(
         name=name, location=location, email=email, username=username,
-        tokens=gc.TOKENS if gc.TOKENS else [],
+        free_text=free_text, tokens=gc.TOKENS if gc.TOKENS else [],
     )
 
 
