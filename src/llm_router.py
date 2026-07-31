@@ -16,11 +16,14 @@ HF_URL = "https://router.huggingface.co/v1/chat/completions"
 
 # Modeles HF par priorite (du plus puissant au plus rapide)
 HF_MODELS = {
-    "best": "Qwen/Qwen2.5-72B-Instruct",         # 72B — qualite max
-    "balanced": "meta-llama/Llama-3.3-70B-Instruct",  # 70B — equivalent Groq
-    "fast": "Qwen/Qwen2.5-7B-Instruct",           # 7B — rapide
-    "code": "Qwen/Qwen3-Coder-480B-A35B-Instruct", # specialiste code
-    "long": "moonshotai/Kimi-K2-Instruct",         # 1M contexte
+    "best": "Qwen/Qwen3-235B-A22B-Instruct-2507",      # 235B — le plus puissant testé
+    "balanced": "meta-llama/Llama-3.3-70B-Instruct",    # 70B — equivalent Groq
+    "fast": "Qwen/Qwen2.5-7B-Instruct",                 # 7B — rapide
+    "code": "Qwen/Qwen3-Coder-480B-A35B-Instruct",      # 480B MoE — specialiste code
+    "long": "moonshotai/Kimi-K2-Instruct-0905",         # 1M contexte
+    "reasoning": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",  # raisonnement
+    "massive": "Qwen/Qwen3.5-122B-A10B",                # 122B — très puissant
+    "enterprise": "baidu/ERNIE-4.5-VL-424B-A47B-Base-PT",  # 424B — plus gros (CN)
 }
 
 
