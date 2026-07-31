@@ -32,7 +32,13 @@ HF_MODELS = {
     # Reranker (ameliore le classement semantique)
     "reranker": "mixedbread-ai/mxbai-rerank-large-v1",
 
-    # Chat (fallback LLM)
+    # Nouvelles pepites (API only)
+    "zero_shot_ml": "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",  # FR+EN
+    "security_fill": "jackaduma/SecBERT",          # Fill-mask specialise securite
+    "qa": "deepset/roberta-base-squad2",           # Question Answering
+    "reranker_v3": "BAAI/bge-reranker-v2-m3",      # Reranker 19M DL
+    "embed_v2": "mixedbread-ai/mxbai-embed-large-v1",  # Alternative embeddings
+    "guardian": "ibm-granite/granite-guardian-hap-125m",  # Content safety
     "chat": "Qwen/Qwen3-235B-A22B-Instruct-2507",
 }
 
@@ -224,3 +230,43 @@ def batch_scan_suspect_repos(limit: int = 20) -> int:
     cursor.close()
     conn.close()
     return flagged
+
+# ── 8. MULTILINGUAL ZERO-SHOT (FR+EN) ──────────────────────────────────
+
+def classify_ml(text: str, labels: list[str]) -> dict:
+    """Zero-shot classification multilingue (FR+EN). Mieux que bart-large-mnli."""
+    result = hf_api(
+        f"hf-inference/models/{HF_MODELS['zero_shot_ml']}",
+        {"inputs": text[:1000], "parameters": {"candidate_labels": labels}},
+    )
+    if isinstance(result, list) and len(result) > 0:
+        return {"label": result[0].get("label", "?"), "score": result[0].get("score", 0),
+                "all": {r["label"]: r["score"] for r in result}}
+    return {"label": "Inconnu", "score": 0}
+
+
+# ── 9. SECURITY FILL-MASK (SecBERT) ─────────────────────────────────────
+
+def detect_vuln_type(text: str) -> str:
+    """Detecte le type de vulnerabilite via SecBERT (fill-mask)."""
+    masked = text + " [MASK]"
+    result = hf_api(
+        f"hf-inference/models/{HF_MODELS['security_fill']}",
+        {"inputs": masked[:500]},
+    )
+    if isinstance(result, list) and len(result) > 0:
+        return result[0].get("token_str", result[0].get("sequence", ""))
+    return ""
+
+
+# ── 10. QUESTION ANSWERING ──────────────────────────────────────────────
+
+def answer_question(question: str, context: str) -> str:
+    """Repond a une question sur un contexte (CVE, README)."""
+    result = hf_api(
+        f"hf-inference/models/{HF_MODELS['qa']}",
+        {"inputs": {"question": question, "context": context[:2000]}},
+    )
+    if isinstance(result, dict):
+        return result.get("answer", "")
+    return ""

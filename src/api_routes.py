@@ -376,6 +376,21 @@ def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     return {"flagged": n}
 
 
+@app.get("/api/hf/qa")
+def hf_qa_api(question: str = "", context: str = ""):
+    """Question Answering via HF (roberta-squad2)."""
+    import src.hf_client as hf
+    answer = hf.answer_question(question, context)
+    return {"question": question, "answer": answer}
+
+
+@app.get("/api/hf/vuln-type")
+def hf_vuln_type_api(text: str = ""):
+    """Detection de type de vulnerabilite via SecBERT."""
+    import src.hf_client as hf
+    return {"type": hf.detect_vuln_type(text)}
+
+
 @app.get("/api/hf/status")
 def hf_status():
     """Etat des services HuggingFace."""
