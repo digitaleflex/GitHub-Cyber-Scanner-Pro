@@ -252,6 +252,91 @@ def generate_digest_api(_u: str = Depends(src.auth.verify_admin)):
     return ai_digest.generate_digest()
 
 
+@app.get("/api/tools/featured")
+def featured_tools_api(limit: int = 12):
+    """Outils incontournables: top stars + bon verdict securite."""
+    from src.database import get_db_connection
+    from psycopg2.extras import RealDictCursor
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("""
+        SELECT full_name AS name, description AS desc, stars, language AS lang,
+               html_url AS url, security_verdict, vitality_score
+        FROM repositories WHERE stars > 100 ORDER BY stars DESC LIMIT %s
+    """, (limit,))
+    rows = [dict(r) for r in cursor.fetchall()]
+    cursor.close(); conn.close()
+    return {"tools": rows, "label": "Incontournables"}
+
+
+@app.get("/api/tools/readytouse")
+def ready_to_use_api(limit: int = 20):
+    """Outils prets a l'emploi: bien notes + descriptions riches."""
+    from src.database import get_db_connection
+    from psycopg2.extras import RealDictCursor
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("""
+        SELECT full_name AS name, description AS desc, stars, language AS lang,
+               html_url AS url, security_verdict, vitality_score
+        FROM repositories WHERE stars >= 10 AND description IS NOT NULL AND length(description) > 30
+        ORDER BY stars DESC LIMIT %s
+    """, (limit,))
+    rows = [dict(r) for r in cursor.fetchall()]
+    cursor.close(); conn.close()
+    return {"tools": rows, "label": "Prets a l'emploi"}
+
+
+@app.get("/api/tools/by-category")
+def tools_by_category_api(category: str = "all", limit: int = 30):
+    """Outils par categorie."""
+    from src.database import get_db_connection
+    from psycopg2.extras import RealDictCursor
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    filters = {
+        "red-team": "description ILIKE '%red team%' OR description ILIKE '%C2%' OR description ILIKE '%exploit%' OR description ILIKE '%payload%' OR description ILIKE '%backdoor%' OR description ILIKE '%adversary%'",
+        "blue-team": "description ILIKE '%defense%' OR description ILIKE '%detect%' OR description ILIKE '%monitor%' OR description ILIKE '%scan%' OR description ILIKE '%forensic%' OR description ILIKE '%incident%'",
+        "exploit": "description ILIKE '%exploit%' OR description ILIKE '%PoC%' OR description ILIKE '%CVE%' OR description ILIKE '%vulnerability%'",
+        "malware": "description ILIKE '%malware%' OR description ILIKE '%ransomware%' OR description ILIKE '%trojan%' OR description ILIKE '%stealer%' OR description ILIKE '%backdoor%'",
+        "osint": "description ILIKE '%osint%' OR description ILIKE '%recon%' OR description ILIKE '%scraper%' OR description ILIKE '%crawler%' OR description ILIKE '%intelligence%'",
+        "network": "description ILIKE '%network%' OR description ILIKE '%scanner%' OR description ILIKE '%proxy%' OR description ILIKE '%sniff%' OR description ILIKE '%packet%'",
+    }
+    where = f"WHERE {filters[category]}" if category in filters else ""
+    cursor.execute(f"""
+        SELECT full_name AS name, description AS desc, stars, language AS lang,
+               html_url AS url, security_verdict, vitality_score
+        FROM repositories {where} ORDER BY stars DESC LIMIT %s
+    """, (limit,))
+    rows = [dict(r) for r in cursor.fetchall()]
+    cursor.close(); conn.close()
+    return {"tools": rows, "category": category}
+
+
+@app.post("/api/ioc/enrich")
+def ioc_enrich_api(_u: str = Depends(src.auth.verify_admin)):
+    """Enrichissement IOC via abuse.ch APIs (admin)."""
+    import src.ioc_enricher as ioc
+    return ioc.run_ioc_enrichment()
+
+
+@app.post("/api/dorking/scan")
+def dorking_scan_api(limit: int = 8, _u: str = Depends(src.auth.verify_admin)):
+    """Dorking GitHub Code Search pour nouveaux outils (admin)."""
+    import src.dorking as dorking
+    import src.github_client as gc
+    n = dorking.run_dorking_scan(gc.TOKENS, limit=limit)
+    return {"discovered": n}
+
+
+@app.post("/api/dorking/exploitdb")
+def exploitdb_import_api(_u: str = Depends(src.auth.verify_admin)):
+    """Importe la base Exploit-DB comme mots-cles (admin)."""
+    import src.dorking as dorking
+    n = dorking.import_exploitdb()
+    return {"keywords_imported": n}
+
+
 @app.post("/api/osint/enrich")
 def osint_enrich_api(_u: str = Depends(src.auth.verify_admin)):
     """Enrichissement OSINT: CISA KEV, GTFOBins, Awesome Lists (admin)."""

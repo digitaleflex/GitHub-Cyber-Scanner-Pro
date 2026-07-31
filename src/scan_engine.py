@@ -225,6 +225,21 @@ def scan_cycle():
                 logging.info(f"🌐 OSINT: {total} entrees enrichies ({osint_res})")
         except Exception as e:
             logging.error(f"❌ Erreur OSINT: {e}")
+        try:
+            import src.dorking as dorking
+            import src.github_client as gc
+            dork_count = dorking.run_dorking_scan(gc.TOKENS, limit=8)
+            if dork_count:
+                logging.info(f"🔍 Dorking: {dork_count} repos decouverts via code search")
+        except Exception as e:
+            logging.error(f"❌ Erreur dorking: {e}")
+        try:
+            import src.ioc_enricher as ioc
+            ioc_res = ioc.run_ioc_enrichment()
+            if ioc_res:
+                logging.info(f"🦠 IOC: {ioc_res}")
+        except Exception as e:
+            logging.error(f"❌ Erreur IOC: {e}")
 
 
 def run_scan_once_manual():
