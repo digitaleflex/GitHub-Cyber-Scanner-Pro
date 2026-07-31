@@ -254,6 +254,13 @@ def scan_cycle():
                 logging.info(f"🏷️ GitHub Agent: {n} repos categorises par IA")
         except Exception as e:
             logging.error(f"❌ Erreur GitHub Agent: {e}")
+        try:
+            import src.social.reddit_scanner as reddit
+            n = reddit.run(limit_per_sub=10)
+            if n:
+                logging.info(f"📱 Reddit: {n} nouveaux repos")
+        except Exception as e:
+            logging.error(f"❌ Erreur Reddit: {e}")
 
 
 def run_scan_once_manual():

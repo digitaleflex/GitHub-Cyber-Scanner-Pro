@@ -332,6 +332,14 @@ def trends_api():
     return trend.detect_trends()
 
 
+@app.post("/api/social/reddit")
+def reddit_scan_api(limit: int = 10, _u: str = Depends(src.auth.verify_admin)):
+    """Scan Reddit pour nouveaux outils (admin)."""
+    import src.social.reddit_scanner as reddit
+    n = reddit.run(limit_per_sub=limit)
+    return {"discovered": n}
+
+
 @app.post("/api/hf/guard")
 def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     """Content safety scan via Granite Guardian (admin)."""
