@@ -376,6 +376,20 @@ def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     return {"flagged": n}
 
 
+@app.get("/api/osint/tools")
+def osint_tools_status():
+    """Etat des outils OSINT disponibles."""
+    import src.osint_tools as ot
+    return ot.tools_status()
+
+
+@app.post("/api/osint/run-all")
+def osint_run_all(username: str = "", email: str = "", name: str = "", location: str = ""):
+    """Lance tous les outils OSINT (Sherlock, Maigret, Holehe + internes)."""
+    import src.osint_tools as ot
+    return ot.run_all(username=username, email=email, name=name, location=location)
+
+
 @app.post("/api/osint/plan")
 def osint_plan_api(free_text: str = ""):
     """L'IA analyse la cible et recommande les meilleurs outils OSINT."""
