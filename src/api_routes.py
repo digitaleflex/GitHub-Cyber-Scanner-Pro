@@ -334,10 +334,16 @@ def trends_api():
 
 @app.post("/api/blog/scan")
 def blog_scan_api(_u: str = Depends(src.auth.verify_admin)):
-    """Lance le scan des blogs securite (admin)."""
+    """Lance le scan des blogs securite (admin). Retourne les articles avec entites extraites."""
     import src.blog_scanner as blog
     n = blog.scan_all()
-    return {"saved": n}
+    posts = blog.get_posts(limit=10)
+    # Extraire les entites des derniers articles
+    enriched = []
+    for p in posts[:5]:
+        p["entities"] = blog.extract_entities(p.get("title","") + " " + p.get("summary",""))
+        enriched.append(p)
+    return {"saved": n, "sample": enriched}
 
 
 @app.get("/api/blog/posts")

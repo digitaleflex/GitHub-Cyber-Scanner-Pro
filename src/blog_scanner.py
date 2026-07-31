@@ -199,3 +199,19 @@ def get_sources() -> list[dict]:
     cursor.close()
     conn.close()
     return rows
+
+
+def extract_entities(text: str) -> dict:
+    """Extrait les entites d'un article: CVE, GitHub URLs, IOCs, outils."""
+    cves = list(set(re.findall(r'CVE-\d{4}-\d{4,7}', text, re.IGNORECASE)))
+    gh_urls = list(set(re.findall(r'https?://github\.com/[\w.-]+/[\w.-]+', text)))
+    ips = list(set(re.findall(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', text)))[:5]
+    domains = list(set(re.findall(r'\b(?:[\w-]+\.)+[\w-]{2,}\b', text)))[:10]
+    # Filtrer les faux positifs
+    domains = [d for d in domains if d not in ('com', 'org', 'net', 'www', 'blog') and '.' in d and len(d) > 5][:5]
+    return {
+        "cves": cves[:5],
+        "github_urls": gh_urls[:5],
+        "ips": ips,
+        "domains": domains,
+    }
