@@ -332,6 +332,28 @@ def trends_api():
     return trend.detect_trends()
 
 
+@app.get("/api/hf/status")
+def hf_status():
+    """Etat des services HuggingFace."""
+    import src.hf_client as hf
+    return hf.hf_status()
+
+
+@app.get("/api/hf/embed")
+def hf_embed_api(text: str = ""):
+    """Genere un embedding via HF."""
+    import src.hf_client as hf
+    emb = hf.embed_text(text)
+    return {"dims": len(emb), "embedding": emb[:10]}
+
+
+@app.get("/api/hf/classify")
+def hf_classify_api(text: str = ""):
+    """Zero-shot classification via HF."""
+    import src.hf_client as hf
+    return hf.classify_zero_shot(text, ["Red Team", "Blue Team", "Malware", "Exploit", "OSINT", "Cloud", "Forensics"])
+
+
 @app.get("/api/threats/top")
 def top_threats_api(limit: int = 20):
     """Top menaces classees par Threat Priority Score."""
