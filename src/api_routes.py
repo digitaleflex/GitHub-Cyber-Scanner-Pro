@@ -376,6 +376,13 @@ def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     return {"flagged": n}
 
 
+@app.post("/api/osint/plan")
+def osint_plan_api(free_text: str = ""):
+    """L'IA analyse la cible et recommande les meilleurs outils OSINT."""
+    import src.osint_orchestrator as orch
+    return orch.analyze_and_recommend(free_text)
+
+
 @app.post("/api/osint/pipeline")
 def osint_pipeline_api(free_text: str = ""):
     """Pipeline OSINT complet: 12 modeles IA chaines."""
