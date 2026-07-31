@@ -70,6 +70,7 @@ function RootLayout() {
           <nav className="hidden md:flex items-center gap-1">
             <Link to="/" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Explorer</Link>
             <Link to="/tools" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Outils</Link>
+            <Link to="/osint" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">OSINT</Link>
             <Link to="/search" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400">Recherche</Link>
             <a href="/api/download" className="flex items-center gap-1 px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition">
               <Download size={11} /> Rapport
@@ -88,6 +89,7 @@ function RootLayout() {
           <nav className="md:hidden flex flex-col gap-1 pb-4 -mt-1 mb-4 glass rounded-xl p-2 animate-fade">
             <Link to="/" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Explorer</Link>
             <Link to="/tools" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Outils</Link>
+            <Link to="/osint" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">OSINT</Link>
             <Link to="/search" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Recherche avancee</Link>
             <a href="/api/download" onClick={() => setMenuOpen(false)} className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5"><Download size={11} /> Telecharger le rapport</a>
           </nav>
