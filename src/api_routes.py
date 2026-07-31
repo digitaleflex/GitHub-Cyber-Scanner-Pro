@@ -376,6 +376,14 @@ def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     return {"flagged": n}
 
 
+@app.post("/api/osint/pipeline")
+def osint_pipeline_api(free_text: str = ""):
+    """Pipeline OSINT complet: 12 modeles IA chaines."""
+    import src.osint_pipeline as pipeline
+    import src.github_client as gc
+    return pipeline.run_full_pipeline(free_text, tokens=gc.TOKENS if gc.TOKENS else [])
+
+
 @app.post("/api/osint/investigate")
 def osint_investigate_api(name: str = "", location: str = "", email: str = "", username: str = "", free_text: str = ""):
     """Enquete OSINT sur une personne. Accepte du texte libre analyse par IA."""
