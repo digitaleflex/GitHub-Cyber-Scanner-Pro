@@ -1,20 +1,9 @@
 import { Route as RootRoute } from './routes/__root'
 import { Route as IndexRoute } from './routes/index'
-import { Route as LoginRoute } from './routes/login'
 import { Route as ToolRoute } from './routes/tool'
-import { Route as ReportsRoute } from './routes/reports'
-import { Route as CvesRoute } from './routes/cves'
-import { Route as KeywordsRoute } from './routes/keywords'
-import { Route as GraphRoute } from './routes/graph'
-import { Route as SearchRoute } from './routes/search'
 import { Route as ToolsRoute } from './routes/tools'
 import { Route as AboutRoute } from './routes/about'
+import { Route as CvesRoute } from './routes/cves'
 import { Route as CveDetailRoute } from './routes/cve'
-import { Route as OsintRoute } from './routes/osint'
-import { Route as AdminRoute } from './routes/admin'
-import { Route as LabsRoute } from './routes/labs'
-import { Route as PricingRoute } from './routes/pricing'
-import { Route as FeaturesRoute } from './routes/features'
-import { Route as BooksRoute } from './routes/books'
 
-export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, OsintRoute, AboutRoute, ToolRoute, CveDetailRoute, LoginRoute, SearchRoute, ReportsRoute, CvesRoute, KeywordsRoute, GraphRoute, AdminRoute, LabsRoute, PricingRoute, FeaturesRoute, BooksRoute])
+export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, AboutRoute, ToolRoute, CveDetailRoute, CvesRoute])

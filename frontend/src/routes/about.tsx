@@ -123,9 +123,9 @@ function AboutPage() {
           100% gratuite et open source (MIT). Les offres Pro et Enterprise financent l'infrastructure,
           les API premium, et la recherche continue.
         </p>
-        <Link to="/pricing" className="inline-flex items-center gap-2 px-4 py-2 glass rounded-lg text-xs text-indigo-400 hover:text-white transition">
-          Voir les offres
-        </Link>
+        <a href="https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro" target="_blank" rel="noopener" className="inline-flex items-center gap-2 px-4 py-2 glass rounded-lg text-xs text-indigo-400 hover:text-white transition">
+          Voir le code source
+        </a>
         <p className="text-[10px] sm:text-xs text-slate-500 mt-4">
           100% open source &middot; Auto-hebergeable &middot; Licence MIT &middot; <a href="https://cyberbook.eurin.tech" className="text-indigo-400 hover:text-indigo-300">cyberbook.eurin.tech</a>
         </p>

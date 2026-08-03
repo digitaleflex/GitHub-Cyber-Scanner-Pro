@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
-import { Menu, X, Play, Shield, Download, Settings } from 'lucide-react'
+import { Menu, X, Play, Shield } from 'lucide-react'
 import { useScanStatus } from '../lib/api'
-import { isAdminAuthenticated, getAuthHeaders } from './login'
 import useSearchHotkey from '../lib/useSearchHotkey'
 import NotFound from './not-found'
 
@@ -12,18 +11,15 @@ function ScanBtn() {
   const { data, refetch } = useScanStatus()
   const [scanning, setScanning] = useState(false)
   const router = useRouter()
-  const isAdmin = isAdminAuthenticated()
   const isScanning = scanning || data?.status?.includes('en cours')
   const handleScan = useCallback(async () => {
-    if (isScanning || !isAdmin) return; setScanning(true)
+    if (isScanning) return; setScanning(true)
     try {
-      const headers = getAuthHeaders()
-      const res = await fetch('/api/scan', { method: 'POST', headers })
+      const res = await fetch('/api/scan', { method: 'POST' })
       if (res.ok) { setTimeout(() => { refetch(); router.invalidate() }, 1000) }
     } catch {}
     setTimeout(() => setScanning(false), 2000)
-  }, [isScanning, refetch, router, isAdmin])
-  if (!isAdmin) return null
+  }, [isScanning, refetch, router])
   return (
     <button onClick={handleScan} disabled={isScanning}
       className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full glass text-indigo-300 hover:text-white hover:border-indigo-500/30 disabled:opacity-40 transition">
@@ -57,21 +53,10 @@ function RootLayout() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
-            <Link to="/" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Recherche</Link>
+            <Link to="/" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-emerald-400 [&.active]:bg-emerald-500/10">Aujourd'hui</Link>
+            <Link to="/cves" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-rose-400 [&.active]:bg-rose-500/10">CVE</Link>
             <Link to="/tools" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Outils</Link>
-            <Link to="/books" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Ressources</Link>
-            <Link to="/osint" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">OSINT</Link>
-            <Link to="/labs" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-violet-400">AI Lab</Link>
-            <Link to="/features" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-emerald-400">Fonctionnalités</Link>
-            <Link to="/pricing" className="px-3 py-1.5 text-xs text-amber-400 hover:text-white hover:bg-amber-500/10 rounded-lg transition border border-amber-500/10">Pro</Link>
-            {isAdminAuthenticated() && (
-              <Link to="/admin" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-amber-400 flex items-center gap-1">
-                <Settings size={11} /> Admin
-              </Link>
-            )}
-            <a href="/api/download" className="flex items-center gap-1 px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition">
-              <Download size={11} /> Rapport
-            </a>
+            <Link to="/about" className="px-3 py-1.5 text-xs text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition">À propos</Link>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
@@ -84,17 +69,10 @@ function RootLayout() {
 
         {menuOpen && (
           <nav className="md:hidden flex flex-col gap-1 pb-4 -mt-1 mb-4 glass rounded-xl p-2 animate-fade">
-            <Link to="/" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Recherche</Link>
+            <Link to="/" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Aujourd'hui</Link>
+            <Link to="/cves" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">CVE</Link>
             <Link to="/tools" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Outils</Link>
-            <Link to="/books" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Ressources</Link>
-            <Link to="/osint" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">OSINT</Link>
-            <Link to="/labs" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">AI Lab</Link>
-            <Link to="/features" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Fonctionnalités</Link>
-            <Link to="/pricing" onClick={() => setMenuOpen(false)} className="text-xs text-amber-400 hover:text-amber-300 py-2 px-3 rounded-lg hover:bg-amber-500/10">Pro — à partir de 29€</Link>
-            {isAdminAuthenticated() && (
-              <Link to="/admin" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5 flex items-center gap-1.5"><Settings size={11} /> Admin</Link>
-            )}
-            <a href="/api/download" onClick={() => setMenuOpen(false)} className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5"><Download size={11} /> Télécharger le rapport</a>
+            <Link to="/about" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">À propos</Link>
           </nav>
         )}
 
@@ -102,15 +80,11 @@ function RootLayout() {
 
         <footer className="py-8 border-t border-white/[0.03] flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] sm:text-xs text-slate-500 mt-8">
           <div className="flex items-center gap-3">
-            <span>CyberScan Pro v3.1</span>
+            <span>HashCode Decision OS</span>
             <span className="w-1 h-1 rounded-full bg-slate-700" />
             <Link to="/about" className="hover:text-slate-400 transition">À propos</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-700" />
-            <Link to="/features" className="hover:text-slate-400 transition">Fonctionnalités</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-700" />
-            <Link to="/pricing" className="hover:text-amber-400 transition">Pro</Link>
           </div>
-          <span>Powered by Groq AI + GitHub + NVD + 30 sources</span>
+          <span>Decision Engine · NVD · Exploit-DB · EPSS · CISA KEV</span>
         </footer>
       </div>
     </div>

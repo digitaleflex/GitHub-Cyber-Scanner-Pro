@@ -1,296 +1,233 @@
-import { useState, useEffect, useRef } from 'react'
-import { createRoute, Link } from '@tanstack/react-router'
+import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
-import { useSearch, type SearchResult, type SearchResultType, type SearchParams } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
-import { Search, Star, Shield, BookOpen, Hash, ExternalLink, AlertTriangle, TrendingUp, Newspaper, Brain, ChevronDown, ArrowRight } from 'lucide-react'
+import { Shield, Clock, CheckCircle2, Target, ArrowRight, ChevronRight, Brain, Wifi, AlertTriangle } from 'lucide-react'
 import { useStats } from '../lib/api'
-import StatsCards from '../components/StatsCards'
-import TopRepos from '../components/TopRepos'
-import LangDistribution from '../components/LangDistribution'
 
-function useCountUp(target: number, duration = 1500) {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    if (!target) return
-    let start = 0; const step = Math.ceil(target / (duration / 16))
-    const timer = setInterval(() => { start += step; if (start >= target) { setCount(target); clearInterval(timer) } else setCount(start) }, 16)
-    return () => clearInterval(timer)
-  }, [target, duration])
-  return count
+export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/', component: HomePage })
+
+interface PriorityDecision {
+  cve_id: string
+  score: number
+  level: string
+  severity: string
+  cvss_score: number | null
+  published: string | null
+  description: string
+  is_kev: boolean
+  exploits_count: number
+  factors: Record<string, number>
+  reasons: string[]
+  risk_if_ignored: string
+  confidence: string
+  sources: string[]
 }
 
-export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/', component: ExplorePage })
-
-const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  repo: { label: 'Outil', icon: <Star size={12} />, color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
-  cve: { label: 'CVE', icon: <Shield size={12} />, color: 'bg-rose-500/10 text-rose-400 border-rose-500/20' },
-  book: { label: 'Ressource', icon: <BookOpen size={12} />, color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  keyword: { label: 'Mot-clé', icon: <Hash size={12} />, color: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
-}
-
-function ExplorePage() {
-  const [query, setQuery] = useState('')
-  const [debounced, setDebounced] = useState('')
-  const [types, setTypes] = useState<SearchResultType[]>(['repo'])
-  const [page, setPage] = useState(1)
-  const [showSections, setShowSections] = useState(true)
-  const inputRef = useRef<HTMLInputElement>(null)
-  useEffect(() => { const t = setTimeout(() => setDebounced(query), 300); return () => clearTimeout(t) }, [query])
-  const sp: SearchParams = { q: debounced, page, per_page: 12, types, sort: 'stars' }
-  const { data: results, isLoading, error: searchError, refetch: refetchSearch } = useSearch(debounced.length >= 2 ? sp : { ...sp, q: '' })
-  const hasResults = debounced.length >= 2 && results && results.results.length > 0
-
+function HomePage() {
   const { data: stats } = useStats()
-  const { data: digest } = useQuery({ queryKey: ['digest-hero'], queryFn: () => fetch('/api/digest').then(r => r.json()), staleTime: 300_000 })
-  const repos = useCountUp(stats?.total_repos || 0, 2000)
-  const stars_c = useCountUp(stats?.total_stars || 0, 2500)
-  const cves = stats?.total_cves ? (stats.total_cves >= 1000 ? `${(stats.total_cves / 1000).toFixed(0)}K` : stats.total_cves.toLocaleString()) : '0'
-  const criticalThreats = digest?.top_threats?.filter((t: any) => t.severity === 'CRITIQUE').length || 0
+  const { data: priority, isLoading, error } = useQuery({
+    queryKey: ['priority-home'],
+    queryFn: async () => {
+      const r = await fetch('/api/priority/cves?days=90&limit=6')
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      return r.json()
+    },
+    staleTime: 120_000,
+  })
+
+  const summary = priority?.summary
+  const decisions: PriorityDecision[] = priority?.decisions || []
+  const today = decisions.slice(0, 3)
+  const upcoming = decisions.slice(3, 5)
+  const completedCount = 0
+
+  const repoCount = stats?.total_repos ? (stats.total_repos >= 1000 ? `${(stats.total_repos / 1000).toFixed(0)}K` : stats.total_repos.toLocaleString()) : '0'
+  const cveCount = stats?.total_cves ? (stats.total_cves >= 1000 ? `${(stats.total_cves / 1000).toFixed(0)}K` : stats.total_cves.toLocaleString()) : '0'
 
   return (
-    <div className="max-w-5xl mx-auto w-full">
-      {/* Hero section */}
-      <section className="py-6 sm:py-12 text-center animate-fade">
-        <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
-          <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
-            <Shield size={10} className="text-indigo-400" /> Groq AI
-          </span>
-          <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
-            <Star size={10} className="text-amber-400" /> GitHub API
-          </span>
-          <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
-            <Shield size={10} className="text-rose-400" /> NVD CVE
-          </span>
-        </div>
-
-        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-3 sm:mb-4">
-          <span className="bg-gradient-to-r from-indigo-400 via-white to-violet-400 bg-clip-text text-transparent">
-            Veille Cyber Intelligence
-          </span>
+    <div className="max-w-4xl mx-auto w-full animate-fade">
+      <section className="py-6 sm:py-10">
+        <p className="text-xs sm:text-sm text-slate-500 mb-1">Bonjour</p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-white mb-3">
+          Que dois-je faire aujourd'hui&nbsp;?
         </h1>
-        <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto mb-6 sm:mb-8 leading-relaxed">
-          {repos.toLocaleString()}+ outils de securite audites par IA. Decouvrez les menaces du jour, explorez la base de connaissances cyber.
-        </p>
-
-        {criticalThreats > 0 && (
-          <div className="inline-flex items-center gap-2 glass px-4 py-2 rounded-full mb-6 sm:mb-8 pulse-ring">
-            <AlertTriangle size={14} className="text-rose-400" />
-            <span className="text-xs sm:text-sm font-medium text-rose-300">
-              {criticalThreats} menace{criticalThreats > 1 ? 's' : ''} critique{criticalThreats > 1 ? 's' : ''} aujourd'hui
+        <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <Shield size={13} className="text-emerald-400" />
+            <span className="text-emerald-400 font-medium">{cveCount}</span> CVE suivies
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Wifi size={13} className="text-indigo-400" />
+            <span className="text-indigo-400 font-medium">{repoCount}</span> outils analysés
+          </span>
+          {summary?.critiques > 0 && (
+            <span className="flex items-center gap-1.5">
+              <AlertTriangle size={13} className="text-amber-400" />
+              <span className="text-amber-400 font-medium">{summary.critiques.toLocaleString()}</span> critiques actives
             </span>
-          </div>
-        )}
-
-        <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-lg mx-auto mb-6 sm:mb-8">
-          {[
-            { label: 'Outils', value: repos.toLocaleString(), icon: <Star size={14} className="text-amber-400" />, delay: '0s' },
-            { label: 'Stars', value: stars_c.toLocaleString(), icon: <TrendingUp size={14} className="text-indigo-400" />, delay: '0.2s' },
-            { label: 'CVE', value: cves.toLocaleString(), icon: <Shield size={14} className="text-rose-400" />, delay: '0.4s' },
-          ].map((c, i) => (
-            <div key={i} className="glass-card rounded-xl p-3 sm:p-4 text-center animate-slide" style={{ animationDelay: c.delay }}>
-              <div className="flex justify-center mb-1">{c.icon}</div>
-              <div className="text-lg sm:text-2xl font-bold text-white tabular-nums">{c.value}</div>
-              <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5">{c.label}</div>
-            </div>
-          ))}
+          )}
         </div>
       </section>
 
-      {/* KPI Dashboard */}
-      <StatsCards />
+      {isLoading && (
+        <div className="flex items-center justify-center py-16">
+          <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
 
-      {/* Search bar */}
-      <div className="relative mb-3">
-        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-        <input ref={inputRef} type="text" value={query} onChange={e => { setQuery(e.target.value); setPage(1) }}
-          placeholder="Rechercher un outil, une CVE, une technique, une personne..."
-          className="w-full pl-11 pr-4 py-3.5 sm:py-4 glass rounded-2xl text-sm sm:text-base text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/40" />
-        {isLoading && <div className="absolute right-4 top-1/2 -translate-y-1/2"><div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" /></div>}
+      {error && (
+        <div className="glass-card rounded-2xl p-6 text-center border-rose-500/20">
+          <p className="text-sm text-rose-300 mb-3">Le Decision Engine est temporairement indisponible.</p>
+          <p className="text-xs text-slate-500">Les donnees NVD sont peut-etre en cours de backfill. Reessayez dans quelques minutes.</p>
+        </div>
+      )}
+
+      {!isLoading && !error && decisions.length > 0 && (
+        <>
+          <DecisionHero decision={decisions[0]} />
+
+          <section className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <DecisionBlock
+              title="Aujourd'hui"
+              subtitle={`${today.length} decision${today.length > 1 ? 's' : ''}`}
+              icon={<Target size={15} className="text-emerald-400" />}
+              decisions={today}
+            />
+            <DecisionBlock
+              title="À venir"
+              subtitle={`${upcoming.length} en attente`}
+              icon={<Clock size={15} className="text-indigo-400" />}
+              decisions={upcoming}
+            />
+          </section>
+
+          {completedCount > 0 && (
+            <section className="mt-6">
+              <DecisionBlock
+                title="Terminé"
+                subtitle={`${completedCount} mission${completedCount > 1 ? 's' : ''}`}
+                icon={<CheckCircle2 size={15} className="text-slate-500" />}
+                decisions={[]}
+              />
+            </section>
+          )}
+        </>
+      )}
+
+      {!isLoading && !error && decisions.length === 0 && (
+        <div className="glass-card rounded-2xl p-8 text-center">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <CheckCircle2 size={22} className="text-emerald-400" />
+          </div>
+          <p className="text-sm text-slate-300 font-medium mb-1">Aucune décision urgente aujourd'hui</p>
+          <p className="text-xs text-slate-500">Le Decision Engine surveille vos menaces. Revenez plus tard ou verifiez vos actifs.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DecisionHero({ decision }: { decision: PriorityDecision }) {
+  const levelColor = decision.level === 'CRITIQUE' ? 'rose' : decision.level === 'ELEVE' ? 'amber' : 'slate'
+  const cvssColor = (decision.cvss_score || 0) >= 9 ? 'rose' : (decision.cvss_score || 0) >= 7 ? 'amber' : 'emerald'
+
+  return (
+    <div className="glass-card rounded-2xl p-5 sm:p-7 border-emerald-500/10">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-medium">Votre prochaine décision</span>
       </div>
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {(['repo','cve','book','keyword'] as const).map(t => (
-            <button key={t} onClick={() => setTypes(p => p.includes(t) ? p.filter(x => x!==t) : [...p,t])}
-              className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium transition border ${types.includes(t) ? TYPE_META[t].color : 'glass text-slate-500 hover:text-slate-300'}`}>
-              {TYPE_META[t].label}
-            </button>
+
+      <h2 className="text-lg sm:text-xl font-semibold text-white mb-1.5">
+        {decision.description.slice(0, 120)}
+      </h2>
+
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <span className="text-xs font-mono text-indigo-400">{decision.cve_id}</span>
+        {decision.cvss_score != null && (
+          <span className={`text-xs font-medium text-${cvssColor}-400`}>CVSS {decision.cvss_score}</span>
+        )}
+        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium bg-${levelColor}-500/10 text-${levelColor}-400 border border-${levelColor}-500/20`}>
+          {decision.level}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <div className="glass rounded-xl p-3 text-center">
+          <div className="text-lg font-bold text-white">{decision.score}</div>
+          <div className="text-[10px] text-slate-500">Score</div>
+        </div>
+        <div className="glass rounded-xl p-3 text-center">
+          <div className="text-lg font-bold text-white">{decision.confidence}</div>
+          <div className="text-[10px] text-slate-500">Confiance</div>
+        </div>
+        <div className="glass rounded-xl p-3 text-center">
+          <div className="text-lg font-bold text-white">{decision.exploits_count}</div>
+          <div className="text-[10px] text-slate-500">Exploit{decision.exploits_count > 1 ? 's' : ''}</div>
+        </div>
+        <div className="glass rounded-xl p-3 text-center">
+          <div className="text-lg font-bold text-amber-400">{decision.is_kev ? 'Oui' : 'Non'}</div>
+          <div className="text-[10px] text-slate-500">CISA KEV</div>
+        </div>
+      </div>
+
+      <div className="space-y-2 mb-5">
+        {decision.reasons.map((r, i) => (
+          <div key={i} className="flex items-start gap-2 text-xs sm:text-sm text-slate-400">
+            <ChevronRight size={13} className="shrink-0 mt-0.5 text-emerald-500" />
+            <span>{r}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="glass rounded-xl p-4 mb-5 border-amber-500/10">
+        <p className="text-[10px] uppercase tracking-widest text-amber-400 mb-1">Si vous ignorez</p>
+        <p className="text-xs sm:text-sm text-slate-300">{decision.risk_if_ignored}</p>
+      </div>
+
+      <div className="flex items-center gap-2 text-[10px] text-slate-500 mb-4">
+        <Brain size={11} />
+        <span>Sources: {decision.sources.join(', ')}</span>
+      </div>
+
+      <button className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition flex items-center justify-center gap-2">
+        Commencer la mission <ArrowRight size={15} />
+      </button>
+    </div>
+  )
+}
+
+function DecisionBlock({ title, subtitle, icon, decisions }: {
+  title: string
+  subtitle: string
+  icon: React.ReactNode
+  decisions: PriorityDecision[]
+}) {
+  return (
+    <div className="glass-card rounded-2xl p-4 sm:p-5">
+      <div className="flex items-center gap-2 mb-1">
+        {icon}
+        <h3 className="text-sm font-semibold text-white">{title}</h3>
+      </div>
+      <p className="text-[10px] text-slate-500 mb-3">{subtitle}</p>
+
+      {decisions.length === 0 ? (
+        <p className="text-xs text-slate-500 py-4 text-center">Aucune décision</p>
+      ) : (
+        <div className="space-y-2">
+          {decisions.map((d, i) => (
+            <div key={i} className="glass rounded-xl p-3 flex items-center justify-between gap-2 group">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className={`w-1.5 h-1.5 rounded-full bg-${d.level === 'CRITIQUE' ? 'rose' : d.level === 'ELEVE' ? 'amber' : 'slate'}-400`} />
+                  <span className="text-xs font-mono text-indigo-400">{d.cve_id}</span>
+                </div>
+                <p className="text-xs text-slate-400 line-clamp-1">{d.description.slice(0, 90)}</p>
+              </div>
+              <span className="text-xs font-bold text-white shrink-0">{d.score}</span>
+            </div>
           ))}
         </div>
-        <div className="flex items-center gap-2">
-          <Link to="/search" className="text-[10px] text-slate-500 hover:text-indigo-400 flex items-center gap-1 transition">
-            Recherche avancée <ArrowRight size={10} />
-          </Link>
-          {!hasResults && (
-            <button onClick={() => setShowSections(!showSections)} className="text-[10px] text-slate-500 hover:text-slate-400 flex items-center gap-1">
-              <ChevronDown size={12} className={`transition ${showSections ? '' : 'rotate-180'}`} />
-              {showSections ? 'Masquer' : 'Afficher'} les sections
-            </button>
-          )}
-        </div>
-      </div>
-
-      {searchError && debounced.length >= 2 && (
-        <div className="glass-card rounded-xl p-4 mb-4 border-rose-500/20 text-center" role="alert">
-          <p className="text-xs text-rose-300 mb-2">La recherche a echoue. Verifiez la connexion au serveur.</p>
-          <button onClick={() => refetchSearch()} className="px-3 py-1.5 glass rounded-lg text-xs text-slate-300 hover:text-white transition">Reessayer</button>
-        </div>
-      )}
-
-      {hasResults ? (
-        <div className="animate-fade">
-          <p className="text-[10px] sm:text-xs text-slate-500 mb-3">{results!.total.toLocaleString()} resultats</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-            {results!.results.map((r,i) => <ResultCard key={i} result={r} />)}
-          </div>
-          {results!.pages > 1 && (
-            <div className="flex items-center justify-center gap-3 mt-6">
-              <button onClick={() => setPage(p => Math.max(1,p-1))} disabled={page===1} className="glass px-4 py-2 rounded-full text-xs text-slate-300 disabled:opacity-30">Prec</button>
-              <span className="text-xs text-slate-500">{page}/{results!.pages}</span>
-              <button onClick={() => setPage(p => Math.min(results!.pages,p+1))} disabled={page>=results!.pages} className="glass px-4 py-2 rounded-full text-xs text-slate-300 disabled:opacity-30">Suiv</button>
-            </div>
-          )}
-        </div>
-      ) : showSections && (
-        <div className="space-y-4 animate-fade">
-          <StatsRow />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <DigestSection />
-              <ThreatSection />
-              <TopRepos />
-            </div>
-            <div className="space-y-4">
-              <TrendingSection />
-              <BlogSection />
-              <LangDistribution />
-            </div>
-          </div>
-        </div>
       )}
     </div>
   )
 }
-
-function ResultCard({ result }: { result: SearchResult }) {
-  const meta = TYPE_META[result.result_type] || TYPE_META.repo
-  const desc = result.desc ? (result.desc.length > 100 ? result.desc.slice(0,100)+'...' : result.desc) : null
-  const vc = result.security_verdict === 'Critique' ? 'text-rose-400 bg-rose-500/10' : result.security_verdict === 'Suspect' ? 'text-amber-400 bg-amber-500/10' : result.security_verdict ? 'text-emerald-400 bg-emerald-500/10' : ''
-  return (
-    <div className="glass-card rounded-xl p-3 sm:p-4 group">
-      <div className="flex items-start justify-between gap-2 mb-1.5">
-        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border ${meta.color}`}>{meta.icon}</span>
-        {result.stars != null && <span className="flex items-center gap-1 text-[10px] text-slate-500 shrink-0"><Star size={10} className="text-amber-500" />{result.stars.toLocaleString()}</span>}
-      </div>
-      <Link to="/tool/$name" params={{ name: result.name }} className="text-xs sm:text-sm font-medium text-slate-200 hover:text-indigo-400 transition line-clamp-1 block mb-1">{result.name}</Link>
-      {desc && <p className="text-[10px] text-slate-500 line-clamp-2">{desc}</p>}
-      <div className="flex items-center gap-2 mt-2 text-[9px] text-slate-500">
-        {result.security_verdict && <span className={`px-1.5 py-0.5 rounded ${vc}`}>{result.security_verdict}</span>}
-        {result.lang && <span>{result.lang}</span>}
-        <a href={result.url||'#'} target="_blank" rel="noopener" className="flex items-center gap-0.5 hover:text-indigo-400 ml-auto"><ExternalLink size={9} /></a>
-      </div>
-    </div>
-  )
-}
-
-// ── SECTIONS ─────────────────────────────────────────────────────────────
-
-function StatsRow() {
-  const { data: s } = useQuery({ queryKey: ['stats-bar'], queryFn: () => fetch('/api/stats').then(r=>r.json()), staleTime: 120_000 })
-  if (!s) return null
-  const cveLabel = s.total_cves ? (s.total_cves >= 1000 ? `${Math.round(s.total_cves / 1000)}K` : s.total_cves.toLocaleString()) : '0'
-  return (
-    <div className="glass-card rounded-2xl p-3 sm:p-4">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center">
-        {[
-          { label: 'Outils indexés', value: (s.total_repos||0).toLocaleString(), icon: <Star size={13} className="text-amber-400" /> },
-          { label: 'CVE', value: cveLabel, icon: <Shield size={13} className="text-rose-400" /> },
-          { label: 'Modèles IA', value: '22', icon: <Brain size={13} className="text-violet-400" /> },
-          { label: 'Blogs', value: '30+', icon: <Newspaper size={13} className="text-emerald-400" /> },
-        ].map((x, i) => (
-          <div key={i} className="flex flex-col items-center gap-1">
-            {x.icon}
-            <div className="text-sm sm:text-lg font-bold text-white">{x.value}</div>
-            <div className="text-[9px] sm:text-[10px] text-slate-500">{x.label}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function DigestSection() {
-  const { data: d } = useQuery({ queryKey: ['digest-home'], queryFn: () => fetch('/api/digest').then(r => r.json()), staleTime: 600_000 })
-  if (!d || d.error) return null
-  return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
-      <div className="flex items-center gap-2 mb-3"><AlertTriangle size={15} className="text-rose-400" /><h3 className="text-sm sm:text-base font-semibold text-white">{d.title || 'Analyse du jour'}</h3></div>
-      {d.summary && <p className="text-xs sm:text-sm text-slate-400 mb-3">{d.summary}</p>}
-      {d.top_threats?.slice(0,3).map((t: any, i: number) => (
-        <div key={i} className="flex items-start gap-3 glass-card rounded-xl p-3 mb-2">
-          <span className={`shrink-0 w-2 h-2 rounded-full mt-1.5 ${t.severity==='CRITIQUE'?'bg-rose-400':t.severity==='ELEVE'?'bg-amber-400':'bg-slate-500'}`} />
-          <div className="min-w-0"><div className="text-xs sm:text-sm font-medium text-slate-200">{t.name}</div><div className="text-[10px] text-slate-500 mt-0.5">{t.description?.slice(0,120)}</div></div>
-        </div>
-      ))}
-      {d.key_insight && <div className="bg-gradient-to-r from-indigo-500/5 to-violet-500/5 border border-indigo-500/10 rounded-xl p-3 mt-3"><p className="text-[9px] uppercase tracking-widest text-indigo-400 mb-1">Insight</p><p className="text-xs text-slate-300">{d.key_insight}</p></div>}
-    </div>
-  )
-}
-
-function ThreatSection() {
-  const { data: d } = useQuery({ queryKey: ['threats-home'], queryFn: () => fetch('/api/threats/top?limit=5').then(r => r.json()), staleTime: 300_000 })
-  if (!d || d.threats?.length === 0) return null
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-3"><Shield size={14} className="text-rose-400" /><h3 className="text-sm font-semibold text-white">Menaces Prioritaires</h3></div>
-      <div className="space-y-2">
-        {d.threats.slice(0,5).map((t: any, i: number) => (
-          <Link key={i} to="/cve/$id" params={{ id: t.cve_id }} className="flex items-center gap-3 glass-card rounded-xl p-3 group">
-            <span className={`shrink-0 w-2 h-2 rounded-full ${t.priority?.label==='CRITIQUE'?'bg-rose-400':t.priority?.label==='ELEVE'?'bg-amber-400':'bg-slate-500'}`} />
-            <div className="flex-1 min-w-0"><div className="text-xs font-mono text-indigo-400">{t.cve_id}</div><div className="text-[10px] text-slate-400 line-clamp-1">{t.description?.slice(0,120)}</div></div>
-            <div className="text-right shrink-0"><div className="text-xs font-bold text-white">{t.priority?.score||'?'}</div><div className="text-[9px] text-slate-500">{t.priority?.label||'?'}</div></div>
-          </Link>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function BlogSection() {
-  const { data: posts } = useQuery({ queryKey: ['blog-posts'], queryFn: () => fetch('/api/blog/posts?limit=6').then(r => r.json()), staleTime: 300_000 })
-  if (!posts || posts.length === 0) return null
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-3"><Newspaper size={14} className="text-emerald-400" /><h3 className="text-sm font-semibold text-white">Veille Blogs</h3></div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {posts.slice(0,6).map((p: any, i: number) => (
-          <a key={i} href={p.link} target="_blank" rel="noopener" className="glass-card rounded-xl p-3 group block">
-            <div className="text-[10px] text-slate-500 mb-0.5">{p.source_name}</div>
-            <div className="text-xs font-medium text-slate-200 group-hover:text-indigo-400 transition line-clamp-1">{p.title}</div>
-            {p.summary && <div className="text-[10px] text-slate-500 mt-1 line-clamp-2">{p.summary}</div>}
-          </a>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function TrendingSection() {
-  const { data: d } = useQuery({ queryKey: ['trending-home'], queryFn: () => fetch('/api/trending?days=7&limit=8').then(r => r.json()), staleTime: 300_000 })
-  if (!d || d.tools?.length === 0) return null
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-3"><TrendingUp size={14} className="text-amber-400" /><h3 className="text-sm font-semibold text-white">Tendances de la semaine</h3></div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {d.tools.slice(0,8).map((t: any, i: number) => (
-          <Link key={i} to="/tool/$name" params={{ name: t.name }} className="glass-card rounded-xl p-3 group text-center">
-            <div className="text-xs font-medium text-slate-200 group-hover:text-indigo-400 truncate">{t.name.split('/').pop()}</div>
-            <div className="flex items-center justify-center gap-1.5 mt-1 text-[10px] text-slate-500"><Star size={9} className="text-amber-500" />{t.stars?.toLocaleString()}</div>
-          </Link>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-

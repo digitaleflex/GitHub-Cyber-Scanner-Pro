@@ -3,7 +3,6 @@ import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useCves, useStats, type CveEntry } from '../lib/api'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import AdminGuard from '../components/AdminGuard'
 import DataTable, { type DataTableColumn } from '../components/DataTable'
 import Chip from '../components/Chip'
 import { Search, Shield, AlertTriangle, TrendingUp, Bug, Download } from 'lucide-react'
@@ -11,7 +10,7 @@ import { Search, Shield, AlertTriangle, TrendingUp, Bug, Download } from 'lucide
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
   path: '/cves',
-  component: () => <AdminGuard><CvesPage /></AdminGuard>,
+  component: CvesPage,
 })
 
 function CvesPage() {

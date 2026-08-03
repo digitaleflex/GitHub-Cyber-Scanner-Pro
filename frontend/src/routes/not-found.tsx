@@ -11,7 +11,7 @@ export default function NotFound() {
       <p className="text-slate-400 mb-6">Page introuvable</p>
       <div className="flex gap-3">
         <Link to="/" className="px-4 py-2 glass rounded-lg text-sm text-indigo-400 hover:text-white transition">Accueil</Link>
-        <Link to="/search" className="px-4 py-2 glass rounded-lg text-sm text-slate-400 hover:text-white transition">Rechercher</Link>
+        <Link to="/" className="px-4 py-2 glass rounded-lg text-sm text-slate-400 hover:text-white transition">Accueil</Link>
       </div>
     </div>
   )
