@@ -969,3 +969,54 @@ def ingest_epss_api(_u: str = Depends(src.auth.verify_admin)):
     import src.massive_ingestion as mi
     n = mi.ingest_epss()
     return {"source": "epss", "saved": n, "message": "Scores EPSS mis a jour sur les CVEs existantes"}
+
+
+# ── Premium Threat Intel (VirusTotal, SecurityTrails, Shodan) ─────────────
+
+@app.get("/api/intel/virustotal")
+def intel_vt_api(identifier: str = "", resource_type: str = "auto"):
+    """Query VirusTotal API for an IP, domain, URL, or hash."""
+    import src.premium_intel as pi
+    if not identifier:
+        return {"error": "identifier parameter required"}
+    return pi.virustotal_lookup(identifier, resource_type)
+
+
+@app.get("/api/intel/securitytrails")
+def intel_st_api(domain: str = "", ip: str = ""):
+    """Query SecurityTrails API for a domain (passive DNS, subdomains, WHOIS) or IP."""
+    import src.premium_intel as pi
+    if domain:
+        return pi.securitytrails_domain(domain)
+    if ip:
+        return pi.securitytrails_ip(ip)
+    return {"error": "domain or ip parameter required"}
+
+
+@app.get("/api/intel/shodan")
+def intel_shodan_api(ip: str = "", query: str = ""):
+    """Query Shodan API for an IP host or search query."""
+    import src.premium_intel as pi
+    if ip:
+        return pi.shodan_host(ip)
+    if query:
+        return pi.shodan_search(query)
+    return {"error": "ip or query parameter required"}
+
+
+@app.post("/api/intel/enrich-all")
+def intel_enrich_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
+    """Enrich existing IOCs via VirusTotal + SecurityTrails + Shodan."""
+    import src.premium_intel as pi
+    return pi.enrich_all(limit)
+
+
+@app.get("/api/intel/status")
+def intel_status_api():
+    """Check which premium APIs are configured."""
+    import os
+    return {
+        "virustotal": bool(os.getenv("VIRUSTOTAL_API_KEY")),
+        "securitytrails": bool(os.getenv("SECURITYTRAILS_API_KEY")),
+        "shodan": bool(os.getenv("SHODAN_API_KEY")),
+    }

@@ -7,7 +7,7 @@ import CyberRadar from '../components/CyberRadar'
 import ActivityFeed from '../components/ActivityFeed'
 import { useStats, useScanStatus } from '../lib/api'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Play, Zap, Download, Brain, Shield, GitBranch, Search, Bug, Globe, RefreshCw, Loader2, TrendingUp, AlertTriangle, Activity, Database, HardDrive, CloudLightning } from 'lucide-react'
+import { Play, Zap, Download, Brain, Shield, GitBranch, Search, Bug, Globe, RefreshCw, Loader2, TrendingUp, AlertTriangle, Activity, Database, HardDrive, CloudLightning, ShieldCheck, MapPin, Radio } from 'lucide-react'
 import { getAuthHeaders, clearAuthToken } from './login'
 
 export const Route = createRoute({
@@ -202,6 +202,30 @@ function AdminDashboard() {
           </div>
         </div>
 
+        {/* Premium Threat Intel */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="glass-card rounded-2xl p-4 border border-indigo-500/10">
+            <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center"><ShieldCheck size={12} className="text-indigo-400" /></span>
+              Premium Intel
+            </h3>
+            <p className="text-[10px] text-slate-600 mb-3">VirusTotal + SecurityTrails + Shodan</p>
+            <div className="space-y-1.5">
+              <ActionBtn icon={<ShieldCheck size={12} />} label="Enrich via VirusTotal" endpoint="/api/intel/enrich-all?limit=20" hint="2B+ files" variant="default" />
+              <ActionBtn icon={<MapPin size={12} />} label="Enrich via SecurityTrails" endpoint="/api/ingest/run" hint="4B+ DNS" variant="default" />
+              <ActionBtn icon={<Radio size={12} />} label="Enrich via Shodan" endpoint="/api/intel/shodan" hint="5B+ devices" variant="default" />
+            </div>
+          </div>
+          <div className="glass-card rounded-2xl p-4 border border-amber-500/10">
+            <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center"><Activity size={12} className="text-amber-400" /></span>
+              Status Premium APIs
+            </h3>
+            <p className="text-[10px] text-slate-600 mb-3">Verifier les cles API configurees</p>
+            <PremiumStatus />
+          </div>
+        </div>
+
         {/* Ingestion Massive IOC */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="glass-card rounded-2xl p-4">
@@ -258,6 +282,32 @@ function AdminDashboard() {
         <CyberRadar />
         <ActivityFeed />
       </div>
+    </div>
+  )
+}
+
+function PremiumStatus() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['intel-status'],
+    queryFn: () => fetch('/api/intel/status').then(r => r.json()),
+    staleTime: 300_000,
+  })
+  if (isLoading) return <div className="h-16 bg-slate-800/50 rounded animate-pulse" />
+  if (!data) return <p className="text-xs text-slate-600">Verification...</p>
+  return (
+    <div className="space-y-2">
+      {[
+        { label: 'VirusTotal', ok: data.virustotal, desc: '2B+ files, 70 AV engines', icon: <ShieldCheck size={12} /> },
+        { label: 'SecurityTrails', ok: data.securitytrails, desc: '4B+ DNS, 1B+ domaines', icon: <MapPin size={12} /> },
+        { label: 'Shodan', ok: data.shodan, desc: '5B+ devices, banners, vulns', icon: <Radio size={12} /> },
+      ].map((x, i) => (
+        <div key={i} className="flex items-center gap-2 text-xs">
+          <span className={`w-2 h-2 rounded-full ${x.ok ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]' : 'bg-slate-600'}`} />
+          <span className="text-slate-300">{x.label}</span>
+          <span className="text-slate-600 ml-auto text-[10px]">{x.ok ? 'Configure' : 'Non configure'}</span>
+        </div>
+      ))}
+      <p className="text-[9px] text-slate-600 mt-2">Configurer via variables d'environnement: VIRUSTOTAL_API_KEY, SECURITYTRAILS_API_KEY, SHODAN_API_KEY</p>
     </div>
   )
 }
