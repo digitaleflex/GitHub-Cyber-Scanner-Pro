@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { Shield, Hash, GitGraph, FileText, LogOut } from 'lucide-react'
+import { Shield, Hash, GitGraph, FileText, LogOut, Settings } from 'lucide-react'
 import { clearAuthToken } from '../routes/login'
 
 const links = [
+  { to: '/admin', label: 'Dashboard', icon: <Settings size={14} />, desc: 'Contrôles & statuts' },
   { to: '/cves', label: 'CVEs', icon: <Shield size={14} />, desc: '56 000 vulnérabilités' },
   { to: '/keywords', label: 'Mots-clés', icon: <Hash size={14} />, desc: '4 071 termes cyber' },
   { to: '/graph', label: 'Graph', icon: <GitGraph size={14} />, desc: 'Neo4j relations' },
@@ -15,7 +16,7 @@ export default function AdminSidebar() {
       <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 sticky top-4">
         <div className="mb-4 pb-3 border-b border-slate-800">
           <h3 className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-0.5">Administration</h3>
-          <p className="text-[10px] text-slate-600">CyberScan Pro v2.2</p>
+          <p className="text-[10px] text-slate-600">CyberScan Pro v3.1</p>
         </div>
 
         <nav className="space-y-0.5">

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createRoute } from '@tanstack/react-router'
+import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useCves } from '../lib/api'
 import AdminGuard from '../components/AdminGuard'
@@ -36,13 +36,14 @@ function CvesPage() {
       {isLoading ? <p className="text-slate-500 text-sm">Chargement...</p> : data ? (
         <div className="space-y-2">
           {data.cves?.map((cve, i) => (
-            <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition">
+            <Link key={i} to="/cve/$id" params={{ id: cve.cve_id }}
+              className="bg-slate-900/60 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition block cursor-pointer">
               <div className="flex items-center gap-2 mb-1">
                 <Shield size={13} className={
                   cve.severity === 'CRITICAL' ? 'text-rose-400' :
                   cve.severity === 'HIGH' ? 'text-amber-400' : 'text-slate-500'
                 } />
-                <span className="text-xs font-mono text-indigo-400">{cve.cve_id}</span>
+                <span className="text-xs font-mono text-indigo-400 group-hover:text-indigo-300">{cve.cve_id}</span>
                 <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                   cve.severity === 'CRITICAL' ? 'bg-rose-500/10 text-rose-400' :
                   cve.severity === 'HIGH' ? 'bg-amber-500/10 text-amber-400' :
@@ -51,7 +52,7 @@ function CvesPage() {
                 {cve.cvss_score && <span className="text-[10px] text-slate-500">CVSS {cve.cvss_score}</span>}
               </div>
               <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{cve.description}</p>
-            </div>
+            </Link>
           ))}
           {data.pages > 1 && (
             <div className="flex items-center justify-center gap-3 mt-4">

@@ -3,7 +3,19 @@ import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useSearch, type SearchResult, type SearchResultType, type SearchParams } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
-import { Search, Star, Shield, BookOpen, Hash, ExternalLink, AlertTriangle, TrendingUp, Newspaper, Brain, ChevronDown, Loader2, MapPin, User, Target } from 'lucide-react'
+import { Search, Star, Shield, BookOpen, Hash, ExternalLink, AlertTriangle, TrendingUp, Newspaper, Brain, ChevronDown, Loader2, MapPin, User, Target, MessageSquare, Bug } from 'lucide-react'
+import { useStats } from '../lib/api'
+
+function useCountUp(target: number, duration = 1500) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    if (!target) return
+    let start = 0; const step = Math.ceil(target / (duration / 16))
+    const timer = setInterval(() => { start += step; if (start >= target) { setCount(target); clearInterval(timer) } else setCount(start) }, 16)
+    return () => clearInterval(timer)
+  }, [target, duration])
+  return count
+}
 
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/', component: ExplorePage })
 
@@ -26,8 +38,63 @@ function ExplorePage() {
   const { data: results, isLoading } = useSearch(debounced.length >= 2 ? sp : { ...sp, q: '' })
   const hasResults = debounced.length >= 2 && results && results.results.length > 0
 
+  const { data: stats } = useStats()
+  const { data: digest } = useQuery({ queryKey: ['digest-hero'], queryFn: () => fetch('/api/digest').then(r => r.json()), staleTime: 300_000 })
+  const repos = useCountUp(stats?.total_repos || 0, 2000)
+  const stars_c = useCountUp(stats?.total_stars || 0, 2500)
+  const cves = 56000
+  const criticalThreats = digest?.top_threats?.filter((t: any) => t.severity === 'CRITIQUE').length || 0
+
   return (
     <div className="max-w-5xl mx-auto w-full">
+      {/* Hero section */}
+      <section className="py-6 sm:py-12 text-center animate-fade">
+        <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
+          <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
+            <Shield size={10} className="text-indigo-400" /> Groq AI
+          </span>
+          <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
+            <Star size={10} className="text-amber-400" /> GitHub API
+          </span>
+          <span className="glass px-2.5 py-1 rounded-full text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
+            <Shield size={10} className="text-rose-400" /> NVD CVE
+          </span>
+        </div>
+
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-3 sm:mb-4">
+          <span className="bg-gradient-to-r from-indigo-400 via-white to-violet-400 bg-clip-text text-transparent">
+            Veille Cyber Intelligence
+          </span>
+        </h1>
+        <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto mb-6 sm:mb-8 leading-relaxed">
+          {repos.toLocaleString()}+ outils de securite audites par IA. Decouvrez les menaces du jour, explorez la base de connaissances cyber.
+        </p>
+
+        {criticalThreats > 0 && (
+          <div className="inline-flex items-center gap-2 glass px-4 py-2 rounded-full mb-6 sm:mb-8 pulse-ring">
+            <AlertTriangle size={14} className="text-rose-400" />
+            <span className="text-xs sm:text-sm font-medium text-rose-300">
+              {criticalThreats} menace{criticalThreats > 1 ? 's' : ''} critique{criticalThreats > 1 ? 's' : ''} aujourd'hui
+            </span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-lg mx-auto mb-6 sm:mb-8">
+          {[
+            { label: 'Outils', value: repos.toLocaleString(), icon: <Star size={14} className="text-amber-400" />, delay: '0s' },
+            { label: 'Stars', value: stars_c.toLocaleString(), icon: <TrendingUp size={14} className="text-indigo-400" />, delay: '0.2s' },
+            { label: 'CVE', value: cves.toLocaleString(), icon: <Shield size={14} className="text-rose-400" />, delay: '0.4s' },
+          ].map((c, i) => (
+            <div key={i} className="glass-card rounded-xl p-3 sm:p-4 text-center animate-slide" style={{ animationDelay: c.delay }}>
+              <div className="flex justify-center mb-1">{c.icon}</div>
+              <div className="text-lg sm:text-2xl font-bold text-white tabular-nums">{c.value}</div>
+              <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5">{c.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Search bar */}
       <div className="relative mb-3">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
         <input ref={inputRef} type="text" value={query} onChange={e => { setQuery(e.target.value); setPage(1) }}
@@ -242,6 +309,35 @@ function TrendingSection() {
 }
 
 function AiLabSection() {
+  const [tab, setTab] = useState<'classify' | 'qa' | 'vuln'>('classify')
+
+  return (
+    <div className="glass-card rounded-2xl p-4 sm:p-6">
+      <div className="flex items-center gap-2 mb-3"><Brain size={15} className="text-violet-400" /><h3 className="text-sm font-semibold text-white">AI Lab — Testez nos 22 modèles</h3></div>
+
+      <div className="flex gap-1 mb-3 flex-wrap">
+        <button onClick={() => setTab('classify')}
+          className={`px-3 py-1 rounded-full text-[10px] font-medium transition border ${tab === 'classify' ? 'bg-violet-500/10 text-violet-400 border-violet-500/20' : 'glass text-slate-500'}`}>
+          Classification
+        </button>
+        <button onClick={() => setTab('qa')}
+          className={`px-3 py-1 rounded-full text-[10px] font-medium transition border ${tab === 'qa' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'glass text-slate-500'}`}>
+          <MessageSquare size={10} className="inline mr-1" /> Q&A
+        </button>
+        <button onClick={() => setTab('vuln')}
+          className={`px-3 py-1 rounded-full text-[10px] font-medium transition border ${tab === 'vuln' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'glass text-slate-500'}`}>
+          <Bug size={10} className="inline mr-1" /> Vulnérabilité
+        </button>
+      </div>
+
+      {tab === 'classify' && <ClassifyTab />}
+      {tab === 'qa' && <QATab />}
+      {tab === 'vuln' && <VulnTab />}
+    </div>
+  )
+}
+
+function ClassifyTab() {
   const [q, setQ] = useState('')
   const [result, setResult] = useState<any>(null)
   const test = async () => {
@@ -249,19 +345,76 @@ function AiLabSection() {
     setResult(r)
   }
   return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
-      <div className="flex items-center gap-2 mb-3"><Brain size={15} className="text-violet-400" /><h3 className="text-sm font-semibold text-white">AI Lab — Testez nos 22 modeles</h3></div>
-      <div className="flex gap-2 mb-3">
-        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Ex: outil de scan reseau pour pentest..." className="flex-1 px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500" />
+    <div>
+      <div className="flex gap-2">
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Ex: outil de scan réseau pour pentest..."
+          className="flex-1 px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500" />
         <button onClick={test} className="px-4 py-2 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-lg text-xs font-medium hover:bg-violet-500/20">Classifier</button>
       </div>
       {result?.all && (
-        <div className="text-xs space-y-1">
+        <div className="text-xs space-y-1 mt-3">
           {Object.entries(result.all as Record<string,number>).slice(0,4).map(([k,v]) => (
             <div key={k} className="flex items-center gap-2"><span className="text-slate-400 w-24">{k}</span><div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-violet-500/50 rounded-full" style={{width:`${(v as number)*100}%`}} /></div><span className="text-slate-500 w-10 text-right">{((v as number)*100).toFixed(0)}%</span></div>
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function QATab() {
+  const [question, setQuestion] = useState('')
+  const [context, setContext] = useState('')
+  const [answer, setAnswer] = useState('')
+  const [loading, setLoading] = useState(false)
+  const ask = async () => {
+    setLoading(true)
+    try {
+      const r = await fetch(`/api/hf/qa?question=${encodeURIComponent(question)}&context=${encodeURIComponent(context)}`).then(r => r.json())
+      setAnswer(r.answer || r.error || JSON.stringify(r))
+    } catch {}
+    setLoading(false)
+  }
+  return (
+    <div className="space-y-2">
+      <input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Question..."
+        className="w-full px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500" />
+      <textarea value={context} onChange={e => setContext(e.target.value)} placeholder="Contexte (description, rapport...)"
+        className="w-full px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500 min-h-[50px]" />
+      <div className="flex items-center gap-2">
+        <button onClick={ask} disabled={loading || !question.trim() || !context.trim()}
+          className="px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-xs font-medium hover:bg-indigo-500/20 disabled:opacity-30">
+          {loading ? <Loader2 size={12} className="animate-spin" /> : 'Demander'}
+        </button>
+        {answer && <span className="text-xs text-indigo-400 font-medium">{answer}</span>}
+      </div>
+    </div>
+  )
+}
+
+function VulnTab() {
+  const [text, setText] = useState('')
+  const [result, setResult] = useState('')
+  const [loading, setLoading] = useState(false)
+  const detect = async () => {
+    setLoading(true)
+    try {
+      const r = await fetch(`/api/hf/vuln-type?text=${encodeURIComponent(text)}`).then(r => r.json())
+      setResult(r.type || r.error || JSON.stringify(r))
+    } catch {}
+    setLoading(false)
+  }
+  return (
+    <div className="space-y-2">
+      <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Description d'une vulnérabilité à analyser..."
+        className="w-full px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500 min-h-[50px]" />
+      <div className="flex items-center gap-2">
+        <button onClick={detect} disabled={loading || !text.trim()}
+          className="px-4 py-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-medium hover:bg-rose-500/20 disabled:opacity-30">
+          {loading ? <Loader2 size={12} className="animate-spin" /> : 'Détecter (SecBERT)'}
+        </button>
+        {result && <span className="text-xs text-rose-400 font-mono">{result}</span>}
+      </div>
     </div>
   )
 }
