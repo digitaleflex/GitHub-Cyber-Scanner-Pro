@@ -62,6 +62,7 @@ function RootLayout() {
             <Link to="/timeline" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-amber-400 [&.active]:bg-amber-500/10">Timeline</Link>
             <Link to="/assistant" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-violet-400 [&.active]:bg-violet-500/10">Assistant</Link>
             <Link to="/reports" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Rapports</Link>
+            <Link to="/admin" className="px-3 py-1.5 text-xs text-slate-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg transition [&.active]:text-amber-400 [&.active]:bg-amber-500/10">Admin</Link>
             <Link to="/missions" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-emerald-400 [&.active]:bg-emerald-500/10">Missions</Link>
             <Link to="/organization" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-300 [&.active]:bg-indigo-500/10">Orga</Link>
             <Link to="/about" className="px-3 py-1.5 text-xs text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition">À propos</Link>
