@@ -54,9 +54,13 @@ jobs:
           retention-days: 90
 
   scan-db:
-    runs-on: [self-hosted, cyber-scanner]
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Trigger DB scan via API
-        run: |
-          curl -sf -X POST http://localhost:8000/api/scan || echo "Scanner daemon deja actif"
+      - name: Trigger scanner via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: curl -sf -X POST http://localhost:8000/api/scan || echo "Scanner daemon deja actif"
