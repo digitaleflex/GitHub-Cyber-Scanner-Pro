@@ -177,14 +177,15 @@ def query_graph(label: str = "", limit: int = 50):
     if not driver:
         return {"available": False, "nodes": [], "links": []}
     with driver.session() as session:
+        # Try with relationships first, fall back to nodes only
         if label:
             result = session.run(
-                f"MATCH (n:{label})-[r]-(m) RETURN n, r, m LIMIT $limit",
+                f"MATCH (n:{label}) OPTIONAL MATCH (n)-[r]-(m:{label}) RETURN n, r, m LIMIT $limit",
                 limit=limit,
             )
         else:
             result = session.run(
-                "MATCH (n)-[r]-(m) RETURN n, r, m LIMIT $limit",
+                "MATCH (n) OPTIONAL MATCH (n)-[r]-(m) RETURN n, r, m LIMIT $limit",
                 limit=limit,
             )
         nodes_set: dict[str, dict] = {}
