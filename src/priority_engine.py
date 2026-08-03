@@ -64,8 +64,8 @@ def _iter_tokens(value: str):
             yield tok
 
 
-def build_stack_keywords(limit_repos: int | None = None, max_freq: int = 200) -> set:
-    """Termes representatifs de la stack utilisateur, filtres par rarete."""
+def build_stack_keywords(limit_repos: int | None = None, max_freq: int = 200) -> tuple[set, str]:
+    """Termes representatifs de la stack utilisateur + texte de contexte pour le reranker."""
     kws: dict[str, int] = {}
     conn = database.get_db_connection()
     cursor = conn.cursor()
@@ -91,7 +91,13 @@ def build_stack_keywords(limit_repos: int | None = None, max_freq: int = 200) ->
                 kws[tok] = kws.get(tok, 0) + 1
     cursor.close()
     conn.close()
-    return {k for k, v in kws.items() if v <= max_freq}
+    keyword_set = {k for k, v in kws.items() if v <= max_freq}
+    context_tokens = sorted(
+        {k for k, v in kws.items() if 1 <= v <= max_freq},
+        key=lambda x: kws[x],
+    )[:40]
+    context_str = "Technologies et outils utilises: " + ", ".join(context_tokens)
+    return keyword_set, context_str
 
 
 def _risk_if_ignored(cvss, exploits, kev_row, level):
@@ -119,13 +125,11 @@ def _confidence(factors: dict) -> str:
     return "Basse"
 
 
-def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | None) -> dict:
+def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | None, rerank_score: float = 0.0) -> dict:
     """Calcule le score de decision (0-100) pour une CVE avec justification."""
     cvss = cve.get("cvss_score") or 0
     severity = (cve.get("severity") or "").upper()
     published = cve.get("published")
-    desc = (cve.get("description") or "").lower()
-    desc_tokens = cve.get("_tokens", set())
 
     score = 0.0
     factors = {}
@@ -161,7 +165,14 @@ def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | No
         rw = " — liee a des campagnes ransomware" if kev_row.get("ransomware") == "Known" else ""
         reasons.append(f"Exploitee activement dans la nature (CISA KEV){rw}")
 
-    if stack_keywords and desc_tokens:
+    if rerank_score > 0:
+        pts = min(rerank_score * 10, 10)
+        score += pts
+        if pts >= 2:
+            factors["stack"] = round(pts, 1)
+            reasons.append(f"Pertinent pour votre contexte (score semantique: {rerank_score:.2f})")
+    elif stack_keywords:
+        desc_tokens = cve.get("_tokens", set())
         kev_text = " ".join(kev_row.get(k, "") for k in ("product", "vendor") if kev_row and kev_row.get(k)).lower()
         kev_tokens = set(re.findall(r"[a-z0-9]{3,}", kev_text)) if kev_text else set()
         hits = sorted(desc_tokens & stack_keywords | kev_tokens & stack_keywords)
@@ -247,15 +258,28 @@ def _candidate_rows(days: int):
 def get_priority_decisions(days: int = 90, limit: int = 20) -> list[dict]:
     """Retourne les decisions priorisees : top N CVE justifiees."""
     kev = _load_kev()
-    stack = build_stack_keywords()
+    stack_kws, stack_context = build_stack_keywords()
+    candidates = _candidate_rows(days)
+
+    rerank_map = {}
+    try:
+        from src.skills import rerank
+        descs = [c["description"] for c in candidates]
+        if descs and stack_context:
+            result = rerank(stack_context, descs, top_k=min(len(descs), 50), multilingual=True)
+            for r in result:
+                rerank_map[r["index"]] = r["score"]
+    except Exception:
+        logging.info("PriorityEngine: reranker indisponible, fallback token matching")
+
     decisions = []
-    for cve in _candidate_rows(days):
+    for i, cve in enumerate(candidates):
         cve_id = cve["cve_id"]
         exploits = correlation.get_exploits_for_cve(cve_id)
         kev_row = kev.get(cve_id.upper())
         if not kev_row and cve.get("weaknesses") and "CISA_KEV" in str(cve.get("weaknesses", "")):
             kev_row = {"product": "", "vendor": "", "dueDate": "", "ransomware": ""}
-        decisions.append(score_cve(cve, stack, exploits, kev_row))
+        decisions.append(score_cve(cve, stack_kws, exploits, kev_row, rerank_map.get(i, 0.0)))
     decisions.sort(key=lambda d: d["score"], reverse=True)
     return decisions[:limit]
 
