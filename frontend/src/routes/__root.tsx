@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
-import { Menu, X, Play, Shield, User, Building2 } from 'lucide-react'
+import { Menu, X, Play, Shield, User, Building2, Settings, ChevronDown } from 'lucide-react'
 import { useScanStatus } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 import useSearchHotkey from '../lib/useSearchHotkey'
@@ -21,12 +21,30 @@ function UserBadge() {
     <div className="hidden sm:flex items-center gap-2 glass rounded-full px-3 py-1">
       <User size={11} className="text-emerald-400" />
       <span className="text-[10px] text-slate-400 capitalize">{profile.role || 'non_defini'}</span>
-      {org && (
-        <>
-          <span className="text-slate-700">·</span>
-          <Building2 size={11} className="text-slate-500" />
-          <span className="text-[10px] text-slate-500 truncate max-w-[100px]">{org.name}</span>
-        </>
+      {org && <><span className="text-slate-700">·</span><Building2 size={11} className="text-slate-500" /><span className="text-[10px] text-slate-500 truncate max-w-[80px]">{org.name}</span></>}
+    </div>
+  )
+}
+
+function Dropdown({ children, items }: { children: React.ReactNode; items: { label: string; to: string; icon?: React.ReactNode }[] }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => { const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }; if (open) document.addEventListener('click', h); return () => document.removeEventListener('click', h) }, [open])
+  return (
+    <div ref={ref} className="relative">
+      <button onClick={() => setOpen(!open)} className="flex items-center gap-1 px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition">
+        {children} <ChevronDown size={10} className={`transition ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full right-0 mt-1 glass rounded-xl p-1.5 min-w-[160px] shadow-xl z-50 animate-fade">
+          {items.map(item => (
+            <Link key={item.to} to={item.to as any} onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-white/5 transition [&.active]:text-emerald-400">
+              {item.icon && <span className="shrink-0">{item.icon}</span>}
+              {item.label}
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   )
@@ -78,23 +96,33 @@ function RootLayout() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
-            <Link to="/" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-emerald-400 [&.active]:bg-emerald-500/10">Aujourd'hui</Link>
-            <Link to="/cves" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-rose-400 [&.active]:bg-rose-500/10">CVE</Link>
-            <Link to="/tools" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Outils</Link>
-            <Link to="/assets" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-amber-400 [&.active]:bg-amber-500/10">Assets</Link>
+            <Link to="/" className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-emerald-400 [&.active]:bg-emerald-500/10">Aujourd'hui</Link>
             <Link to="/threats" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-rose-400 [&.active]:bg-rose-500/10">Menaces</Link>
             <Link to="/missions" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-emerald-400 [&.active]:bg-emerald-500/10">Missions</Link>
-            <Link to="/timeline" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-amber-400 [&.active]:bg-amber-500/10">Timeline</Link>
-            <Link to="/assistant" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-violet-400 [&.active]:bg-violet-500/10">Assistant</Link>
-            <Link to="/reports" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Rapports</Link>
-            <Link to="/admin" className="px-3 py-1.5 text-xs text-slate-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg transition [&.active]:text-amber-400 [&.active]:bg-amber-500/10">Admin</Link>
-            <Link to="/missions" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-emerald-400 [&.active]:bg-emerald-500/10">Missions</Link>
-            <Link to="/organization" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-300 [&.active]:bg-indigo-500/10">Orga</Link>
-            <Link to="/about" className="px-3 py-1.5 text-xs text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition">À propos</Link>
+            <Link to="/tools" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">Outils</Link>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
             <UserBadge />
+            <div className="hidden md:flex items-center gap-1">
+              <Dropdown items={[
+                { label: 'Timeline', to: '/timeline' },
+                { label: 'Rapports', to: '/reports' },
+                { label: 'Assistant', to: '/assistant' },
+                { label: 'CVE', to: '/cves' },
+              ]}>
+                Plus
+              </Dropdown>
+              <Dropdown items={[
+                { label: 'Assets', to: '/assets', icon: <Shield size={11} /> },
+                { label: 'Organisation', to: '/organization', icon: <Building2 size={11} /> },
+                { label: 'Parametres', to: '/settings', icon: <Settings size={11} /> },
+                { label: 'Admin', to: '/admin', icon: <Settings size={11} /> },
+                { label: 'A propos', to: '/about' },
+              ]}>
+                <Settings size={14} />
+              </Dropdown>
+            </div>
             <ScanBtn />
             <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-slate-400 hover:text-white p-1">
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -104,10 +132,20 @@ function RootLayout() {
 
         {menuOpen && (
           <nav className="md:hidden flex flex-col gap-1 pb-4 -mt-1 mb-4 glass rounded-xl p-2 animate-fade">
-            <Link to="/" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Aujourd'hui</Link>
-            <Link to="/cves" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">CVE</Link>
-            <Link to="/tools" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Outils</Link>
-            <Link to="/about" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">À propos</Link>
+            <Link to="/" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2.5 px-3 rounded-lg hover:bg-white/5 font-medium">Aujourd'hui</Link>
+            <Link to="/threats" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2.5 px-3 rounded-lg hover:bg-white/5">Menaces</Link>
+            <Link to="/missions" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2.5 px-3 rounded-lg hover:bg-white/5">Missions</Link>
+            <Link to="/tools" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2.5 px-3 rounded-lg hover:bg-white/5">Outils</Link>
+            <div className="border-t border-white/[0.04] my-1" />
+            <Link to="/timeline" onClick={() => setMenuOpen(false)} className="text-xs text-slate-400 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Timeline</Link>
+            <Link to="/reports" onClick={() => setMenuOpen(false)} className="text-xs text-slate-400 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Rapports</Link>
+            <Link to="/assistant" onClick={() => setMenuOpen(false)} className="text-xs text-slate-400 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Assistant</Link>
+            <Link to="/cves" onClick={() => setMenuOpen(false)} className="text-xs text-slate-400 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">CVE</Link>
+            <div className="border-t border-white/[0.04] my-1" />
+            <Link to="/assets" onClick={() => setMenuOpen(false)} className="text-xs text-slate-500 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Assets</Link>
+            <Link to="/organization" onClick={() => setMenuOpen(false)} className="text-xs text-slate-500 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Organisation</Link>
+            <Link to="/settings" onClick={() => setMenuOpen(false)} className="text-xs text-slate-500 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Parametres</Link>
+            <Link to="/admin" onClick={() => setMenuOpen(false)} className="text-xs text-slate-500 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Admin</Link>
           </nav>
         )}
 
