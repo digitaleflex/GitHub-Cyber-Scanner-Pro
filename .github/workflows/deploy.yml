@@ -46,8 +46,13 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: [self-hosted, cyber-scanner]
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy to production
-        run: sudo bash /opt/cyberscan/scripts/deploy.sh deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: sudo bash /opt/cyberscan/scripts/deploy.sh deploy
