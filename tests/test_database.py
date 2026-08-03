@@ -1,7 +1,7 @@
 from unittest.mock import patch, MagicMock
 
 
-@patch('src.database.psycopg2.connect')
+@patch('src.db.connection.psycopg2.connect')
 def test_database_connection(mock_connect):
     """Verifie que la connexion a la base de donnees fonctionne."""
     mock_conn = MagicMock()
