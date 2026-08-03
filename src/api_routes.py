@@ -433,6 +433,84 @@ def complete_mission_api(mission_id: int):
     return me.complete_mission(mission_id)
 
 
+@app.get("/api/threat-intel")
+def threat_intel_api():
+    """Threat Intelligence agrege : campagnes actives, tendances, CVE recentes."""
+    from src import database
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT cve_id, description, severity, cvss_score, published, weaknesses
+        FROM cve_entries
+        WHERE weaknesses ILIKE '%%CISA_KEV%%'
+        ORDER BY published DESC NULLS LAST
+        LIMIT 15
+    """)
+    kev_cves = [{"cve_id": r[0], "description": (r[1] or "")[:200], "severity": r[2], "cvss_score": r[3], "published": str(r[4]) if r[4] else None} for r in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT cve_id, epss, percentile
+        FROM epss_scores
+        WHERE epss IS NOT NULL
+        ORDER BY epss DESC
+        LIMIT 10
+    """)
+    top_epss = [{"cve_id": r[0], "epss": float(r[1]), "percentile": float(r[2]) if r[2] else 0} for r in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT cve_id, description, severity, cvss_score, published
+        FROM cve_entries
+        WHERE severity IN ('CRITICAL', 'HIGH') AND published IS NOT NULL
+        ORDER BY published DESC NULLS LAST
+        LIMIT 15
+    """)
+    recent_criticals = [{"cve_id": r[0], "description": (r[1] or "")[:200], "severity": r[2], "cvss_score": r[3], "published": str(r[4]) if r[4] else None} for r in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT platform, COUNT(*) as cnt
+        FROM exploits
+        WHERE platform IS NOT NULL AND platform <> ''
+        GROUP BY platform
+        ORDER BY cnt DESC
+        LIMIT 10
+    """)
+    top_platforms = [{"platform": r[0], "count": r[1]} for r in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT language, COUNT(*) as cnt
+        FROM repositories
+        WHERE language IS NOT NULL AND language <> 'Non specifiee'
+        GROUP BY language
+        ORDER BY cnt DESC
+        LIMIT 10
+    """)
+    top_languages = [{"language": r[0], "count": r[1]} for r in cursor.fetchall()]
+
+    cursor.execute("SELECT COUNT(*) FROM cve_entries WHERE weaknesses ILIKE '%%CISA_KEV%%'")
+    kev_total = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM exploits")
+    exploits_total = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COUNT(*) FROM cve_entries
+        WHERE severity IN ('CRITICAL', 'HIGH') AND published >= NOW() - INTERVAL '30 days'
+    """)
+    recent_critical_count = cursor.fetchone()[0]
+
+    cursor.close()
+    conn.close()
+
+    return {
+        "kev": {"total": kev_total, "top": kev_cves},
+        "epss": {"top": top_epss},
+        "recent_criticals": {"total": recent_critical_count, "cves": recent_criticals},
+        "exploit_platforms": {"total_exploits": exploits_total, "top_platforms": top_platforms},
+        "stack_languages": top_languages,
+    }
+
+
 @app.get("/api/profile")
 def get_profile_api(profile_id: int = 0):
     """Profil utilisateur courant."""
