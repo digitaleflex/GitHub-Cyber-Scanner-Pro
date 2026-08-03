@@ -1,4 +1,5 @@
 import logging
+import psycopg2
 import src.db.connection as _conn
 from psycopg2.extras import RealDictCursor
 from typing import Dict

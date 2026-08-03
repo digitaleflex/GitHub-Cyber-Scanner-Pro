@@ -190,6 +190,26 @@ def init_db():
         )
     """)
 
+    # Migration: chunks de README lies aux repos (RAG) + colonnes repo_id/chunk_type
+    cursor.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'resource_chunks' AND column_name = 'repo_id'
+            ) THEN
+                ALTER TABLE resource_chunks ADD COLUMN repo_id VARCHAR(50);
+            END IF;
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'resource_chunks' AND column_name = 'chunk_type'
+            ) THEN
+                ALTER TABLE resource_chunks ADD COLUMN chunk_type VARCHAR(30);
+            END IF;
+        END $$;
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_chunks_repo ON resource_chunks (repo_id, chunk_type)")
+
     # Indexation GIN trigramme pour les recherches ILIKE %...% sur gros volumes
     cursor.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_repos_name_trgm ON repositories USING gin (full_name gin_trgm_ops)")

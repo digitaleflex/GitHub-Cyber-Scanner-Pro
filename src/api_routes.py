@@ -261,20 +261,29 @@ def generate_digest_api(_u: str = Depends(src.auth.verify_admin)):
 
 @app.get("/api/tools/featured")
 def featured_tools_api(limit: int = 12):
-    """Outils incontournables: top stars + bon verdict securite."""
+    """Outils incontournables: score de qualite eleve (top vitalite)."""
     from src.database import get_db_connection
     from psycopg2.extras import RealDictCursor
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         SELECT full_name AS name, description AS desc, stars, language AS lang,
-               html_url AS url, security_verdict, vitality_score
-        FROM repositories WHERE stars > 100 ORDER BY stars DESC LIMIT %s
+               html_url AS url, security_verdict, vitality_score, semantic_category AS category
+        FROM repositories WHERE stars > 100 AND COALESCE(security_verdict, 'Sain') <> 'Critique'
+        ORDER BY vitality_score DESC, stars DESC LIMIT %s
     """, (limit,))
     rows = [dict(r) for r in cursor.fetchall()]
     cursor.close()
     conn.close()
     return {"tools": rows, "label": "Incontournables"}
+
+
+@app.get("/api/tools/best")
+def tools_best_api(category: str = "all", limit: int = 24):
+    """Curateur 'outils pro': top score qualite, filtre par categorie semantique."""
+    from src.database import get_best_tools
+    tools = get_best_tools(category=category, limit=limit)
+    return {"tools": tools, "label": "Outils pro", "category": category}
 
 
 @app.get("/api/tools/readytouse")
@@ -722,6 +731,31 @@ def enrich_keywords_api(background_tasks: BackgroundTasks, _u: str = Depends(src
 def _run_keyword_sources():
     stats = keyword_sources.import_external_sources_to_db()
     logging.info(f"🗄️ Keywords externes: {stats}")
+
+
+@app.post("/api/tools/backfill-readmes")
+def backfill_readmes_api(background_tasks: BackgroundTasks, limit: int = 100, _u: str = Depends(src.auth.verify_admin)):
+    """Recupere les README manquants (tri stars DESC) et les stocke en chunks RAG (admin)."""
+    background_tasks.add_task(_run_readme_backfill, limit)
+    return {"message": f"Backfill README lancé en arrière-plan ({limit} dépôts)"}
+
+
+def _run_readme_backfill(limit: int):
+    import src.collectors as collectors
+    n = collectors.backfill_readmes(limit=limit)
+    logging.info(f"📖 Backfill README terminé : {n} dépôt(s)")
+
+
+@app.post("/api/tools/recompute-vitality")
+def recompute_vitality_api(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
+    """Recalcule le score de qualite (vitality_score) de tous les depots (admin)."""
+    background_tasks.add_task(_run_vitality_recompute)
+    return {"message": "Recalcul des scores de qualité lancé en arrière-plan"}
+
+
+def _run_vitality_recompute():
+    n = database.recalculate_vitality_scores()
+    logging.info(f"⚡ Recalcul qualite : {n} dépôts mis à jour")
 
 
 @app.get("/api/download")

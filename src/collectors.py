@@ -142,6 +142,9 @@ def fetch_and_parse_readme(repo_id, full_name, repo_description=""):
 
         readme_content = readme_res.text
 
+        # Stocker le README en chunks (RAG) pour l'IA et la recherche sémantique
+        database.save_readme_chunks(repo_id, readme_content)
+
         # Extraire tous les liens Markdown [Titre](URL)
         links = re.findall(r'\[([^\]\n]+)\]\((https?://[^\)\s]+)\)', readme_content)
 
@@ -221,6 +224,23 @@ def parse_unprocessed_readmes():
 
         fetch_and_parse_readme(repo_id, full_name, description)
         time.sleep(1.5)
+
+
+def backfill_readmes(limit: int = 100):
+    """Récupère les README manquants (tri stars DESC) et les stocke en chunks RAG."""
+    missing = database.get_repos_without_readme_chunks(limit)
+    if not missing:
+        logging.info("📖 Backfill README: aucun dépôt sans chunks.")
+        return 0
+
+    logging.info(f"📖 Backfill README en cours pour {len(missing)} dépôt(s)...")
+    done = 0
+    for repo_id, full_name in missing:
+        if fetch_and_parse_readme(repo_id, full_name):
+            done += 1
+        time.sleep(1.5)
+    logging.info(f"📖 Backfill README: {done}/{len(missing)} dépôt(s) traités")
+    return done
 
 
 def verify_book_link(url):

@@ -161,59 +161,75 @@ def mark_repo_as_parsed(repo_id, readme_parsed=1):
     conn.close()
 
 def recalculate_vitality_scores():
-    """Recalcule le score de vitalité pour tous les dépôts."""
+    """Recalcule le score de qualite (0-100) pour tous les depots.
+
+    Facteurs: etoiles (0-25), actualite (0-20), verdict securite (0-15),
+    qualite description (0-10), README parse (0-5), categorie semantique (0-5),
+    activite commits+issues (0-10), categorie IA (0-5).
+    """
+    import math
     try:
         conn = _conn.get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT id, stars, updated_at, description, security_verdict, readme_parsed
+            SELECT id, stars, updated_at, description, security_verdict, readme_parsed,
+                   semantic_category, ai_category, commits_harvested, issues_harvested
             FROM repositories
         """)
         rows = cursor.fetchall()
-        now = __import__('datetime').datetime.now()
+        now = datetime.datetime.now()
         updated = 0
         for row in rows:
-            repo_id, stars, updated_at, desc, verdict, readme_parsed = row
+            (repo_id, stars, updated_at, desc, verdict, readme_parsed,
+             sem_cat, ai_cat, commits, issues) = row
             stars = stars or 0
             score = 0
-            # Stars (0-35 points) — log scale
+            # Etoiles (0-25) — echelle log
             if stars > 0:
-                score += min(35, int(10 * __import__('math').log10(stars + 1)))
-            # Recency (0-30 points)
+                score += min(25, int(12 * math.log10(stars + 1)))
+            # Actualite (0-20)
             if updated_at:
                 try:
-                    updated_dt = __import__('datetime').datetime.strptime(updated_at[:19], '%Y-%m-%dT%H:%M:%S')
+                    updated_dt = datetime.datetime.strptime(updated_at[:19], '%Y-%m-%dT%H:%M:%S')
                     days_since = (now - updated_dt).days
                     if days_since <= 30:
-                        score += 30
-                    elif days_since <= 90:
-                        score += 25
-                    elif days_since <= 180:
                         score += 20
+                    elif days_since <= 90:
+                        score += 17
+                    elif days_since <= 180:
+                        score += 13
                     elif days_since <= 365:
-                        score += 15
+                        score += 9
                     elif days_since <= 730:
-                        score += 8
+                        score += 5
                     else:
-                        score += 3
+                        score += 2
                 except (ValueError, IndexError):
-                    score += 10
-            # Security verdict (0-20 points)
-            if verdict == 'Sain':
-                score += 20
-            elif verdict == 'Suspect':
-                score += 10
-            elif verdict == 'Critique':
-                score += 0
-            else:
-                score += 5
-            # Description quality (0-10 points)
-            if desc and len(desc) > 20:
-                score += 5 if len(desc) > 100 else 3
-            else:
-                score += 0
-            # Readme parsed (0-5 points)
+                    score += 8
+            # Verdict de securite (0-15)
+            score += {'Sain': 15, 'Suspect': 6, 'Critique': 0}.get(verdict, 8)
+            # Qualite de la description (0-10)
+            if desc:
+                dlen = len(desc)
+                score += 10 if dlen > 150 else 7 if dlen > 80 else 4 if dlen > 30 else 1
+            # README parse (0-5)
             if readme_parsed:
+                score += 5
+            # Categorie semantique presente (0-5)
+            if sem_cat:
+                score += 5
+            # Activite commits + issues (0-10)
+            activity = (commits or 0) + (issues or 0)
+            if activity > 200:
+                score += 10
+            elif activity > 80:
+                score += 8
+            elif activity > 30:
+                score += 6
+            elif activity > 5:
+                score += 3
+            # Categorie IA presente (0-5)
+            if ai_cat:
                 score += 5
             score = min(100, max(0, score))
             cursor.execute("UPDATE repositories SET vitality_score = %s WHERE id = %s", (score, repo_id))
@@ -221,11 +237,99 @@ def recalculate_vitality_scores():
         conn.commit()
         cursor.close()
         conn.close()
-        logging.info(f"✅ Scores de vitalité recalculés pour {updated} dépôt(s)")
+        logging.info(f"✅ Scores de qualite recalcules pour {updated} depot(s)")
         return updated
     except Exception as e:
         logging.error(f"Erreur recalculate_vitality_scores: {e}")
         return 0
+
+def save_readme_chunks(repo_id, content: str, chunk_size: int = 1000) -> int:
+    """Stocke le contenu d'un README decoupe en chunks (RAG, chunk_type='readme')."""
+    if not content:
+        return 0
+    chunks = [content[i:i + chunk_size] for i in range(0, len(content), chunk_size)]
+    if not chunks:
+        return 0
+    try:
+        conn = _conn.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "DELETE FROM resource_chunks WHERE repo_id = %s AND chunk_type = 'readme'",
+            (repo_id,)
+        )
+        for i, ch in enumerate(chunks):
+            cursor.execute(
+                """
+                INSERT INTO resource_chunks (repo_id, chunk_type, chunk_index, content_text)
+                VALUES (%s, 'readme', %s, %s)
+                """,
+                (repo_id, i, ch)
+            )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return len(chunks)
+    except Exception as e:
+        logging.error(f"Erreur save_readme_chunks {repo_id}: {e}")
+        return 0
+
+def get_repos_without_readme_chunks(limit: int = 100):
+    """Depots (tri stars DESC) sans chunks de README en base."""
+    try:
+        conn = _conn.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT r.id, r.full_name
+            FROM repositories r
+            WHERE NOT EXISTS (
+                SELECT 1 FROM resource_chunks c
+                WHERE c.repo_id = r.id AND c.chunk_type = 'readme'
+            )
+            ORDER BY r.stars DESC NULLS LAST
+            LIMIT %s
+            """,
+            (limit,)
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return rows
+    except Exception as e:
+        logging.error(f"Erreur get_repos_without_readme_chunks: {e}")
+        return []
+
+def get_best_tools(category: str = "all", limit: int = 24, min_vitality: int = 60, min_stars: int = 50):
+    """Curateur: meilleurs outils (score qualite eleve, pas 'Critique', description riche)."""
+    try:
+        conn = _conn.get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        params = [min_vitality, min_stars]
+        cat_filter = ""
+        if category and category != "all":
+            cat_filter = " AND semantic_category = %s"
+            params.append(category)
+        params.append(limit)
+        cursor.execute(
+            f"""
+            SELECT full_name AS name, description AS desc, stars, language AS lang,
+                   html_url AS url, security_verdict, vitality_score, semantic_category AS category
+            FROM repositories
+            WHERE vitality_score >= %s AND stars >= %s
+              AND description IS NOT NULL AND length(description) > 20
+              AND COALESCE(security_verdict, 'Sain') <> 'Critique'{cat_filter}
+            ORDER BY vitality_score DESC, stars DESC
+            LIMIT %s
+            """,
+            tuple(params)
+        )
+        rows = [dict(r) for r in cursor.fetchall()]
+        cursor.close()
+        conn.close()
+        return rows
+    except Exception as e:
+        logging.error(f"Erreur get_best_tools: {e}")
+        return []
 
 def get_repos_without_sast(limit=20):
     try:
