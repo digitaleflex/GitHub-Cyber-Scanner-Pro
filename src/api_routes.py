@@ -2,6 +2,7 @@
 import logging
 import json
 import os
+from datetime import datetime
 from fastapi import BackgroundTasks
 from fastapi.responses import FileResponse, HTMLResponse
 from src.config import app, FRONTEND_DIR, DOMAIN, EXCEL_FILE, JSON_FILE
@@ -856,3 +857,49 @@ def token_status_api():
     """Retourne le nombre de tokens configurés (sans exposer les valeurs)."""
     from src import github_client
     return {"token_count": github_client.token_count(), "has_tokens": github_client.token_count() > 0}
+
+
+# ── STIX 2.1 & IOC Feed ──────────────────────────────────────────────
+
+@app.get("/api/stix/cves")
+def stix_cves_api(limit: int = 50, severity: str = ""):
+    """Exporte les CVEs au format STIX 2.1."""
+    import src.stix_exporter as stix
+    data = stix.export_cves(limit=limit, severity=severity)
+    return {"stix": data, "format": "STIX 2.1", "type": "vulnerabilities"}
+
+
+@app.get("/api/stix/tools")
+def stix_tools_api():
+    """Exporte les outils au format STIX 2.1."""
+    import src.stix_exporter as stix
+    data = stix.export_tools()
+    return {"stix": data, "format": "STIX 2.1", "type": "tools"}
+
+
+@app.get("/api/stix/ioc-feed")
+def stix_ioc_feed_api(limit: int = 100):
+    """Génère un flux IOC au format STIX 2.1 (IPs, domaines, hashes)."""
+    import src.stix_exporter as stix
+    return stix.generate_ioc_feed(limit=limit)
+
+
+@app.get("/api/stix/download")
+def stix_download_api(what: str = "cves", limit: int = 100, severity: str = ""):
+    """Téléchargement STIX 2.1 en fichier JSON."""
+    import src.stix_exporter as stix
+    if what == "cves":
+        data = stix.export_cves(limit=limit, severity=severity)
+        filename = f"cyberscan_cves_{datetime.utcnow().strftime('%Y%m%d')}.json"
+    elif what == "tools":
+        data = stix.export_tools()
+        filename = f"cyberscan_tools_{datetime.utcnow().strftime('%Y%m%d')}.json"
+    else:
+        result = stix.generate_ioc_feed(limit=limit)
+        data = result["stix"]
+        filename = f"cyberscan_ioc_feed_{datetime.utcnow().strftime('%Y%m%d')}.json"
+    import tempfile
+    tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
+    tmp.write(data)
+    tmp.close()
+    return FileResponse(tmp.name, media_type="application/json", filename=filename)

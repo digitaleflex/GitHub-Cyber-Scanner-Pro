@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import AdminGuard from '../components/AdminGuard'
 import DataTable, { type DataTableColumn } from '../components/DataTable'
 import Chip from '../components/Chip'
-import { Search, Shield, AlertTriangle, TrendingUp, Bug } from 'lucide-react'
+import { Search, Shield, AlertTriangle, TrendingUp, Bug, Download } from 'lucide-react'
 
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
@@ -80,7 +80,13 @@ function CvesPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h2 className="text-lg font-semibold text-white mb-4">Base CVE</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-white">Base CVE</h2>
+        <a href="/api/stix/download?what=cves&limit=100"
+          className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-[10px] text-indigo-400 hover:text-white transition">
+          <Download size={11} /> STIX 2.1
+        </a>
+      </div>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">

@@ -194,6 +194,7 @@ function AdminDashboard() {
               <ActionBtn icon={<Globe size={12} />} label="Scan Reddit" endpoint="/api/social/reddit" hint="Outils" />
               <ActionBtn icon={<Globe size={12} />} label="Enrichissement OSINT" endpoint="/api/osint/enrich" hint="KEV" />
               <ActionBtn icon={<Shield size={12} />} label="Enrichissement IOC" endpoint="/api/ioc/enrich" hint="abuse.ch" />
+              <ActionBtn icon={<Download size={12} />} label="IOC Feed STIX" endpoint="/api/stix/ioc-feed" hint="IPs/domains" variant="success" />
             </div>
           </div>
         </div>
