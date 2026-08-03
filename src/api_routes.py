@@ -702,24 +702,4 @@ def ai_validate_keywords_api(limit: int = 200, threshold: float = 0.6,
 @app.get("/api/keywords/stats")
 def keyword_stats_api():
     """Statistiques de validation des mots-cles."""
-@app.get("/api/intel/virustotal")
-def intel_vt_api(identifier: str = "", resource_type: str = "auto"):
-    """Query VirusTotal API for an IP, domain, URL, or hash."""
-@app.get("/api/intel/securitytrails")
-def intel_st_api(domain: str = "", ip: str = ""):
-    """Query SecurityTrails API for a domain (passive DNS, subdomains, WHOIS) or IP."""
-@app.get("/api/intel/shodan")
-def intel_shodan_api(ip: str = "", query: str = ""):
-    """Query Shodan API for an IP host or search query."""
-@app.post("/api/intel/enrich-all")
-def intel_enrich_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
-    """Enrich existing IOCs via VirusTotal + SecurityTrails + Shodan."""
-@app.get("/api/intel/status")
-def intel_status_api():
-    """Check which premium APIs are configured."""
-    import os
-    return {
-        "virustotal": bool(os.getenv("VIRUSTOTAL_API_KEY")),
-        "securitytrails": bool(os.getenv("SECURITYTRAILS_API_KEY")),
-        "shodan": bool(os.getenv("SHODAN_API_KEY")),
-    }
+

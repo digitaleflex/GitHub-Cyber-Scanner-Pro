@@ -147,7 +147,7 @@ def build_user_context(profile_id: int | None = None) -> tuple[set, str]:
             (org_id,),
         )
         techs = []
-        for asset_type, name, vendor, version, crit in cursor.fetchall():
+        for asset_type, name, vendor, version, _crit in cursor.fetchall():
             techs.append(f"{name}" + (f" {vendor}" if vendor else "") + (f" v{version}" if version else ""))
             if asset_type in ("product", "vendor"):
                 keywords.add(name.lower())
