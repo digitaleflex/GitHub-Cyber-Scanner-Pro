@@ -281,6 +281,40 @@ def init_db():
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_epss_score ON epss_scores (epss DESC)")
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS missions (
+            id SERIAL PRIMARY KEY,
+            org_id INTEGER REFERENCES organizations(id) ON DELETE CASCADE,
+            title VARCHAR(300) NOT NULL,
+            description TEXT,
+            objective TEXT,
+            status VARCHAR(20) DEFAULT 'active',
+            progress INTEGER DEFAULT 0 CHECK (progress BETWEEN 0 AND 100),
+            estimated_minutes INTEGER,
+            risk_reduction_percent INTEGER CHECK (risk_reduction_percent BETWEEN -100 AND 100),
+            cve_ids TEXT,
+            responsible VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            started_at TIMESTAMP,
+            completed_at TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_missions_org_status ON missions (org_id, status)")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS mission_steps (
+            id SERIAL PRIMARY KEY,
+            mission_id INTEGER REFERENCES missions(id) ON DELETE CASCADE,
+            step_order INTEGER NOT NULL,
+            title VARCHAR(300) NOT NULL,
+            description TEXT,
+            status VARCHAR(20) DEFAULT 'pending',
+            action_type VARCHAR(50),
+            estimated_minutes INTEGER,
+            completed_at TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_mission_steps ON mission_steps (mission_id, step_order)")
+
     conn.commit()
     cursor.close()
     conn.close()

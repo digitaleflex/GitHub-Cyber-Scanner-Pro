@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useQuery } from '@tanstack/react-query'
-import { Shield, Clock, CheckCircle2, Target, ArrowRight, ChevronRight, Brain, Wifi, AlertTriangle } from 'lucide-react'
+import { Shield, Clock, CheckCircle2, Target, ArrowRight, ChevronRight, Brain, Wifi, AlertTriangle, Play } from 'lucide-react'
 import { useStats } from '../lib/api'
 
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/', component: HomePage })
@@ -25,6 +26,12 @@ interface PriorityDecision {
 
 function HomePage() {
   const { data: stats } = useStats()
+  const { data: org } = useQuery({
+    queryKey: ['organization', 1],
+    queryFn: () => fetch('/api/organization?profile_id=1').then(r => r.json()),
+    staleTime: 300_000,
+  })
+  const orgId = org?.organization?.id
   const { data: priority, isLoading, error } = useQuery({
     queryKey: ['priority-home'],
     queryFn: async () => {
@@ -84,7 +91,7 @@ function HomePage() {
 
       {!isLoading && !error && decisions.length > 0 && (
         <>
-          <DecisionHero decision={decisions[0]} />
+          <DecisionHero decision={decisions[0]} orgId={orgId} />
 
           <section className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <DecisionBlock
@@ -127,9 +134,20 @@ function HomePage() {
   )
 }
 
-function DecisionHero({ decision }: { decision: PriorityDecision }) {
+function DecisionHero({ decision, orgId }: { decision: PriorityDecision; orgId?: number }) {
+  const [creating, setCreating] = useState(false)
+  const [done, setDone] = useState(false)
   const levelColor = decision.level === 'CRITIQUE' ? 'rose' : decision.level === 'ELEVE' ? 'amber' : 'slate'
   const cvssColor = (decision.cvss_score || 0) >= 9 ? 'rose' : (decision.cvss_score || 0) >= 7 ? 'amber' : 'emerald'
+
+  const handleStartMission = async () => {
+    if (!orgId) { window.location.href = '/organization'; return }
+    setCreating(true)
+    await fetch(`/api/missions?org_id=${orgId}&cve_id=${encodeURIComponent(decision.cve_id)}&desc=${encodeURIComponent(decision.description.slice(0, 200))}&cvss=${decision.cvss_score || 0}`, { method: 'POST' })
+    setCreating(false)
+    setDone(true)
+    setTimeout(() => setDone(false), 2000)
+  }
 
   return (
     <div className="glass-card rounded-2xl p-5 sm:p-7 border-emerald-500/10">
@@ -189,8 +207,9 @@ function DecisionHero({ decision }: { decision: PriorityDecision }) {
         <span>Sources: {decision.sources.join(', ')}</span>
       </div>
 
-      <button className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition flex items-center justify-center gap-2">
-        Commencer la mission <ArrowRight size={15} />
+      <button onClick={handleStartMission} disabled={creating}
+        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 disabled:opacity-40 transition flex items-center justify-center gap-2">
+        {creating ? 'Creation...' : done ? 'Mission creee !' : orgId ? <>Commencer la mission <Play size={15} /></> : <>Configurer l'organisation <ArrowRight size={15} /></>}
       </button>
     </div>
   )

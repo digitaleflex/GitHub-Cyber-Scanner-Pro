@@ -386,6 +386,53 @@ def add_asset_api(profile_id: int, asset_type: str = "product", name: str = "", 
     return {"id": asset_id, "added": True}
 
 
+@app.get("/api/missions")
+def get_missions_api(org_id: int | None = None, status: str | None = None, limit: int = 20):
+    """Liste les missions avec progression."""
+    import src.mission_engine as me
+    missions = me.get_missions(org_id=org_id, status=status, limit=limit)
+    return {"missions": missions, "count": len(missions)}
+
+
+@app.get("/api/missions/{mission_id}")
+def get_mission_api(mission_id: int):
+    """Detail d'une mission avec ses etapes."""
+    import src.mission_engine as me
+    m = me.get_mission(mission_id)
+    if not m:
+        return {"error": "Mission introuvable"}
+    return m
+
+
+@app.post("/api/missions")
+def create_mission_api(org_id: int, cve_id: str = "", desc: str = "", cvss: float = 0):
+    """Cree une mission a partir d'une decision CVE."""
+    import src.mission_engine as me
+    result = me.create_mission_from_decision(org_id, cve_id, desc, cvss)
+    return result
+
+
+@app.post("/api/missions/{mission_id}/start")
+def start_mission_api(mission_id: int):
+    """Demarre une mission."""
+    import src.mission_engine as me
+    return me.start_mission(mission_id)
+
+
+@app.post("/api/missions/{mission_id}/steps/{step_id}/done")
+def complete_step_api(mission_id: int, step_id: int):
+    """Marque une etape comme terminee."""
+    import src.mission_engine as me
+    return me.complete_step(mission_id, step_id)
+
+
+@app.post("/api/missions/{mission_id}/complete")
+def complete_mission_api(mission_id: int):
+    """Termine une mission."""
+    import src.mission_engine as me
+    return me.complete_mission(mission_id)
+
+
 @app.get("/api/profile")
 def get_profile_api(profile_id: int = 0):
     """Profil utilisateur courant."""
