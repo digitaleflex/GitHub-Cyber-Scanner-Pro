@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchJson } from '../lib/api'
+import { Search, X } from 'lucide-react'
 
 type GraphNode = {
   id: string
@@ -165,6 +166,15 @@ export default function GraphView() {
   }, [])
 
   const labels = ['', 'Hacker', 'APTCampaign', 'Tool', 'CVE', 'Repo']
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredNodes = searchTerm
+    ? simNodes.filter(n => n.name.toLowerCase().includes(searchTerm.toLowerCase()) || n.label.toLowerCase().includes(searchTerm.toLowerCase()))
+    : simNodes
+  const filteredNodeIds = new Set(filteredNodes.map(n => n.id))
+  const filteredLinks = searchTerm
+    ? simLinks.filter(l => filteredNodeIds.has(l.source.id) && filteredNodeIds.has(l.target.id))
+    : simLinks
 
   return (
     <div className="glass-card rounded-2xl p-5">
@@ -173,11 +183,23 @@ export default function GraphView() {
           Social Graph
         </h2>
         {data && (
-          <span className="text-xs text-slate-600 ">
-            {data.nodes.length} nœuds · {data.links.length} relations
+          <span className="text-xs text-slate-600">
+            {data.nodes.length} noeuds · {data.links.length} relations
           </span>
         )}
         <div className="flex-1" />
+        <div className="relative">
+          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600" />
+          <input
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            placeholder="Rechercher..."
+            className="pl-7 pr-3 py-1.5 glass rounded-lg text-xs text-white placeholder-slate-600 w-40 focus:ring-1 focus:ring-indigo-500/40"
+          />
+          {searchTerm && (
+            <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white"><X size={10} /></button>
+          )}
+        </div>
         <div className="flex items-center gap-2 flex-wrap">
           {labels.map((l) => (
             <button
@@ -222,7 +244,7 @@ export default function GraphView() {
                 </marker>
               ))}
             </defs>
-            {simLinks.map((l, i) => (
+            {filteredLinks.map((l, i) => (
               <line
                 key={`l-${i}`}
                 x1={l.source.x} y1={l.source.y}
@@ -233,18 +255,20 @@ export default function GraphView() {
                 markerEnd={`url(#arrow-${l.source.label})`}
               />
             ))}
-            {simNodes.map((n) => {
+            {filteredNodes.map((n) => {
               const color = LABEL_COLORS[n.label] ?? '#ffffff'
               const r = NODE_RADIUS[n.label] ?? 6
+              const isSelected = selected?.id === n.id
+              const isHighlighted = !!searchTerm
               return (
-                <g key={n.id} onClick={() => setSelected(n)} style={{ cursor: 'pointer' }}>
-                  <circle cx={n.x} cy={n.y} r={r + 3} fill={color} fillOpacity={0.15} />
+                <g key={n.id} onClick={() => setSelected(n)} style={{ cursor: 'pointer', opacity: isHighlighted ? 1 : 1 }}>
+                  <circle cx={n.x} cy={n.y} r={r + 3} fill={color} fillOpacity={isSelected ? 0.3 : 0.15} />
                   <circle
                     cx={n.x} cy={n.y} r={r}
                     fill={color}
                     fillOpacity={0.3}
-                    stroke={selected?.id === n.id ? '#ffffff' : color}
-                    strokeWidth={selected?.id === n.id ? 2 : 1}
+                    stroke={isSelected ? '#ffffff' : color}
+                    strokeWidth={isSelected ? 2 : 1}
                   />
                   <text
                     x={n.x + r + 4} y={n.y + 3}
@@ -258,6 +282,15 @@ export default function GraphView() {
               )
             })}
           </svg>
+
+          {/* Legend */}
+          <div className="absolute bottom-3 left-3 flex gap-2 flex-wrap">
+            {Object.entries(LABEL_COLORS).map(([label, color]) => (
+              <span key={label} className="glass px-2 py-1 rounded-full text-[9px] text-slate-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} /> {label}
+              </span>
+            ))}
+          </div>
           {selected && (
             <div className="absolute top-2 right-2 bg-slate-900/95 border border-slate-700 rounded-lg p-4 max-w-xs text-xs ">
               <div className="flex items-center gap-2 mb-2">
