@@ -3,7 +3,7 @@ import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useSearch, type SearchResult, type SearchResultType, type SearchParams } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
-import { Search, Star, Shield, BookOpen, Hash, ExternalLink, AlertTriangle, TrendingUp, Newspaper, Brain, ChevronDown, Loader2, MapPin, User, Target, MessageSquare, Bug } from 'lucide-react'
+import { Search, Star, Shield, BookOpen, Hash, ExternalLink, AlertTriangle, TrendingUp, Newspaper, Brain, ChevronDown, Loader2, MapPin, User, Target, MessageSquare, Bug, Activity } from 'lucide-react'
 import { useStats } from '../lib/api'
 
 function useCountUp(target: number, duration = 1500) {
@@ -94,6 +94,30 @@ function ExplorePage() {
         </div>
       </section>
 
+      {/* KPI Dashboard */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 animate-fade">
+        <div className="glass-card rounded-xl p-3 text-center">
+          <AlertTriangle size={16} className="text-rose-400 mx-auto mb-1" />
+          <div className="text-lg sm:text-xl font-bold text-white">{criticalThreats}</div>
+          <div className="text-[9px] text-slate-500">Menaces critiques</div>
+        </div>
+        <div className="glass-card rounded-xl p-3 text-center">
+          <TrendingUp size={16} className="text-amber-400 mx-auto mb-1" />
+          <div className="text-lg sm:text-xl font-bold text-white">{stats?.new_repos_24h || 0}</div>
+          <div className="text-[9px] text-slate-500">Nouveaux 24h</div>
+        </div>
+        <div className="glass-card rounded-xl p-3 text-center">
+          <Shield size={16} className="text-indigo-400 mx-auto mb-1" />
+          <div className="text-lg sm:text-xl font-bold text-white">{stats?.security_critique || 0}</div>
+          <div className="text-[9px] text-slate-500">Repos critiques</div>
+        </div>
+        <div className="glass-card rounded-xl p-3 text-center">
+          <Activity size={16} className="text-emerald-400 mx-auto mb-1" />
+          <div className="text-lg sm:text-xl font-bold text-white">{stats?.pending_keywords || 0}</div>
+          <div className="text-[9px] text-slate-500">Mots-cles a valider</div>
+        </div>
+      </div>
+
       {/* Search bar */}
       <div className="relative mb-3">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -134,13 +158,19 @@ function ExplorePage() {
           )}
         </div>
       ) : showSections && (
-        <div className="space-y-3 sm:space-y-4 animate-fade">
+        <div className="space-y-4 animate-fade">
           <StatsRow />
-          <DigestSection />
-          <ThreatSection />
-          <OsintSection />
-          <BlogSection />
-          <TrendingSection />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <DigestSection />
+              <ThreatSection />
+            </div>
+            <div className="space-y-4">
+              <TrendingSection />
+              <BlogSection />
+              <OsintSection />
+            </div>
+          </div>
           <AiLabSection />
         </div>
       )}
