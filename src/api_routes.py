@@ -974,6 +974,23 @@ def ingest_epss_api(_u: str = Depends(src.auth.verify_admin)):
     return {"source": "epss", "saved": n, "message": "Scores EPSS mis a jour sur les CVEs existantes"}
 
 
+# ── AI Keyword Validator ────────────────────────────────────────────────
+
+@app.post("/api/keywords/ai-validate")
+def ai_validate_keywords_api(limit: int = 200, threshold: float = 0.6,
+                              _u: str = Depends(src.auth.verify_admin)):
+    """Valide automatiquement les mots-cles en attente via HF zero-shot."""
+    import src.ai_keyword_validator as kv
+    return kv.batch_validate_keywords(limit=limit, auto_approve_threshold=threshold)
+
+
+@app.get("/api/keywords/stats")
+def keyword_stats_api():
+    """Statistiques de validation des mots-cles."""
+    import src.ai_keyword_validator as kv
+    return kv.get_keyword_stats()
+
+
 # ── Premium Threat Intel (VirusTotal, SecurityTrails, Shodan) ─────────────
 
 @app.get("/api/intel/virustotal")
