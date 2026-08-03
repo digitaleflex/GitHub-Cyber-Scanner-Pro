@@ -401,6 +401,35 @@ def cve_detail_api(cve_id: str):
     return corr.get_cve_detail(cve_id)
 
 
+@app.get("/api/cve/{cve_id}/decision")
+def cve_decision_api(cve_id: str):
+    """Decision Engine appliqué à une CVE spécifique (score, raisons, risque, confiance)."""
+    import src.priority_engine as pe
+    import src.correlation as corr
+    import src.context_engine as ctx
+    import src.epss as epss_mod
+
+    detail = corr.get_cve_detail(cve_id)
+    if "error" in detail:
+        return detail
+
+    stack_kws, _ = ctx.build_user_context()
+    epss_data = epss_mod.get_epss_for_cve(cve_id)
+    epss_val = (epss_data or {}).get("epss", 0)
+
+    cve_dict = {
+        "cve_id": cve_id,
+        "description": detail.get("description", ""),
+        "severity": detail.get("severity", ""),
+        "cvss_score": detail.get("cvss_score"),
+        "published": detail.get("published"),
+        "weaknesses": detail.get("weaknesses", ""),
+        "_tokens": set(),
+    }
+    decision = pe.score_cve(cve_dict, stack_kws, detail.get("exploits", []), None, 0.0, epss_val)
+    return decision
+
+
 @app.get("/api/cve/{cve_id}/exploits")
 def cve_exploits_api(cve_id: str):
     import src.correlation as corr
