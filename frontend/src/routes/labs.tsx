@@ -135,7 +135,7 @@ function ClassifyPlayground() {
           ))}
         </div>
       )}
-      <div className="text-[9px] text-slate-600 mt-2">Categories: Red Team, Blue Team, Malware, Exploit, OSINT, Cloud, Forensics</div>
+      <div className="text-[9px] text-slate-500 mt-2">Categories: Red Team, Blue Team, Malware, Exploit, OSINT, Cloud, Forensics</div>
     </PlaygroundShell>
   )
 }
@@ -216,7 +216,7 @@ function EmbedPlayground() {
         {result && (
           <div className="text-xs text-slate-500 mt-2">
             <span>{result.dims} dimensions</span>
-            <code className="block mt-1 text-[10px] text-slate-600 break-all">{JSON.stringify(result.embedding)}</code>
+            <code className="block mt-1 text-[10px] text-slate-500 break-all">{JSON.stringify(result.embedding)}</code>
           </div>
         )}
       </div>

@@ -19,7 +19,7 @@ function OsintPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8 animate-fade">
-      <h2 className="text-lg font-semibold text-white mb-2">OSINT Lab</h2>
+      <h1 className="text-lg font-semibold text-white mb-2">OSINT Lab</h1>
       <p className="text-xs sm:text-sm text-slate-400 mb-4 sm:mb-6">
         Recherche de personnes par IA — décrivez qui vous cherchez, l'IA extrait les paramètres, les outils OSINT enquêtent.
       </p>
@@ -39,6 +39,16 @@ function OsintPage() {
       {tab === 'pro' && <ProTab />}
       {tab === 'dorks' && <DorksTab />}
       {tab === 'tools' && <ToolsTab />}
+    </div>
+  )
+}
+
+function OsintError({ message }: { message: string | null }) {
+  if (!message) return null
+  return (
+    <div className="glass-card rounded-xl p-3 mb-4 border-rose-500/20 flex items-center gap-2" role="alert">
+      <Bug size={13} className="text-rose-400 shrink-0" />
+      <p className="text-xs text-rose-300">{message}</p>
     </div>
   )
 }
@@ -94,9 +104,9 @@ function OsintResult({ result }: { result: any }) {
                 <div className="min-w-0">
                   <div className="text-xs font-medium text-slate-200 group-hover:text-indigo-400">{p.username}</div>
                   {p.name && <div className="text-[10px] text-slate-400">{p.name}</div>}
-                  {p.location && <div className="text-[9px] text-slate-600">{p.location}</div>}
+                  {p.location && <div className="text-[9px] text-slate-500">{p.location}</div>}
                   {p.bio && <div className="text-[10px] text-slate-500 mt-1 line-clamp-2">{p.bio}</div>}
-                  <div className="flex items-center gap-2 mt-1 text-[9px] text-slate-600">
+                  <div className="flex items-center gap-2 mt-1 text-[9px] text-slate-500">
                     {p.company && <span>{p.company}</span>}
                     {p.twitter && <span>@{p.twitter}</span>}
                     <span>{p.followers} followers</span>
@@ -176,7 +186,7 @@ function OsintResult({ result }: { result: any }) {
             {Object.entries(result.tools as Record<string, any>).map(([k, v]) => (
               <div key={k} className="glass rounded-lg p-2 text-xs flex items-center justify-between">
                 <span className="text-slate-300">{k}</span>
-                <span className={v === 'OK' || v === true ? 'text-emerald-400' : 'text-slate-600'}>{String(v)}</span>
+                <span className={v === 'OK' || v === true ? 'text-emerald-400' : 'text-slate-500'}>{String(v)}</span>
               </div>
             ))}
           </div>
@@ -192,14 +202,16 @@ function PersonTab() {
   const [text, setText] = useState('')
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const search = async () => {
     if (!text.trim()) return
-    setLoading(true); setResult(null)
+    setLoading(true); setResult(null); setError(null)
     try {
       const r = await fetch(`/api/osint/investigate?free_text=${encodeURIComponent(text)}`, { method: 'POST' }).then(r => r.json())
+      if (r?.error) { setError(r.error); return }
       setResult(r)
-    } catch {}
+    } catch { setError("Échec de la requête. Réessayez.") }
     setLoading(false)
   }
 
@@ -217,6 +229,7 @@ function PersonTab() {
           </button>
         </div>
       </div>
+      <OsintError message={error} />
       <OsintResult result={result} />
     </div>
   )
@@ -226,14 +239,16 @@ function V2Tab() {
   const [text, setText] = useState('')
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const search = async () => {
     if (!text.trim()) return
-    setLoading(true); setResult(null)
+    setLoading(true); setResult(null); setError(null)
     try {
       const r = await fetch(`/api/osint/investigate-v2?free_text=${encodeURIComponent(text)}`, { method: 'POST' }).then(r => r.json())
+      if (r?.error) { setError(r.error); return }
       setResult(r)
-    } catch {}
+    } catch { setError("Échec de la requête. Réessayez.") }
     setLoading(false)
   }
 
@@ -251,6 +266,7 @@ function V2Tab() {
           </button>
         </div>
       </div>
+      <OsintError message={error} />
       <OsintResult result={result} />
     </div>
   )
@@ -260,14 +276,16 @@ function PipelineTab() {
   const [text, setText] = useState('')
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const search = async () => {
     if (!text.trim()) return
-    setLoading(true); setResult(null)
+    setLoading(true); setResult(null); setError(null)
     try {
       const r = await fetch(`/api/osint/pipeline?free_text=${encodeURIComponent(text)}`, { method: 'POST' }).then(r => r.json())
+      if (r?.error) { setError(r.error); return }
       setResult(r)
-    } catch {}
+    } catch { setError("Échec de la requête. Réessayez.") }
     setLoading(false)
   }
 
@@ -285,6 +303,7 @@ function PipelineTab() {
           </button>
         </div>
       </div>
+      <OsintError message={error} />
       <OsintResult result={result} />
     </div>
   )
@@ -297,9 +316,10 @@ function ProTab() {
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [activeField, setActiveField] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const search = async (type: string) => {
-    setLoading(true); setResult(null); setActiveField(type)
+    setLoading(true); setResult(null); setError(null); setActiveField(type)
     try {
       let url = ''
       if (type === 'email') url = `/api/osint/pro/email?email=${encodeURIComponent(email)}`
@@ -307,8 +327,9 @@ function ProTab() {
       else if (type === 'domain') url = `/api/osint/pro/domain?domain=${encodeURIComponent(domain)}`
       else if (type === 'report') url = `/api/osint/pro/report?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&domain=${encodeURIComponent(domain)}`
       const r = await fetch(url, { method: 'POST' }).then(r => r.json())
+      if (r?.error) { setError(r.error); return }
       setResult(r)
-    } catch {}
+    } catch { setError("Échec de la requête. Réessayez.") }
     setLoading(false)
   }
 
@@ -349,6 +370,7 @@ function ProTab() {
           <Target size={14} /> Rapport complet
         </button>
       )}
+      <OsintError message={error} />
       <OsintResult result={result} />
     </div>
   )
@@ -359,14 +381,16 @@ function DorksTab() {
   const [location, setLocation] = useState('')
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const search = async () => {
     if (!name.trim()) return
-    setLoading(true); setResult(null)
+    setLoading(true); setResult(null); setError(null)
     try {
       const r = await fetch(`/api/osint/dorks?name=${encodeURIComponent(name)}&location=${encodeURIComponent(location)}&extract=true`, { method: 'POST' }).then(r => r.json())
+      if (r?.error) { setError(r.error); return }
       setResult(r)
-    } catch {}
+    } catch { setError("Échec de la requête. Réessayez.") }
     setLoading(false)
   }
 
@@ -385,6 +409,7 @@ function DorksTab() {
           </button>
         </div>
       </div>
+      <OsintError message={error} />
       {result && (
         <div className="space-y-3">
           {result.top_findings && Object.entries(result.top_findings as Record<string, any[]>).map(([engine, urls]) => (
@@ -413,6 +438,7 @@ function ToolsTab() {
   const [username, setUsername] = useState('')
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [toolsStatus, setToolsStatus] = useState<any>(null)
 
   useState(() => {
@@ -421,11 +447,12 @@ function ToolsTab() {
 
   const runAll = async () => {
     if (!username.trim()) return
-    setLoading(true); setResult(null)
+    setLoading(true); setResult(null); setError(null)
     try {
       const r = await fetch(`/api/osint/run-all?username=${encodeURIComponent(username)}`, { method: 'POST' }).then(r => r.json())
+      if (r?.error) { setError(r.error); return }
       setResult(r)
-    } catch {}
+    } catch { setError("Échec de la requête. Réessayez.") }
     setLoading(false)
   }
 
@@ -438,7 +465,7 @@ function ToolsTab() {
             {Object.entries(toolsStatus as Record<string, any>).map(([k, v]) => (
               <div key={k} className="glass rounded-lg p-2 text-xs flex items-center justify-between">
                 <span className="text-slate-300">{k}</span>
-                <span className={v === 'available' || v === true ? 'text-emerald-400' : 'text-slate-600'}>{String(v)}</span>
+                <span className={v === 'available' || v === true ? 'text-emerald-400' : 'text-slate-500'}>{String(v)}</span>
               </div>
             ))}
           </div>
@@ -458,6 +485,7 @@ function ToolsTab() {
         </div>
       </div>
 
+      <OsintError message={error} />
       <OsintResult result={result} />
     </div>
   )

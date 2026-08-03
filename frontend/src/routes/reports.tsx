@@ -2,7 +2,9 @@ import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useReports } from '../lib/api'
 import AdminGuard from '../components/AdminGuard'
-import { FileText, ExternalLink } from 'lucide-react'
+import EmptyState from '../components/EmptyState'
+import ErrorState from '../components/ErrorState'
+import { FileText, ExternalLink, FolderOpen } from 'lucide-react'
 
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
@@ -11,12 +13,22 @@ export const Route = createRoute({
 })
 
 function ReportsPage() {
-  const { data, isLoading } = useReports()
+  const { data, isLoading, error, refetch } = useReports()
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h2 className="text-lg font-semibold text-white mb-4">Rapports</h2>
-      {isLoading ? <p className="text-slate-500 text-sm">Chargement...</p> : data?.reports ? (
+      <h1 className="text-lg font-semibold text-white mb-4">Rapports</h1>
+      {isLoading ? (
+        <div className="space-y-2" role="status">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-14 bg-white/5 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="glass-card rounded-2xl">
+          <ErrorState compact onRetry={() => refetch()} />
+        </div>
+      ) : data?.reports?.length ? (
         <div className="space-y-2">
           {data.reports.map((r: any, i: number) => (
             <a key={i} href={r.url || '#'} target="_blank" rel="noopener"
@@ -26,12 +38,15 @@ function ReportsPage() {
                 <span className="text-sm text-slate-200">{r.name || r.filename || r.title}</span>
                 {r.date && <span className="text-[10px] text-slate-500 ml-2">{r.date}</span>}
               </div>
-              <ExternalLink size={13} className="text-slate-600" />
+              <ExternalLink size={13} className="text-slate-500" />
             </a>
           ))}
         </div>
       ) : (
-        <p className="text-slate-500 text-sm">Aucun rapport disponible.</p>
+        <div className="glass-card rounded-2xl">
+          <EmptyState icon={FolderOpen} title="Aucun rapport disponible"
+            description="Les rapports seront generes apres les scans et l'enrichissement IA." />
+        </div>
       )}
     </div>
   )

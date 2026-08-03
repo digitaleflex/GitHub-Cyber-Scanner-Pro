@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { isAdminAuthenticated } from '../routes/login'
+import AdminSidebar from './AdminSidebar'
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
@@ -13,5 +14,10 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
   if (!isAdminAuthenticated()) return null
 
-  return <>{children}</>
+  return (
+    <div className="flex gap-6 items-start">
+      <AdminSidebar />
+      <div className="flex-1 min-w-0">{children}</div>
+    </div>
+  )
 }

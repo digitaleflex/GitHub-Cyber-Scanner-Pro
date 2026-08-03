@@ -35,7 +35,7 @@ function ExplorePage() {
   const inputRef = useRef<HTMLInputElement>(null)
   useEffect(() => { const t = setTimeout(() => setDebounced(query), 300); return () => clearTimeout(t) }, [query])
   const sp: SearchParams = { q: debounced, page, per_page: 12, types, sort: 'stars' }
-  const { data: results, isLoading } = useSearch(debounced.length >= 2 ? sp : { ...sp, q: '' })
+  const { data: results, isLoading, error: searchError, refetch: refetchSearch } = useSearch(debounced.length >= 2 ? sp : { ...sp, q: '' })
   const hasResults = debounced.length >= 2 && results && results.results.length > 0
 
   const { data: stats } = useStats()
@@ -136,12 +136,19 @@ function ExplorePage() {
           ))}
         </div>
         {!hasResults && (
-          <button onClick={() => setShowSections(!showSections)} className="text-[10px] text-slate-600 hover:text-slate-400 flex items-center gap-1">
+          <button onClick={() => setShowSections(!showSections)} className="text-[10px] text-slate-500 hover:text-slate-400 flex items-center gap-1">
             <ChevronDown size={12} className={`transition ${showSections ? '' : 'rotate-180'}`} />
             {showSections ? 'Masquer' : 'Afficher'} les sections
           </button>
         )}
       </div>
+
+      {searchError && debounced.length >= 2 && (
+        <div className="glass-card rounded-xl p-4 mb-4 border-rose-500/20 text-center" role="alert">
+          <p className="text-xs text-rose-300 mb-2">La recherche a echoue. Verifiez la connexion au serveur.</p>
+          <button onClick={() => refetchSearch()} className="px-3 py-1.5 glass rounded-lg text-xs text-slate-300 hover:text-white transition">Reessayer</button>
+        </div>
+      )}
 
       {hasResults ? (
         <div className="animate-fade">
@@ -190,7 +197,7 @@ function ResultCard({ result }: { result: SearchResult }) {
       </div>
       <Link to="/tool/$name" params={{ name: result.name }} className="text-xs sm:text-sm font-medium text-slate-200 hover:text-indigo-400 transition line-clamp-1 block mb-1">{result.name}</Link>
       {desc && <p className="text-[10px] text-slate-500 line-clamp-2">{desc}</p>}
-      <div className="flex items-center gap-2 mt-2 text-[9px] text-slate-600">
+      <div className="flex items-center gap-2 mt-2 text-[9px] text-slate-500">
         {result.security_verdict && <span className={`px-1.5 py-0.5 rounded ${vc}`}>{result.security_verdict}</span>}
         {result.lang && <span>{result.lang}</span>}
         <a href={result.url||'#'} target="_blank" rel="noopener" className="flex items-center gap-0.5 hover:text-indigo-400 ml-auto"><ExternalLink size={9} /></a>
@@ -204,12 +211,13 @@ function ResultCard({ result }: { result: SearchResult }) {
 function StatsRow() {
   const { data: s } = useQuery({ queryKey: ['stats-bar'], queryFn: () => fetch('/api/stats').then(r=>r.json()), staleTime: 120_000 })
   if (!s) return null
+  const cveLabel = s.total_cves ? (s.total_cves >= 1000 ? `${Math.round(s.total_cves / 1000)}K` : s.total_cves.toLocaleString()) : '0'
   return (
     <div className="glass-card rounded-2xl p-3 sm:p-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center">
         {[
           { label: 'Outils indexés', value: (s.total_repos||0).toLocaleString(), icon: <Star size={13} className="text-amber-400" /> },
-          { label: 'CVE', value: '356K+', icon: <Shield size={13} className="text-rose-400" /> },
+          { label: 'CVE', value: cveLabel, icon: <Shield size={13} className="text-rose-400" /> },
           { label: 'Modèles IA', value: '22', icon: <Brain size={13} className="text-violet-400" /> },
           { label: 'Blogs', value: '30+', icon: <Newspaper size={13} className="text-emerald-400" /> },
         ].map((x, i) => (
@@ -253,7 +261,7 @@ function ThreatSection() {
           <Link key={i} to="/cve/$id" params={{ id: t.cve_id }} className="flex items-center gap-3 glass-card rounded-xl p-3 group">
             <span className={`shrink-0 w-2 h-2 rounded-full ${t.priority?.label==='CRITIQUE'?'bg-rose-400':t.priority?.label==='ELEVE'?'bg-amber-400':'bg-slate-500'}`} />
             <div className="flex-1 min-w-0"><div className="text-xs font-mono text-indigo-400">{t.cve_id}</div><div className="text-[10px] text-slate-400 line-clamp-1">{t.description?.slice(0,120)}</div></div>
-            <div className="text-right shrink-0"><div className="text-xs font-bold text-white">{t.priority?.score||'?'}</div><div className="text-[9px] text-slate-600">{t.priority?.label||'?'}</div></div>
+            <div className="text-right shrink-0"><div className="text-xs font-bold text-white">{t.priority?.score||'?'}</div><div className="text-[9px] text-slate-500">{t.priority?.label||'?'}</div></div>
           </Link>
         ))}
       </div>
@@ -292,7 +300,7 @@ function OsintSection() {
           )}
           {result.findings?.github_profiles?.slice(0,3).map((p: any, i: number) => (
             <a key={i} href={p.url} target="_blank" rel="noopener" className="block glass-card rounded-lg p-2 text-[11px]">
-              <span className="text-indigo-400">{p.username}</span> {p.name && <span className="text-slate-400">({p.name})</span>} {p.location && <span className="text-slate-600">- {p.location}</span>}
+              <span className="text-indigo-400">{p.username}</span> {p.name && <span className="text-slate-400">({p.name})</span>} {p.location && <span className="text-slate-500">- {p.location}</span>}
             </a>
           ))}
         </div>

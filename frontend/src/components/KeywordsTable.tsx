@@ -42,7 +42,7 @@ export default function KeywordsTable() {
           Mots-clés & Ontologie
         </h2>
         {data && (
-          <span className="text-xs text-gray-600 font-mono">
+          <span className="text-xs text-slate-500 font-mono">
             {keywords.length} mots-clés
           </span>
         )}
@@ -70,7 +70,7 @@ export default function KeywordsTable() {
             className={`text-xs px-3 py-1 rounded-full border transition-colors font-mono ${
               tab === t.key
                 ? 'bg-white/[0.06] text-white border-white/20'
-                : 'text-gray-600 border-white/[0.06] hover:text-gray-400'
+                : 'text-slate-500 border-white/[0.06] hover:text-slate-300'
             }`}
           >
             {t.label}
@@ -87,7 +87,7 @@ export default function KeywordsTable() {
       ) : error ? (
         <p className="text-neon-red text-sm py-4 text-center font-mono">Erreur de chargement</p>
       ) : keywords.length === 0 ? (
-        <p className="text-gray-600 text-sm py-8 text-center font-mono">Aucun mot-clé</p>
+        <p className="text-slate-500 text-sm py-8 text-center font-mono">Aucun mot-clé</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm" role="table">
@@ -121,7 +121,7 @@ export default function KeywordsTable() {
                     {kw.category_guess ? (
                       <span className="text-gray-400 font-mono text-xs">{kw.category_guess}</span>
                     ) : (
-                      <span className="text-gray-700">-</span>
+                      <span className="text-slate-500">-</span>
                     )}
                   </td>
                   {tab === 'pending' && (
@@ -132,7 +132,7 @@ export default function KeywordsTable() {
                           placeholder="Catégorie..."
                           value={categoryInput[kw.term] ?? kw.category_guess ?? ''}
                           onChange={(e) => setCategoryInput(prev => ({ ...prev, [kw.term]: e.target.value }))}
-                          className="w-24 px-2 py-1 bg-white/[0.05] border border-white/[0.1] rounded text-xs text-white placeholder-gray-700 focus:outline-none focus-visible:ring-1 focus-visible:ring-neon-cyan/50 font-mono"
+                          className="w-24 px-2 py-1 bg-white/[0.05] border border-white/[0.1] rounded text-xs text-white placeholder-slate-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-neon-cyan/50 font-mono"
                         />
                         <button
                           onClick={() => handleApprove(kw.term)}

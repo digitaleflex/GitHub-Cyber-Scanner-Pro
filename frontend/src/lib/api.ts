@@ -263,6 +263,7 @@ export function useCves(q?: string, severity?: string, page: number = 1) {
     queryKey: ['cves', q ?? '', severity ?? '', page],
     queryFn: () => fetchJson<ApiCvesResponse>(`/cves?${params}`),
     staleTime: 30_000,
+    retry: 1,
   })
 }
 

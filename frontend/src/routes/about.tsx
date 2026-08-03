@@ -123,7 +123,7 @@ function AboutPage() {
         <Link to="/pricing" className="inline-flex items-center gap-2 px-4 py-2 glass rounded-lg text-xs text-indigo-400 hover:text-white transition">
           Voir les offres
         </Link>
-        <p className="text-[10px] sm:text-xs text-slate-600 mt-4">
+        <p className="text-[10px] sm:text-xs text-slate-500 mt-4">
           100% open source &middot; Auto-hebergeable &middot; Licence MIT &middot; <a href="https://cyberbook.eurin.tech" className="text-indigo-400 hover:text-indigo-300">cyberbook.eurin.tech</a>
         </p>
       </div>

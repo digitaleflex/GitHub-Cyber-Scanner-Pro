@@ -56,7 +56,7 @@ export default function CveTable() {
           Vulnérabilités CVE
         </h2>
         {data && (
-          <span className="text-xs text-gray-600 font-mono">
+          <span className="text-xs text-slate-500 font-mono">
             {data.total} au total
           </span>
         )}
@@ -70,7 +70,7 @@ export default function CveTable() {
             className={`text-xs px-3 py-1 rounded-full border transition-colors font-mono ${
               severity === s.key
                 ? 'bg-white/[0.06] text-white border-white/20'
-                : 'text-gray-600 border-white/[0.06] hover:text-gray-400'
+                : 'text-slate-500 border-white/[0.06] hover:text-slate-300'
             }`}
           >
             {s.label}
@@ -83,7 +83,7 @@ export default function CveTable() {
         placeholder="Rechercher par CVE ID, description, faiblesse..."
         value={search}
         onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-        className="w-full mb-4 px-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 transition-colors font-mono"
+        className="w-full mb-4 px-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 transition-colors font-mono"
         aria-label="Rechercher une CVE"
       />
 
@@ -96,7 +96,7 @@ export default function CveTable() {
       ) : error ? (
         <p className="text-neon-red text-sm py-4 text-center font-mono">Erreur de chargement</p>
       ) : !data || data.cves.length === 0 ? (
-        <p className="text-gray-600 text-sm py-8 text-center font-mono">
+        <p className="text-slate-500 text-sm py-8 text-center font-mono">
           {search || severity ? 'Aucun résultat' : 'Aucune CVE importée'}
         </p>
       ) : (
@@ -146,7 +146,7 @@ export default function CveTable() {
                             </span>
                           ))
                         ) : (
-                          <span className="text-gray-700 text-xs">-</span>
+                          <span className="text-slate-500 text-xs">-</span>
                         )}
                       </div>
                     </td>

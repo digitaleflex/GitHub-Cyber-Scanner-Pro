@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import AdminGuard from '../components/AdminGuard'
-import AdminSidebar from '../components/AdminSidebar'
 import CyberRadar from '../components/CyberRadar'
 import ActivityFeed from '../components/ActivityFeed'
 import { useStats, useScanStatus } from '../lib/api'
@@ -56,7 +55,7 @@ function ActionBtn({ icon, label, endpoint, disabled, variant = 'default', hint 
       className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition border disabled:opacity-30 ${colors[variant]}`}>
       {loading ? <Loader2 size={13} className="animate-spin" /> : <>{icon}</>}
       <span className="flex-1 text-left">{label}</span>
-      {hint && !result && <span className="text-[9px] text-slate-600">{hint}</span>}
+      {hint && !result && <span className="text-[9px] text-slate-500">{hint}</span>}
       {result && <span className="text-[9px] ml-1">{result}</span>}
     </button>
   )
@@ -89,9 +88,7 @@ function AdminDashboard() {
   const isHarvest = harvestStatus?.in_progress || false
 
   return (
-    <div className="flex gap-6 items-start">
-      <AdminSidebar />
-      <div className="flex-1 min-w-0 space-y-4 animate-fade">
+    <div className="flex-1 min-w-0 space-y-4 animate-fade">
 
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -146,7 +143,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center"><Play size={12} className="text-indigo-400" /></span>
               Scanner GitHub
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">Decouverte de nouveaux outils cyber</p>
+            <p className="text-[10px] text-slate-500 mb-3">Decouverte de nouveaux outils cyber</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<Play size={12} />} label="Scan manuel" endpoint="/api/scan" hint="~500 repos" />
               <ActionBtn icon={<Zap size={12} />} label="Bulk Seed" endpoint="/api/bulk-seed" variant="highlight" hint="~1M repos" />
@@ -161,7 +158,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-violet-500/10 flex items-center justify-center"><Brain size={12} className="text-violet-400" /></span>
               Intelligence Artificielle
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">Analyse, classification, decouverte</p>
+            <p className="text-[10px] text-slate-500 mb-3">Analyse, classification, decouverte</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<Brain size={12} />} label="Audit IA (verdict)" endpoint="/api/ai-verdict?limit=30" hint="30 repos" />
               <ActionBtn icon={<TrendingUp size={12} />} label="IA Keywords" endpoint="/api/ai-keywords?limit=25" hint="25 termes" />
@@ -176,7 +173,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center"><Download size={12} className="text-amber-400" /></span>
               Import & Donnees
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">Chargement de donnees externes</p>
+            <p className="text-[10px] text-slate-500 mb-3">Chargement de donnees externes</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<Shield size={12} />} label="Importer CVE (NVD)" endpoint="/api/import-cve" variant="danger" hint="300K vulns" />
               <ActionBtn icon={<Bug size={12} />} label="Importer Exploit-DB" endpoint="/api/dorking/exploitdb" hint="46K exploits" />
@@ -191,7 +188,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center"><GitBranch size={12} className="text-emerald-400" /></span>
               Harvest & OSINT
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">Recolte et enrichissement</p>
+            <p className="text-[10px] text-slate-500 mb-3">Recolte et enrichissement</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<GitBranch size={12} />} label="Harvest Issues/Commits" endpoint="/api/harvest" hint="50 repos" />
               <ActionBtn icon={<Globe size={12} />} label="Scan Reddit" endpoint="/api/social/reddit" hint="Outils" />
@@ -209,7 +206,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center"><ShieldCheck size={12} className="text-indigo-400" /></span>
               Premium Intel
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">VirusTotal + SecurityTrails + Shodan</p>
+            <p className="text-[10px] text-slate-500 mb-3">VirusTotal + SecurityTrails + Shodan</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<ShieldCheck size={12} />} label="Enrich via VirusTotal" endpoint="/api/intel/enrich-all?limit=20" hint="2B+ files" variant="default" />
               <ActionBtn icon={<MapPin size={12} />} label="Enrich via SecurityTrails" endpoint="/api/ingest/run" hint="4B+ DNS" variant="default" />
@@ -221,7 +218,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center"><Activity size={12} className="text-amber-400" /></span>
               Status Premium APIs
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">Verifier les cles API configurees</p>
+            <p className="text-[10px] text-slate-500 mb-3">Verifier les cles API configurees</p>
             <PremiumStatus />
           </div>
         </div>
@@ -233,7 +230,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-cyan-500/10 flex items-center justify-center"><CloudLightning size={12} className="text-cyan-400" /></span>
               Ingestion massive IOC
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">Millions de data points temps reel</p>
+            <p className="text-[10px] text-slate-500 mb-3">Millions de data points temps reel</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<Globe size={12} />} label="URLhaus (3M+ URLs)" endpoint="/api/ingest/urlhaus?limit=5000" hint="Malware" />
               <ActionBtn icon={<Bug size={12} />} label="MalwareBazaar (1.5M)" endpoint="/api/ingest/malwarebazaar?limit=2000" hint="Hashes" />
@@ -246,7 +243,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-rose-500/10 flex items-center justify-center"><CloudLightning size={12} className="text-rose-400" /></span>
               Threat Intel Externe
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">OTX, OpenCVE, FeodoTracker</p>
+            <p className="text-[10px] text-slate-500 mb-3">OTX, OpenCVE, FeodoTracker</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<Globe size={12} />} label="OTX Pulses (20M+)" endpoint="/api/ingest/otx?limit=500" hint="AlienVault" variant="highlight" />
               <ActionBtn icon={<Shield size={12} />} label="OpenCVE (200K+)" endpoint="/api/ingest/opencve?limit=1000" hint="CVEs" />
@@ -261,7 +258,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center"><Globe size={12} className="text-emerald-400" /></span>
               Sources gratuites (illimite)
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">SSLBL, GHSA, OSV, SigmaHQ, YARAify, Ransomware, D3FEND, Packages</p>
+            <p className="text-[10px] text-slate-500 mb-3">SSLBL, GHSA, OSV, SigmaHQ, YARAify, Ransomware, D3FEND, Packages</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<Globe size={12} />} label="Pipeline gratuit complet" endpoint="/api/sources/run" hint="8 sources" variant="success" />
               <ActionBtn icon={<Shield size={12} />} label="GitHub Advisories (GHSA)" endpoint="/api/sources/ghsa" hint="Open Source" />
@@ -276,7 +273,7 @@ function AdminDashboard() {
               <span className="w-6 h-6 rounded-lg bg-violet-500/10 flex items-center justify-center"><Search size={12} className="text-violet-400" /></span>
               Regles de detection
             </h3>
-            <p className="text-[10px] text-slate-600 mb-3">SigmaHQ, YARAify, SSLBL, Packages</p>
+            <p className="text-[10px] text-slate-500 mb-3">SigmaHQ, YARAify, SSLBL, Packages</p>
             <div className="space-y-1.5">
               <ActionBtn icon={<Search size={12} />} label="SigmaHQ Rules" endpoint="/api/sources/sigmahq" hint="SIEM/EDR" />
               <ActionBtn icon={<Bug size={12} />} label="YARAify Rules" endpoint="/api/sources/yaraify" hint="YARA" />
@@ -311,7 +308,6 @@ function AdminDashboard() {
 
         <CyberRadar />
         <ActivityFeed />
-      </div>
     </div>
   )
 }
@@ -323,7 +319,7 @@ function PremiumStatus() {
     staleTime: 300_000,
   })
   if (isLoading) return <div className="h-16 bg-slate-800/50 rounded animate-pulse" />
-  if (!data) return <p className="text-xs text-slate-600">Verification...</p>
+  if (!data) return <p className="text-xs text-slate-500">Verification...</p>
   return (
     <div className="space-y-2">
       {[
@@ -334,10 +330,10 @@ function PremiumStatus() {
         <div key={i} className="flex items-center gap-2 text-xs">
           <span className={`w-2 h-2 rounded-full ${x.ok ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]' : 'bg-slate-600'}`} />
           <span className="text-slate-300">{x.label}</span>
-          <span className="text-slate-600 ml-auto text-[10px]">{x.ok ? 'Configure' : 'Non configure'}</span>
+          <span className="text-slate-500 ml-auto text-[10px]">{x.ok ? 'Configure' : 'Non configure'}</span>
         </div>
       ))}
-      <p className="text-[9px] text-slate-600 mt-2">Configurer via variables d'environnement: VIRUSTOTAL_API_KEY, SECURITYTRAILS_API_KEY, SHODAN_API_KEY</p>
+      <p className="text-[9px] text-slate-500 mt-2">Configurer via variables d'environnement: VIRUSTOTAL_API_KEY, SECURITYTRAILS_API_KEY, SHODAN_API_KEY</p>
     </div>
   )
 }

@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* ── Design tokens ──────────────────────────────────────────────── */
+@theme {
+  --color-neon-cyan: #00f0ff;
+  --color-neon-magenta: #ff00ff;
+  --color-neon-red: #ff0044;
+  --color-neon-amber: #ffbb00;
+  --color-neon-green: #00ff66;
+  --color-neon-blue: #4f8cff;
+  --color-cyber-bg: #020617;
+}
+
 * { box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }  /* v2.3.0 */
@@ -31,6 +42,15 @@ body {
   }
 }
 
+/* ── Neon utilities (used across components) ────────────────────── */
+@keyframes neon-fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes neon-glow-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
 @keyframes pulse-ring {
   0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
   50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
@@ -45,3 +65,41 @@ body {
 .pulse-ring { animation: pulse-ring 2s infinite; }
 
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ── Custom Tailwind v4 utilities with variant support ──────────── */
+@utility neon-border-cyan {
+  border-color: rgba(0, 240, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(0, 240, 255, 0.06);
+}
+@utility neon-glow-cyan {
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.14);
+}
+@utility neon-glow-magenta {
+  box-shadow: 0 0 18px rgba(255, 0, 255, 0.14);
+}
+@utility font-cyber {
+  font-family: 'Orbitron', ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 0.04em;
+}
+@utility animate-fade-in-up {
+  animation: neon-fade-in-up 0.5s ease-out both;
+}
+@utility animate-glow-pulse {
+  animation: neon-glow-pulse 2.5s ease-in-out infinite;
+}
+
+/* ── WCAG: reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Focus visibility (WCAG 2.4.7) ─────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(0, 240, 255, 0.6);
+  outline-offset: 2px;
+}

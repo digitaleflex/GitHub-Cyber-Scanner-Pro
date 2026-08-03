@@ -1,4 +1,6 @@
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import EmptyState from './EmptyState'
+import ErrorState from './ErrorState'
 
 export type DataTableColumn<T> = {
   key: string
@@ -20,6 +22,8 @@ type DataTableProps<T> = {
   sortDir?: 'asc' | 'desc'
   loading?: boolean
   emptyMessage?: string
+  error?: string | null
+  onRetry?: () => void
   exportCSV?: () => void
   exportLabel?: string
 }
@@ -27,7 +31,7 @@ type DataTableProps<T> = {
 const SKELETON_ROWS = 8
 
 export default function DataTable<T extends Record<string, any>>({
-  columns, data, total, page, perPage, onPageChange, onSort, sortKey, sortDir, loading, emptyMessage, exportCSV, exportLabel,
+  columns, data, total, page, perPage, onPageChange, onSort, sortKey, sortDir, loading, emptyMessage, error, onRetry, exportCSV, exportLabel,
 }: DataTableProps<T>) {
   const pages = Math.max(1, Math.ceil(total / perPage))
   const handleSort = (key: string) => {
@@ -45,7 +49,7 @@ export default function DataTable<T extends Record<string, any>>({
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.05]">
         <span className="text-xs text-slate-500">
           {total.toLocaleString()} resultats
-          {total > 0 && <span className="ml-2 text-slate-600">{startItem}-{endItem}</span>}
+          {total > 0 && <span className="ml-2 text-slate-500">{startItem}-{endItem}</span>}
         </span>
         {exportCSV && (
           <button onClick={exportCSV}
@@ -85,10 +89,16 @@ export default function DataTable<T extends Record<string, any>>({
                   ))}
                 </tr>
               ))
+            ) : error ? (
+              <tr>
+                <td colSpan={columns.length} className="px-4">
+                  <ErrorState compact description={error} onRetry={onRetry} />
+                </td>
+              </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-16 text-center">
-                  <p className="text-slate-600 text-sm">{emptyMessage || 'Aucune donnee'}</p>
+                <td colSpan={columns.length} className="px-4">
+                  <EmptyState compact title={emptyMessage || 'Aucune donnee'} />
                 </td>
               </tr>
             ) : (
@@ -109,7 +119,7 @@ export default function DataTable<T extends Record<string, any>>({
       {/* Pagination */}
       {pages > 1 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.05]">
-          <span className="text-[10px] text-slate-600">Page {page} sur {pages}</span>
+          <span className="text-[10px] text-slate-500">Page {page} sur {pages}</span>
           <div className="flex items-center gap-1">
             <button onClick={() => onPageChange(1)} disabled={page === 1}
               className="glass p-1.5 rounded-lg text-slate-500 hover:text-white disabled:opacity-20 transition">

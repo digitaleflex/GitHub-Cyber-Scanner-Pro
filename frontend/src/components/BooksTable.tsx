@@ -89,7 +89,7 @@ export default function BooksTable() {
           Livres & Ressources
         </h2>
         {books && (
-          <span className="text-xs text-gray-600 font-mono">
+          <span className="text-xs text-slate-500 font-mono">
             {filtered.length}/{books.length}
           </span>
         )}
@@ -103,7 +103,7 @@ export default function BooksTable() {
             className={`text-xs px-3 py-1 rounded-full border transition-colors font-mono ${
               category === cat.key
                 ? 'bg-white/[0.06] text-white border-white/20'
-                : 'text-gray-600 border-white/[0.06] hover:text-gray-400'
+                : 'text-slate-500 border-white/[0.06] hover:text-slate-300'
             }`}
           >
             {cat.label}
@@ -116,7 +116,7 @@ export default function BooksTable() {
         placeholder="Rechercher par titre, catégorie, dépôt..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full mb-4 px-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 transition-colors font-mono"
+        className="w-full mb-4 px-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 transition-colors font-mono"
         aria-label="Rechercher une ressource"
       />
 
@@ -129,7 +129,7 @@ export default function BooksTable() {
       ) : error ? (
         <p className="text-neon-red text-sm py-4 text-center font-mono">Erreur de chargement</p>
       ) : filtered.length === 0 ? (
-        <p className="text-gray-600 text-sm py-8 text-center font-mono">
+        <p className="text-slate-500 text-sm py-8 text-center font-mono">
           {search || category ? 'Aucun résultat' : 'Aucune donnée disponible'}
         </p>
       ) : (

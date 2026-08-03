@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useCves, useStats, type CveEntry } from '../lib/api'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import AdminGuard from '../components/AdminGuard'
 import DataTable, { type DataTableColumn } from '../components/DataTable'
 import Chip from '../components/Chip'
@@ -20,8 +20,9 @@ function CvesPage() {
   const [page, setPage] = useState(1)
   const [sortKey, setSortKey] = useState('')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  const { data, isLoading } = useCves(q, severity, page)
+  const { data, isLoading, error } = useCves(q, severity, page)
   const { data: stats } = useStats()
+  const queryClient = useQueryClient()
 
   const { data: cveStats } = useQuery({
     queryKey: ['cve-stats'],
@@ -64,13 +65,13 @@ function CvesPage() {
         <span className={`font-mono font-bold ${cve.cvss_score >= 9 ? 'text-rose-400' : cve.cvss_score >= 7 ? 'text-amber-400' : 'text-slate-400'}`}>
           {cve.cvss_score.toFixed(1)}
         </span>
-      ) : <span className="text-slate-600">-</span>,
+      ) : <span className="text-slate-500">-</span>,
     },
     {
       key: 'published', label: 'Publiee', sortable: true,
       render: (cve) => cve.published ? (
         <span className="text-slate-500">{new Date(cve.published).toLocaleDateString('fr-FR')}</span>
-      ) : <span className="text-slate-600">-</span>,
+      ) : <span className="text-slate-500">-</span>,
     },
     {
       key: 'description', label: 'Description',
@@ -82,7 +83,7 @@ function CvesPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white">Base CVE</h2>
+        <h1 className="text-lg font-semibold text-white">Base CVE</h1>
         <a href="/api/stix/download?what=cves&limit=100"
           className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-[10px] text-indigo-400 hover:text-white transition">
           <Download size={11} /> STIX 2.1
@@ -140,6 +141,8 @@ function CvesPage() {
         sortDir={sortDir}
         loading={isLoading}
         emptyMessage="Aucune CVE trouvee"
+        error={error ? String(error instanceof Error ? error.message : error) : null}
+        onRetry={() => queryClient.invalidateQueries({ queryKey: ['cves'] })}
       />
     </div>
   )

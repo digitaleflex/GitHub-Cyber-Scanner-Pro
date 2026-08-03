@@ -131,7 +131,7 @@ function PricingPage() {
       </div>
 
       <div className="text-center mt-6">
-        <p className="text-xs text-slate-600">
+        <p className="text-xs text-slate-500">
           Prix en euros HT. Facturation annuelle : -20%.{' '}
           <Link to="/about" className="text-indigo-400 hover:text-indigo-300">En savoir plus sur notre mission</Link>
         </p>

@@ -55,7 +55,7 @@ export default function FicheFlashModal({ repo, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="shrink-0 ml-4 p-1.5 rounded-lg text-gray-600 hover:text-neon-cyan hover:bg-white/[0.05] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50"
+            className="shrink-0 ml-4 p-1.5 rounded-lg text-slate-500 hover:text-neon-cyan hover:bg-white/[0.05] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50"
             aria-label="Fermer"
           >
             <X size={20} />
@@ -84,7 +84,7 @@ export default function FicheFlashModal({ repo, onClose }: Props) {
             <span className={`text-2xl font-bold font-mono ${vitalityColor}`}>
               {repo.vitality_score ?? '—'}
             </span>
-            <span className="text-gray-600 text-xs font-mono ml-1">/100</span>
+            <span className="text-slate-500 text-xs font-mono ml-1">/100</span>
           </div>
 
           {/* Language */}
@@ -111,7 +111,7 @@ export default function FicheFlashModal({ repo, onClose }: Props) {
         </div>
 
         {/* Details row */}
-        <div className="px-6 pb-4 flex flex-wrap gap-4 text-xs font-mono text-gray-600">
+        <div className="px-6 pb-4 flex flex-wrap gap-4 text-xs font-mono text-slate-500">
           <div className="flex items-center gap-1.5">
             <Calendar size={12} />
             Mis à jour : {formatDate(repo.updated)}

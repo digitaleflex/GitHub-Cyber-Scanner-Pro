@@ -183,13 +183,13 @@ export default function GraphView() {
           Social Graph
         </h2>
         {data && (
-          <span className="text-xs text-slate-600">
+          <span className="text-xs text-slate-500">
             {data.nodes.length} noeuds · {data.links.length} relations
           </span>
         )}
         <div className="flex-1" />
         <div className="relative">
-          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600" />
+          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
@@ -197,7 +197,7 @@ export default function GraphView() {
             className="pl-7 pr-3 py-1.5 glass rounded-lg text-xs text-white placeholder-slate-600 w-40 focus:ring-1 focus:ring-indigo-500/40"
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white"><X size={10} /></button>
+            <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"><X size={10} /></button>
           )}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -208,7 +208,7 @@ export default function GraphView() {
               className={`text-xs px-3 py-1 rounded-full border transition-colors  ${
                 labelFilter === l
                   ? 'bg-slate-800 text-white border-slate-600'
-                  : 'text-slate-600 border-slate-700 hover:text-slate-400'
+                  : 'text-slate-500 border-slate-700 hover:text-slate-400'
               }`}
             >
               {l || 'Tout'}
@@ -228,11 +228,11 @@ export default function GraphView() {
         <div className="h-96 bg-slate-800/50 rounded animate-pulse" />
       ) : !data?.available ? (
         <div className="h-96 flex items-center justify-center">
-          <p className="text-slate-600 text-sm ">Neo4j non disponible</p>
+          <p className="text-slate-500 text-sm ">Neo4j non disponible</p>
         </div>
       ) : simNodes.length === 0 ? (
         <div className="h-96 flex items-center justify-center">
-          <p className="text-slate-600 text-sm ">Aucune donnée dans le graphe</p>
+          <p className="text-slate-500 text-sm ">Aucune donnée dans le graphe</p>
         </div>
       ) : (
         <div className="relative">
@@ -313,7 +313,7 @@ export default function GraphView() {
                   Voir sur GitHub
                 </a>
               )}
-              <button onClick={() => setSelected(null)} className="mt-2 text-slate-600 hover:text-white transition-colors text-[10px]">
+              <button onClick={() => setSelected(null)} className="mt-2 text-slate-500 hover:text-white transition-colors text-[10px]">
                 Fermer
               </button>
             </div>

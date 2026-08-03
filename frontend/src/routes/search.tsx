@@ -3,6 +3,8 @@ import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useSearch, type SearchResultType, type SearchParams } from '../lib/api'
 import { Search, Star, Shield, BookOpen, Hash, ExternalLink, SlidersHorizontal, Brain, TrendingUp } from 'lucide-react'
+import EmptyState from '../components/EmptyState'
+import ErrorState from '../components/ErrorState'
 
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/search', component: SearchPage })
 
@@ -34,7 +36,7 @@ function SearchPage() {
   useEffect(() => { const t = setTimeout(() => setDebounced(query), 300); return () => clearTimeout(t) }, [query])
 
   const sp: SearchParams = { q: debounced, page, per_page: 20, types, severity: severity || undefined, security_verdict: verdict || undefined, sort }
-  const { data: results } = useSearch(mode === 'classic' && debounced.length >= 2 ? sp : { ...sp, q: '' })
+  const { data: results, error: classicError, refetch: refetchClassic } = useSearch(mode === 'classic' && debounced.length >= 2 ? sp : { ...sp, q: '' })
   const hasFilters = !!(severity || verdict)
 
   // AI/Semantic search
@@ -50,7 +52,7 @@ function SearchPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8 animate-fade">
-      <h2 className="text-lg font-semibold text-white mb-4">Recherche avancée</h2>
+      <h1 className="text-lg font-semibold text-white mb-4">Recherche avancee</h1>
 
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">
@@ -97,7 +99,15 @@ function SearchPage() {
 
       {debounced.length >= 2 ? (
         mode === 'classic' ? (
-          results ? (
+          classicError ? (
+            <div className="glass-card rounded-2xl">
+              <ErrorState title="Erreur de recherche" onRetry={() => refetchClassic()} />
+            </div>
+          ) : results && results.results.length === 0 ? (
+            <div className="glass-card rounded-2xl">
+              <EmptyState title="Aucun resultat" description={`Aucun element ne correspond a "${debounced}". Essayez d'autres termes ou types.`} />
+            </div>
+          ) : results ? (
             <div>
               <p className="text-xs text-slate-500 mb-3">{results.total} resultats</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -109,7 +119,7 @@ function SearchPage() {
                     </div>
                     <Link to="/tool/$name" params={{ name: r.name }} className="text-xs font-medium text-slate-200 hover:text-indigo-400 transition block truncate">{r.name}</Link>
                     {r.desc && <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5">{r.desc.slice(0,120)}</p>}
-                    <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-600">
+                    <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-500">
                       {r.lang && <span>{r.lang}</span>}
                       <a href={r.url||'#'} target="_blank" rel="noopener" className="hover:text-indigo-400 ml-auto"><ExternalLink size={9} /></a>
                     </div>
@@ -150,7 +160,7 @@ function SearchPage() {
                       </div>
                       <Link to="/tool/$name" params={{ name: r.name }} className="text-xs font-medium text-slate-200 hover:text-indigo-400 transition block truncate">{r.name}</Link>
                       {r.desc && <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5">{r.desc.slice(0,120)}</p>}
-                      <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-600">
+                      <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-500">
                         {r.lang && <span>{r.lang}</span>}
                         <a href={r.url||'#'} target="_blank" rel="noopener" className="hover:text-indigo-400 ml-auto"><ExternalLink size={9} /></a>
                       </div>
@@ -163,9 +173,9 @@ function SearchPage() {
         )
       ) : (
         <div className="text-center py-16 glass-card rounded-2xl">
-          <Search size={32} className="mx-auto text-slate-600 mb-3" />
-          <p className="text-slate-500 text-sm">Tapez au moins 2 caractères pour chercher</p>
-          <p className="text-slate-700 text-xs mt-1">
+          <Search size={32} className="mx-auto text-slate-500 mb-3" />
+          <p className="text-slate-400 text-sm">Tapez au moins 2 caracteres pour chercher</p>
+          <p className="text-slate-500 text-xs mt-1">
             {mode === 'ai' ? 'Recherche IA avec re-ranking Groq (Llama 3.3)' :
              mode === 'semantic' ? 'Recherche sémantique par similarité cosine' :
              'Recherche classique multi-source'}

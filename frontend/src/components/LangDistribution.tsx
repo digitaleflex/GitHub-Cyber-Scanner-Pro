@@ -9,7 +9,7 @@ const COLORS = [
 ]
 
 export default function LangDistribution() {
-  const { data, isLoading } = useStats()
+  const { data, isLoading, error } = useStats()
 
   if (isLoading) {
     return (
@@ -24,6 +24,17 @@ export default function LangDistribution() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5 neon-border-cyan">
+        <h2 className="text-neon-cyan text-sm font-semibold uppercase tracking-wider mb-4 font-cyber">
+          Langages
+        </h2>
+        <p className="text-neon-red text-sm py-4 text-center font-mono" role="alert">Erreur de chargement</p>
+      </div>
+    )
+  }
+
   const dist = data?.lang_distribution ?? {}
   const entries = Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 8)
 
@@ -33,7 +44,7 @@ export default function LangDistribution() {
         <h2 className="text-neon-cyan text-sm font-semibold uppercase tracking-wider mb-4 font-cyber">
           Langages
         </h2>
-        <p className="text-gray-600 text-sm py-4 text-center font-mono">Aucune donnée</p>
+        <p className="text-slate-500 text-sm py-4 text-center font-mono">Aucune donnée</p>
       </div>
     )
   }

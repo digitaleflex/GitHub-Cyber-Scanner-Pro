@@ -54,17 +54,17 @@ export default function ActivityFeed() {
             <div key={item.name} className="flex items-center gap-3 py-1.5 text-xs group">
               <Icon size={12} className="text-slate-500 group-hover:text-indigo-400 transition-colors shrink-0" />
               <span className="text-slate-500 group-hover:text-slate-300 transition-colors">{label}</span>
-              <span className="text-slate-700 text-[10px] ml-auto uppercase tracking-wider">{item.type === 'dashboard' ? 'Dashboard' : 'Rapport'}</span>
+              <span className="text-slate-500 text-[10px] ml-auto uppercase tracking-wider">{item.type === 'dashboard' ? 'Dashboard' : 'Rapport'}</span>
             </div>
           )
         })}
       </div>
 
       {allItems.length === 0 && (
-        <p className="text-slate-600 text-xs py-4 text-center">Aucune activite recente</p>
+        <p className="text-slate-500 text-xs py-4 text-center">Aucune activite recente</p>
       )}
 
-      <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center gap-2 text-[10px] text-slate-700">
+      <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center gap-2 text-[10px] text-slate-500">
         <span className="w-1 h-1 rounded-full bg-indigo-400/40" />
         <span className="tracking-wider">SYSTEM READY</span>
         <span className="w-1 h-1 rounded-full bg-indigo-400/40 animate-pulse" />

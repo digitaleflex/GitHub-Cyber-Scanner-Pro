@@ -12,7 +12,7 @@ export const Route = createRoute({
 function GraphPage() {
   return (
     <div className="max-w-6xl mx-auto">
-      <h2 className="text-lg font-semibold text-white mb-1">Knowledge Graph Neo4j</h2>
+      <h1 className="text-lg font-semibold text-white mb-1">Knowledge Graph Neo4j</h1>
       <p className="text-xs text-slate-500 mb-4">Relations entre Hackers, APT Campaigns, Outils, CVEs et Repos GitHub.</p>
       <GraphView />
     </div>

@@ -17,7 +17,7 @@ function ThreatMeter({ score, kev }: { score?: number | null; kev?: boolean }) {
   const r = 28; const circ = 2 * Math.PI * r
   return (
     <div className="glass-card rounded-2xl p-4 sm:p-5">
-      <p className="text-[9px] uppercase tracking-widest text-slate-600 mb-2">Niveau de menace</p>
+      <p className="text-[9px] uppercase tracking-widest text-slate-500 mb-2">Niveau de menace</p>
       <div className="flex items-center gap-3">
         <div className="relative w-16 h-16 shrink-0">
           <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
@@ -53,7 +53,7 @@ function CveDetail() {
   if (isLoading) return <div className="text-center py-16 text-slate-500">Chargement...</div>
   if (!cve || cve.error) return (
     <div className="text-center py-16">
-      <Shield size={32} className="mx-auto text-slate-600 mb-3" />
+      <Shield size={32} className="mx-auto text-slate-500 mb-3" />
       <p className="text-slate-400">{cve?.error || 'CVE introuvable'}</p>
       <Link to="/" className="text-indigo-400 text-xs mt-2 inline-block">← Retour</Link>
     </div>
@@ -82,7 +82,7 @@ function CveDetail() {
               {cve.published && <span className="glass px-2 py-1 rounded-lg text-[10px] sm:text-xs text-slate-500 flex items-center gap-1"><Clock size={10} /> {new Date(cve.published).toLocaleDateString('fr-FR')}</span>}
             </div>
 
-            {cve.weaknesses && <div className="glass rounded-xl p-3 text-xs text-slate-500"><span className="text-slate-600">Faiblesses :</span> {String(cve.weaknesses).slice(0, 300)}</div>}
+            {cve.weaknesses && <div className="glass rounded-xl p-3 text-xs text-slate-500"><span className="text-slate-500">Faiblesses :</span> {String(cve.weaknesses).slice(0, 300)}</div>}
           </div>
 
           {/* Analyse IA */}
@@ -141,7 +141,7 @@ function CveDetail() {
                       <span className="text-xs text-amber-400 font-medium shrink-0 mt-0.5">#{e.id}</span>
                       <div className="min-w-0">
                         <div className="text-xs text-slate-200">{e.description}</div>
-                        <div className="flex items-center gap-2 mt-1 text-[9px] sm:text-[10px] text-slate-600">
+                        <div className="flex items-center gap-2 mt-1 text-[9px] sm:text-[10px] text-slate-500">
                           {e.platform && <span>{e.platform}</span>}
                           {e.type && <span>{e.type}</span>}
                           {e.author && <span>{e.author}</span>}
@@ -149,7 +149,7 @@ function CveDetail() {
                         </div>
                       </div>
                       <a href={e.file ? `https://www.exploit-db.com/exploits/${e.id}` : '#'} target="_blank" rel="noopener"
-                        className="shrink-0 text-slate-600 hover:text-indigo-400"><ExternalLink size={12} /></a>
+                        className="shrink-0 text-slate-500 hover:text-indigo-400"><ExternalLink size={12} /></a>
                     </div>
                   </div>
                 ))}
@@ -169,7 +169,7 @@ function CveDetail() {
                     className="glass-card rounded-xl p-3 block group">
                     <div className="text-xs font-medium text-slate-200 group-hover:text-indigo-400 truncate">{t.name}</div>
                     {t.desc && <div className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{t.desc}</div>}
-                    <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-600">
+                    <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-500">
                       {t.stars && <span className="flex items-center gap-0.5"><Star size={9} className="text-amber-500" /> {t.stars}</span>}
                       <span className="text-indigo-500">{t.match_type}</span>
                     </div>
@@ -185,7 +185,7 @@ function CveDetail() {
           <ThreatMeter score={cve.cvss_score} kev={cve.is_kev} />
 
           <div className="glass-card rounded-2xl p-4 sm:p-5">
-            <p className="text-[9px] uppercase tracking-widest text-slate-600 mb-3">Stats</p>
+            <p className="text-[9px] uppercase tracking-widest text-slate-500 mb-3">Stats</p>
             <div className="space-y-2 text-xs sm:text-sm">
               <div className="flex justify-between"><span className="text-slate-500">Score CVSS</span><span className="text-white font-medium">{cve.cvss_score || '?'}</span></div>
               <div className="flex justify-between"><span className="text-slate-500">Severite</span><span className="text-white">{cve.severity || '?'}</span></div>

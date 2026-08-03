@@ -9,7 +9,7 @@ const SECURITY_COLORS: Record<string, string> = {
 }
 
 function SecurityBadge({ verdict }: { verdict: string | null }) {
-  if (!verdict) return <span className="text-gray-700 text-xs font-mono">—</span>
+  if (!verdict) return <span className="text-slate-500 text-xs font-mono">—</span>
   const cls = SECURITY_COLORS[verdict] ?? 'bg-gray-500/20 text-gray-400 border-gray-500/30'
   return (
     <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium border font-mono ${cls}`}>
@@ -19,7 +19,7 @@ function SecurityBadge({ verdict }: { verdict: string | null }) {
 }
 
 function VitalityBadge({ score }: { score: number | null }) {
-  if (score == null || score === 0) return <span className="text-gray-700 text-xs font-mono">—</span>
+  if (score == null || score === 0) return <span className="text-slate-500 text-xs font-mono">—</span>
   const color = score >= 70
     ? 'bg-neon-green/15 text-neon-green border-neon-green/30'
     : score >= 40
@@ -111,7 +111,7 @@ export default function ReposTable() {
                   className={`text-xs px-2.5 py-1 rounded-lg border transition-colors font-mono ${
                     verdictFilter === opt.key
                       ? `${opt.cls} bg-white/[0.06]`
-                      : 'text-gray-600 border-white/[0.06] hover:text-gray-400'
+                      : 'text-slate-500 border-white/[0.06] hover:text-slate-300'
                   }`}
                 >
                   {opt.label}
@@ -128,7 +128,7 @@ export default function ReposTable() {
           placeholder="Rechercher par nom, description, langage..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] px-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 transition-colors font-mono"
+          className="flex-1 min-w-[200px] px-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 transition-colors font-mono"
           aria-label="Rechercher un outil"
         />
 
@@ -177,7 +177,7 @@ export default function ReposTable() {
       ) : error ? (
         <p className="text-neon-red text-sm py-4 text-center font-mono" role="alert">Erreur de chargement</p>
       ) : repos.length === 0 ? (
-        <p className="text-gray-600 text-sm py-8 text-center font-mono">
+        <p className="text-slate-500 text-sm py-8 text-center font-mono">
           {debouncedSearch ? 'Aucun résultat' : 'Aucune donnée disponible'}
         </p>
       ) : (
@@ -225,7 +225,7 @@ export default function ReposTable() {
                   <td className="py-2.5 px-2 text-gray-500 truncate max-w-xs max-md:hidden font-mono text-xs">
                     {repo.desc}
                   </td>
-                  <td className="py-2.5 px-2 text-right text-gray-600 text-xs max-sm:hidden font-mono">
+                  <td className="py-2.5 px-2 text-right text-slate-500 text-xs max-sm:hidden font-mono">
                     {repo.updated?.slice(0, 10)}
                   </td>
                 </tr>
@@ -277,11 +277,11 @@ export default function ReposTable() {
       )}
 
       {data && (
-        <p className="text-gray-700 text-xs mt-4 text-center font-mono" role="status">
+        <p className="text-slate-500 text-xs mt-4 text-center font-mono" role="status">
           <span className="text-neon-cyan/60">{data.total}</span> outil{data.total !== 1 ? 's' : ''} trouvé{data.total !== 1 ? 's' : ''}
-          {debouncedSearch ? <span className="text-gray-600"> pour "<span className="text-neon-cyan/40">{debouncedSearch}</span>"</span> : ''}
-          <span className="text-gray-700"> · Page {data.page}/{data.pages}</span>
-          <span className="text-gray-700"> · Tri: <span className="text-neon-cyan/40">{sortBy}</span></span>
+          {debouncedSearch ? <span className="text-slate-500"> pour "<span className="text-neon-cyan/40">{debouncedSearch}</span>"</span> : ''}
+          <span className="text-slate-500"> · Page {data.page}/{data.pages}</span>
+          <span className="text-slate-500"> · Tri: <span className="text-neon-cyan/40">{sortBy}</span></span>
         </p>
       )}
 

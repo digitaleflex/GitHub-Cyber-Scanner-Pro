@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Star, ExternalLink, Zap, TrendingUp, Target, ShieldCheck, Bug, Globe, Wifi, Search, X, LayoutGrid, List } from 'lucide-react'
 import DataTable, { type DataTableColumn } from '../components/DataTable'
 import Chip from '../components/Chip'
@@ -28,20 +28,26 @@ function ToolsPage() {
   const [sortDir, setSortDir] = useState<'asc'|'desc'>('desc')
   const [view, setView] = useState<'table'|'grid'>('table')
   const [drawer, setDrawer] = useState<ToolRow | null>(null)
+  const qc = useQueryClient()
 
-  const { data: featured, isLoading: fl } = useQuery({
-    queryKey: ['featured-tools'], queryFn: () => fetch('/api/tools/featured').then(r => r.json()), staleTime: 120_000
+  const { data: featured, isLoading: fl, error: featErr } = useQuery({
+    queryKey: ['featured-tools'], queryFn: async () => { const r = await fetch('/api/tools/featured'); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() }, staleTime: 120_000
   })
-  const { data: ready, isLoading: rl } = useQuery({
-    queryKey: ['ready-tools'], queryFn: () => fetch('/api/tools/readytouse').then(r => r.json()), staleTime: 120_000, enabled: tab === 'ready'
+  const { data: ready, isLoading: rl, error: readyErr } = useQuery({
+    queryKey: ['ready-tools'], queryFn: async () => { const r = await fetch('/api/tools/readytouse'); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() }, staleTime: 120_000, enabled: tab === 'ready'
   })
-  const { data: byCat, isLoading: cl } = useQuery({
-    queryKey: ['tools-cat', category], queryFn: () => fetch(`/api/tools/by-category?category=${category}&limit=200`).then(r => r.json()), staleTime: 60_000, enabled: tab === 'category'
+  const { data: byCat, isLoading: cl, error: catErr } = useQuery({
+    queryKey: ['tools-cat', category], queryFn: async () => { const r = await fetch(`/api/tools/by-category?category=${category}&limit=200`); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() }, staleTime: 60_000, enabled: tab === 'category'
   })
 
   const raw = tab === 'featured' ? featured?.tools : tab === 'ready' ? ready?.tools : byCat?.tools
   const total = raw?.length || 0
   const loading = tab === 'featured' ? fl : tab === 'ready' ? rl : cl
+  const error = tab === 'featured' ? featErr : tab === 'ready' ? readyErr : catErr
+  const retry = () => {
+    const key = tab === 'featured' ? ['featured-tools'] : tab === 'ready' ? ['ready-tools'] : ['tools-cat', category]
+    qc.invalidateQueries({ queryKey: key })
+  }
 
   const perPage = tab === 'category' ? 30 : 20
   const sorted = [...(raw || [])].sort((a: ToolRow, b: ToolRow) => {
@@ -67,7 +73,7 @@ function ToolsPage() {
     },
     {
       key: 'security_verdict', label: 'Verdict', sortable: true,
-      render: (t) => t.security_verdict ? <Chip variant="verdict" value={t.security_verdict} /> : <span className="text-slate-600 text-[10px]">-</span>,
+      render: (t) => t.security_verdict ? <Chip variant="verdict" value={t.security_verdict} /> : <span className="text-slate-500 text-[10px]">-</span>,
     },
     {
       key: 'vitality_score', label: 'Vitalite', sortable: true,
@@ -75,7 +81,7 @@ function ToolsPage() {
         <span className={`font-mono text-[10px] ${t.vitality_score >= 70 ? 'text-emerald-400' : t.vitality_score >= 40 ? 'text-amber-400' : 'text-slate-500'}`}>
           {t.vitality_score}/100
         </span>
-      ) : <span className="text-slate-600">-</span>,
+      ) : <span className="text-slate-500">-</span>,
     },
     {
       key: 'lang', label: 'Langage', sortable: true,
@@ -92,8 +98,8 @@ function ToolsPage() {
         <button onClick={() => { setTab('ready'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'ready' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'glass text-slate-400 hover:text-white'}`}><Zap size={13} /> Prets a l'emploi</button>
         <button onClick={() => { setTab('category'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'category' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'glass text-slate-400 hover:text-white'}`}><Search size={13} /> Par categorie</button>
         <div className="ml-auto flex gap-1">
-          <button onClick={() => setView('table')} className={`p-2 rounded-lg text-xs ${view === 'table' ? 'glass text-white' : 'text-slate-600 hover:text-white'}`}><List size={13} /></button>
-          <button onClick={() => setView('grid')} className={`p-2 rounded-lg text-xs ${view === 'grid' ? 'glass text-white' : 'text-slate-600 hover:text-white'}`}><LayoutGrid size={13} /></button>
+          <button onClick={() => setView('table')} className={`p-2 rounded-lg text-xs ${view === 'table' ? 'glass text-white' : 'text-slate-500 hover:text-white'}`}><List size={13} /></button>
+          <button onClick={() => setView('grid')} className={`p-2 rounded-lg text-xs ${view === 'grid' ? 'glass text-white' : 'text-slate-500 hover:text-white'}`}><LayoutGrid size={13} /></button>
         </div>
       </div>
 
@@ -122,6 +128,8 @@ function ToolsPage() {
           sortDir={sortDir}
           loading={loading}
           emptyMessage="Aucun outil trouve"
+          error={error ? String(error instanceof Error ? error.message : error) : null}
+          onRetry={retry}
           exportCSV={tab === 'category' ? () => {
             const csv = ['Nom,Stars,Verdict,Vitalite,Langage,URL'].concat(sorted.map(t => `"${t.name}",${t.stars},${t.security_verdict || ''},${t.vitality_score || ''},${t.lang || ''},${t.url}`)).join('\n')
             const blob = new Blob([csv], { type: 'text/csv' })
@@ -143,7 +151,7 @@ function ToolsPage() {
                   <span className="flex items-center gap-0.5 text-[10px] sm:text-xs text-amber-400 shrink-0"><Star size={10} />{t.stars?.toLocaleString()}</span>
                 </div>
                 {t.desc && <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed line-clamp-2 mb-2">{t.desc}</p>}
-                <div className="flex items-center gap-2 text-[9px] sm:text-[10px] text-slate-600">
+                <div className="flex items-center gap-2 text-[9px] sm:text-[10px] text-slate-500">
                   {t.security_verdict && <Chip variant="verdict" value={t.security_verdict} />}
                   {t.lang && <span>{t.lang}</span>}
                 </div>

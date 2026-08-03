@@ -51,7 +51,7 @@ function RepoRow({ repo, rank, onSelect }: { repo: Repo; rank: number; onSelect:
             )}
             <VitalityBadge score={repo.vitality_score ?? null} />
           </div>
-          <p className="text-gray-600 text-xs truncate mt-0.5 font-mono">{repo.desc}</p>
+          <p className="text-slate-500 text-xs truncate mt-0.5 font-mono">{repo.desc}</p>
         </div>
       </div>
       <span className="text-neon-amber text-sm font-semibold shrink-0 ml-4 font-mono">
@@ -97,7 +97,7 @@ export default function TopRepos() {
         Top 5
       </h2>
       {top5.length === 0 ? (
-        <p className="text-gray-600 text-sm py-4 text-center font-mono">Aucune donnée</p>
+        <p className="text-slate-500 text-sm py-4 text-center font-mono">Aucune donnée</p>
       ) : (
         top5.map((repo, i) => (
           <div key={repo.name} className="animate-fade-in-up" style={{ animationDelay: `${i * 60}ms` }}>

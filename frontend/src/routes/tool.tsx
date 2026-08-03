@@ -17,7 +17,7 @@ function TrustMeter({ score }: { score: number }) {
   const r = 28; const circ = 2 * Math.PI * r
   return (
     <div className="glass-card rounded-2xl p-4 sm:p-5">
-      <p className="text-[9px] uppercase tracking-widest text-slate-600 mb-2">Score de confiance</p>
+      <p className="text-[9px] uppercase tracking-widest text-slate-500 mb-2">Score de confiance</p>
       <div className="flex items-center gap-3">
         <div className="relative w-16 h-16 shrink-0">
           <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
@@ -47,7 +47,7 @@ function ToolDetail() {
   if (isLoading) return <div className="text-center py-16 text-slate-500">Chargement...</div>
   if (!tool || tool.error) return (
     <div className="text-center py-16">
-      <Shield size={32} className="mx-auto text-slate-600 mb-3" />
+      <Shield size={32} className="mx-auto text-slate-500 mb-3" />
       <p className="text-slate-400">Outil introuvable</p>
       <Link to="/" className="text-indigo-400 text-xs mt-2 inline-block">← Retour</Link>
     </div>
@@ -86,7 +86,7 @@ function ToolDetail() {
 
             {tool.security_details && (
               <div className="glass rounded-xl p-3 text-xs text-slate-400">
-                <span className="text-slate-600">Analyse IA :</span> {tool.security_details}
+                <span className="text-slate-500">Analyse IA :</span> {tool.security_details}
               </div>
             )}
           </div>
@@ -102,8 +102,8 @@ function ToolDetail() {
                   <Link key={i} to="/tool/$name" params={{ name: s.name }}
                     className="glass-card rounded-xl p-3 block group">
                     <div className="text-xs font-medium text-slate-200 group-hover:text-indigo-400 transition truncate">{s.name}</div>
-                    <div className="text-[10px] text-slate-600 mt-0.5 truncate">{s.desc?.slice(0, 80)}</div>
-                    <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-600">
+                    <div className="text-[10px] text-slate-500 mt-0.5 truncate">{s.desc?.slice(0, 80)}</div>
+                    <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-500">
                       {s.stars && <span>★ {s.stars.toLocaleString()}</span>}
                       <span>sim {(s.similarity * 100).toFixed(0)}%</span>
                     </div>
@@ -119,7 +119,7 @@ function ToolDetail() {
           {tool.trust_score != null && <TrustMeter score={tool.trust_score} />}
 
           <div className="glass-card rounded-2xl p-4 sm:p-5">
-            <p className="text-[9px] uppercase tracking-widest text-slate-600 mb-3">Statistiques</p>
+            <p className="text-[9px] uppercase tracking-widest text-slate-500 mb-3">Statistiques</p>
             <div className="space-y-2 text-xs sm:text-sm">
               <div className="flex justify-between"><span className="text-slate-500">Stars</span><span className="text-white font-medium">{tool.stars?.toLocaleString() || '0'}</span></div>
               <div className="flex justify-between"><span className="text-slate-500">Langage</span><span className="text-white">{tool.language || '?'}</span></div>
