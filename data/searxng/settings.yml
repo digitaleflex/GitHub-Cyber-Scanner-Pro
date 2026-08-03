@@ -1,0 +1,16 @@
+use_default_settings: true
+outgoing:
+  proxies:
+    all://:
+      - socks5h://172.18.0.1:9050
+  using_tor_proxy: true
+search:
+  formats:
+    - html
+    - json
+server:
+  secret_key: "cyberscan-searxng-v5"
+  bind_address: "0.0.0.0"
+  limiter: false
+ui:
+  static_use_hash: true

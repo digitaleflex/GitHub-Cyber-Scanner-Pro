@@ -42,7 +42,7 @@ function ExplorePage() {
   const { data: digest } = useQuery({ queryKey: ['digest-hero'], queryFn: () => fetch('/api/digest').then(r => r.json()), staleTime: 300_000 })
   const repos = useCountUp(stats?.total_repos || 0, 2000)
   const stars_c = useCountUp(stats?.total_stars || 0, 2500)
-  const cves = 56000
+  const cves = stats?.total_cves ? (stats.total_cves >= 1000 ? `${(stats.total_cves / 1000).toFixed(0)}K` : stats.total_cves.toLocaleString()) : '0'
   const criticalThreats = digest?.top_threats?.filter((t: any) => t.severity === 'CRITIQUE').length || 0
 
   return (

@@ -1,0 +1,65 @@
+{
+  "title": "Menaces cybernétiques en évolution",
+  "date": "Aujourd'hui",
+  "summary": "Les dernières 24 heures ont vu l'émergence de nouveaux outils et de vulnérabilités, notamment dans les domaines de l'intelligence artificielle et de la sécurité des réseaux. Les attaques par injection de code et les vulnérabilités de type RCE sont particulièrement préoccupantes.",
+  "top_threats": [
+    {
+      "name": "CVE-2026-15971",
+      "severity": "CRITIQUE",
+      "description": "Vulnérabilité RCE dans SGLang lorsqu'un sous-système dumper est activé, permettant une évasion de sandbox"
+    },
+    {
+      "name": "CVE-2026-15969",
+      "severity": "CRITIQUE",
+      "description": "Exécution de code à distance non authentifiée dans SGLang via contournement de SafeUnpickler"
+    },
+    {
+      "name": "CVE-2026-15978",
+      "severity": "ELEVE",
+      "description": "Exfiltration de poids de modèle dans SGLang lorsqu'aucune clé API n'est configurée"
+    },
+    {
+      "name": "CVE-2026-48499",
+      "severity": "MOYEN",
+      "description": "Segment de chemin non sanatisé dans Activepieces, permettant une injection de code"
+    },
+    {
+      "name": "CVE-2026-13444",
+      "severity": "MOYEN",
+      "description": "Accès non autorisé à des documents privés dans IBM Langflow OSS"
+    }
+  ],
+  "trending_tools": [
+    {
+      "name": "SGLang",
+      "category": "intelligence artificielle",
+      "why": "Nouvelles vulnérabilités découvertes, notamment RCE et exfiltration de poids de modèle"
+    },
+    {
+      "name": "Activepieces",
+      "category": "automatisation de workflow",
+      "why": "Vulnérabilité de type injection de code due à un segment de chemin non sanatisé"
+    },
+    {
+      "name": "mitmproxy",
+      "category": "pentest",
+      "why": "Outil de proxy interactif pour les testeurs de pénétration et les développeurs"
+    },
+    {
+      "name": "trivy",
+      "category": "sécurité des conteneurs",
+      "why": "Outil de détection de vulnérabilités et de configuration incorrecte dans les conteneurs et les dépôts de code"
+    },
+    {
+      "name": "radare2",
+      "category": "reverse engineering",
+      "why": "Cadre de travail et ensemble d'outils de ligne de commande pour l'ingénierie inverse"
+    }
+  ],
+  "key_insight": "Les vulnérabilités liées à l'intelligence artificielle et à la sécurité des réseaux sont de plus en plus préoccupantes, et les équipes de sécurité doivent rester vigilantes pour détecter et corriger ces failles",
+  "stats": {
+    "new_repos": 30,
+    "new_cves": 15
+  },
+  "generated_at": "2026-08-01T17:03:55.712293+00:00"
+}

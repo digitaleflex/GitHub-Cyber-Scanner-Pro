@@ -24,6 +24,9 @@ const statusColors: Record<string, string> = {
   'ok': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   'oui': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   'non': 'bg-slate-500/10 text-slate-500 border-slate-500/20',
+  'gratuit': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  'pro': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  'enterprise': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
 }
 
 export type ChipProps = {

@@ -52,7 +52,7 @@ const TIERS = [
       '1 utilisateur',
     ],
     cta: 'Essai 14 jours gratuit',
-    href: '#',
+    href: '/login',
   },
   {
     name: 'Enterprise',
@@ -75,8 +75,8 @@ const TIERS = [
       'Acces early features',
       'Contrat SLA personnalise',
     ],
-    cta: 'Contacter les ventes',
-    href: '#',
+    cta: 'Nous contacter',
+    href: 'mailto:contact@eurin.tech',
   },
 ]
 

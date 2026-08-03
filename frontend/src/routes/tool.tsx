@@ -11,15 +11,20 @@ export const Route = createRoute({
 })
 
 function TrustMeter({ score }: { score: number }) {
-  const color = score >= 70 ? 'from-emerald-400 to-green-400' : score >= 40 ? 'from-amber-400 to-yellow-400' : 'from-rose-400 to-red-400'
+  const color = score >= 70 ? 'stroke-emerald-400' : score >= 40 ? 'stroke-amber-400' : 'stroke-rose-400'
   const label = score >= 70 ? 'Confiance elevee' : score >= 40 ? 'A surveiller' : 'Risque eleve'
   const bg = score >= 70 ? 'bg-emerald-500/10 text-emerald-400' : score >= 40 ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
+  const r = 28; const circ = 2 * Math.PI * r
   return (
     <div className="glass-card rounded-2xl p-4 sm:p-5">
       <p className="text-[9px] uppercase tracking-widest text-slate-600 mb-2">Score de confiance</p>
       <div className="flex items-center gap-3">
-        <div className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0">
-          <svg className="w-full h-full -rotate-90"><circle cx="50%" cy="50%" r="45%" fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-800" /><circle cx="50%" cy="50%" r="45%" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={`text-transparent bg-gradient-to-br ${color}`} strokeDasharray={`${score * 2.83} 283`} /></svg>
+        <div className="relative w-16 h-16 shrink-0">
+          <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
+            <circle cx="32" cy="32" r={r} fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-700" />
+            <circle cx="32" cy="32" r={r} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={color}
+              strokeDasharray={`${(score / 100) * circ} ${circ}`} />
+          </svg>
           <span className="absolute inset-0 flex items-center justify-center text-lg sm:text-xl font-bold text-white">{score}</span>
         </div>
         <div>

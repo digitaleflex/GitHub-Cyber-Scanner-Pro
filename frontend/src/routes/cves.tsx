@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
-import { useCves, type CveEntry } from '../lib/api'
+import { useCves, useStats, type CveEntry } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 import AdminGuard from '../components/AdminGuard'
 import DataTable, { type DataTableColumn } from '../components/DataTable'
@@ -21,6 +21,7 @@ function CvesPage() {
   const [sortKey, setSortKey] = useState('')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const { data, isLoading } = useCves(q, severity, page)
+  const { data: stats } = useStats()
 
   const { data: cveStats } = useQuery({
     queryKey: ['cve-stats'],
@@ -97,18 +98,18 @@ function CvesPage() {
         </div>
         <div className="glass-card rounded-xl p-3 text-center">
           <Bug size={14} className="text-indigo-400 mx-auto mb-1" />
-          <div className="text-lg font-bold text-white">46K</div>
-          <div className="text-[9px] text-slate-500">Exploits lies</div>
+          <div className="text-lg font-bold text-white">{stats?.pending_keywords || '?'}</div>
+          <div className="text-[9px] text-slate-500">Mots-cles</div>
         </div>
         <div className="glass-card rounded-xl p-3 text-center">
           <AlertTriangle size={14} className="text-amber-400 mx-auto mb-1" />
-          <div className="text-lg font-bold text-white">1 104</div>
-          <div className="text-[9px] text-slate-500">CISA KEV</div>
+          <div className="text-lg font-bold text-white">{stats?.security_critique || '?'}</div>
+          <div className="text-[9px] text-slate-500">Outils critiques</div>
         </div>
         <div className="glass-card rounded-xl p-3 text-center">
           <TrendingUp size={14} className="text-emerald-400 mx-auto mb-1" />
-          <div className="text-lg font-bold text-white">IA</div>
-          <div className="text-[9px] text-slate-500">Analyse active</div>
+          <div className="text-lg font-bold text-white">{stats?.new_repos_24h || '?'}</div>
+          <div className="text-[9px] text-slate-500">Nouveaux 24h</div>
         </div>
       </div>
 

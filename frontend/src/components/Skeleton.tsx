@@ -31,9 +31,12 @@ export function SkeletonTable({ rows = 8, cols = 4 }: { rows?: number; cols?: nu
   )
 }
 
+const COL_MAP: Record<number, string> = { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-4', 5: 'sm:grid-cols-5', 6: 'sm:grid-cols-6', 8: 'sm:grid-cols-8' }
+
 export function SkeletonStats({ count = 4 }: { count?: number }) {
+  const gridCols = COL_MAP[count] || 'sm:grid-cols-4'
   return (
-    <div className={`grid grid-cols-2 sm:grid-cols-${count} gap-3`}>
+    <div className={`grid grid-cols-2 ${gridCols} gap-3`}>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="glass-card rounded-xl p-4 text-center space-y-2">
           <div className={`${base} h-8 w-8 mx-auto rounded-full`} />

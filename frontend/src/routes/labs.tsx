@@ -18,11 +18,21 @@ const MODELS = [
   { name: 'BERT Base Uncased', endpoint: '-', desc: 'Embeddings + classification — fondation NLP', icon: Brain, color: 'indigo' },
 ]
 
-function ModelCard({ name, desc, icon: Icon, color }: typeof MODELS[0]) {
+const COLOR_MAP: Record<string, { bg: string; text: string }> = {
+  indigo: { bg: 'bg-indigo-500/10', text: 'text-indigo-400' },
+  rose: { bg: 'bg-rose-500/10', text: 'text-rose-400' },
+  violet: { bg: 'bg-violet-500/10', text: 'text-violet-400' },
+  amber: { bg: 'bg-amber-500/10', text: 'text-amber-400' },
+  emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-400' },
+  cyan: { bg: 'bg-cyan-500/10', text: 'text-cyan-400' },
+}
+
+function ModelCard({ name, desc, icon: Icon, color }: (typeof MODELS)[0]) {
+  const c = COLOR_MAP[color] || COLOR_MAP.indigo
   return (
-    <div className={`glass-card rounded-xl p-4 group text-center`}>
-      <div className={`w-10 h-10 mx-auto rounded-xl bg-${color}-500/10 flex items-center justify-center mb-2`}>
-        <Icon size={18} className={`text-${color}-400`} />
+    <div className="glass-card rounded-xl p-4 group text-center">
+      <div className={`w-10 h-10 mx-auto rounded-xl ${c.bg} flex items-center justify-center mb-2`}>
+        <Icon size={18} className={c.text} />
       </div>
       <h3 className="text-xs font-semibold text-white">{name}</h3>
       <p className="text-[10px] text-slate-500 mt-1 line-clamp-2">{desc}</p>

@@ -11,15 +11,20 @@ export const Route = createRoute({
 
 function ThreatMeter({ score, kev }: { score?: number | null; kev?: boolean }) {
   const s = score || 0
-  const color = kev ? 'from-rose-600 to-red-500' : s >= 9 ? 'from-rose-500 to-red-400' : s >= 7 ? 'from-amber-500 to-orange-400' : 'from-slate-500 to-slate-400'
+  const color = kev ? 'stroke-rose-400' : s >= 9 ? 'stroke-rose-400' : s >= 7 ? 'stroke-amber-400' : 'stroke-slate-400'
   const label = kev ? 'Exploitee activement (CISA KEV)' : s >= 9 ? 'Critique' : s >= 7 ? 'Elevee' : s >= 4 ? 'Moyenne' : 'Faible'
   const bg = kev ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' : s >= 9 ? 'bg-rose-500/10 text-rose-400' : s >= 7 ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-500/10 text-slate-400'
+  const r = 28; const circ = 2 * Math.PI * r
   return (
     <div className="glass-card rounded-2xl p-4 sm:p-5">
       <p className="text-[9px] uppercase tracking-widest text-slate-600 mb-2">Niveau de menace</p>
       <div className="flex items-center gap-3">
-        <div className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0">
-          <svg className="w-full h-full -rotate-90"><circle cx="50%" cy="50%" r="45%" fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-800" /><circle cx="50%" cy="50%" r="45%" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={color} strokeDasharray={`${s * 10} 100`} /></svg>
+        <div className="relative w-16 h-16 shrink-0">
+          <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
+            <circle cx="32" cy="32" r={r} fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-700" />
+            <circle cx="32" cy="32" r={r} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={color}
+              strokeDasharray={`${(Math.min(s, 10) / 10) * circ} ${circ}`} />
+          </svg>
           <span className="absolute inset-0 flex items-center justify-center text-lg sm:text-xl font-bold text-white">{s.toFixed(1)}</span>
         </div>
         <div>
