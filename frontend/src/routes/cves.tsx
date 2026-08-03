@@ -56,7 +56,7 @@ function CvesPage() {
       ),
     },
     {
-      key: 'severity', label: 'Severite', sortable: true,
+      key: 'severity', label: 'Sévérité', sortable: true,
       render: (cve) => <Chip variant="severity" value={cve.severity} />,
     },
     {
@@ -68,7 +68,7 @@ function CvesPage() {
       ) : <span className="text-slate-500">-</span>,
     },
     {
-      key: 'published', label: 'Publiee', sortable: true,
+      key: 'published', label: 'Publiée', sortable: true,
       render: (cve) => cve.published ? (
         <span className="text-slate-500">{new Date(cve.published).toLocaleDateString('fr-FR')}</span>
       ) : <span className="text-slate-500">-</span>,
@@ -100,7 +100,7 @@ function CvesPage() {
         <div className="glass-card rounded-xl p-3 text-center">
           <Bug size={14} className="text-indigo-400 mx-auto mb-1" />
           <div className="text-lg font-bold text-white">{stats?.pending_keywords || '?'}</div>
-          <div className="text-[9px] text-slate-500">Mots-cles</div>
+          <div className="text-[9px] text-slate-500">Mots-clés</div>
         </div>
         <div className="glass-card rounded-xl p-3 text-center">
           <AlertTriangle size={14} className="text-amber-400 mx-auto mb-1" />
@@ -124,7 +124,7 @@ function CvesPage() {
         </div>
         <select value={severity} onChange={e => { setSeverity(e.target.value); setPage(1) }}
           className="px-3 py-2 glass rounded-lg text-xs text-white">
-          <option value="">Toutes severites</option>
+          <option value="">Toutes sévérités</option>
           {['CRITICAL','HIGH','MEDIUM','LOW'].map(s => <option key={s}>{s}</option>)}
         </select>
       </div>
@@ -140,7 +140,7 @@ function CvesPage() {
         sortKey={sortKey}
         sortDir={sortDir}
         loading={isLoading}
-        emptyMessage="Aucune CVE trouvee"
+        emptyMessage="Aucune CVE trouvée"
         error={error ? String(error instanceof Error ? error.message : error) : null}
         onRetry={() => queryClient.invalidateQueries({ queryKey: ['cves'] })}
       />

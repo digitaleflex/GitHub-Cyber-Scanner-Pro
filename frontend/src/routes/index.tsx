@@ -3,7 +3,7 @@ import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useSearch, type SearchResult, type SearchResultType, type SearchParams } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
-import { Search, Star, Shield, BookOpen, Hash, ExternalLink, AlertTriangle, TrendingUp, Newspaper, Brain, ChevronDown, Loader2, MapPin, User, Target, MessageSquare, Bug } from 'lucide-react'
+import { Search, Star, Shield, BookOpen, Hash, ExternalLink, AlertTriangle, TrendingUp, Newspaper, Brain, ChevronDown, ArrowRight } from 'lucide-react'
 import { useStats } from '../lib/api'
 import StatsCards from '../components/StatsCards'
 import TopRepos from '../components/TopRepos'
@@ -26,7 +26,7 @@ const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: s
   repo: { label: 'Outil', icon: <Star size={12} />, color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
   cve: { label: 'CVE', icon: <Shield size={12} />, color: 'bg-rose-500/10 text-rose-400 border-rose-500/20' },
   book: { label: 'Ressource', icon: <BookOpen size={12} />, color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  keyword: { label: 'Mot-cle', icon: <Hash size={12} />, color: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
+  keyword: { label: 'Mot-clé', icon: <Hash size={12} />, color: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
 }
 
 function ExplorePage() {
@@ -117,12 +117,17 @@ function ExplorePage() {
             </button>
           ))}
         </div>
-        {!hasResults && (
-          <button onClick={() => setShowSections(!showSections)} className="text-[10px] text-slate-500 hover:text-slate-400 flex items-center gap-1">
-            <ChevronDown size={12} className={`transition ${showSections ? '' : 'rotate-180'}`} />
-            {showSections ? 'Masquer' : 'Afficher'} les sections
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <Link to="/search" className="text-[10px] text-slate-500 hover:text-indigo-400 flex items-center gap-1 transition">
+            Recherche avancée <ArrowRight size={10} />
+          </Link>
+          {!hasResults && (
+            <button onClick={() => setShowSections(!showSections)} className="text-[10px] text-slate-500 hover:text-slate-400 flex items-center gap-1">
+              <ChevronDown size={12} className={`transition ${showSections ? '' : 'rotate-180'}`} />
+              {showSections ? 'Masquer' : 'Afficher'} les sections
+            </button>
+          )}
+        </div>
       </div>
 
       {searchError && debounced.length >= 2 && (
@@ -158,11 +163,9 @@ function ExplorePage() {
             <div className="space-y-4">
               <TrendingSection />
               <BlogSection />
-              <OsintSection />
               <LangDistribution />
             </div>
           </div>
-          <AiLabSection />
         </div>
       )}
     </div>
@@ -253,46 +256,6 @@ function ThreatSection() {
   )
 }
 
-function OsintSection() {
-  const [text, setText] = useState('')
-  const [result, setResult] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const search = async () => {
-    if (!text.trim()) return
-    setLoading(true); setResult(null)
-    try { const r = await fetch(`/api/osint/investigate?free_text=${encodeURIComponent(text)}`, { method: 'POST' }).then(r => r.json()); setResult(r) } catch {}
-    setLoading(false)
-  }
-  return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
-      <div className="flex items-center gap-2 mb-3"><Target size={15} className="text-cyan-400" /><h3 className="text-sm sm:text-base font-semibold text-white">OSINT Lab</h3><span className="text-[10px] text-cyan-400/70 ml-auto">7 outils</span></div>
-      <div className="flex flex-col sm:flex-row gap-2 mb-3">
-        <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Ex: un chercheur en securite allemand qui a cree des regles YARA..."
-          className="flex-1 px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500 min-h-[60px]" />
-        <button onClick={search} disabled={loading || !text.trim()}
-          className="px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-lg text-xs font-medium hover:bg-cyan-500/20 disabled:opacity-30 self-end">{loading ? <Loader2 size={12} className="animate-spin" /> : 'Enqueter'}</button>
-      </div>
-      {result && (
-        <div className="text-xs space-y-2">
-          <p className="text-slate-400">{result.summary}</p>
-          {result.ai_extracted?.name && (
-            <div className="flex flex-wrap gap-1">
-              {result.ai_extracted.name && <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-[10px]"><User size={10} className="inline mr-1"/>{result.ai_extracted.name}</span>}
-              {result.ai_extracted.location && <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px]"><MapPin size={10} className="inline mr-1"/>{result.ai_extracted.location}</span>}
-              {result.ai_extracted.keywords?.slice(0,3).map((k: string, i: number) => <span key={i} className="px-2 py-0.5 rounded bg-slate-500/10 text-slate-400 text-[10px]">{k}</span>)}
-            </div>
-          )}
-          {result.findings?.github_profiles?.slice(0,3).map((p: any, i: number) => (
-            <a key={i} href={p.url} target="_blank" rel="noopener" className="block glass-card rounded-lg p-2 text-[11px]">
-              <span className="text-indigo-400">{p.username}</span> {p.name && <span className="text-slate-400">({p.name})</span>} {p.location && <span className="text-slate-500">- {p.location}</span>}
-            </a>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
 function BlogSection() {
   const { data: posts } = useQuery({ queryKey: ['blog-posts'], queryFn: () => fetch('/api/blog/posts?limit=6').then(r => r.json()), staleTime: 300_000 })
   if (!posts || posts.length === 0) return null
@@ -330,113 +293,4 @@ function TrendingSection() {
   )
 }
 
-function AiLabSection() {
-  const [tab, setTab] = useState<'classify' | 'qa' | 'vuln'>('classify')
 
-  return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
-      <div className="flex items-center gap-2 mb-3"><Brain size={15} className="text-violet-400" /><h3 className="text-sm font-semibold text-white">AI Lab — Testez nos 22 modèles</h3></div>
-
-      <div className="flex gap-1 mb-3 flex-wrap">
-        <button onClick={() => setTab('classify')}
-          className={`px-3 py-1 rounded-full text-[10px] font-medium transition border ${tab === 'classify' ? 'bg-violet-500/10 text-violet-400 border-violet-500/20' : 'glass text-slate-500'}`}>
-          Classification
-        </button>
-        <button onClick={() => setTab('qa')}
-          className={`px-3 py-1 rounded-full text-[10px] font-medium transition border ${tab === 'qa' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'glass text-slate-500'}`}>
-          <MessageSquare size={10} className="inline mr-1" /> Q&A
-        </button>
-        <button onClick={() => setTab('vuln')}
-          className={`px-3 py-1 rounded-full text-[10px] font-medium transition border ${tab === 'vuln' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'glass text-slate-500'}`}>
-          <Bug size={10} className="inline mr-1" /> Vulnérabilité
-        </button>
-      </div>
-
-      {tab === 'classify' && <ClassifyTab />}
-      {tab === 'qa' && <QATab />}
-      {tab === 'vuln' && <VulnTab />}
-    </div>
-  )
-}
-
-function ClassifyTab() {
-  const [q, setQ] = useState('')
-  const [result, setResult] = useState<any>(null)
-  const test = async () => {
-    const r = await fetch(`/api/hf/classify?text=${encodeURIComponent(q)}`).then(r => r.json())
-    setResult(r)
-  }
-  return (
-    <div>
-      <div className="flex gap-2">
-        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Ex: outil de scan réseau pour pentest..."
-          className="flex-1 px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500" />
-        <button onClick={test} className="px-4 py-2 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-lg text-xs font-medium hover:bg-violet-500/20">Classifier</button>
-      </div>
-      {result?.all && (
-        <div className="text-xs space-y-1 mt-3">
-          {Object.entries(result.all as Record<string,number>).slice(0,4).map(([k,v]) => (
-            <div key={k} className="flex items-center gap-2"><span className="text-slate-400 w-24">{k}</span><div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-violet-500/50 rounded-full" style={{width:`${(v as number)*100}%`}} /></div><span className="text-slate-500 w-10 text-right">{((v as number)*100).toFixed(0)}%</span></div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function QATab() {
-  const [question, setQuestion] = useState('')
-  const [context, setContext] = useState('')
-  const [answer, setAnswer] = useState('')
-  const [loading, setLoading] = useState(false)
-  const ask = async () => {
-    setLoading(true)
-    try {
-      const r = await fetch(`/api/hf/qa?question=${encodeURIComponent(question)}&context=${encodeURIComponent(context)}`).then(r => r.json())
-      setAnswer(r.answer || r.error || JSON.stringify(r))
-    } catch {}
-    setLoading(false)
-  }
-  return (
-    <div className="space-y-2">
-      <input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Question..."
-        className="w-full px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500" />
-      <textarea value={context} onChange={e => setContext(e.target.value)} placeholder="Contexte (description, rapport...)"
-        className="w-full px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500 min-h-[50px]" />
-      <div className="flex items-center gap-2">
-        <button onClick={ask} disabled={loading || !question.trim() || !context.trim()}
-          className="px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-xs font-medium hover:bg-indigo-500/20 disabled:opacity-30">
-          {loading ? <Loader2 size={12} className="animate-spin" /> : 'Demander'}
-        </button>
-        {answer && <span className="text-xs text-indigo-400 font-medium">{answer}</span>}
-      </div>
-    </div>
-  )
-}
-
-function VulnTab() {
-  const [text, setText] = useState('')
-  const [result, setResult] = useState('')
-  const [loading, setLoading] = useState(false)
-  const detect = async () => {
-    setLoading(true)
-    try {
-      const r = await fetch(`/api/hf/vuln-type?text=${encodeURIComponent(text)}`).then(r => r.json())
-      setResult(r.type || r.error || JSON.stringify(r))
-    } catch {}
-    setLoading(false)
-  }
-  return (
-    <div className="space-y-2">
-      <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Description d'une vulnérabilité à analyser..."
-        className="w-full px-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500 min-h-[50px]" />
-      <div className="flex items-center gap-2">
-        <button onClick={detect} disabled={loading || !text.trim()}
-          className="px-4 py-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-medium hover:bg-rose-500/20 disabled:opacity-30">
-          {loading ? <Loader2 size={12} className="animate-spin" /> : 'Détecter (SecBERT)'}
-        </button>
-        {result && <span className="text-xs text-rose-400 font-mono">{result}</span>}
-      </div>
-    </div>
-  )
-}

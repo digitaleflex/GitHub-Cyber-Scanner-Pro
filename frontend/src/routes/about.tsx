@@ -15,6 +15,9 @@ function AboutPage() {
           CyberScan Pro reduit 10 000 signaux quotidiens a 20 informations reellement exploitables.
           Collecte, enrichissement, correlation et priorisation automatiques pour les professionnels de la cybersecurite.
         </p>
+        <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl text-sm font-medium hover:bg-indigo-500/20 transition mt-6">
+          Lancer l'app
+        </Link>
       </div>
 
       {/* Stats */}

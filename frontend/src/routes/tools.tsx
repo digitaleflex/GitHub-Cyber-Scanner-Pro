@@ -15,7 +15,7 @@ const CATS = [
   { id: 'exploit', label: 'Exploits', icon: <Bug size={12} /> },
   { id: 'malware', label: 'Malware', icon: <Zap size={12} /> },
   { id: 'osint', label: 'OSINT', icon: <Globe size={12} /> },
-  { id: 'network', label: 'Reseau', icon: <Wifi size={12} /> },
+  { id: 'network', label: 'Réseau', icon: <Wifi size={12} /> },
 ]
 
 type ToolRow = { name: string; desc: string | null; stars: number; lang: string | null; url: string; security_verdict: string | null; vitality_score: number | null }
@@ -76,7 +76,7 @@ function ToolsPage() {
       render: (t) => t.security_verdict ? <Chip variant="verdict" value={t.security_verdict} /> : <span className="text-slate-500 text-[10px]">-</span>,
     },
     {
-      key: 'vitality_score', label: 'Vitalite', sortable: true,
+      key: 'vitality_score', label: 'Vitalité', sortable: true,
       render: (t) => t.vitality_score != null ? (
         <span className={`font-mono text-[10px] ${t.vitality_score >= 70 ? 'text-emerald-400' : t.vitality_score >= 40 ? 'text-amber-400' : 'text-slate-500'}`}>
           {t.vitality_score}/100
@@ -95,8 +95,8 @@ function ToolsPage() {
       {/* Tabs */}
       <div className="flex items-center gap-1 mb-4 flex-wrap">
         <button onClick={() => { setTab('featured'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'featured' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'glass text-slate-400 hover:text-white'}`}><TrendingUp size={13} /> Incontournables</button>
-        <button onClick={() => { setTab('ready'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'ready' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'glass text-slate-400 hover:text-white'}`}><Zap size={13} /> Prets a l'emploi</button>
-        <button onClick={() => { setTab('category'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'category' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'glass text-slate-400 hover:text-white'}`}><Search size={13} /> Par categorie</button>
+        <button onClick={() => { setTab('ready'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'ready' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'glass text-slate-400 hover:text-white'}`}><Zap size={13} /> Prêts à l'emploi</button>
+        <button onClick={() => { setTab('category'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'category' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'glass text-slate-400 hover:text-white'}`}><Search size={13} /> Par catégorie</button>
         <div className="ml-auto flex gap-1">
           <button onClick={() => setView('table')} className={`p-2 rounded-lg text-xs ${view === 'table' ? 'glass text-white' : 'text-slate-500 hover:text-white'}`}><List size={13} /></button>
           <button onClick={() => setView('grid')} className={`p-2 rounded-lg text-xs ${view === 'grid' ? 'glass text-white' : 'text-slate-500 hover:text-white'}`}><LayoutGrid size={13} /></button>
@@ -127,7 +127,7 @@ function ToolsPage() {
           sortKey={sortKey}
           sortDir={sortDir}
           loading={loading}
-          emptyMessage="Aucun outil trouve"
+          emptyMessage="Aucun outil trouvé"
           error={error ? String(error instanceof Error ? error.message : error) : null}
           onRetry={retry}
           exportCSV={tab === 'category' ? () => {

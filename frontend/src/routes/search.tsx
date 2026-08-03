@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useSearch, type SearchResultType, type SearchParams } from '../lib/api'
-import { Search, Star, Shield, BookOpen, Hash, ExternalLink, SlidersHorizontal, Brain, TrendingUp } from 'lucide-react'
+import { Search, Star, Shield, BookOpen, Hash, ExternalLink, SlidersHorizontal, Brain, Sparkles } from 'lucide-react'
 import EmptyState from '../components/EmptyState'
 import ErrorState from '../components/ErrorState'
 
@@ -12,7 +12,7 @@ const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: s
   repo: { label: 'Outils', icon: <Star size={12} />, color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
   cve: { label: 'CVE', icon: <Shield size={12} />, color: 'bg-rose-500/10 text-rose-400 border-rose-500/20' },
   book: { label: 'Ressources', icon: <BookOpen size={12} />, color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  keyword: { label: 'Mots-cles', icon: <Hash size={12} />, color: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
+  keyword: { label: 'Mots-clés', icon: <Hash size={12} />, color: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
 }
 
 const SORTS: { value: NonNullable<SearchParams['sort']>; label: string }[] = [
@@ -52,7 +52,7 @@ function SearchPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8 animate-fade">
-      <h1 className="text-lg font-semibold text-white mb-4">Recherche avancee</h1>
+      <h1 className="text-lg font-semibold text-white mb-4">Recherche avancée</h1>
 
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">
@@ -78,7 +78,7 @@ function SearchPage() {
         </button>
         <button onClick={() => setMode('semantic')}
           className={`px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-medium transition border ${mode === 'semantic' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'glass text-slate-500'}`}>
-          <TrendingUp size={11} className="inline mr-1" /> Sémantique
+          <Sparkles size={11} className="inline mr-1" /> Sémantique
         </button>
       </div>
 
@@ -109,7 +109,7 @@ function SearchPage() {
             </div>
           ) : results ? (
             <div>
-              <p className="text-xs text-slate-500 mb-3">{results.total} resultats</p>
+              <p className="text-xs text-slate-500 mb-3">{results.total} résultats</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {results.results.map((r,i) => (
                   <div key={i} className="glass-card rounded-xl p-3 group">
@@ -145,7 +145,7 @@ function SearchPage() {
             ) : aiResults ? (
               <div>
                 <p className="text-xs text-slate-500 mb-3">
-                  {aiResults.total || aiResults.results?.length || 0} resultats
+                  {aiResults.total || aiResults.results?.length || 0} résultats
                   {aiResults.ai_explanation && <span className="ml-2 text-violet-400 italic">{aiResults.ai_explanation}</span>}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -174,7 +174,7 @@ function SearchPage() {
       ) : (
         <div className="text-center py-16 glass-card rounded-2xl">
           <Search size={32} className="mx-auto text-slate-500 mb-3" />
-          <p className="text-slate-400 text-sm">Tapez au moins 2 caracteres pour chercher</p>
+          <p className="text-slate-400 text-sm">Tapez au moins 2 caractères pour chercher</p>
           <p className="text-slate-500 text-xs mt-1">
             {mode === 'ai' ? 'Recherche IA avec re-ranking Groq (Llama 3.3)' :
              mode === 'semantic' ? 'Recherche sémantique par similarité cosine' :

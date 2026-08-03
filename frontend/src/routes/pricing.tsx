@@ -51,8 +51,8 @@ const TIERS = [
       'Support email',
       '1 utilisateur',
     ],
-    cta: 'Essai 14 jours gratuit',
-    href: '/login',
+    cta: 'Nous contacter',
+    href: 'mailto:contact@eurin.tech',
   },
   {
     name: 'Enterprise',

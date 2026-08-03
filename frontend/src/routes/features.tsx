@@ -53,17 +53,20 @@ function FeaturesPage() {
   return (
     <div className="max-w-6xl mx-auto py-8 sm:py-12 animate-fade">
       <div className="text-center mb-10">
-        <h1 className="text-2xl sm:text-4xl font-bold text-white mb-3">Fonctionnalites</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold text-white mb-3">Fonctionnalités</h1>
         <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
           CyberScan Pro agrege <b className="text-white">30+ sources de donnees</b> cybersecurite — la majorite 100% gratuites et open source.
         </p>
+        <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl text-sm font-medium hover:bg-indigo-500/20 transition mt-6">
+          Lancer l'app
+        </Link>
       </div>
 
       {/* AI + Tech stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-10">
         {[
-          { value: '30+', label: 'Sources integrees', icon: <CloudLightning size={16} className="text-cyan-400" /> },
-          { value: '22', label: 'Modeles HF', icon: <Brain size={16} className="text-violet-400" /> },
+          { value: '30+', label: 'Sources intégrées', icon: <CloudLightning size={16} className="text-cyan-400" /> },
+          { value: '22', label: 'Modèles HF', icon: <Brain size={16} className="text-violet-400" /> },
           { value: 'STIX 2.1', label: 'Export natif', icon: <Download size={16} className="text-indigo-400" /> },
           { value: 'MCP', label: 'AI Server', icon: <Activity size={16} className="text-emerald-400" /> },
         ].map((x, i) => (
