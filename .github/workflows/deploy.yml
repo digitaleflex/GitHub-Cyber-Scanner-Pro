@@ -49,10 +49,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Deploy to production
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          script: sudo bash /opt/cyberscan/scripts/deploy.sh deploy
+          script: |
+            cd /home/audest/GitHub-Cyber-Scanner-Pro
+            git pull origin main
+            bash scripts/deploy.sh deploy
