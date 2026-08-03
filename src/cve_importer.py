@@ -80,10 +80,12 @@ def _nvd_get(params: dict, retries: int = 5):
     return None
 
 
-def _iter_nvd_pages(start_year: int = START_YEAR, end_year: int = END_YEAR, max_pages: int | None = None):
-    """Générateur: (items, label) pour chaque page NVD 2.0, fenêtres trimestrielles."""
+def _iter_nvd_pages(start_year: int = START_YEAR, end_year: int = END_YEAR, max_pages: int | None = None, reverse: bool = True):
+    """Générateur : fenêtres trimestrielles NVD 2.0.
+    Par défaut ordre décroissant (récent → ancien) pour remplir les CVE récentes d'abord."""
     pages = 0
-    for year in range(start_year, end_year + 1):
+    year_range = range(end_year, start_year - 1, -1) if reverse else range(start_year, end_year + 1)
+    for year in year_range:
         for q in range(0, 12, 3):
             m0 = q + 1
             start = f"{year}-{m0:02d}-01T00:00:00.000"
