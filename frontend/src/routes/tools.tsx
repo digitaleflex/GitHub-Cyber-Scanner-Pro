@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Star, ExternalLink, Zap, TrendingUp, Target, ShieldCheck, Bug, Globe, Wifi, Search, X, LayoutGrid, List } from 'lucide-react'
+import { Star, ExternalLink, Zap, TrendingUp, Target, ShieldCheck, Bug, Globe, Wifi, Search, X, LayoutGrid, List, Cpu } from 'lucide-react'
 import DataTable, { type DataTableColumn } from '../components/DataTable'
 import Chip from '../components/Chip'
 
@@ -21,7 +21,7 @@ const CATS = [
 type ToolRow = { name: string; desc: string | null; stars: number; lang: string | null; url: string; security_verdict: string | null; vitality_score: number | null }
 
 function ToolsPage() {
-  const [tab, setTab] = useState<'featured'|'ready'|'category'>('featured')
+  const [tab, setTab] = useState<'featured'|'ready'|'category'|'best'>('featured')
   const [category, setCategory] = useState('all')
   const [page, setPage] = useState(1)
   const [sortKey, setSortKey] = useState('stars')
@@ -39,17 +39,22 @@ function ToolsPage() {
   const { data: byCat, isLoading: cl, error: catErr } = useQuery({
     queryKey: ['tools-cat', category], queryFn: async () => { const r = await fetch(`/api/tools/by-category?category=${category}&limit=200`); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() }, staleTime: 60_000, enabled: tab === 'category'
   })
+  const { data: best, isLoading: bl, error: bestErr } = useQuery({
+    queryKey: ['best-tools', category], queryFn: async () => { const r = await fetch(`/api/tools/best?category=${category}&limit=200`); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() }, staleTime: 60_000, enabled: tab === 'best'
+  })
 
-  const raw = tab === 'featured' ? featured?.tools : tab === 'ready' ? ready?.tools : byCat?.tools
+  const raw = tab === 'featured' ? featured?.tools : tab === 'ready' ? ready?.tools : tab === 'best' ? best?.tools : byCat?.tools
   const total = raw?.length || 0
-  const loading = tab === 'featured' ? fl : tab === 'ready' ? rl : cl
-  const error = tab === 'featured' ? featErr : tab === 'ready' ? readyErr : catErr
+  const loading = tab === 'featured' ? fl : tab === 'ready' ? rl : tab === 'best' ? bl : cl
+  const error = tab === 'featured' ? featErr : tab === 'ready' ? readyErr : tab === 'best' ? bestErr : catErr
   const retry = () => {
-    const key = tab === 'featured' ? ['featured-tools'] : tab === 'ready' ? ['ready-tools'] : ['tools-cat', category]
+    const key = tab === 'featured' ? ['featured-tools'] : tab === 'ready' ? ['ready-tools'] : tab === 'best' ? ['best-tools', category] : ['tools-cat', category]
     qc.invalidateQueries({ queryKey: key })
   }
 
-  const perPage = tab === 'category' ? 30 : 20
+  const perPage = tab === 'category' || tab === 'best' ? 30 : 20
+  const isBestTab = tab === 'best'
+  const showCats = tab === 'category' || isBestTab
   const sorted = [...(raw || [])].sort((a: ToolRow, b: ToolRow) => {
     const av = sortKey === 'stars' ? a.stars : sortKey === 'vitality_score' ? (a.vitality_score || 0) : a.name
     const bv = sortKey === 'stars' ? b.stars : sortKey === 'vitality_score' ? (b.vitality_score || 0) : b.name
@@ -97,17 +102,18 @@ function ToolsPage() {
         <button onClick={() => { setTab('featured'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'featured' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'glass text-slate-400 hover:text-white'}`}><TrendingUp size={13} /> Incontournables</button>
         <button onClick={() => { setTab('ready'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'ready' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'glass text-slate-400 hover:text-white'}`}><Zap size={13} /> Prêts à l'emploi</button>
         <button onClick={() => { setTab('category'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'category' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'glass text-slate-400 hover:text-white'}`}><Search size={13} /> Par catégorie</button>
+        <button onClick={() => { setTab('best'); setPage(1) }} className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 ${tab === 'best' ? 'bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20' : 'glass text-slate-400 hover:text-white'}`}><Cpu size={13} /> Outils pro</button>
         <div className="ml-auto flex gap-1">
           <button onClick={() => setView('table')} className={`p-2 rounded-lg text-xs ${view === 'table' ? 'glass text-white' : 'text-slate-500 hover:text-white'}`}><List size={13} /></button>
           <button onClick={() => setView('grid')} className={`p-2 rounded-lg text-xs ${view === 'grid' ? 'glass text-white' : 'text-slate-500 hover:text-white'}`}><LayoutGrid size={13} /></button>
         </div>
       </div>
 
-      {tab === 'category' && (
+      {showCats && (
         <div className="flex flex-wrap gap-1 mb-4">
           {CATS.map(c => (
             <button key={c.id} onClick={() => { setCategory(c.id); setPage(1) }}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium transition border ${category === c.id ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'glass text-slate-500 hover:text-slate-300'}`}>
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium transition border ${category === c.id ? (isBestTab ? 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20' : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20') : 'glass text-slate-500 hover:text-slate-300'}`}>
               {c.icon} {c.label}
             </button>
           ))}
@@ -130,7 +136,7 @@ function ToolsPage() {
           emptyMessage="Aucun outil trouvé"
           error={error ? String(error instanceof Error ? error.message : error) : null}
           onRetry={retry}
-          exportCSV={tab === 'category' ? () => {
+          exportCSV={showCats ? () => {
             const csv = ['Nom,Stars,Verdict,Vitalite,Langage,URL'].concat(sorted.map(t => `"${t.name}",${t.stars},${t.security_verdict || ''},${t.vitality_score || ''},${t.lang || ''},${t.url}`)).join('\n')
             const blob = new Blob([csv], { type: 'text/csv' })
             const url = URL.createObjectURL(blob)
