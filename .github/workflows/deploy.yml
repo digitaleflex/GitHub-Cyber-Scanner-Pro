@@ -57,6 +57,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -e
             cd /home/audest/GitHub-Cyber-Scanner-Pro
+            git reset --hard origin/main
             git pull origin main
-            bash scripts/deploy.sh deploy
+            docker compose -f compose.prod.yml up -d --build
