@@ -40,3 +40,10 @@ MESSAGE_EXPERTS.md
 .DS_Store
 Thumbs.db
 .env.prod
+backups/
+data/*.json
+data/*.xml
+data/*.csv
+data/*.pkl
+data/searxng/
+data/bulk_status.json
