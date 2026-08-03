@@ -903,3 +903,69 @@ def stix_download_api(what: str = "cves", limit: int = 100, severity: str = ""):
     tmp.write(data)
     tmp.close()
     return FileResponse(tmp.name, media_type="application/json", filename=filename)
+
+
+# ── Massive Ingestion ─────────────────────────────────────────────────
+
+@app.post("/api/ingest/run")
+def ingest_run_api(background_tasks: BackgroundTasks, full: bool = False, _u: str = Depends(src.auth.verify_admin)):
+    """Lance le pipeline d'ingestion massive (abuse.ch + OTX + EPSS + OpenCVE)."""
+    import src.massive_ingestion as mi
+    background_tasks.add_task(mi.run_massive_ingestion, full=full)
+    return {"message": "Pipeline d'ingestion massive lance", "full": full}
+
+
+@app.get("/api/ingest/stats")
+def ingest_stats_api():
+    """Statistiques de volumetrie IOC."""
+    import src.massive_ingestion as mi
+    return mi.get_ioc_stats()
+
+
+@app.post("/api/ingest/urlhaus")
+def ingest_urlhaus_api(limit: int = 5000, _u: str = Depends(src.auth.verify_admin)):
+    import src.massive_ingestion as mi
+    n = mi.ingest_urlhaus(limit)
+    return {"source": "urlhaus", "saved": n}
+
+
+@app.post("/api/ingest/malwarebazaar")
+def ingest_malwarebazaar_api(limit: int = 2000, _u: str = Depends(src.auth.verify_admin)):
+    import src.massive_ingestion as mi
+    n = mi.ingest_malwarebazaar(limit)
+    return {"source": "malwarebazaar", "saved": n}
+
+
+@app.post("/api/ingest/threatfox")
+def ingest_threatfox_api(limit: int = 5000, _u: str = Depends(src.auth.verify_admin)):
+    import src.massive_ingestion as mi
+    n = mi.ingest_threatfox(limit)
+    return {"source": "threatfox", "saved": n}
+
+
+@app.post("/api/ingest/feodotracker")
+def ingest_feodo_api(_u: str = Depends(src.auth.verify_admin)):
+    import src.massive_ingestion as mi
+    n = mi.ingest_feodotracker()
+    return {"source": "feodotracker", "saved": n}
+
+
+@app.post("/api/ingest/otx")
+def ingest_otx_api(limit: int = 500, _u: str = Depends(src.auth.verify_admin)):
+    import src.massive_ingestion as mi
+    n = mi.ingest_otx_pulses(limit)
+    return {"source": "otx", "saved": n}
+
+
+@app.post("/api/ingest/opencve")
+def ingest_opencve_api(limit: int = 1000, _u: str = Depends(src.auth.verify_admin)):
+    import src.massive_ingestion as mi
+    n = mi.ingest_opencve(limit)
+    return {"source": "opencve", "saved": n}
+
+
+@app.post("/api/ingest/epss")
+def ingest_epss_api(_u: str = Depends(src.auth.verify_admin)):
+    import src.massive_ingestion as mi
+    n = mi.ingest_epss()
+    return {"source": "epss", "saved": n, "message": "Scores EPSS mis a jour sur les CVEs existantes"}

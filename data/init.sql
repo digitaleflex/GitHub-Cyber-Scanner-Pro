@@ -69,3 +69,23 @@ INSERT INTO sources (name, url, type) VALUES
 ('Exploit-DB', 'https://www.exploit-db.com', 'Exploit'),
 ('CISA KEV', 'https://www.cisa.gov/known-exploited-vulnerabilities-catalog', 'Threat-Intel')
 ON CONFLICT (name) DO NOTHING;
+
+
+-- IOC Feed: millions d'IOCs (IPs, domaines, hashes, URLs, emails)
+CREATE TABLE IF NOT EXISTS ioc_feed (
+    id SERIAL PRIMARY KEY,
+    source VARCHAR(50) NOT NULL,
+    value TEXT NOT NULL,
+    ioc_type VARCHAR(30) NOT NULL,
+    threat_type VARCHAR(200),
+    tags TEXT,
+    first_seen TIMESTAMP,
+    status VARCHAR(30) DEFAULT 'active',
+    raw_json TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(value)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ioc_source ON ioc_feed(source);
+CREATE INDEX IF NOT EXISTS idx_ioc_type ON ioc_feed(ioc_type);
+CREATE INDEX IF NOT EXISTS idx_ioc_first_seen ON ioc_feed(first_seen);

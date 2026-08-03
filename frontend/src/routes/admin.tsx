@@ -7,7 +7,7 @@ import CyberRadar from '../components/CyberRadar'
 import ActivityFeed from '../components/ActivityFeed'
 import { useStats, useScanStatus } from '../lib/api'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Play, Zap, Download, Brain, Shield, GitBranch, Search, Bug, Globe, RefreshCw, Loader2, TrendingUp, AlertTriangle, Activity, Database, HardDrive } from 'lucide-react'
+import { Play, Zap, Download, Brain, Shield, GitBranch, Search, Bug, Globe, RefreshCw, Loader2, TrendingUp, AlertTriangle, Activity, Database, HardDrive, CloudLightning } from 'lucide-react'
 import { getAuthHeaders, clearAuthToken } from './login'
 
 export const Route = createRoute({
@@ -82,6 +82,7 @@ function AdminDashboard() {
   const { data: embStatus } = useQuery({ queryKey: ['emb-status'], queryFn: () => fetch('/api/embeddings/status').then(r => r.json()).catch(() => ({})), staleTime: 60_000 })
   const { data: bulkStatus } = useQuery({ queryKey: ['bulk-status'], queryFn: () => fetch('/api/bulk-status').then(r => r.json()).catch(() => ({})), staleTime: 30_000 })
   const { data: harvestStatus } = useQuery({ queryKey: ['harvest-status'], queryFn: () => fetch('/api/harvest-status').then(r => r.json()).catch(() => ({})), staleTime: 30_000 })
+  const { data: iocStats } = useQuery({ queryKey: ['ioc-stats'], queryFn: () => fetch('/api/ingest/stats').then(r => r.json()).catch(() => ({})), staleTime: 30_000 })
 
   const isScanning = scanStatus?.status?.includes('en cours') || false
   const isBulk = bulkStatus?.in_progress || false
@@ -117,6 +118,8 @@ function AdminDashboard() {
             { value: stats?.total_cves?.toLocaleString() || '?', label: 'CVE', icon: <Shield size={13} className="text-rose-400" /> },
             { value: stats?.pending_keywords || 0, label: 'KW en attente', icon: <AlertTriangle size={13} className="text-violet-400" /> },
             { value: `${embStatus?.embedded || 0}/${embStatus?.total || 0}`, label: 'Embeddings', icon: <Activity size={13} className="text-emerald-400" /> },
+            { value: iocStats?.total_iocs?.toLocaleString() || '0', label: 'IOCs', icon: <CloudLightning size={13} className="text-cyan-400" /> },
+            { value: iocStats?.iocs_24h?.toLocaleString() || '0', label: 'IOCs 24h', icon: <TrendingUp size={13} className="text-violet-400" /> },
           ].map((x, i) => (
             <div key={i} className="glass-card rounded-xl p-3 text-center">
               <div className="flex justify-center mb-1">{x.icon}</div>
@@ -195,6 +198,36 @@ function AdminDashboard() {
               <ActionBtn icon={<Globe size={12} />} label="Enrichissement OSINT" endpoint="/api/osint/enrich" hint="KEV" />
               <ActionBtn icon={<Shield size={12} />} label="Enrichissement IOC" endpoint="/api/ioc/enrich" hint="abuse.ch" />
               <ActionBtn icon={<Download size={12} />} label="IOC Feed STIX" endpoint="/api/stix/ioc-feed" hint="IPs/domains" variant="success" />
+            </div>
+          </div>
+        </div>
+
+        {/* Ingestion Massive IOC */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="glass-card rounded-2xl p-4">
+            <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-cyan-500/10 flex items-center justify-center"><CloudLightning size={12} className="text-cyan-400" /></span>
+              Ingestion massive IOC
+            </h3>
+            <p className="text-[10px] text-slate-600 mb-3">Millions de data points temps reel</p>
+            <div className="space-y-1.5">
+              <ActionBtn icon={<Globe size={12} />} label="URLhaus (3M+ URLs)" endpoint="/api/ingest/urlhaus?limit=5000" hint="Malware" />
+              <ActionBtn icon={<Bug size={12} />} label="MalwareBazaar (1.5M)" endpoint="/api/ingest/malwarebazaar?limit=2000" hint="Hashes" />
+              <ActionBtn icon={<Activity size={12} />} label="ThreatFox (1M+)" endpoint="/api/ingest/threatfox?limit=5000" hint="IOCs" />
+              <ActionBtn icon={<TrendingUp size={12} />} label="EPSS Scores" endpoint="/api/ingest/epss" hint="200K" variant="success" />
+            </div>
+          </div>
+          <div className="glass-card rounded-2xl p-4">
+            <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-rose-500/10 flex items-center justify-center"><CloudLightning size={12} className="text-rose-400" /></span>
+              Threat Intel Externe
+            </h3>
+            <p className="text-[10px] text-slate-600 mb-3">OTX, OpenCVE, FeodoTracker</p>
+            <div className="space-y-1.5">
+              <ActionBtn icon={<Globe size={12} />} label="OTX Pulses (20M+)" endpoint="/api/ingest/otx?limit=500" hint="AlienVault" variant="highlight" />
+              <ActionBtn icon={<Shield size={12} />} label="OpenCVE (200K+)" endpoint="/api/ingest/opencve?limit=1000" hint="CVEs" />
+              <ActionBtn icon={<Activity size={12} />} label="FeodoTracker C2" endpoint="/api/ingest/feodotracker" hint="IPs" />
+              <ActionBtn icon={<Zap size={12} />} label="Pipeline complet" endpoint="/api/ingest/run?full=false" hint="Tout" variant="danger" />
             </div>
           </div>
         </div>
