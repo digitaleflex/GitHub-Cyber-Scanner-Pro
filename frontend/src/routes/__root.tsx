@@ -4,8 +4,9 @@ import { Menu, X, Play, Shield, Download, Settings } from 'lucide-react'
 import { useScanStatus } from '../lib/api'
 import { isAdminAuthenticated, getAuthHeaders } from './login'
 import useSearchHotkey from '../lib/useSearchHotkey'
+import NotFound from './not-found'
 
-export const Route = createRootRoute({ component: RootLayout })
+export const Route = createRootRoute({ component: RootLayout, notFoundComponent: NotFound })
 
 function ScanBtn() {
   const { data, refetch } = useScanStatus()
