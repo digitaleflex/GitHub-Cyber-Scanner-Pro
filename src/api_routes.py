@@ -572,6 +572,15 @@ def top_threats_api(limit: int = 20):
     return {"count": len(threats), "threats": threats}
 
 
+@app.get("/api/priority/cves")
+def priority_cves_api(days: int = 90, limit: int = 20):
+    """Decision Engine : 'Que dois-je faire aujourd'hui ?' — CVE priorisees et justifiees."""
+    import src.priority_engine as pe
+    decisions = pe.get_priority_decisions(days=days, limit=limit)
+    summary = pe.get_decision_summary(days=days)
+    return {"count": len(decisions), "decisions": decisions, "summary": summary}
+
+
 @app.get("/api/cve/{cve_id}/analysis")
 def cve_analysis_api(cve_id: str):
     """Analyse IA d'une CVE (Groq)."""
