@@ -511,6 +511,180 @@ def threat_intel_api():
     }
 
 
+@app.get("/api/timeline")
+def timeline_api(limit: int = 30):
+    """Chronologie des evenements : CVE, exploits, missions, assets."""
+    from src import database
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT cve_id AS id, 'CVE publiee' AS type, cve_id AS title, description, published AS ts, severity
+        FROM cve_entries WHERE published IS NOT NULL
+        ORDER BY published DESC LIMIT %s
+    """, (limit // 4,))
+    cve_events = [{"id": f"cve-{r[0]}", "type": "cve", "title": r[2], "desc": (r[3] or "")[:150], "ts": str(r[4]), "severity": r[5]} for r in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT id, 'Mission' AS type, title, objective, created_at, status
+        FROM missions ORDER BY created_at DESC LIMIT %s
+    """, (limit // 4,))
+    mission_events = [{"id": f"mission-{r[0]}", "type": "mission", "title": r[2], "desc": (r[3] or "")[:150], "ts": str(r[4]), "status": r[5]} for r in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT id, 'Asset ajoute' AS type, name, asset_type, added_at, criticality
+        FROM asset_inventory ORDER BY added_at DESC LIMIT %s
+    """, (limit // 4,))
+    asset_events = [{"id": f"asset-{r[0]}", "type": "asset", "title": r[2], "desc": f"Type: {r[3]}", "ts": str(r[4]), "criticality": r[5]} for r in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT exploit_id, 'Exploit public' AS type, description, platform, date, exploit_type
+        FROM exploits WHERE date IS NOT NULL AND date <> ''
+        ORDER BY date DESC LIMIT %s
+    """, (limit // 4,))
+    exploit_events = [{"id": f"exploit-{r[0]}", "type": "exploit", "title": (r[2] or "")[:150], "desc": r[3] or "", "ts": str(r[4]), "platform": r[5]} for r in cursor.fetchall()]
+
+    cursor.close()
+    conn.close()
+
+    all_events = cve_events + mission_events + asset_events + exploit_events
+    all_events.sort(key=lambda e: e["ts"], reverse=True)
+    return {"events": all_events[:limit], "count": len(all_events[:limit])}
+
+
+@app.get("/api/reports/generate")
+def generate_report_api(profile_id: int = 0):
+    """Genere un rapport de securite (Markdown)."""
+    from src import database
+    import src.context_engine as ctx
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+
+    profile = ctx.ensure_profile(profile_id=profile_id)
+    org_id = profile.get("org_id")
+
+    cursor.execute("SELECT COUNT(*) FROM cve_entries WHERE severity IN ('CRITICAL','HIGH')")
+    critical_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM cve_entries WHERE weaknesses ILIKE '%%CISA_KEV%%'")
+    kev_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM missions")
+    mission_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM missions WHERE status = 'completed'")
+    completed_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM asset_inventory WHERE org_id = %s", (org_id,))
+    asset_count = cursor.fetchone()[0] if org_id else 0
+
+    org_name = "Organisation"
+    if org_id:
+        cursor.execute("SELECT name FROM organizations WHERE id = %s", (org_id,))
+        row = cursor.fetchone()
+        if row:
+            org_name = row[0]
+
+    cursor.execute("""
+        SELECT cve_id, description, severity, cvss_score FROM cve_entries
+        WHERE weaknesses ILIKE '%%CISA_KEV%%'
+        ORDER BY published DESC LIMIT 10
+    """)
+    top_kev = [{"cve_id": r[0], "description": (r[1] or "")[:200], "severity": r[2], "cvss_score": r[3]} for r in cursor.fetchall()]
+
+    cursor.close()
+    conn.close()
+
+    today = __import__("datetime").datetime.now().strftime("%d/%m/%Y")
+    report = f"""# Rapport de Securite — {org_name}
+**Date :** {today}
+
+---
+
+## Resume Executif
+
+- **{critical_count}** CVE critiques ou elevees dans la base
+- **{kev_count}** CVE activement exploitees (CISA KEV)
+- **{asset_count}** assets suivis
+- **{mission_count}** missions creees, **{completed_count}** terminees
+
+---
+
+## Top Menaces Actives (CISA KEV)
+
+"""
+    for k in top_kev:
+        report += f"- **{k['cve_id']}** (CVSS {k['cvss_score'] or '?'}) : {k['description']}\n"
+
+    report += """
+---
+
+## Recommandations
+
+1. Corriger les CVE CISA KEV en priorite
+2. Maintenir l'inventaire des assets a jour
+3. Suivre les missions en cours via le tableau de bord
+
+---
+
+*Rapport genere par HashCode Decision OS*
+"""
+    return {"report": report, "format": "markdown", "org_name": org_name}
+
+
+@app.post("/api/assistant/chat")
+def assistant_chat_api(message: str = "", profile_id: int = 0):
+    """Assistant contextuel : repond en connaissant le contexte utilisateur."""
+    import src.context_engine as ctx
+    import src.llm_router as llm
+    from src import database
+
+    profile = ctx.ensure_profile(profile_id=profile_id)
+    role = profile.get("role", "non_defini")
+
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM missions WHERE status IN ('active','in_progress')")
+    active_missions = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM cve_entries WHERE weaknesses ILIKE '%%CISA_KEV%%'")
+    kev_count = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+
+    system_prompt = f"""Tu es l'assistant HashCode Decision OS.
+L'utilisateur est un professionnel de cybersecurite (role: {role}).
+Il a {active_missions} missions actives et {kev_count} CVE KEV sous surveillance.
+Reponds en francais, de maniere concise et utile. Suggere des actions concretes.
+Contexte : tu peux parler de CVE, missions, assets, KEV, EPSS, exploits.
+Si l'utilisateur demande un rapport ou un plan, propose de le generer."""
+
+    answer = llm.llm_complete(f"{system_prompt}\n\nUtilisateur: {message}\nAssistant:")
+
+    return {"reply": answer, "context": {"role": role, "active_missions": active_missions, "kev_count": kev_count}}
+
+
+@app.get("/api/settings")
+def get_settings_api(profile_id: int = 0):
+    """Preferences utilisateur."""
+    import src.context_engine as ctx
+    profile = ctx.ensure_profile(profile_id=profile_id)
+    return {"profile_id": profile["id"], "role": profile["role"], "preferences": profile["preferences"], "onboarding_completed": profile["onboarding_completed"]}
+
+
+@app.post("/api/settings")
+def update_settings_api(profile_id: int, role: str = "", preferences: str = "{}"):
+    """Met a jour les preferences."""
+    import json as _j
+    import src.context_engine as ctx
+    profile = ctx.ensure_profile(profile_id=profile_id)
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+    prefs = _j.loads(preferences) if preferences else {}
+    if role:
+        cursor.execute("UPDATE user_profiles SET role = %s WHERE id = %s", (role, profile["id"]))
+    cursor.execute("UPDATE user_profiles SET preferences = %s WHERE id = %s", (_j.dumps(prefs), profile["id"]))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"updated": True}
+
+
 @app.get("/api/profile")
 def get_profile_api(profile_id: int = 0):
     """Profil utilisateur courant."""

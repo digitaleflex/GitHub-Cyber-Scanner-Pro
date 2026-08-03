@@ -9,5 +9,9 @@ import { Route as OrganizationRoute } from './routes/organization'
 import { Route as AssetsRoute } from './routes/assets'
 import { Route as MissionsRoute } from './routes/missions'
 import { Route as ThreatsRoute } from './routes/threats'
+import { Route as TimelineRoute } from './routes/timeline'
+import { Route as ReportsRoute } from './routes/reports'
+import { Route as AssistantRoute } from './routes/assistant'
+import { Route as SettingsRoute } from './routes/settings'
 
-export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, AboutRoute, ToolRoute, CveDetailRoute, CvesRoute, OrganizationRoute, AssetsRoute, MissionsRoute, ThreatsRoute])
+export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, AboutRoute, ToolRoute, CveDetailRoute, CvesRoute, OrganizationRoute, AssetsRoute, MissionsRoute, ThreatsRoute, TimelineRoute, ReportsRoute, AssistantRoute, SettingsRoute])
