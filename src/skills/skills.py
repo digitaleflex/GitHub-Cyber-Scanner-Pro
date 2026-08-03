@@ -114,6 +114,8 @@ def rerank(query: str, documents: list[str], top_k: int = 10, multilingual: bool
 
 def translate(text: str, direction: str = "fr_en") -> str:
     model = model_for("translation", direction)
+    if not model:
+        return text
     result = hf_inference(model, {"inputs": text[:1500]})
     if isinstance(result, list):
         return result[0].get("translation_text", "")

@@ -12,7 +12,6 @@ CAPABILITIES = {
     "embedding": {
         "primary": "BAAI/bge-large-en-v1.5",
         "multilingual": "intfloat/multilingual-e5-large",
-        "alt": "mixedbread-ai/mxbai-embed-large-v1",
     },
     "classification": {
         "primary": "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
@@ -28,10 +27,6 @@ CAPABILITIES = {
     "ner": {
         "primary": "dslim/bert-base-NER",
     },
-    "translation": {
-        "fr_en": "Helsinki-NLP/opus-mt-fr-en",
-        "en_fr": "Helsinki-NLP/opus-mt-en-fr",
-    },
     "guard": {
         "primary": "ibm-granite/granite-guardian-hap-125m",
     },
@@ -42,6 +37,10 @@ CAPABILITIES = {
         "primary": "deepset/roberta-base-squad2",
     },
 }
+
+# Repos: capacites disponibles mais hors scope V1 (re-activables plus tard)
+#   "translation" → Helsinki-NLP/opus-mt-fr-en, Helsinki-NLP/opus-mt-en-fr
+#   "embedding_alt" → mixedbread-ai/mxbai-embed-large-v1
 
 
 def model_for(capability: str, variant: str = "primary") -> str:
