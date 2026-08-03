@@ -62,6 +62,8 @@ function RootLayout() {
             <Link to="/osint" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400 [&.active]:bg-indigo-500/10">OSINT</Link>
             <Link to="/search" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-indigo-400">Recherche</Link>
             <Link to="/labs" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-violet-400">AI Lab</Link>
+            <Link to="/features" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-emerald-400">Fonctionnalites</Link>
+            <Link to="/pricing" className="px-3 py-1.5 text-xs text-amber-400 hover:text-white hover:bg-amber-500/10 rounded-lg transition border border-amber-500/10">Pro</Link>
             {isAdminAuthenticated() && (
               <Link to="/admin" className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition [&.active]:text-amber-400 flex items-center gap-1">
                 <Settings size={11} /> Admin
@@ -87,6 +89,8 @@ function RootLayout() {
             <Link to="/osint" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">OSINT</Link>
             <Link to="/search" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Recherche avancee</Link>
             <Link to="/labs" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">AI Lab</Link>
+            <Link to="/features" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Fonctionnalites</Link>
+            <Link to="/pricing" onClick={() => setMenuOpen(false)} className="text-xs text-amber-400 hover:text-amber-300 py-2 px-3 rounded-lg hover:bg-amber-500/10">Pro — a partir de 29€</Link>
             {isAdminAuthenticated() && (
               <Link to="/admin" onClick={() => setMenuOpen(false)} className="text-xs text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5 flex items-center gap-1.5"><Settings size={11} /> Admin</Link>
             )}
@@ -102,9 +106,11 @@ function RootLayout() {
             <span className="w-1 h-1 rounded-full bg-slate-700" />
             <Link to="/about" className="hover:text-slate-400 transition">A propos</Link>
             <span className="w-1 h-1 rounded-full bg-slate-700" />
-            <span>https://cyberbook.eurin.tech</span>
+            <Link to="/features" className="hover:text-slate-400 transition">Fonctionnalites</Link>
+            <span className="w-1 h-1 rounded-full bg-slate-700" />
+            <Link to="/pricing" className="hover:text-amber-400 transition">Pro</Link>
           </div>
-          <span>Powered by Groq AI + GitHub + NVD</span>
+          <span>Powered by Groq AI + GitHub + NVD + 30 sources</span>
         </footer>
       </div>
     </div>

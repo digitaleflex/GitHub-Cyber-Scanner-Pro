@@ -13,5 +13,7 @@ import { Route as CveDetailRoute } from './routes/cve'
 import { Route as OsintRoute } from './routes/osint'
 import { Route as AdminRoute } from './routes/admin'
 import { Route as LabsRoute } from './routes/labs'
+import { Route as PricingRoute } from './routes/pricing'
+import { Route as FeaturesRoute } from './routes/features'
 
-export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, OsintRoute, AboutRoute, ToolRoute, CveDetailRoute, LoginRoute, SearchRoute, ReportsRoute, CvesRoute, KeywordsRoute, GraphRoute, AdminRoute, LabsRoute])
+export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, OsintRoute, AboutRoute, ToolRoute, CveDetailRoute, LoginRoute, SearchRoute, ReportsRoute, CvesRoute, KeywordsRoute, GraphRoute, AdminRoute, LabsRoute, PricingRoute, FeaturesRoute])
