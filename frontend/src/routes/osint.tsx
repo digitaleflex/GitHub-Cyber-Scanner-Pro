@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
-import { ExternalLink, Loader2, MapPin, User, Hash, Brain, Mail, Phone, Globe, Search, Bug, Target, Play, Zap, BarChart3 } from 'lucide-react'
+import { ExternalLink, Loader2, MapPin, User, Hash, Brain, Mail, Phone, Globe, Search, Bug, Target, Play, Zap, BarChart3, Lightbulb } from 'lucide-react'
 
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/osint', component: OsintPage })
 
 const TABS = [
   { id: 'person', label: 'Enquête personne', icon: <User size={12} /> },
   { id: 'v2', label: 'Multi-candidats', icon: <Zap size={12} /> },
+  { id: 'plan', label: 'Plan IA', icon: <Lightbulb size={12} /> },
   { id: 'pipeline', label: 'Pipeline IA', icon: <Brain size={12} /> },
   { id: 'pro', label: 'Pro (email/phone/domaine)', icon: <Globe size={12} /> },
   { id: 'dorks', label: 'Dorking', icon: <Search size={12} /> },
@@ -35,6 +36,7 @@ function OsintPage() {
 
       {tab === 'person' && <PersonTab />}
       {tab === 'v2' && <V2Tab />}
+      {tab === 'plan' && <PlanTab />}
       {tab === 'pipeline' && <PipelineTab />}
       {tab === 'pro' && <ProTab />}
       {tab === 'dorks' && <DorksTab />}
@@ -268,6 +270,110 @@ function V2Tab() {
       </div>
       <OsintError message={error} />
       <OsintResult result={result} />
+    </div>
+  )
+}
+
+function PlanTab() {
+  const [text, setText] = useState('')
+  const [result, setResult] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const analyze = async () => {
+    if (!text.trim()) return
+    setLoading(true); setResult(null); setError(null)
+    try {
+      const r = await fetch(`/api/osint/plan?free_text=${encodeURIComponent(text)}`, { method: 'POST' }).then(r => r.json())
+      if (r?.error) { setError(r.error); return }
+      setResult(r)
+    } catch { setError("Échec de la requête. Réessayez.") }
+    setLoading(false)
+  }
+
+  return (
+    <div>
+      <div className="glass-card rounded-2xl p-4 mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <Lightbulb size={14} className="text-amber-400" />
+          <span className="text-xs text-slate-400">L'IA analyse la cible et recommande les meilleurs outils + la méthodologie à suivre.</span>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <textarea value={text} onChange={e => setText(e.target.value)}
+            placeholder="Décrivez la cible (nom, lieu, profession, indices...)"
+            className="flex-1 px-4 py-3 glass rounded-xl text-sm text-white placeholder-slate-500 min-h-[80px] focus:ring-2 focus:ring-amber-500/40" />
+          <button onClick={analyze} disabled={loading || !text.trim()}
+            className="px-6 py-3 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl text-sm font-medium hover:bg-amber-500/20 disabled:opacity-30 transition self-end">
+            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Générer le plan'}
+          </button>
+        </div>
+      </div>
+
+      <OsintError message={error} />
+
+      {result && (
+        <div className="space-y-4 animate-fade">
+          {result.analysis && (
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2"><Brain size={14} className="text-violet-400" /> Analyse de la cible</h3>
+              <p className="text-sm text-slate-300">{result.analysis}</p>
+              {result.total_tools_available != null && (
+                <p className="text-[10px] text-slate-500 mt-2 font-mono">{result.tools_ready?.length || 0}/{result.total_tools_available} outils recommandés prêts</p>
+              )}
+            </div>
+          )}
+
+          {result.tools_ready?.length > 0 && (
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Target size={14} className="text-cyan-400" /> Outils recommandés</h3>
+              <div className="space-y-2">
+                {result.tools_ready.map((t: any, i: number) => (
+                  <div key={i} className="glass rounded-xl p-3">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-xs font-medium text-white font-mono">{t.name}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full border font-mono ${t.ready ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10' : 'text-amber-400 border-amber-500/20 bg-amber-500/10'}`}>
+                        {t.ready ? 'Prêt' : 'Requiert ' + t.requires}
+                      </span>
+                    </div>
+                    {t.what && <p className="text-[11px] text-slate-500">{t.what}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {result.execution_order && (
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Play size={14} className="text-emerald-400" /> Ordre d'exécution</h3>
+              <p className="text-sm text-slate-300 whitespace-pre-wrap">{result.execution_order}</p>
+            </div>
+          )}
+
+          {result.estimated_results && (
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2"><BarChart3 size={14} className="text-indigo-400" /> Résultats attendus</h3>
+              <p className="text-sm text-slate-400">{result.estimated_results}</p>
+            </div>
+          )}
+
+          {(result.limitations || result.alternative_approach) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {result.limitations && (
+                <div className="glass-card rounded-2xl p-4 border-rose-500/10">
+                  <h3 className="text-sm font-semibold text-rose-400 mb-2">Limitations</h3>
+                  <p className="text-sm text-slate-400">{result.limitations}</p>
+                </div>
+              )}
+              {result.alternative_approach && (
+                <div className="glass-card rounded-2xl p-4 border-emerald-500/10">
+                  <h3 className="text-sm font-semibold text-emerald-400 mb-2">Approche alternative</h3>
+                  <p className="text-sm text-slate-400">{result.alternative_approach}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

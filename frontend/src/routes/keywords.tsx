@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
-import { useKeywords, approveKeyword, rejectKeyword, type Keyword } from '../lib/api'
+import { useKeywords, approveKeyword, rejectKeyword, enrichKeywords, enrichOntology, type Keyword } from '../lib/api'
 import AdminGuard from '../components/AdminGuard'
 import EmptyState from '../components/EmptyState'
 import ErrorState from '../components/ErrorState'
@@ -66,6 +66,22 @@ function KeywordsPage() {
               {label}
             </button>
           ))}
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={async () => { await enrichKeywords(); qc.invalidateQueries({ queryKey: ['keywords'] }) }}
+            className="text-xs px-3 py-1.5 rounded border border-white/[0.12] text-gray-400 hover:text-white hover:border-white/30 transition-colors font-mono"
+            title="Découvrir de nouveaux mots-clés depuis des sources externes"
+          >
+            + Sources externes
+          </button>
+          <button
+            onClick={async () => { await enrichOntology(); qc.invalidateQueries({ queryKey: ['keywords'] }) }}
+            className="text-xs px-3 py-1.5 rounded border border-white/[0.12] text-gray-400 hover:text-white hover:border-white/30 transition-colors font-mono"
+            title="Enrichir l'ontologie MITRE ATT&CK / CAPEC"
+          >
+            + MITRE/CAPEC
+          </button>
         </div>
         <div className="relative flex-1 min-w-[180px]">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />

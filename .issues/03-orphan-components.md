@@ -1,27 +1,28 @@
 # #3 — Composants orphelins jamais utilisés
 
-**Priorité** : 🟡 Moyen  
-**Fichiers** : `frontend/src/components/`
+**Priorité** : 🟡 Moyen
+**Statut** : ✅ Résolu
+**Fichier** : `frontend/src/components/`
 
-## Problème
-9 composants React existent dans le codebase mais ne sont **jamais montés** dans aucun route. Code mort.
+## Problème (initial)
+9 composants React existaient mais n'étaient **jamais montés** dans aucune route (code mort).
 
-- `ReposTable.tsx` — Table complète avec CSV, filtres, pagination
-- `BooksTable.tsx` — Table des livres/ressources cyber
-- `FicheFlashModal.tsx` — Modal vue rapide d'un repo
-- `StatsCards.tsx` — 8 cartes de stats dashboard
-- `LangDistribution.tsx` — Distribution des langages
-- `CyberRadar.tsx` — Radar chart 6 dimensions
-- `TopRepos.tsx` — Top 5 repos par stars
-- `CveTable.tsx` — Table CVE avec badges sévérité
-- `ActivityFeed.tsx` — Fil d'activité (scan, rapports)
+## Résolution
 
-## Solution
-Les intégrer dans les pages appropriées :
-- `StatsCards` → page d'accueil ou admin dashboard
-- `CyberRadar` → page d'accueil (section posture cyber)
-- `ActivityFeed` → admin dashboard
-- `ReposTable` → alternative à la vue grid pour les outils
-- `CveTable` → remplacer la liste inline dans cves.tsx
-- `BooksTable` → nouvelle route `/books`
-- `TopRepos`, `LangDistribution`, `FicheFlashModal` → bonus dans les pages existantes
+**✅ Intégrés (4)** :
+- `StatsCards.tsx` → page d'accueil `routes/index.tsx` (remplace le KPI Dashboard statique)
+- `TopRepos.tsx` → page d'accueil `routes/index.tsx` (section "Top 5")
+- `LangDistribution.tsx` → page d'accueil `routes/index.tsx` (graphique des langages)
+- `BooksTable.tsx` → nouvelle route `/books` (`routes/books.tsx` + lien nav "Ressources")
+
+**✅ Supprimés (3)** — redondants avec des pages déjà existantes :
+- `ReposTable.tsx` → supprimé (`/tools` fournit déjà DataTable + CSV + tri + pagination)
+- `CveTable.tsx` → supprimé (`/cves` fournit déjà DataTable avec liens de détail + tri)
+- `KeywordsTable.tsx` → supprimé (ses boutons uniques "+ Sources externes" / "+ MITRE/CAPEC" ont été portés dans `routes/keywords.tsx`)
+
+**✅ Déjà intégrés avant (2)** :
+- `CyberRadar.tsx` → `routes/admin.tsx`
+- `ActivityFeed.tsx` → `routes/admin.tsx`
+
+## Vérification
+✅ Tous les composants de `frontend/src/components/` sont désormais montés dans au moins une route. Aucun code mort. `npm run build` + `npm run lint` passent (0 erreur). Issue fermée.

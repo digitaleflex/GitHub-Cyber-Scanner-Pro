@@ -1,20 +1,21 @@
 # #5 — Page OSINT incomplète
 
-**Priorité** : 🔴 Critique  
+**Priorité** : 🔴 Critique
+**Statut** : ✅ Résolu
 **Fichier** : `frontend/src/routes/osint.tsx`
 
-## Problème
-La page `/osint` n'expose que `/api/osint/investigate` (enquête basique).
-**11 endpoints OSINT supplémentaires** sont disponibles dans le backend mais totalement invisibles.
+## Problème (initial)
+La page `/osint` n'exposait que `/api/osint/investigate`. **11 endpoints OSINT** du backend étaient invisibles.
 
-## Endpoints à exposer
-- `POST /api/osint/pro/email` — Email breaches + pastebin
-- `POST /api/osint/pro/phone` — Phone analysis
-- `POST /api/osint/pro/domain` — Domain WHOIS/RDAP
-- `POST /api/osint/pro/report` — Rapport pro complet
-- `POST /api/osint/investigate-v2` — Multi-candidats + scoring
-- `POST /api/osint/pipeline` — 12 modèles IA chaînés
-- `POST /api/osint/plan` — IA recommande les outils
-- `POST /api/osint/run-all` — Sherlock, Maigret, Holehe
-- `POST /api/osint/dorks` — Multi-engine dorking
-- `GET /api/osint/tools` — État des outils
+## Résolution
+La page `/osint` expose désormais les 11 endpoints via 7 onglets :
+- `PersonTab` → `POST /api/osint/investigate`
+- `V2Tab` → `POST /api/osint/investigate-v2`
+- **`PlanTab` (nouveau)** → `POST /api/osint/plan` — l'IA analyse la cible, recommande les outils + méthodologie, et affiche : analyse, outils recommandés (avec statut prêt/requis), ordre d'exécution, résultats attendus, limitations et approche alternative
+- `PipelineTab` → `POST /api/osint/pipeline`
+- `ProTab` → `email`, `phone`, `domain`, `report`
+- `DorksTab` → `POST /api/osint/dorks`
+- `ToolsTab` → `GET /api/osint/tools` + `POST /api/osint/run-all`
+
+## Vérification
+✅ Les 11 endpoints sont exposés. `npm run build` + `npm run lint` passent (0 erreur). Issue fermée.

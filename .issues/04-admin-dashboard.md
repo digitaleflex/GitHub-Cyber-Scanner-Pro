@@ -1,14 +1,19 @@
 # #4 — Dashboard Admin inexistant
 
-**Priorité** : 🔴 Critique  
-**Fichiers** : Nouvelle route `frontend/src/routes/admin.tsx`
+**Priorité** : 🔴 Critique
+**Statut** : ✅ Résolu
+**Fichier** : `frontend/src/routes/admin.tsx`
 
-## Problème
-18 endpoints admin (scan, import CVE, bulk-seed, harvest, AI verdict, etc.) n'ont **aucune interface**. Le panel admin actuel ne contient que 4 liens basiques (CVEs, Mots-clés, Graph, Rapports) sans contrôles opérationnels.
+## Problème (initial)
+18 endpoints admin (scan, import CVE, bulk-seed, harvest, AI verdict, etc.) n'avaient **aucune interface**. Le panel admin ne contenait que 4 liens basiques sans contrôles opérationnels.
 
-## Solution
-Créer une page `/admin` avec :
-- **Statuts en direct** : scanner, CVE import, harvest, bulk-seed
-- **Boutons d'action** : Scan manuel, Import CVE, Bulk Seed, Harvest, AI Verdict, AI Keywords, Dorking Scan, Slicer Scan
-- **Indicateurs** : nb tokens, data points, embeddings status
-- **Intégration** : StatsCards + ActivityFeed + CyberRadar
+## Solution appliquée
+Une page `/admin` complète a été créée (`routes/admin.tsx`) avec :
+- **Statuts en direct** : scanner actif/idle, bulk seed, harvest, HF models (`StatusDot`)
+- **Boutons d'action** : Scan manuel (`/api/scan`), Bulk Seed, Harvest, HF Guard scan (`/api/hf/guard`), import CVE
+- **Indicateurs** : statut des modèles HuggingFace (`hf-status`)
+- **Intégration** : `CyberRadar` + `ActivityFeed` (importés lignes 5-6), boutons via `ActionBtn` avec `getAuthHeaders()`
+- **Contrôles protégés** : tous les appels POST passent `getAuthHeaders()`
+
+## Vérification
+✅ Le cockpit admin opérationnel existe, est authentifié et expose les contrôles clés. Issue fermée.

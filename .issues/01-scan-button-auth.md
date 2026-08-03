@@ -1,12 +1,16 @@
 # #1 — Bouton Scan non fonctionnel
 
-**Priorité** : 🔴 Critique  
-**Fichiers** : `frontend/src/routes/__root.tsx` (lignes 20-36), `src/api_routes.py` (ligne 735)
+**Priorité** : 🔴 Critique
+**Statut** : ✅ Résolu
+**Fichiers** : `frontend/src/routes/__root.tsx`, `frontend/src/routes/login.tsx`
 
-## Problème
-Le bouton "Scanner" dans la navbar appelle `POST /api/scan` mais ne passe **aucun header d'authentification admin**. L'endpoint backend requiert `Depends(src.auth.verify_admin)`, donc le scan échoue systématiquement en silence pour les visiteurs.
+## Problème (initial)
+Le bouton "Scanner" de la navbar appelait `POST /api/scan` **sans header d'authentification admin**. L'endpoint backend requiert `Depends(src.auth.verify_admin)`, donc le scan échouait systématiquement (en silence) pour les visiteurs.
 
-## Solution
-- Soit passer les headers Basic Auth dans l'appel API
-- Soit ne montrer le bouton qu'aux admins authentifiés
-- Idéal : faire les deux
+## Solution appliquée
+- **Auth passée** : l'appel utilise désormais `getAuthHeaders()` (`__root.tsx:20-21`), qui injecte les headers Basic Auth de la session admin.
+- **Bouton masqué pour les non-admins** : le bouton n'est rendu que si `isAdminAuthenticated()` renvoie `true` (`__root.tsx:26`).
+- **Garde-fou supplémentaire** : `handleScan` ne fait rien si `!isAdmin` (`__root.tsx:18`).
+
+## Vérification
+✅ Double protection : l'en-tête Basic Auth est envoyé **et** le bouton est invisible hors session admin. Issue fermée.

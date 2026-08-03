@@ -1,12 +1,21 @@
 # #6 — Recherche IA non activée
 
-**Priorité** : 🟡 Moyen  
+**Priorité** : 🟡 Moyen
+**Statut** : ✅ Résolu
 **Fichier** : `frontend/src/routes/search.tsx`
 
-## Problème
-La page `/search` utilise l'API de recherche basique. Les endpoints de recherche IA existent mais ne sont pas utilisés :
-- `GET /api/search/ai` — Recherche hybride avec re-ranking Groq
-- `GET /api/search/semantic` — Recherche sémantique par cosine similarity
+## Problème (initial)
+La page `/search` n'utilisait que la recherche basique, sans utiliser les endpoints IA du backend :
+- `GET /api/search/ai` — recherche hybride avec re-ranking Groq
+- `GET /api/search/semantic` — recherche sémantique par cosine similarity
 
-## Solution
-Ajouter un toggle "Recherche IA" qui bascule entre la recherche classique et `/api/search/ai`. Ajouter aussi un onglet "Sémantique".
+## Solution appliquée
+La page `/search` a désormais **3 modes commutables** (`search.tsx:46`) :
+- **Recherche classique** (endpoint par défaut)
+- **IA** → `/api/search/ai`
+- **Sémantique** → `/api/search/semantic`
+
+Les onglets IA/sémantique sont clairement labelisés ("Recherche IA avec re-ranking Groq (Llama 3.3)" / "Recherche sémantique par similarité cosine").
+
+## Vérification
+✅ Toggle 3 modes présent et fonctionnel. Issue fermée.
