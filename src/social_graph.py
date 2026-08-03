@@ -154,6 +154,32 @@ def link_collaborations(threshold: int = 2):
         return record["created"] if record else 0
 
 
+def link_cve_to_repo():
+    """Link CVEs to Repos based on keyword/CVE-ID matching in descriptions."""
+    driver = get_driver()
+    if not driver:
+        return 0
+    count = 0
+    with driver.session() as session:
+        result = session.run(
+            """
+            MATCH (c:CVE), (r:Repo)
+            WHERE r.description IS NOT NULL AND c.description IS NOT NULL
+            AND (
+                r.description CONTAINS c.cve_id
+                OR r.description CONTAINS 'CVE-' + substring(c.cve_id, 5)
+                OR any(kw IN split(c.cve_id, '-') WHERE r.description CONTAINS kw)
+            )
+            MERGE (r)-[:RELATES_TO {type: 'cve_reference'}]-(c)
+            RETURN count(*) AS created
+            """
+        )
+        record = result.single()
+        count = record["created"] if record else 0
+    logging.info(f"  {count} CVE-Repo links created")
+    return count
+
+
 def get_graph_stats():
     driver = get_driver()
     if not driver:

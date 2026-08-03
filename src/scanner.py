@@ -35,7 +35,7 @@ def graph_query_api(label: str = "", limit: int = 50):
 
 @app.post("/api/graph/seed")
 def graph_seed_api(_u: str = Depends(verify_admin)):
-    from src.social_graph import init_graph, seed_from_repos, seed_from_cves
+    from src.social_graph import init_graph, seed_from_repos, seed_from_cves, link_cve_to_repo
     from src import database
     init_graph()
     repos = database.get_repos_frontend()
@@ -44,7 +44,8 @@ def graph_seed_api(_u: str = Depends(verify_admin)):
     seed_from_cves(cves_data.get("cves", []))
     from src.social_graph import link_collaborations
     collabs = link_collaborations()
-    return {"message": "Graph seeded", "repos": len(repos), "cves": len(cves_data.get("cves", [])), "collaborations": collabs}
+    cve_repo = link_cve_to_repo()
+    return {"message": "Graph seeded", "repos": len(repos), "cves": len(cves_data.get("cves", [])), "collaborations": collabs, "cve_links": cve_repo}
 
 
 # --- FRONTEND SERVING (React SPA + Reports) ---
