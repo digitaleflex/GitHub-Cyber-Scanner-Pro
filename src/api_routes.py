@@ -311,12 +311,86 @@ def priority_cves_api(days: int = 90, limit: int = 20, profile_id: int | None = 
     return {"count": len(decisions), "decisions": decisions, "summary": summary}
 
 
+@app.get("/api/organization")
+def get_organization_api(profile_id: int = 0):
+    """Retourne l'organisation, ses assets et le profil."""
+    import src.context_engine as ctx
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+    profile = ctx.ensure_profile(profile_id=profile_id)
+    org_id = profile.get("org_id")
+    org = None
+    assets = []
+    if org_id:
+        cursor.execute("SELECT id, name, sector, compliance_frameworks FROM organizations WHERE id = %s", (org_id,))
+        row = cursor.fetchone()
+        if row:
+            org = {"id": row[0], "name": row[1], "sector": row[2] or "", "compliance": row[3] or ""}
+        cursor.execute(
+            """SELECT id, asset_type, name, vendor, version, exposed, criticality
+               FROM asset_inventory WHERE org_id = %s ORDER BY criticality DESC, name""",
+            (org_id,),
+        )
+        assets = [{"id": r[0], "type": r[1], "name": r[2], "vendor": r[3] or "", "version": r[4] or "", "exposed": r[5], "criticality": r[6]} for r in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return {"profile": profile, "organization": org, "assets": assets, "assets_count": len(assets)}
+
+
+@app.post("/api/organization")
+def update_organization_api(profile_id: int, org_name: str = "", sector: str = "", compliance: str = ""):
+    """Met a jour l'organisation."""
+    import src.context_engine as ctx
+    profile = ctx.ensure_profile(profile_id=profile_id)
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+    org_id = profile.get("org_id")
+
+    if not org_id and org_name:
+        cursor.execute(
+            "INSERT INTO organizations (name, sector, compliance_frameworks) VALUES (%s, %s, %s) RETURNING id",
+            (org_name, sector, compliance),
+        )
+        org_id = cursor.fetchone()[0]
+        cursor.execute("UPDATE user_profiles SET org_id = %s WHERE id = %s", (org_id, profile_id))
+    elif org_id:
+        cursor.execute(
+            "UPDATE organizations SET name = %s, sector = %s, compliance_frameworks = %s WHERE id = %s",
+            (org_name or profile.get("org_name", ""), sector, compliance, org_id),
+        )
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"org_id": org_id, "name": org_name, "sector": sector}
+
+
+@app.post("/api/assets/add")
+def add_asset_api(profile_id: int, asset_type: str = "product", name: str = "", vendor: str = "", version: str = "", criticality: int = 3):
+    """Ajoute un asset a l'inventaire."""
+    import src.context_engine as ctx
+    profile = ctx.ensure_profile(profile_id=profile_id)
+    org_id = profile.get("org_id")
+    if not org_id:
+        return {"error": "Aucune organisation. Creez-en une d'abord."}
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """INSERT INTO asset_inventory (org_id, asset_type, name, vendor, version, criticality)
+           VALUES (%s, %s, %s, %s, %s, %s) RETURNING id""",
+        (org_id, asset_type, name[:200], vendor, version, min(max(criticality, 1), 5)),
+    )
+    asset_id = cursor.fetchone()[0]
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"id": asset_id, "added": True}
+
+
 @app.get("/api/profile")
 def get_profile_api(profile_id: int = 0):
     """Profil utilisateur courant."""
     import src.context_engine as ctx
-    profile = ctx.ensure_profile(profile_id=profile_id)
-    return profile
+    return ctx.ensure_profile(profile_id=profile_id)
 
 
 @app.post("/api/profile/onboard")
@@ -456,30 +530,6 @@ def exploits_refresh_api(_u: str = Depends(src.auth.verify_admin)):
     return loader.load_exploitdb()
 
 
-@app.post("/api/enrich-ontology")
-def enrich_ontology_api(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
-    """Télécharge MITRE ATT&CK / CAPEC / CWE et enrichit l'ontologie."""
-    background_tasks.add_task(_run_ontology_enrichment)
-    return {"message": "Enrichissement de l'ontologie lancé en arrière-plan"}
-
-
-def _run_ontology_enrichment():
-    count = ontology_enricher.import_ontology_to_db()
-    logging.info(f"🧬 Enrichissement ontologique terminé : {count} termes")
-
-
-@app.post("/api/enrich-keywords")
-def enrich_keywords_api(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
-    """Extrait des mots-clés depuis CVEs, MITRE Mobile/ICS, OWASP, Exploit-DB."""
-    background_tasks.add_task(_run_keyword_sources)
-    return {"message": "Extraction de mots-clés lancée en arrière-plan"}
-
-
-def _run_keyword_sources():
-    stats = keyword_sources.import_external_sources_to_db()
-    logging.info(f"🗄️ Keywords externes: {stats}")
-
-
 @app.post("/api/tools/backfill-readmes")
 def backfill_readmes_api(background_tasks: BackgroundTasks, limit: int = 100, _u: str = Depends(src.auth.verify_admin)):
     """Recupere les README manquants (tri stars DESC) et les stocke en chunks RAG (admin)."""
@@ -508,29 +558,9 @@ def _run_vitality_recompute():
 @app.get("/api/download")
 def download_excel(_u: str = Depends(src.auth.verify_admin)):
     """Téléchargement de l'export Excel."""
-    export_to_excel()
-    if os.path.exists(EXCEL_FILE):
-        return FileResponse(
-            EXCEL_FILE,
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            filename="cyber_security_catalogues.xlsx"
-        )
-    return {"error": "Fichier Excel non disponible."}
-
-
 @app.get("/api/download/json")
 def download_json(_u: str = Depends(src.auth.verify_admin)):
     """Téléchargement de l'export JSON."""
-    export_to_json()
-    if os.path.exists(JSON_FILE):
-        return FileResponse(
-            JSON_FILE,
-            media_type="application/json",
-            filename="cyber_security_catalogues.json"
-        )
-    return {"error": "Fichier JSON non disponible."}
-
-
 @app.post("/api/scan")
 def start_scan(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
     """Déclenche un scan manuel en arrière-plan."""
