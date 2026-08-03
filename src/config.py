@@ -18,8 +18,6 @@ from fastapi.staticfiles import StaticFiles
 
 from src import database
 import src.nlp_processor as nlp_processor
-import src.sast_scanner as sast_scanner
-import src.threat_intel as threat_intel
 
 # Reconfigurer la sortie standard en UTF-8 sur Windows pour supporter l'affichage d'emojis
 if sys.platform == "win32":

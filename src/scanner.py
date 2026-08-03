@@ -7,8 +7,8 @@ from fastapi.responses import FileResponse, HTMLResponse
 from src.config import app, SCAN_INTERVAL_SECONDS, DOMAIN, FRONTEND_DIR, REPORTS_DIR
 from src.api_routes import *  # noqa
 from src.scan_engine import (scanner_status, scan_in_progress, scanner_lock,
-                            _run_keyword_miner, scan_cycle, run_scan_once_manual,
-                            run_scanner_daemon)
+                             scan_cycle, run_scan_once_manual,
+                             run_scanner_daemon)
 from src import database
 from src.auth import verify_admin
 from fastapi import Depends
@@ -89,27 +89,8 @@ def serve_frontend(path: str):
     return HTMLResponse("<h1>CyberScan API</h1><p>Frontend non disponible</p>")
 
 
-def _bootstrap_ontology():
-    """Importe l'ontologie MITRE au premier démarrage si la base est vide."""
-    try:
-        approved = database.get_approved_keywords()
-        if len(approved) >= 1000:
-            logging.info("🧬 Ontologie déjà chargée (%d termes)", len(approved))
-            from nlp_processor import refresh_cyber_terms
-            refresh_cyber_terms()
-            return
-        import ontology_enricher
-        count = ontology_enricher.import_ontology_to_db()
-        logging.info("🧬 Ontologie bootstrap: %d termes importes", count)
-    except Exception as e:
-        logging.error(f"❌ Erreur bootstrap ontologie: {e}")
-
-
 if __name__ == "__main__":
     database.init_db()
-
-    bootstrap_thread = threading.Thread(target=_bootstrap_ontology, daemon=True)
-    bootstrap_thread.start()
 
     def _run_cve_updater():
         import src.cve_importer as cve_importer

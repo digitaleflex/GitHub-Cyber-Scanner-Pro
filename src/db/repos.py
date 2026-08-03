@@ -9,8 +9,6 @@ def save_repositories(items):
     if not items:
         return 0
 
-    from semantic_classifier import classify_semantic
-
     conn = _conn.get_db_connection()
     cursor = conn.cursor()
     new_discoveries = 0
@@ -22,7 +20,11 @@ def save_repositories(items):
             new_discoveries += 1
 
         description = item.get("description") or ""
-        sem_cat, _ = classify_semantic(description, item.get("full_name") or "")
+        try:
+            from src.nlp_processor import classify_semantic as _cls
+            sem_cat, _ = _cls(description, item.get("full_name") or "")
+        except Exception:
+            sem_cat = ""
 
         cursor.execute(
             """

@@ -7,13 +7,10 @@ from fastapi import BackgroundTasks
 from fastapi.responses import FileResponse, HTMLResponse
 from src.config import app, FRONTEND_DIR, DOMAIN, EXCEL_FILE, JSON_FILE
 from src import database
-import src.ontology_enricher as ontology_enricher
-import src.keyword_sources as keyword_sources
 import src.auth
 from fastapi import Depends
 import src.nlp_processor as nlp_processor
 import src.scan_engine as _engine
-from src.exports import export_to_excel, export_to_json, export_reports
 
 # --- ROUTAGE FASTAPI ---
 
@@ -95,78 +92,6 @@ def get_repositories_api():
     return database.get_repositories()
 
 
-@app.get("/api/books")
-def get_books_api(q: str = None):
-    """
-    Renvoie la liste des livres extraits.
-    Si le paramètre q est fourni, effectue une recherche sémantique intelligente.
-    """
-    return database.get_books(q)
-
-
-@app.get("/api/keywords")
-def get_keywords_api(status: str = "pending", limit: int = 100, min_score: float = 0.0):
-    """Liste les mots-clés découverts par le miner."""
-    return {"keywords": database.get_keywords(status, limit, min_score)}
-
-
-@app.post("/api/keywords/{term}/approve")
-def approve_keyword_api(term: str, category: str = None, _u: str = Depends(src.auth.verify_admin)):
-    ok = database.approve_keyword(term, "approved", category)
-    if ok:
-        from nlp_processor import refresh_cyber_terms
-        refresh_cyber_terms()
-    return {"success": ok, "term": term}
-
-
-@app.post("/api/keywords/{term}/reject")
-def reject_keyword_api(term: str, _u: str = Depends(src.auth.verify_admin)):
-    ok = database.approve_keyword(term, "rejected")
-    return {"success": ok, "term": term}
-
-
-@app.get("/api/search/ai")
-def smart_search_api(q: str = "", limit: int = 20):
-    """Recherche hybride avec re-rank IA (Groq)."""
-    if not q or len(q) < 2:
-        return {"query": q, "total": 0, "results": []}
-    import src.semantic_ranker as ranker
-    return ranker.smart_search(q, limit=limit, use_ai_rank=True)
-
-
-@app.get("/api/search/semantic")
-def semantic_search_api(q: str = "", limit: int = 20):
-    """Recherche semantique par similarite cosine (embeddings)."""
-    if not q or len(q) < 2:
-        return {"results": [], "query": q}
-    import src.embeddings as embeddings
-    results = embeddings.semantic_search(q, limit=limit)
-    return {"query": q, "total": len(results), "results": results}
-
-
-@app.post("/api/embeddings/build")
-def build_embeddings_api(limit: int = 200, _u: str = Depends(src.auth.verify_admin)):
-    """Genere les embeddings pour les repos sans."""
-    import src.embeddings as embeddings
-    n = embeddings.embed_unembedded_repos(limit=limit)
-    return {"generated": n, "status": embeddings.embedding_status()}
-
-
-@app.get("/api/embeddings/status")
-def embeddings_status_api():
-    """Etat de l'indexation des embeddings semantiques."""
-    import src.embeddings as embeddings
-    return embeddings.embedding_status()
-
-
-@app.post("/api/ai-verdict")
-def run_ai_verdict(limit: int = 30, _u: str = Depends(src.auth.verify_admin)):
-    """Lance l'audit IA sur les repos sans verdict de securite."""
-    import src.ai_verdict as ai_verdict
-    n = ai_verdict.batch_analyze_unverified(limit=limit)
-    return {"audited": n, "message": f"{n} depot(s) audite(s) par l'IA"}
-
-
 @app.get("/api/trending")
 def trending_api(days: int = 7, limit: int = 20):
     """Outils tendance des N derniers jours."""
@@ -245,20 +170,6 @@ def tool_detail_api(name: str):
     return tool
 
 
-@app.get("/api/digest")
-def get_digest_api():
-    """Retourne le dernier digest IA du jour."""
-    import src.ai_digest as ai_digest
-    return ai_digest.get_latest_digest()
-
-
-@app.post("/api/digest")
-def generate_digest_api(_u: str = Depends(src.auth.verify_admin)):
-    """Genere un nouveau digest IA (admin)."""
-    import src.ai_digest as ai_digest
-    return ai_digest.generate_digest()
-
-
 @app.get("/api/tools/featured")
 def featured_tools_api(limit: int = 12):
     """Outils incontournables: score de qualite eleve (top vitalite)."""
@@ -332,199 +243,12 @@ def tools_by_category_api(category: str = "all", limit: int = 30):
     return {"tools": rows, "category": category}
 
 
-@app.post("/api/agents/github/categorize")
-def github_categorize_api(limit: int = 15, _u: str = Depends(src.auth.verify_admin)):
-    """Categorise les repos sans categorie IA (admin)."""
-    import src.agents.github_agent as gh
-    n = gh.batch_categorize(limit=limit)
-    return {"categorized": n}
-
-
-@app.get("/api/trends")
-def trends_api():
-    """Tendances emergentes detectees par l'agent IA."""
-    import src.agents.trend_agent as trend
-    return trend.detect_trends()
-
-
-@app.post("/api/blog/scan")
-def blog_scan_api(_u: str = Depends(src.auth.verify_admin)):
-    """Lance le scan des blogs securite (admin). Retourne les articles avec entites extraites."""
-    import src.blog_scanner as blog
-    n = blog.scan_all()
-    posts = blog.get_posts(limit=10)
-    # Extraire les entites des derniers articles
-    enriched = []
-    for p in posts[:5]:
-        p["entities"] = blog.extract_entities(p.get("title","") + " " + p.get("summary",""))
-        enriched.append(p)
-    return {"saved": n, "sample": enriched}
-
-
-@app.get("/api/blog/posts")
-def blog_posts_api(limit: int = 20, source: str = None):
-    """Derniers articles de blogs securite."""
-    import src.blog_scanner as blog
-    return blog.get_posts(limit=limit, source=source)
-
-
-@app.get("/api/blog/sources")
-def blog_sources_api():
-    """Sources de blogs disponibles."""
-    import src.blog_scanner as blog
-    return blog.get_sources()
-
-
-@app.post("/api/social/reddit")
-def reddit_scan_api(limit: int = 10, _u: str = Depends(src.auth.verify_admin)):
-    """Scan Reddit pour nouveaux outils (admin)."""
-    import src.social.reddit_scanner as reddit
-    n = reddit.run(limit_per_sub=limit)
-    return {"discovered": n}
-
-
 @app.post("/api/hf/guard")
 def hf_guard_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     """Content safety scan via Granite Guardian (admin)."""
     import src.hf_client as hf
     n = hf.batch_scan_suspect_repos(limit=limit)
     return {"flagged": n}
-
-
-@app.post("/api/osint/pro/email")
-def osint_email_api(email: str = ""):
-    """Email OSINT: breaches + pastebin."""
-    import src.osint_pro as pro
-    return {
-        "breaches": pro.check_email_breaches(email),
-        "pastebin": pro.search_pastebin(email),
-    }
-
-
-@app.post("/api/osint/pro/phone")
-def osint_phone_api(phone: str = ""):
-    """Phone OSINT: analyse numero."""
-    import src.osint_pro as pro
-    return pro.analyze_phone(phone)
-
-
-@app.post("/api/osint/pro/domain")
-def osint_domain_api(domain: str = ""):
-    """Domain OSINT: WHOIS/RDAP."""
-    import src.osint_pro as pro
-    return pro.lookup_domain(domain)
-
-
-@app.post("/api/osint/pro/report")
-def osint_report_api(free_text: str = "", email: str = "", phone: str = "", domain: str = ""):
-    """Rapport OSINT professionnel complet (toutes les sources)."""
-    import src.osint_pro as pro
-    import src.osint_lab as lab
-    import src.github_client as gc
-
-    findings = {}
-
-    # Pipeline standard
-    if free_text:
-        extracted = lab.ai_extract_person(free_text)
-        name = extracted.get("name", "")
-        location = extracted.get("location", "")
-        username = (extracted.get("probable_usernames") or [""])[0]
-        findings["github_profiles"] = lab.search_github_user(name, location, gc.TOKENS) if name else []
-        findings["social_presence"] = lab.check_social_presence(username) if username else []
-    else:
-        extracted = {"name": "", "location": ""}
-
-    # Email OSINT
-    if email:
-        findings["email_breaches"] = pro.check_email_breaches(email)
-        findings["email_pastebin"] = pro.search_pastebin(email)
-
-    # Phone OSINT
-    if phone:
-        findings["phone_analysis"] = pro.analyze_phone(phone)
-
-    # Domain OSINT
-    if domain:
-        findings["domain_info"] = pro.lookup_domain(domain)
-
-    return pro.generate_report(
-        target={"free_text": free_text, "email": email, "phone": phone, "domain": domain,
-                "extracted": extracted},
-        findings=findings,
-    )
-
-
-@app.post("/api/osint/investigate-v2")
-def osint_investigate_v2(free_text: str = ""):
-    """Enquete OSINT 2.0: multi-candidats, scoring, decision engine."""
-    import src.osint_engine as engine
-    import src.github_client as gc
-    result = engine.run_investigation(free_text, tokens=gc.TOKENS if gc.TOKENS else [])
-    # Ajouter la comparaison visuelle
-    result["comparison"] = engine.compare_candidates(result.get("candidates", []))
-    return result
-
-
-@app.post("/api/slicer/scan")
-def slicer_scan_api(queries: int = 10, _u: str = Depends(src.auth.verify_admin)):
-    """GitHub Slicer: decouverte massive par tranches (admin)."""
-    import src.github_slicer as slicer
-    import src.github_client as gc
-    return slicer.run_slicing_scan(gc.TOKENS, max_queries=queries)
-
-
-@app.post("/api/osint/dorks")
-def osint_dorks_api(name: str = "", location: str = "", extract: bool = False):
-    """Multi-engine dorking OSINT (DuckDuckGo, Bing, SearX)."""
-    import src.dorking_engine as dk
-    report = dk.run_osint_dorks(name, location)
-    if extract and report.get("top_findings"):
-        all_urls = []
-        for cat in report["top_findings"].values():
-            all_urls.extend([u["url"] for u in cat])
-        report["extracted_info"] = dk.extract_info_from_urls(all_urls)
-    return report
-
-
-@app.get("/api/osint/tools")
-def osint_tools_status():
-    """Etat des outils OSINT disponibles."""
-    import src.osint_tools as ot
-    return ot.tools_status()
-
-
-@app.post("/api/osint/run-all")
-def osint_run_all(username: str = "", email: str = "", name: str = "", location: str = ""):
-    """Lance tous les outils OSINT (Sherlock, Maigret, Holehe + internes)."""
-    import src.osint_tools as ot
-    return ot.run_all(username=username, email=email, name=name, location=location)
-
-
-@app.post("/api/osint/plan")
-def osint_plan_api(free_text: str = ""):
-    """L'IA analyse la cible et recommande les meilleurs outils OSINT."""
-    import src.osint_orchestrator as orch
-    return orch.analyze_and_recommend(free_text)
-
-
-@app.post("/api/osint/pipeline")
-def osint_pipeline_api(free_text: str = ""):
-    """Pipeline OSINT complet: 12 modeles IA chaines."""
-    import src.osint_pipeline as pipeline
-    import src.github_client as gc
-    return pipeline.run_full_pipeline(free_text, tokens=gc.TOKENS if gc.TOKENS else [])
-
-
-@app.post("/api/osint/investigate")
-def osint_investigate_api(name: str = "", location: str = "", email: str = "", username: str = "", free_text: str = ""):
-    """Enquete OSINT sur une personne. Accepte du texte libre analyse par IA."""
-    import src.osint_lab as osint_lab
-    import src.github_client as gc
-    return osint_lab.investigate_person(
-        name=name, location=location, email=email, username=username,
-        free_text=free_text, tokens=gc.TOKENS if gc.TOKENS else [],
-    )
 
 
 @app.get("/api/hf/qa")
@@ -689,37 +413,6 @@ def cve_tools_api(cve_id: str):
     return {"cve_id": cve_id, "tools": corr.get_tools_for_cve(cve_id)}
 
 
-@app.post("/api/ioc/enrich")
-def ioc_enrich_api(_u: str = Depends(src.auth.verify_admin)):
-    """Enrichissement IOC via abuse.ch APIs (admin)."""
-    import src.ioc_enricher as ioc
-    return ioc.run_ioc_enrichment()
-
-
-@app.post("/api/dorking/scan")
-def dorking_scan_api(limit: int = 8, _u: str = Depends(src.auth.verify_admin)):
-    """Dorking GitHub Code Search pour nouveaux outils (admin)."""
-    import src.dorking as dorking
-    import src.github_client as gc
-    n = dorking.run_dorking_scan(gc.TOKENS, limit=limit)
-    return {"discovered": n}
-
-
-@app.post("/api/dorking/exploitdb")
-def exploitdb_import_api(_u: str = Depends(src.auth.verify_admin)):
-    """Importe la base Exploit-DB comme mots-cles (admin)."""
-    import src.dorking as dorking
-    n = dorking.import_exploitdb()
-    return {"keywords_imported": n}
-
-
-@app.post("/api/osint/enrich")
-def osint_enrich_api(_u: str = Depends(src.auth.verify_admin)):
-    """Enrichissement OSINT: CISA KEV, GTFOBins, Awesome Lists (admin)."""
-    import src.osint_enricher as osint
-    return osint.run_osint_enrichment()
-
-
 @app.get("/api/exploits/stats")
 def exploits_stats_api():
     """Statistiques de la base d'exploits (public)."""
@@ -732,14 +425,6 @@ def exploits_refresh_api(_u: str = Depends(src.auth.verify_admin)):
     """Telecharge et importe le CSV Exploit-DB dans la table `exploits` (admin)."""
     import src.exploit_loader as loader
     return loader.load_exploitdb()
-
-
-@app.post("/api/ai-keywords")
-def run_ai_keywords(limit: int = 25, _u: str = Depends(src.auth.verify_admin)):
-    """Decouvre des mots-cles cyber emergents via l'IA (Groq)."""
-    import src.ai_keywords as ai_keywords
-    n = ai_keywords.batch_discover(limit=limit)
-    return {"discovered": n, "message": f"{n} nouveau(x) mot(s)-cle(s) decouvert(s) par l'IA"}
 
 
 @app.post("/api/enrich-ontology")
@@ -828,74 +513,10 @@ def start_scan(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.ver
     return {"message": "Le scan en arrière-plan a été démarré !"}
 
 
-@app.post("/api/bulk-seed")
-def start_bulk_seed(background_tasks: BackgroundTasks, max_pages_per_bucket: int = 10, _u: str = Depends(src.auth.verify_admin)):
-    """Scan massif multi-topics pour monter en charge vers 1M de dépôts."""
-    # bulk_in_progress via _engine
-    if _engine.bulk_in_progress:
-        return {"message": "Un bulk-seed est déjà en cours."}
-
-    def _run():
-        # bulk_in_progress via _engine, scanner_status
-        _engine.bulk_in_progress = True
-        _engine.scanner_status = "Bulk-seed en cours..."
-        try:
-            import src.bulk_seed as bulk_seed
-            result = bulk_seed.bulk_seed(max_pages_per_bucket=max_pages_per_bucket)
-            logging.info(f"🌱 Bulk-seed terminé: {result}")
-        except Exception as e:
-            logging.error(f"❌ Erreur bulk-seed: {e}")
-        finally:
-            _engine.bulk_in_progress = False
-            _engine.scanner_status = "Prêt / En sommeil"
-
-    background_tasks.add_task(_run)
-    return {"message": "Bulk-seed lancé en arrière-plan.", "max_pages_per_bucket": max_pages_per_bucket}
-
-
-@app.get("/api/bulk-status")
-def bulk_status_api():
-    """Retourne l'état d'avancement du dernier bulk-seed."""
-    import src.bulk_seed as bulk_seed
-    return bulk_seed.get_bulk_status()
-
-
-@app.post("/api/harvest")
-def start_harvest(background_tasks: BackgroundTasks, limit: int = 50, max_issues_pages: int = 3, max_commits_pages: int = 3, _u: str = Depends(src.auth.verify_admin)):
-    """Récolte les issues/commits des repos pour exploser le volume de données."""
-    # harvest_in_progress via _engine
-    if _engine.harvest_in_progress:
-        return {"message": "Une récolte d'artifacts est déjà en cours."}
-
-    def _run():
-        # harvest_in_progress via _engine, scanner_status
-        _engine.harvest_in_progress = True
-        _engine.scanner_status = "Récolte issues/commits en cours..."
-        try:
-            import src.harvest_artifacts as harvest_artifacts
-            result = harvest_artifacts.harvest_batch(limit, max_issues_pages, max_commits_pages)
-            logging.info(f"🌾 Harvest terminé: {result}")
-        except Exception as e:
-            logging.error(f"❌ Erreur harvest: {e}")
-        finally:
-            _engine.harvest_in_progress = False
-            _engine.scanner_status = "Prêt / En sommeil"
-
-    background_tasks.add_task(_run)
-    return {"message": "Récolte d'artifacts lancée en arrière-plan.", "limit": limit}
-
-
 @app.get("/api/data-points")
 def data_points_api():
     """Retourne le nombre total de points de données (repos + issues + commits + ...)."""
     return database.count_total_data_points()
-
-
-@app.get("/api/harvest-status")
-def harvest_status_api():
-    """Retourne l'état d'avancement de la récolte d'artifacts."""
-    import src.harvest_artifacts as harvest_artifacts
-    return harvest_artifacts.get_harvest_status()
 
 
 @app.post("/api/import-cve")
@@ -962,173 +583,31 @@ def token_status_api():
 
 # ── STIX 2.1 & IOC Feed ──────────────────────────────────────────────
 
-@app.get("/api/stix/cves")
-def stix_cves_api(limit: int = 50, severity: str = ""):
-    """Exporte les CVEs au format STIX 2.1."""
-    import src.stix_exporter as stix
-    data = stix.export_cves(limit=limit, severity=severity)
-    return {"stix": data, "format": "STIX 2.1", "type": "vulnerabilities"}
-
-
-@app.get("/api/stix/tools")
-def stix_tools_api():
-    """Exporte les outils au format STIX 2.1."""
-    import src.stix_exporter as stix
-    data = stix.export_tools()
-    return {"stix": data, "format": "STIX 2.1", "type": "tools"}
-
-
-@app.get("/api/stix/ioc-feed")
-def stix_ioc_feed_api(limit: int = 100):
-    """Génère un flux IOC au format STIX 2.1 (IPs, domaines, hashes)."""
-    import src.stix_exporter as stix
-    return stix.generate_ioc_feed(limit=limit)
-
-
-@app.get("/api/stix/download")
-def stix_download_api(what: str = "cves", limit: int = 100, severity: str = ""):
-    """Téléchargement STIX 2.1 en fichier JSON."""
-    import src.stix_exporter as stix
-    if what == "cves":
-        data = stix.export_cves(limit=limit, severity=severity)
-        filename = f"cyberscan_cves_{datetime.utcnow().strftime('%Y%m%d')}.json"
-    elif what == "tools":
-        data = stix.export_tools()
-        filename = f"cyberscan_tools_{datetime.utcnow().strftime('%Y%m%d')}.json"
-    else:
-        result = stix.generate_ioc_feed(limit=limit)
-        data = result["stix"]
-        filename = f"cyberscan_ioc_feed_{datetime.utcnow().strftime('%Y%m%d')}.json"
-    import tempfile
-    tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
-    tmp.write(data)
-    tmp.close()
-    return FileResponse(tmp.name, media_type="application/json", filename=filename)
-
-
-# ── Massive Ingestion ─────────────────────────────────────────────────
-
 @app.post("/api/ingest/run")
 def ingest_run_api(background_tasks: BackgroundTasks, full: bool = False, _u: str = Depends(src.auth.verify_admin)):
     """Lance le pipeline d'ingestion massive (abuse.ch + OTX + EPSS + OpenCVE)."""
-    import src.massive_ingestion as mi
-    background_tasks.add_task(mi.run_massive_ingestion, full=full)
-    return {"message": "Pipeline d'ingestion massive lance", "full": full}
-
-
 @app.get("/api/ingest/stats")
 def ingest_stats_api():
     """Statistiques de volumetrie IOC."""
-    import src.massive_ingestion as mi
-    return mi.get_ioc_stats()
-
-
-@app.post("/api/ingest/urlhaus")
-def ingest_urlhaus_api(limit: int = 5000, _u: str = Depends(src.auth.verify_admin)):
-    import src.massive_ingestion as mi
-    n = mi.ingest_urlhaus(limit)
-    return {"source": "urlhaus", "saved": n}
-
-
-@app.post("/api/ingest/malwarebazaar")
-def ingest_malwarebazaar_api(limit: int = 2000, _u: str = Depends(src.auth.verify_admin)):
-    import src.massive_ingestion as mi
-    n = mi.ingest_malwarebazaar(limit)
-    return {"source": "malwarebazaar", "saved": n}
-
-
-@app.post("/api/ingest/threatfox")
-def ingest_threatfox_api(limit: int = 5000, _u: str = Depends(src.auth.verify_admin)):
-    import src.massive_ingestion as mi
-    n = mi.ingest_threatfox(limit)
-    return {"source": "threatfox", "saved": n}
-
-
-@app.post("/api/ingest/feodotracker")
-def ingest_feodo_api(_u: str = Depends(src.auth.verify_admin)):
-    import src.massive_ingestion as mi
-    n = mi.ingest_feodotracker()
-    return {"source": "feodotracker", "saved": n}
-
-
-@app.post("/api/ingest/otx")
-def ingest_otx_api(limit: int = 500, _u: str = Depends(src.auth.verify_admin)):
-    import src.massive_ingestion as mi
-    n = mi.ingest_otx_pulses(limit)
-    return {"source": "otx", "saved": n}
-
-
-@app.post("/api/ingest/opencve")
-def ingest_opencve_api(limit: int = 1000, _u: str = Depends(src.auth.verify_admin)):
-    import src.massive_ingestion as mi
-    n = mi.ingest_opencve(limit)
-    return {"source": "opencve", "saved": n}
-
-
-@app.post("/api/ingest/epss")
-def ingest_epss_api(_u: str = Depends(src.auth.verify_admin)):
-    import src.massive_ingestion as mi
-    n = mi.ingest_epss()
-    return {"source": "epss", "saved": n, "message": "Scores EPSS mis a jour sur les CVEs existantes"}
-
-
-# ── AI Keyword Validator ────────────────────────────────────────────────
-
 @app.post("/api/keywords/ai-validate")
 def ai_validate_keywords_api(limit: int = 200, threshold: float = 0.6,
                               _u: str = Depends(src.auth.verify_admin)):
     """Valide automatiquement les mots-cles en attente via HF zero-shot."""
-    import src.ai_keyword_validator as kv
-    return kv.batch_validate_keywords(limit=limit, auto_approve_threshold=threshold)
-
-
 @app.get("/api/keywords/stats")
 def keyword_stats_api():
     """Statistiques de validation des mots-cles."""
-    import src.ai_keyword_validator as kv
-    return kv.get_keyword_stats()
-
-
-# ── Premium Threat Intel (VirusTotal, SecurityTrails, Shodan) ─────────────
-
 @app.get("/api/intel/virustotal")
 def intel_vt_api(identifier: str = "", resource_type: str = "auto"):
     """Query VirusTotal API for an IP, domain, URL, or hash."""
-    import src.premium_intel as pi
-    if not identifier:
-        return {"error": "identifier parameter required"}
-    return pi.virustotal_lookup(identifier, resource_type)
-
-
 @app.get("/api/intel/securitytrails")
 def intel_st_api(domain: str = "", ip: str = ""):
     """Query SecurityTrails API for a domain (passive DNS, subdomains, WHOIS) or IP."""
-    import src.premium_intel as pi
-    if domain:
-        return pi.securitytrails_domain(domain)
-    if ip:
-        return pi.securitytrails_ip(ip)
-    return {"error": "domain or ip parameter required"}
-
-
 @app.get("/api/intel/shodan")
 def intel_shodan_api(ip: str = "", query: str = ""):
     """Query Shodan API for an IP host or search query."""
-    import src.premium_intel as pi
-    if ip:
-        return pi.shodan_host(ip)
-    if query:
-        return pi.shodan_search(query)
-    return {"error": "ip or query parameter required"}
-
-
 @app.post("/api/intel/enrich-all")
 def intel_enrich_api(limit: int = 20, _u: str = Depends(src.auth.verify_admin)):
     """Enrich existing IOCs via VirusTotal + SecurityTrails + Shodan."""
-    import src.premium_intel as pi
-    return pi.enrich_all(limit)
-
-
 @app.get("/api/intel/status")
 def intel_status_api():
     """Check which premium APIs are configured."""
@@ -1138,60 +617,3 @@ def intel_status_api():
         "securitytrails": bool(os.getenv("SECURITYTRAILS_API_KEY")),
         "shodan": bool(os.getenv("SHODAN_API_KEY")),
     }
-
-
-# ── Free Sources Pipeline ──────────────────────────────────────────────
-
-@app.post("/api/sources/run")
-def free_sources_run_api(_u: str = Depends(src.auth.verify_admin)):
-    """Run all free source ingestion (SSLBL, GHSA, OSV, SigmaHQ, YARAify, Ransomware.live, D3FEND, Package Advisories)."""
-    import src.free_connectors as fc
-    return fc.run_free_sources()
-
-
-@app.post("/api/sources/sslbl")
-def sslbl_ingest_api(_u: str = Depends(src.auth.verify_admin)):
-    import src.free_connectors as fc
-    return {"source": "sslbl", "saved": fc.ingest_sslbl()}
-
-
-@app.post("/api/sources/ghsa")
-def ghsa_ingest_api(limit: int = 100, _u: str = Depends(src.auth.verify_admin)):
-    import src.free_connectors as fc
-    return {"source": "ghsa", "saved": fc.ingest_ghsa(limit)}
-
-
-@app.post("/api/sources/osv")
-def osv_ingest_api(limit: int = 200, _u: str = Depends(src.auth.verify_admin)):
-    import src.free_connectors as fc
-    return {"source": "osv", "saved": fc.ingest_osv(limit)}
-
-
-@app.post("/api/sources/sigmahq")
-def sigmahq_ingest_api(_u: str = Depends(src.auth.verify_admin)):
-    import src.free_connectors as fc
-    return {"source": "sigmahq", "saved": fc.ingest_sigmahq()}
-
-
-@app.post("/api/sources/yaraify")
-def yaraify_ingest_api(_u: str = Depends(src.auth.verify_admin)):
-    import src.free_connectors as fc
-    return {"source": "yaraify", "saved": fc.ingest_yaraify()}
-
-
-@app.post("/api/sources/ransomware")
-def ransomware_ingest_api(_u: str = Depends(src.auth.verify_admin)):
-    import src.free_connectors as fc
-    return {"source": "ransomware_live", "saved": fc.ingest_ransomware_live()}
-
-
-@app.post("/api/sources/d3fend")
-def d3fend_ingest_api(_u: str = Depends(src.auth.verify_admin)):
-    import src.free_connectors as fc
-    return {"source": "d3fend", "saved": fc.ingest_d3fend()}
-
-
-@app.post("/api/sources/packages")
-def packages_ingest_api(_u: str = Depends(src.auth.verify_admin)):
-    import src.free_connectors as fc
-    return {"source": "packages", "saved": fc.ingest_package_advisories()}

@@ -9,8 +9,6 @@ import requests
 import pandas as pd
 from src import database
 import src.nlp_processor as nlp_processor
-import src.sast_scanner as sast_scanner
-import src.threat_intel as threat_intel
 
 def fetch_github_data(query, sort_by="stars"):
     """Interroge l'API GitHub avec gestion d'ETag, de Rate Limit et de retry."""
@@ -285,11 +283,6 @@ def run_link_validator_daemon():
                 else:
                     database.update_book_status(book_id, is_dead=0)
                 time.sleep(3)
-
-            # Mettre à jour les exports Excel et JSON
-            from src.exports import export_to_excel, export_to_json
-            export_to_excel()
-            export_to_json()
 
         except Exception as e:
             logging.error(f"❌ Erreur dans le démon de validation des liens : {e}")
