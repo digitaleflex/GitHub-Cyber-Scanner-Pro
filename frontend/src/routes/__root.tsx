@@ -117,7 +117,6 @@ function RootLayout() {
                 { label: 'Assets', to: '/assets', icon: <Shield size={11} /> },
                 { label: 'Organisation', to: '/organization', icon: <Building2 size={11} /> },
                 { label: 'Parametres', to: '/settings', icon: <Settings size={11} /> },
-                { label: 'Admin', to: '/admin', icon: <Settings size={11} /> },
                 { label: 'A propos', to: '/about' },
               ]}>
                 <Settings size={14} />
@@ -145,7 +144,6 @@ function RootLayout() {
             <Link to="/assets" onClick={() => setMenuOpen(false)} className="text-xs text-slate-500 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Assets</Link>
             <Link to="/organization" onClick={() => setMenuOpen(false)} className="text-xs text-slate-500 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Organisation</Link>
             <Link to="/settings" onClick={() => setMenuOpen(false)} className="text-xs text-slate-500 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Parametres</Link>
-            <Link to="/admin" onClick={() => setMenuOpen(false)} className="text-xs text-slate-500 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5">Admin</Link>
           </nav>
         )}
 
