@@ -678,6 +678,20 @@ def osint_enrich_api(_u: str = Depends(src.auth.verify_admin)):
     return osint.run_osint_enrichment()
 
 
+@app.get("/api/exploits/stats")
+def exploits_stats_api():
+    """Statistiques de la base d'exploits (public)."""
+    import src.db.exploits as exploits_db
+    return exploits_db.get_exploit_stats()
+
+
+@app.post("/api/exploits/refresh")
+def exploits_refresh_api(_u: str = Depends(src.auth.verify_admin)):
+    """Telecharge et importe le CSV Exploit-DB dans la table `exploits` (admin)."""
+    import src.exploit_loader as loader
+    return loader.load_exploitdb()
+
+
 @app.post("/api/ai-keywords")
 def run_ai_keywords(limit: int = 25, _u: str = Depends(src.auth.verify_admin)):
     """Decouvre des mots-cles cyber emergents via l'IA (Groq)."""

@@ -16,7 +16,7 @@ from fastapi import Depends
 import json
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # --- Social Graph Neo4j ---
@@ -125,6 +125,28 @@ if __name__ == "__main__":
 
     cve_thread = threading.Thread(target=_run_cve_updater, daemon=True)
     cve_thread.start()
+
+    def _seconds_until(hour: int = 3) -> int:
+        """Secondes jusqu'au prochain passage a l'heure fixe (UTC)."""
+        now = datetime.utcnow()
+        target = now.replace(hour=hour, minute=0, second=0, microsecond=0)
+        if target <= now:
+            target += timedelta(days=1)
+        return int((target - now).total_seconds())
+
+    def _run_exploit_updater():
+        import src.exploit_loader as loader
+        while True:
+            try:
+                logging.info("Exploit updater: import Exploit-DB...")
+                stats = loader.load_exploitdb()
+                logging.info("Exploit updater: terminé: %s", stats)
+            except Exception as e:
+                logging.error(f"Exploit updater error: {e}")
+            time.sleep(_seconds_until(3))
+
+    exploit_thread = threading.Thread(target=_run_exploit_updater, daemon=True)
+    exploit_thread.start()
 
     from mcp.server.fastmcp import FastMCP
     from src.mcp_server import register_tools
