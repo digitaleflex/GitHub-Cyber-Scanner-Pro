@@ -1,11 +1,36 @@
 import { useState, useCallback } from 'react'
 import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
-import { Menu, X, Play, Shield } from 'lucide-react'
+import { Menu, X, Play, Shield, User, Building2 } from 'lucide-react'
 import { useScanStatus } from '../lib/api'
+import { useQuery } from '@tanstack/react-query'
 import useSearchHotkey from '../lib/useSearchHotkey'
 import NotFound from './not-found'
 
 export const Route = createRootRoute({ component: RootLayout, notFoundComponent: NotFound })
+
+function UserBadge() {
+  const { data } = useQuery({
+    queryKey: ['user-badge'],
+    queryFn: () => fetch('/api/organization?profile_id=1').then(r => r.json()),
+    staleTime: 300_000,
+  })
+  const profile = data?.profile
+  const org = data?.organization
+  if (!profile) return null
+  return (
+    <div className="hidden sm:flex items-center gap-2 glass rounded-full px-3 py-1">
+      <User size={11} className="text-emerald-400" />
+      <span className="text-[10px] text-slate-400 capitalize">{profile.role || 'non_defini'}</span>
+      {org && (
+        <>
+          <span className="text-slate-700">·</span>
+          <Building2 size={11} className="text-slate-500" />
+          <span className="text-[10px] text-slate-500 truncate max-w-[100px]">{org.name}</span>
+        </>
+      )}
+    </div>
+  )
+}
 
 function ScanBtn() {
   const { data, refetch } = useScanStatus()
@@ -69,6 +94,7 @@ function RootLayout() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <UserBadge />
             <ScanBtn />
             <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-slate-400 hover:text-white p-1">
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
