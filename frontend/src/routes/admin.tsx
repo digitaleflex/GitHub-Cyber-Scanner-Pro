@@ -254,6 +254,36 @@ function AdminDashboard() {
               <ActionBtn icon={<Zap size={12} />} label="Pipeline complet" endpoint="/api/ingest/run?full=false" hint="Tout" variant="danger" />
             </div>
           </div>
+
+          {/* Sources gratuites */}
+          <div className="glass-card rounded-2xl p-4">
+            <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center"><Globe size={12} className="text-emerald-400" /></span>
+              Sources gratuites (illimite)
+            </h3>
+            <p className="text-[10px] text-slate-600 mb-3">SSLBL, GHSA, OSV, SigmaHQ, YARAify, Ransomware, D3FEND, Packages</p>
+            <div className="space-y-1.5">
+              <ActionBtn icon={<Globe size={12} />} label="Pipeline gratuit complet" endpoint="/api/sources/run" hint="8 sources" variant="success" />
+              <ActionBtn icon={<Shield size={12} />} label="GitHub Advisories (GHSA)" endpoint="/api/sources/ghsa" hint="Open Source" />
+              <ActionBtn icon={<Bug size={12} />} label="OSV.dev (Google)" endpoint="/api/sources/osv?limit=200" hint="20+ ecosystems" />
+              <ActionBtn icon={<Activity size={12} />} label="Ransomware.live" endpoint="/api/sources/ransomware" hint="Victims" variant="danger" />
+            </div>
+          </div>
+
+          {/* Detection Rules */}
+          <div className="glass-card rounded-2xl p-4">
+            <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-violet-500/10 flex items-center justify-center"><Search size={12} className="text-violet-400" /></span>
+              Regles de detection
+            </h3>
+            <p className="text-[10px] text-slate-600 mb-3">SigmaHQ, YARAify, SSLBL, Packages</p>
+            <div className="space-y-1.5">
+              <ActionBtn icon={<Search size={12} />} label="SigmaHQ Rules" endpoint="/api/sources/sigmahq" hint="SIEM/EDR" />
+              <ActionBtn icon={<Bug size={12} />} label="YARAify Rules" endpoint="/api/sources/yaraify" hint="YARA" />
+              <ActionBtn icon={<Shield size={12} />} label="SSLBL Certificats" endpoint="/api/sources/sslbl" hint="SSL malveillant" />
+              <ActionBtn icon={<Download size={12} />} label="Package Advisories" endpoint="/api/sources/packages" hint="npm/PyPI/Maven" />
+            </div>
+          </div>
         </div>
 
         {/* Security Dashboard */}

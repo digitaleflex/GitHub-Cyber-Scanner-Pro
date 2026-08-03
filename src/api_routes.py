@@ -1020,3 +1020,60 @@ def intel_status_api():
         "securitytrails": bool(os.getenv("SECURITYTRAILS_API_KEY")),
         "shodan": bool(os.getenv("SHODAN_API_KEY")),
     }
+
+
+# ── Free Sources Pipeline ──────────────────────────────────────────────
+
+@app.post("/api/sources/run")
+def free_sources_run_api(_u: str = Depends(src.auth.verify_admin)):
+    """Run all free source ingestion (SSLBL, GHSA, OSV, SigmaHQ, YARAify, Ransomware.live, D3FEND, Package Advisories)."""
+    import src.free_connectors as fc
+    return fc.run_free_sources()
+
+
+@app.post("/api/sources/sslbl")
+def sslbl_ingest_api(_u: str = Depends(src.auth.verify_admin)):
+    import src.free_connectors as fc
+    return {"source": "sslbl", "saved": fc.ingest_sslbl()}
+
+
+@app.post("/api/sources/ghsa")
+def ghsa_ingest_api(limit: int = 100, _u: str = Depends(src.auth.verify_admin)):
+    import src.free_connectors as fc
+    return {"source": "ghsa", "saved": fc.ingest_ghsa(limit)}
+
+
+@app.post("/api/sources/osv")
+def osv_ingest_api(limit: int = 200, _u: str = Depends(src.auth.verify_admin)):
+    import src.free_connectors as fc
+    return {"source": "osv", "saved": fc.ingest_osv(limit)}
+
+
+@app.post("/api/sources/sigmahq")
+def sigmahq_ingest_api(_u: str = Depends(src.auth.verify_admin)):
+    import src.free_connectors as fc
+    return {"source": "sigmahq", "saved": fc.ingest_sigmahq()}
+
+
+@app.post("/api/sources/yaraify")
+def yaraify_ingest_api(_u: str = Depends(src.auth.verify_admin)):
+    import src.free_connectors as fc
+    return {"source": "yaraify", "saved": fc.ingest_yaraify()}
+
+
+@app.post("/api/sources/ransomware")
+def ransomware_ingest_api(_u: str = Depends(src.auth.verify_admin)):
+    import src.free_connectors as fc
+    return {"source": "ransomware_live", "saved": fc.ingest_ransomware_live()}
+
+
+@app.post("/api/sources/d3fend")
+def d3fend_ingest_api(_u: str = Depends(src.auth.verify_admin)):
+    import src.free_connectors as fc
+    return {"source": "d3fend", "saved": fc.ingest_d3fend()}
+
+
+@app.post("/api/sources/packages")
+def packages_ingest_api(_u: str = Depends(src.auth.verify_admin)):
+    import src.free_connectors as fc
+    return {"source": "packages", "saved": fc.ingest_package_advisories()}
