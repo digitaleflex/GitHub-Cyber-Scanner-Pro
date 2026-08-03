@@ -903,6 +903,23 @@ def cve_status_api():
     return cve_importer.get_cve_status()
 
 
+@app.post("/api/cves/backfill-severity")
+def backfill_cve_severity_api(background_tasks: BackgroundTasks):
+    """Backfill NVD des champs severity/cvss_score manquants (en arrière-plan)."""
+    import src.cve_importer as cve_importer
+
+    pending = cve_importer.get_missing_severity_count()
+    if pending == 0:
+        return {"message": "Aucune CVE sans sévérité.", "pending": 0}
+    if pending < 0:
+        return {"message": "Erreur lors du comptage des CVE.", "pending": -1}
+    if cve_importer.is_running():
+        return {"message": "Un import NVD est déjà en cours.", "pending": pending}
+
+    background_tasks.add_task(cve_importer.backfill_cve_severity)
+    return {"message": f"Backfill sévérité lancé ({pending} CVE en attente).", "pending": pending}
+
+
 @app.get("/api/token-status")
 def token_status_api():
     """Retourne le nombre de tokens configurés (sans exposer les valeurs)."""

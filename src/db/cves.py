@@ -19,7 +19,14 @@ def save_cve_entries(entries):
                 INSERT INTO cve_entries
                     (cve_id, description, published, last_modified, severity, cvss_score, references_urls, weaknesses)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (cve_id) DO NOTHING
+                ON CONFLICT (cve_id) DO UPDATE SET
+                    description = COALESCE(EXCLUDED.description, cve_entries.description),
+                    published = COALESCE(EXCLUDED.published, cve_entries.published),
+                    last_modified = COALESCE(EXCLUDED.last_modified, cve_entries.last_modified),
+                    severity = COALESCE(EXCLUDED.severity, cve_entries.severity),
+                    cvss_score = COALESCE(EXCLUDED.cvss_score, cve_entries.cvss_score),
+                    references_urls = COALESCE(EXCLUDED.references_urls, cve_entries.references_urls),
+                    weaknesses = COALESCE(EXCLUDED.weaknesses, cve_entries.weaknesses)
                 """,
                 (
                     cve_id,
