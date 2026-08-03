@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
-import { useCves } from '../lib/api'
+import { useCves, type CveEntry } from '../lib/api'
+import { useQuery } from '@tanstack/react-query'
 import AdminGuard from '../components/AdminGuard'
-import { Search, Shield, ChevronLeft, ChevronRight } from 'lucide-react'
+import DataTable, { type DataTableColumn } from '../components/DataTable'
+import Chip from '../components/Chip'
+import { Search, Shield, AlertTriangle, TrendingUp, Bug } from 'lucide-react'
 
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
@@ -15,56 +18,122 @@ function CvesPage() {
   const [q, setQ] = useState('')
   const [severity, setSeverity] = useState('')
   const [page, setPage] = useState(1)
+  const [sortKey, setSortKey] = useState('')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const { data, isLoading } = useCves(q, severity, page)
 
+  const { data: cveStats } = useQuery({
+    queryKey: ['cve-stats'],
+    queryFn: () => fetch('/api/cves?q=&severity=&page=1&per_page=1').then(r => r.json()),
+    staleTime: 120_000,
+  })
+
+  const handleSort = useCallback((key: string, dir: 'asc' | 'desc') => {
+    setSortKey(key)
+    setSortDir(dir)
+  }, [])
+
+  const sorted = data?.cves ? [...data.cves].sort((a, b) => {
+    if (!sortKey) return 0
+    const av = a[sortKey as keyof CveEntry]
+    const bv = b[sortKey as keyof CveEntry]
+    if (av == null && bv == null) return 0
+    if (av == null) return 1
+    if (bv == null) return -1
+    const cmp = av < bv ? -1 : av > bv ? 1 : 0
+    return sortDir === 'asc' ? cmp : -cmp
+  }) : []
+
+  const columns: DataTableColumn<CveEntry>[] = [
+    {
+      key: 'cve_id', label: 'CVE ID', sortable: true,
+      render: (cve) => (
+        <Link to="/cve/$id" params={{ id: cve.cve_id }} className="text-indigo-400 hover:text-indigo-300 font-mono">
+          {cve.cve_id}
+        </Link>
+      ),
+    },
+    {
+      key: 'severity', label: 'Severite', sortable: true,
+      render: (cve) => <Chip variant="severity" value={cve.severity} />,
+    },
+    {
+      key: 'cvss_score', label: 'CVSS', sortable: true,
+      render: (cve) => cve.cvss_score ? (
+        <span className={`font-mono font-bold ${cve.cvss_score >= 9 ? 'text-rose-400' : cve.cvss_score >= 7 ? 'text-amber-400' : 'text-slate-400'}`}>
+          {cve.cvss_score.toFixed(1)}
+        </span>
+      ) : <span className="text-slate-600">-</span>,
+    },
+    {
+      key: 'published', label: 'Publiee', sortable: true,
+      render: (cve) => cve.published ? (
+        <span className="text-slate-500">{new Date(cve.published).toLocaleDateString('fr-FR')}</span>
+      ) : <span className="text-slate-600">-</span>,
+    },
+    {
+      key: 'description', label: 'Description',
+      render: (cve) => <span className="line-clamp-1 text-slate-400">{cve.description?.slice(0, 120)}</span>,
+      className: 'hidden md:table-cell',
+    },
+  ]
+
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <h2 className="text-lg font-semibold text-white mb-4">Base CVE</h2>
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
+        <div className="glass-card rounded-xl p-3 text-center">
+          <Shield size={14} className="text-rose-400 mx-auto mb-1" />
+          <div className="text-lg font-bold text-white">{cveStats?.total?.toLocaleString() || '?'}</div>
+          <div className="text-[9px] text-slate-500">Total CVEs</div>
+        </div>
+        <div className="glass-card rounded-xl p-3 text-center">
+          <Bug size={14} className="text-indigo-400 mx-auto mb-1" />
+          <div className="text-lg font-bold text-white">46K</div>
+          <div className="text-[9px] text-slate-500">Exploits lies</div>
+        </div>
+        <div className="glass-card rounded-xl p-3 text-center">
+          <AlertTriangle size={14} className="text-amber-400 mx-auto mb-1" />
+          <div className="text-lg font-bold text-white">1 104</div>
+          <div className="text-[9px] text-slate-500">CISA KEV</div>
+        </div>
+        <div className="glass-card rounded-xl p-3 text-center">
+          <TrendingUp size={14} className="text-emerald-400 mx-auto mb-1" />
+          <div className="text-lg font-bold text-white">IA</div>
+          <div className="text-[9px] text-slate-500">Analyse active</div>
+        </div>
+      </div>
+
+      {/* Filters */}
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input value={q} onChange={e => { setQ(e.target.value); setPage(1) }}
-            placeholder="CVE-2024-..." className="w-full pl-9 pr-3 py-2 bg-slate-900/80 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:ring-1 focus:ring-indigo-500/50" />
+            placeholder="CVE-2024-... (appuyez / pour chercher)"
+            className="w-full pl-9 pr-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/40" />
         </div>
         <select value={severity} onChange={e => { setSeverity(e.target.value); setPage(1) }}
-          className="px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-lg text-xs text-white">
-          <option value="">Toutes</option>
+          className="px-3 py-2 glass rounded-lg text-xs text-white">
+          <option value="">Toutes severites</option>
           {['CRITICAL','HIGH','MEDIUM','LOW'].map(s => <option key={s}>{s}</option>)}
         </select>
       </div>
 
-      {isLoading ? <p className="text-slate-500 text-sm">Chargement...</p> : data ? (
-        <div className="space-y-2">
-          {data.cves?.map((cve, i) => (
-            <Link key={i} to="/cve/$id" params={{ id: cve.cve_id }}
-              className="bg-slate-900/60 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition block cursor-pointer">
-              <div className="flex items-center gap-2 mb-1">
-                <Shield size={13} className={
-                  cve.severity === 'CRITICAL' ? 'text-rose-400' :
-                  cve.severity === 'HIGH' ? 'text-amber-400' : 'text-slate-500'
-                } />
-                <span className="text-xs font-mono text-indigo-400 group-hover:text-indigo-300">{cve.cve_id}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                  cve.severity === 'CRITICAL' ? 'bg-rose-500/10 text-rose-400' :
-                  cve.severity === 'HIGH' ? 'bg-amber-500/10 text-amber-400' :
-                  'bg-slate-700/50 text-slate-400'
-                }`}>{cve.severity}</span>
-                {cve.cvss_score && <span className="text-[10px] text-slate-500">CVSS {cve.cvss_score}</span>}
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{cve.description}</p>
-            </Link>
-          ))}
-          {data.pages > 1 && (
-            <div className="flex items-center justify-center gap-3 mt-4">
-              <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page===1}
-                className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-300 disabled:opacity-30"><ChevronLeft size={14} /></button>
-              <span className="text-xs text-slate-500">{page}/{data.pages}</span>
-              <button onClick={() => setPage(p => Math.min(data.pages, p+1))} disabled={page>=data.pages}
-                className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-300 disabled:opacity-30"><ChevronRight size={14} /></button>
-            </div>
-          )}
-        </div>
-      ) : null}
+      <DataTable<CveEntry>
+        columns={columns}
+        data={sorted}
+        total={data?.total || 0}
+        page={page}
+        perPage={20}
+        onPageChange={setPage}
+        onSort={handleSort}
+        sortKey={sortKey}
+        sortDir={sortDir}
+        loading={isLoading}
+        emptyMessage="Aucune CVE trouvee"
+      />
     </div>
   )
 }

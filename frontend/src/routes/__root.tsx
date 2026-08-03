@@ -3,6 +3,7 @@ import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router
 import { Menu, X, Play, Shield, Download, Settings } from 'lucide-react'
 import { useScanStatus } from '../lib/api'
 import { isAdminAuthenticated, getAuthHeaders } from './login'
+import useSearchHotkey from '../lib/useSearchHotkey'
 
 export const Route = createRootRoute({ component: RootLayout })
 
@@ -32,6 +33,7 @@ function ScanBtn() {
 
 function RootLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
+  useSearchHotkey()
 
   return (
     <div className="min-h-screen text-slate-200">
