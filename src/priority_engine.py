@@ -2,8 +2,8 @@
 
 Chaque decision repond a la question : "Que dois-je faire aujourd'hui ?" en combinant
 severite (CVSS), exploitabilite (Exploit-DB), exploitation active (CISA KEV),
-pertinence pour la stack de l'utilisateur et recence. La sortie est justifiee :
-score, raison lisible, "si vous ignorez", niveau de confiance et sources.
+prediction d'exploitation (EPSS), pertinence pour le contexte utilisateur (reranker semantique)
+et recence. La sortie est justifiee : score, raison lisible, "si vous ignorez", confiance.
 """
 import csv
 import logging
@@ -125,7 +125,7 @@ def _confidence(factors: dict) -> str:
     return "Basse"
 
 
-def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | None, rerank_score: float = 0.0) -> dict:
+def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | None, rerank_score: float = 0.0, epss: float = 0.0) -> dict:
     """Calcule le score de decision (0-100) pour une CVE avec justification."""
     cvss = cve.get("cvss_score") or 0
     severity = (cve.get("severity") or "").upper()
@@ -164,6 +164,14 @@ def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | No
         sources.append("CISA KEV")
         rw = " — liee a des campagnes ransomware" if kev_row.get("ransomware") == "Known" else ""
         reasons.append(f"Exploitee activement dans la nature (CISA KEV){rw}")
+
+    if epss and epss > 0:
+        pts = min(epss * 25, 25)
+        score += pts
+        if pts >= 3:
+            factors["epss"] = round(pts, 1)
+            sources.append("EPSS")
+            reasons.append(f"Probabilite d'exploitation imminente: {epss*100:.0f}% (EPSS)")
 
     if rerank_score > 0:
         pts = min(rerank_score * 10, 10)
@@ -255,10 +263,17 @@ def _candidate_rows(days: int):
     ]
 
 
-def get_priority_decisions(days: int = 90, limit: int = 20) -> list[dict]:
-    """Retourne les decisions priorisees : top N CVE justifiees."""
+def get_priority_decisions(days: int = 90, limit: int = 20, profile_id: int | None = None) -> list[dict]:
+    """Retourne les decisions priorisees : top N CVE justifiees.
+    
+    Si profile_id fourni, utilise le contexte personnel (organisation, assets, role).
+    Sinon, utilise le contexte global (tous les repos).
+    """
     kev = _load_kev()
-    stack_kws, stack_context = build_stack_keywords()
+
+    import src.context_engine as ctx
+    stack_kws, stack_context = ctx.build_user_context(profile_id)
+
     candidates = _candidate_rows(days)
 
     rerank_map = {}
@@ -272,6 +287,14 @@ def get_priority_decisions(days: int = 90, limit: int = 20) -> list[dict]:
     except Exception:
         logging.info("PriorityEngine: reranker indisponible, fallback token matching")
 
+    epss_map = {}
+    try:
+        import src.epss as epss_mod
+        cve_ids = [c["cve_id"] for c in candidates]
+        epss_map = epss_mod.batch_get_epss(cve_ids)
+    except Exception:
+        logging.info("PriorityEngine: EPSS indisponible")
+
     decisions = []
     for i, cve in enumerate(candidates):
         cve_id = cve["cve_id"]
@@ -279,7 +302,9 @@ def get_priority_decisions(days: int = 90, limit: int = 20) -> list[dict]:
         kev_row = kev.get(cve_id.upper())
         if not kev_row and cve.get("weaknesses") and "CISA_KEV" in str(cve.get("weaknesses", "")):
             kev_row = {"product": "", "vendor": "", "dueDate": "", "ransomware": ""}
-        decisions.append(score_cve(cve, stack_kws, exploits, kev_row, rerank_map.get(i, 0.0)))
+        epss_data = epss_map.get(cve_id.upper(), {})
+        epss_val = epss_data.get("epss", 0)
+        decisions.append(score_cve(cve, stack_kws, exploits, kev_row, rerank_map.get(i, 0.0), epss_val))
     decisions.sort(key=lambda d: d["score"], reverse=True)
     return decisions[:limit]
 

@@ -573,12 +573,36 @@ def top_threats_api(limit: int = 20):
 
 
 @app.get("/api/priority/cves")
-def priority_cves_api(days: int = 90, limit: int = 20):
-    """Decision Engine : 'Que dois-je faire aujourd'hui ?' — CVE priorisees et justifiees."""
+def priority_cves_api(days: int = 90, limit: int = 20, profile_id: int | None = None):
+    """Decision Engine : 'Que dois-je faire aujourd'hui ?' — CVE priorisees et justifiees.
+    
+    Si profile_id fourni, contexte personnel (organisation, assets, role).
+    Sinon, contexte global (tous les repos)."""
     import src.priority_engine as pe
-    decisions = pe.get_priority_decisions(days=days, limit=limit)
+    decisions = pe.get_priority_decisions(days=days, limit=limit, profile_id=profile_id)
     summary = pe.get_decision_summary(days=days)
+    import src.context_engine as ctx
+    role = ctx.get_user_role(profile_id)
+    summary["role"] = role
     return {"count": len(decisions), "decisions": decisions, "summary": summary}
+
+
+@app.get("/api/profile")
+def get_profile_api(profile_id: int = 0):
+    """Profil utilisateur courant."""
+    import src.context_engine as ctx
+    profile = ctx.ensure_profile(profile_id=profile_id)
+    return profile
+
+
+@app.post("/api/profile/onboard")
+def onboard_profile_api(profile_id: int, role: str, assets: str = "[]", org_name: str = "", sector: str = "", compliance: str = ""):
+    """Onboarding: configure le role, les assets et l'organisation."""
+    import json as _j
+    import src.context_engine as ctx
+    asset_list = _j.loads(assets) if assets else []
+    result = ctx.init_profile(profile_id, role, asset_list, org_name, sector, compliance)
+    return result
 
 
 @app.get("/api/cve/{cve_id}/analysis")

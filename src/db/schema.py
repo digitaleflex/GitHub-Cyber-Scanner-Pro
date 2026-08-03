@@ -235,6 +235,52 @@ def init_db():
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_repos_embedding ON repositories USING ivfflat (embedding vector_cosine_ops)")
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS organizations (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            sector VARCHAR(100),
+            compliance_frameworks TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS asset_inventory (
+            id SERIAL PRIMARY KEY,
+            org_id INTEGER NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+            asset_type VARCHAR(30) NOT NULL,
+            name VARCHAR(200) NOT NULL,
+            vendor VARCHAR(200),
+            version VARCHAR(50),
+            exposed BOOLEAN DEFAULT false,
+            criticality SMALLINT DEFAULT 3 CHECK (criticality BETWEEN 1 AND 5),
+            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_assets_org ON asset_inventory (org_id, asset_type)")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_profiles (
+            id SERIAL PRIMARY KEY,
+            org_id INTEGER REFERENCES organizations(id) ON DELETE SET NULL,
+            role VARCHAR(50) NOT NULL DEFAULT 'non_defini',
+            display_name VARCHAR(200),
+            preferences JSONB DEFAULT '{}',
+            onboarding_completed BOOLEAN DEFAULT false,
+            last_active TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_org ON user_profiles (org_id)")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS epss_scores (
+            cve_id VARCHAR(30) PRIMARY KEY REFERENCES cve_entries(cve_id) ON DELETE CASCADE,
+            epss FLOAT NOT NULL,
+            percentile FLOAT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_epss_score ON epss_scores (epss DESC)")
+
     conn.commit()
     cursor.close()
     conn.close()
