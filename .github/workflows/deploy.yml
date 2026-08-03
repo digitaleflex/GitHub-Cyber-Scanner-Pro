@@ -59,6 +59,7 @@ jobs:
           script: |
             set -e
             cd /home/audest/GitHub-Cyber-Scanner-Pro
-            git reset --hard origin/main
+            git reset --hard
             git pull origin main
-            docker compose -f compose.prod.yml up -d --build
+            docker compose -f compose.prod.yml up -d --build --remove-orphans
+            docker ps --format "table {{.Names}}\t{{.Status}}" | head -10
