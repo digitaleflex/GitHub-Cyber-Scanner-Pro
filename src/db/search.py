@@ -84,7 +84,7 @@ def unified_search(q="", limit=20, page=1, types=None, language=None, severity=N
     empty = {
         "query": q, "total": 0, "page": page, "per_page": per_page, "pages": 0,
         "results": [],
-        "facets": {"types": {t: 0 for t in _SEARCH_TYPES}, "languages": [], "severities": {}, "categories": []},
+        "facets": {"types": dict.fromkeys(_SEARCH_TYPES, 0), "languages": [], "severities": {}, "categories": []},
     }
     if not q or len(q) < 2:
         return empty
@@ -96,7 +96,7 @@ def unified_search(q="", limit=20, page=1, types=None, language=None, severity=N
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         results = []
         total = 0
-        type_counts = {t: 0 for t in _SEARCH_TYPES}
+        type_counts = dict.fromkeys(_SEARCH_TYPES, 0)
 
         for rt in _SEARCH_TYPES:
             where, wparams = _search_clauses(rt, q, like, language, severity, security_verdict, category)

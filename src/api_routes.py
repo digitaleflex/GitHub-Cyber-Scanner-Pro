@@ -214,7 +214,8 @@ def tool_detail_api(name: str):
     )
     tool = cursor.fetchone()
     if not tool:
-        cursor.close(); conn.close()
+        cursor.close()
+        conn.close()
         return {"error": "Outil introuvable", "name": name}
 
     tool = dict(tool)
@@ -239,7 +240,8 @@ def tool_detail_api(name: str):
     except Exception:
         tool["similar"] = []
 
-    cursor.close(); conn.close()
+    cursor.close()
+    conn.close()
     return tool
 
 
@@ -270,7 +272,8 @@ def featured_tools_api(limit: int = 12):
         FROM repositories WHERE stars > 100 ORDER BY stars DESC LIMIT %s
     """, (limit,))
     rows = [dict(r) for r in cursor.fetchall()]
-    cursor.close(); conn.close()
+    cursor.close()
+    conn.close()
     return {"tools": rows, "label": "Incontournables"}
 
 
@@ -288,7 +291,8 @@ def ready_to_use_api(limit: int = 20):
         ORDER BY stars DESC LIMIT %s
     """, (limit,))
     rows = [dict(r) for r in cursor.fetchall()]
-    cursor.close(); conn.close()
+    cursor.close()
+    conn.close()
     return {"tools": rows, "label": "Prets a l'emploi"}
 
 
@@ -314,7 +318,8 @@ def tools_by_category_api(category: str = "all", limit: int = 30):
         FROM repositories {where} ORDER BY stars DESC LIMIT %s
     """, (limit,))
     rows = [dict(r) for r in cursor.fetchall()]
-    cursor.close(); conn.close()
+    cursor.close()
+    conn.close()
     return {"tools": rows, "category": category}
 
 
@@ -689,7 +694,6 @@ def enrich_ontology_api(background_tasks: BackgroundTasks, _u: str = Depends(src
 
 
 def _run_ontology_enrichment():
-    import ontology_enricher
     count = ontology_enricher.import_ontology_to_db()
     logging.info(f"🧬 Enrichissement ontologique terminé : {count} termes")
 
@@ -702,7 +706,6 @@ def enrich_keywords_api(background_tasks: BackgroundTasks, _u: str = Depends(src
 
 
 def _run_keyword_sources():
-    import keyword_sources
     stats = keyword_sources.import_external_sources_to_db()
     logging.info(f"🗄️ Keywords externes: {stats}")
 

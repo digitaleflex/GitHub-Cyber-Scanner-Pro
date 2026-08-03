@@ -81,7 +81,6 @@ def github_code_search(query: str, token: str, per_page: int = 20) -> list[dict]
 def run_dorking_scan(tokens: list[str], limit: int = 10) -> int:
     """Execute les dorks GitHub Code Search. Retourne le nb de nouveaux repos."""
     from src import database
-    import random
 
     if not tokens:
         logging.warning("Aucun token pour le dorking")

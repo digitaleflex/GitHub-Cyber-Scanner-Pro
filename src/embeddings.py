@@ -121,7 +121,7 @@ def embed_unembedded_repos(limit: int = 200) -> int:
         texts = [r[1] or "" for r in rows]
         embeddings = embed_batch(texts)
 
-        for rid, emb in zip(ids, embeddings):
+        for rid, emb in zip(ids, embeddings, strict=False):
             cursor.execute(
                 "UPDATE repositories SET embedding = %s WHERE id = %s",
                 (emb, rid),

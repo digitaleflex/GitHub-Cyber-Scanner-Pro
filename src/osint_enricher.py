@@ -138,7 +138,7 @@ _STOPWORDS = {
     "having", "hello", "might", "month", "never", "other", "place", "quite",
     "rather", "right", "shall", "since", "still", "their", "there", "these",
     "thing", "think", "those", "under", "until", "using", "value", "where",
-    "which", "while", "world", "would", "write", "years", "could", "event",
+    "which", "while", "world", "would", "write", "years", "event",
 }
 
 

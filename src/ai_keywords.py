@@ -83,7 +83,6 @@ def discover_from_descriptions(descriptions: list[str], existing_terms: set[str]
 
 def batch_discover(limit: int = 30) -> int:
     """Decouvre des mots-cles dans les repos non traites. Retourne le nb sauvegarde."""
-    import time
     from src import database
 
     descs, known = _get_descriptions(limit)

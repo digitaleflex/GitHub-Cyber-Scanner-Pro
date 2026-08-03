@@ -199,7 +199,7 @@ def run_investigation(target_text: str, tokens: list[str] = None) -> dict:
     candidates = find_candidates(target.get("name", ""), target.get("location", ""), tokens)
     step2["status"] = "done"
     step2["candidates_found"] = len(candidates)
-    step2["sources_used"] = len(set(c.get("source") for c in candidates))
+    step2["sources_used"] = len({c.get("source") for c in candidates})
 
     # Step 3: AI Classification of each candidate
     step3 = {"step": 3, "action": "Target Classification", "model": "mDeBERTa multilingual",

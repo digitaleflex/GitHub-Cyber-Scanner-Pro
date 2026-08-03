@@ -49,11 +49,8 @@ def graph_seed_api(_u: str = Depends(verify_admin)):
 
 # --- FRONTEND SERVING (React SPA + Reports) ---
 
-FRONTEND_DIR = Path("frontend/dist")
 if FRONTEND_DIR.exists() and (FRONTEND_DIR / "assets").exists():
     app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="frontend_assets")
-
-REPORTS_DIR = Path("reports")
 
 
 @app.get("/api/reports")

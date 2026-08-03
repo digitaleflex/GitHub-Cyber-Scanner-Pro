@@ -152,7 +152,8 @@ def ingest_feodotracker() -> int:
     logging.info("🕵️ FeodoTracker: fetching C2 IPs...")
     try:
         r = requests.get(ABUSE_CH_FEODO, timeout=30)
-        import csv, io
+        import csv
+        import io
         reader = csv.DictReader(io.StringIO(r.text))
         rows = []
         for row in reader:

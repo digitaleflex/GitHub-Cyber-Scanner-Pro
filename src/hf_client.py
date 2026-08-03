@@ -106,7 +106,7 @@ def classify_zero_shot(text: str, labels: list[str]) -> dict:
         return {
             "label": result.get("labels", [""])[0],
             "score": result.get("scores", [0])[0],
-            "all": dict(zip(result.get("labels", []), result.get("scores", []))),
+            "all": dict(zip(result.get("labels", []), result.get("scores", []), strict=False)),
         }
     return {"label": "Inconnu", "score": 0}
 

@@ -76,7 +76,7 @@ def generate_queries() -> list[dict]:
                 return queries[:50]
 
     # Phase 2: Stars × langues (plus specifique)
-    for min_s, max_s, label in STAR_RANGES[:4]:  # Top 4 ranges
+    for min_s, max_s, _label in STAR_RANGES[:4]:  # Top 4 ranges
         for lang in LANGUAGES[:8]:
             q = f"security language:{lang} stars:{min_s}..{max_s or ''}"
             queries.append({"query": q, "type": "stars_lang"})

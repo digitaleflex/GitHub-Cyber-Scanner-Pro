@@ -10,7 +10,7 @@ ADMIN_USER = os.getenv("ADMIN_USER", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 
 
-def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
+def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):  # noqa: B008
     if not ADMIN_PASSWORD:
         return credentials.username
     is_user = secrets.compare_digest(credentials.username.encode(), ADMIN_USER.encode())

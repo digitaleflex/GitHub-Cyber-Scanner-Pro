@@ -13,6 +13,7 @@ import os
 import json
 import logging
 import hashlib
+import requests
 import time
 from datetime import datetime
 from typing import Optional
@@ -392,5 +393,3 @@ def enrich_all(limit: int = 20) -> dict:
     logging.info(f"💎 Premium enrichment: {results}")
     return results
 
-
-import requests  # at bottom to avoid circular import issues
