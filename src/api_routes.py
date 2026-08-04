@@ -857,9 +857,17 @@ def _run_vitality_recompute():
 @app.get("/api/download")
 def download_excel(_u: str = Depends(src.auth.verify_admin)):
     """Téléchargement de l'export Excel."""
+    if os.path.exists(EXCEL_FILE):
+        return FileResponse(EXCEL_FILE, filename=os.path.basename(EXCEL_FILE), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    return {"error": "Export Excel non disponible", "hint": "Lancer un scan pour le regenerer"}
+
+
 @app.get("/api/download/json")
 def download_json(_u: str = Depends(src.auth.verify_admin)):
     """Téléchargement de l'export JSON."""
+    if os.path.exists(JSON_FILE):
+        return FileResponse(JSON_FILE, filename=os.path.basename(JSON_FILE), media_type="application/json")
+    return {"error": "Export JSON non disponible", "hint": "Lancer un scan pour le regenerer"}
 @app.post("/api/scan")
 def start_scan(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
     """Déclenche un scan manuel en arrière-plan."""
@@ -943,10 +951,39 @@ def token_status_api():
 
 @app.post("/api/ingest/run")
 def ingest_run_api(background_tasks: BackgroundTasks, full: bool = False, _u: str = Depends(src.auth.verify_admin)):
-    """Lance le pipeline d'ingestion massive (abuse.ch + OTX + EPSS + OpenCVE)."""
+    """Lance le pipeline d'ingestion (CISA KEV + abuse.ch + MITRE ATT&CK local)."""
+    import src.ingest as ingest_mod
+
+    if full:
+        background_tasks.add_task(ingest_mod.run_ingest, True)
+        return {"message": "Ingestion complete lancee en arriere-plan (KEV + IOCs + ATT&CK)."}
+    background_tasks.add_task(ingest_mod.run_ingest, False)
+    return {"message": "Ingestion incrementale lancee en arriere-plan."}
+
+
 @app.get("/api/ingest/stats")
 def ingest_stats_api():
     """Statistiques de volumetrie IOC."""
+    import src.ingest as ingest_mod
+    return ingest_mod.get_ingest_stats()
+
+
+@app.get("/api/stix/download")
+def stix_download_api(what: str = "cves", limit: int = 100):
+    """Bundle STIX 2.1 des CVEs critiques/KEV (what=cves|kev), format interoperable TAXII."""
+    import src.stix_export as stix
+    limit = max(1, min(limit, 1000))
+    return stix.get_cves_bundle(limit=limit, what=what)
+
+
+@app.get("/api/cve/{cve_id}/stix")
+def cve_stix_api(cve_id: str):
+    """Bundle STIX 2.1 complet pour une CVE (vuln + IOCs + ATT&CK + campagne)."""
+    import src.stix_export as stix
+    bundle = stix.get_cve_bundle(cve_id)
+    if bundle is None:
+        return {"error": "CVE introuvable", "cve_id": cve_id}
+    return bundle
 @app.post("/api/keywords/ai-validate")
 def ai_validate_keywords_api(limit: int = 200, threshold: float = 0.6,
                               _u: str = Depends(src.auth.verify_admin)):

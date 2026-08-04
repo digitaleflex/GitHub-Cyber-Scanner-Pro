@@ -93,6 +93,143 @@ def get_tools_for_cve(cve_id: str, limit: int = 10) -> list[dict]:
     return tools[:limit]
 
 
+def _get_cve_lifecycle(conn, cve_id: str) -> dict:
+    """Donnees du cycle de vie (IOCs, regles, ATT&CK, CAPEC, campagnes, produits, patches, KEV)."""
+    from psycopg2.extras import RealDictCursor
+    cve_id = cve_id.upper()
+    out = {
+        "epss": None,
+        "kev": None,
+        "iocs": [],
+        "sigma_rules": [],
+        "yara_rules": [],
+        "ids_rules": [],
+        "attack_techniques": [],
+        "capec": [],
+        "campaigns": [],
+        "apt_groups": [],
+        "affected_products": [],
+        "patches": [],
+        "advisories": [],
+    }
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        cursor.execute("SELECT epss, percentile, updated_at FROM epss_scores WHERE cve_id = %s", (cve_id,))
+        row = cursor.fetchone()
+        if row:
+            out["epss"] = {"epss": row["epss"], "percentile": row["percentile"], "updated_at": str(row["updated_at"]) if row["updated_at"] else None}
+
+        cursor.execute(
+            """SELECT vulnerability_name, cisa_kev_date, due_date, required_action,
+                      ransomware_campaign, notes
+               FROM cve_kev WHERE cve_id = %s""",
+            (cve_id,),
+        )
+        row = cursor.fetchone()
+        if row:
+            out["kev"] = {
+                "vulnerability_name": row["vulnerability_name"],
+                "cisa_kev_date": str(row["cisa_kev_date"]) if row["cisa_kev_date"] else None,
+                "due_date": str(row["due_date"]) if row["due_date"] else None,
+                "required_action": row["required_action"],
+                "ransomware_campaign": row["ransomware_campaign"],
+                "notes": row["notes"],
+            }
+
+        cursor.execute(
+            """SELECT i.id, i.value, i.ioc_type, i.threat_type, i.source, i.first_seen,
+                      ci.confidence
+               FROM ioc_feed i
+               JOIN cve_iocs ci ON ci.ioc_id = i.id
+               WHERE ci.cve_id = %s ORDER BY i.id DESC LIMIT 50""",
+            (cve_id,),
+        )
+        for r in cursor.fetchall():
+            out["iocs"].append({
+                "id": r["id"], "value": r["value"], "ioc_type": r["ioc_type"],
+                "threat_type": r["threat_type"], "source": r["source"],
+                "first_seen": str(r["first_seen"]) if r["first_seen"] else None,
+                "confidence": r["confidence"],
+            })
+
+        for table in ("sigma_rules", "yara_rules", "ids_rules"):
+            cols = "id, title, description, source, cve_id, created_at" if table == "sigma_rules" else \
+                   ("id, rule_name, title, description, source, file_url, created_at" if table == "yara_rules" else
+                    "id, engine, sid, message, severity, reference, source, created_at")
+            cursor.execute(f"SELECT {cols} FROM {table} WHERE cve_id = %s ORDER BY id DESC LIMIT 20", (cve_id,))
+            for r in cursor.fetchall():
+                out[table].append(dict(r))
+
+        cursor.execute(
+            """SELECT at.technique_id, at.name, at.tactic, at.platform, at.description, at.url,
+                      cam.confidence
+               FROM attack_techniques at
+               JOIN cve_attack_mapping cam ON cam.technique_id = at.technique_id
+               WHERE cam.cve_id = %s ORDER BY at.technique_id""",
+            (cve_id,),
+        )
+        for r in cursor.fetchall():
+            out["attack_techniques"].append(dict(r))
+
+        cursor.execute(
+            """SELECT cp.capec_id, cp.name, cp.description, cp.likelihood, cp.severity
+               FROM capec_patterns cp
+               JOIN cve_capec_mapping ccm ON ccm.capec_id = cp.capec_id
+               WHERE ccm.cve_id = %s ORDER BY cp.capec_id""",
+            (cve_id,),
+        )
+        for r in cursor.fetchall():
+            out["capec"].append(dict(r))
+
+        cursor.execute(
+            """SELECT c.id, c.name, c.status, c.target_sectors, c.start_date, c.end_date,
+                      a.id AS actor_id, a.name AS actor_name
+               FROM campaigns c
+               JOIN cve_campaign_mapping ccm ON ccm.campaign_id = c.id
+               LEFT JOIN apt_groups a ON a.id = c.threat_actor_id
+               WHERE ccm.cve_id = %s ORDER BY c.id DESC""",
+            (cve_id,),
+        )
+        campaigns = cursor.fetchall()
+        out["campaigns"] = [dict(r) for r in campaigns]
+        out["apt_groups"] = []
+        seen_actors = set()
+        for r in campaigns:
+            if r["actor_id"] and r["actor_id"] not in seen_actors:
+                seen_actors.add(r["actor_id"])
+                out["apt_groups"].append({"id": r["actor_id"], "name": r["actor_name"]})
+
+        cursor.execute(
+            """SELECT id, product, vendor, version, platform, cpe_uri, status
+               FROM cve_affected_products WHERE cve_id = %s ORDER BY vendor, product""",
+            (cve_id,),
+        )
+        for r in cursor.fetchall():
+            out["affected_products"].append(dict(r))
+
+        cursor.execute(
+            """SELECT id, patch_name, vendor, url, version_fixed, released, available, verified, notes
+               FROM cve_patches WHERE cve_id = %s ORDER BY id DESC""",
+            (cve_id,),
+        )
+        for r in cursor.fetchall():
+            out["patches"].append(dict(r))
+
+        cursor.execute(
+            """SELECT id, vendor, advisory_id, title, url, severity, published
+               FROM vendor_advisories WHERE cve_id = %s ORDER BY published DESC NULLS LAST""",
+            (cve_id,),
+        )
+        for r in cursor.fetchall():
+            out["advisories"].append(dict(r))
+
+        cursor.close()
+    except Exception as e:
+        logging.error(f"Erreur lifecycle CVE {cve_id}: {e}")
+    return out
+
+
 def get_cve_detail(cve_id: str) -> dict:
     """Retourne le detail complet d'une CVE avec correlations."""
     from src.database import get_db_connection
@@ -108,12 +245,16 @@ def get_cve_detail(cve_id: str) -> dict:
     )
     cve = cursor.fetchone()
     cursor.close()
-    conn.close()
 
     if not cve:
+        conn.close()
         return {"error": "CVE introuvable", "cve_id": cve_id}
 
     cve = dict(cve)
+    lifecycle = _get_cve_lifecycle(conn, cve_id)
+    conn.close()
+
+    cve.update(lifecycle)
     cve["exploits"] = get_exploits_for_cve(cve_id)
     cve["tools"] = get_tools_for_cve(cve_id)
     cve["is_kev"] = bool(cve.get("weaknesses") and "CISA_KEV" in str(cve.get("weaknesses", "")))
