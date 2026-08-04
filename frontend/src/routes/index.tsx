@@ -4,7 +4,7 @@ import { Route as RootRoute } from './__root'
 import { useQuery } from '@tanstack/react-query'
 import {
   Shield, Clock, CheckCircle2, Target, ChevronDown, ChevronUp,
-  Brain, AlertTriangle, Play, AlertCircle, TrendingUp, Zap,
+  Brain, AlertTriangle, Play, AlertCircle, TrendingUp, Zap, TrendingDown,
   BarChart3, Calendar, Server, Globe, Layers, Sparkles, Activity, PieChart, Rocket,
 } from 'lucide-react'
 import { PageLoader } from '../components/CyberLoader'
@@ -186,6 +186,16 @@ function DecisionOSCard({ decision, orgId }: { decision: PriorityDecision; orgId
   const products = (summary as any)?.products || []
   const epss = (summary as any)?.epss
   const analysis = (summary as any)?.analysis
+
+  const { data: trend } = useQuery({
+    queryKey: ['risk-trend', decision.cve_id],
+    queryFn: () => fetch(`/api/decision-history/${decision.cve_id}?days=30`).then(r => r.json()),
+    staleTime: 120_000,
+    enabled: !!decision.cve_id,
+  })
+  const history = (trend as any)?.history || []
+  const prevScore = history.length > 1 ? history[history.length - 2]?.score : null
+  const delta = prevScore !== null ? decision.score - prevScore : 0
 
   const startMission = async () => {
     if (!orgId) { window.location.href = '/organization'; return }
@@ -388,6 +398,32 @@ function DecisionOSCard({ decision, orgId }: { decision: PriorityDecision; orgId
               <div className="mt-3 flex items-center gap-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
                 <PieChart size={11} /> Après correction : Cyber Risk 82 → <span style={{ color: 'var(--success)' }}>64</span> (gain <span style={{ color: 'var(--success)' }}>18%</span>)
               </div>
+            </div>
+
+            {/* ── Tendance du risque ───────────────────── */}
+            <div className="rounded-xl p-3.5" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Évolution du risque</h3>
+                {delta !== 0 && (
+                  <span className="text-xs font-bold flex items-center gap-1"
+                    style={{ color: delta < 0 ? 'var(--success)' : 'var(--critical-text)' }}>
+                    {delta < 0 ? <TrendingDown size={13} /> : <TrendingUp size={13} />}
+                    {delta < 0 ? delta : `+${delta}`}
+                  </span>
+                )}
+              </div>
+              {history.length > 0 ? (
+                <div className="flex items-end gap-1 h-12">
+                  {history.map((h: any, i: number) => (
+                    <div key={i} className="flex-1 rounded-t-sm transition-all" title={`${h.at?.slice(0,10)}: ${h.score}`}
+                      style={{ height: `${Math.max(8, (h.score / 100) * 100)}%`, background: i === history.length - 1 ? 'var(--brand-text)' : h.score > 70 ? 'var(--critical)' : h.score > 50 ? 'var(--mission)' : 'var(--decision)' }} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-[10px] text-muted">
+                  <Activity size={11} /> Collecte des données en cours — l'historique s'enrichit à chaque visite
+                </div>
+              )}
             </div>
 
             {/* ── CTA ───────────────────── */}

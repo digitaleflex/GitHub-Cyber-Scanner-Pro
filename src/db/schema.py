@@ -589,6 +589,20 @@ def init_db():
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_analysis_cve ON cve_analysis (cve_id)")
 
+    # Historique des decisions (snapshots quotidiens pour suivre l'evolution du risque)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS decision_history (
+            id SERIAL PRIMARY KEY,
+            cve_id VARCHAR(30) REFERENCES cve_entries(cve_id) ON DELETE CASCADE,
+            score INTEGER NOT NULL,
+            level VARCHAR(20),
+            factors JSONB,
+            profile_id INTEGER,
+            snapshot_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_decision_hist ON decision_history (profile_id, cve_id, snapshot_at)")
+
     # Advisories fournisseurs
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS vendor_advisories (

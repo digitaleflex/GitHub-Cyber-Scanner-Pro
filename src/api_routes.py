@@ -316,6 +316,17 @@ def priority_cves_api(days: int = 90, limit: int = 20, profile_id: int | None = 
     role = ctx.get_user_role(profile_id)
     summary["role"] = role
     summary["context"] = risk.get_context_summary(profile_id)
+
+    # Enregistrer des snapshots pour l'historique (1/jour/CVE/profile max)
+    if decisions and profile_id:
+        from src.db import history as hist
+        for d in decisions[:20]:
+            try:
+                hist.record_snapshot(d.get("cve_id",""), d.get("score",0),
+                                     d.get("level",""), d.get("factors",{}), profile_id)
+            except Exception:
+                pass
+
     return {"count": len(decisions), "decisions": decisions, "summary": summary}
 
 
@@ -1043,6 +1054,20 @@ def cve_summary_api(cve_id: str):
     cur.close()
     conn.close()
     return out
+
+
+@app.get("/api/decision-history/{cve_id}")
+def decision_history_api(cve_id: str, days: int = 30):
+    """Historique des scores d'une CVE sur N jours."""
+    from src.db import history as hist
+    return {"cve_id": cve_id.upper(), "history": hist.get_history(cve_id, days)}
+
+
+@app.get("/api/risk-trend")
+def risk_trend_api(profile_id: int = 1, days: int = 30):
+    """Tendance du risque agrege par jour pour une organisation."""
+    from src.db import history as hist
+    return hist.get_org_risk_trend(profile_id, days)
 
 
 @app.get("/api/token-status")
