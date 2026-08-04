@@ -41,6 +41,10 @@ MESSAGE_EXPERTS.md
 Thumbs.db
 .env.prod
 backups/
+
+# Worktrees
+.worktrees/
+
 data/*.json
 data/*.xml
 data/*.csv
