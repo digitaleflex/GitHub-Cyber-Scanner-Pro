@@ -177,6 +177,16 @@ function DecisionOSCard({ decision, orgId }: { decision: PriorityDecision; orgId
   const total = Object.values(factors).reduce((a: number, b: number) => a + b, 0) || 100
   const confidencePct = decision.confidence === 'Élevée' ? 96 : decision.confidence === 'Moyenne' ? 72 : decision.confidence === 'Faible' ? 45 : 60
 
+  const { data: summary } = useQuery({
+    queryKey: ['cve-summary', decision.cve_id],
+    queryFn: () => fetch(`/api/cve-summary/${decision.cve_id}`).then(r => r.json()),
+    staleTime: 300_000,
+    enabled: !!decision.cve_id,
+  })
+  const products = (summary as any)?.products || []
+  const epss = (summary as any)?.epss
+  const analysis = (summary as any)?.analysis
+
   const startMission = async () => {
     if (!orgId) { window.location.href = '/organization'; return }
     setCreating(true)
@@ -284,6 +294,38 @@ function DecisionOSCard({ decision, orgId }: { decision: PriorityDecision; orgId
                 ))}
               </div>
             </div>
+
+            {/* ── Produits affectés ───────────────────── */}
+            {products.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2" style={{ color: 'var(--text)' }}>
+                  <Server size={13} style={{ color: 'var(--mission-text)' }} /> Actifs concernés
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {products.map((p: any, i: number) => (
+                    <span key={i} className="text-[10px] px-2 py-1 rounded-full" style={{ background: 'var(--bg-alt)', color: 'var(--text-secondary)', border: '1px solid var(--border-light)' }}>
+                      {p.vendor && <><strong>{p.vendor}</strong> · </>}{p.product}{p.version ? ` v${p.version}` : ''}
+                    </span>
+                  ))}
+                </div>
+                {epss && <div className="text-[10px] text-muted mt-1.5">EPSS : {(epss.epss * 100).toFixed(1)}% · Percentile : {(epss.percentile * 100).toFixed(1)}%</div>}
+              </div>
+            )}
+
+            {/* ── Analyse IA ───────────────────── */}
+            {analysis && (
+              <div className="rounded-xl p-4" style={{ background: 'var(--ai-light)', border: '1px solid var(--ai)', borderLeft: '4px solid var(--ai)' }}>
+                <h3 className="text-sm font-semibold mb-1.5 flex items-center gap-2" style={{ color: 'var(--ai-text)' }}>
+                  <Brain size={14} /> Pourquoi HashCode recommande cela&nbsp;?
+                </h3>
+                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{analysis.summary}</p>
+                {analysis.recommendation && (
+                  <p className="text-[11px] leading-relaxed mt-1.5" style={{ color: 'var(--ai-text)' }}>
+                    <strong>Recommandation :</strong> {analysis.recommendation}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* ── Si vous ignorez ───────────────────── */}
             <div className="rounded-xl p-4" style={{ background: 'var(--critical-light)', border: '1px solid var(--critical)', borderLeft: '4px solid var(--critical)' }} role="alert">

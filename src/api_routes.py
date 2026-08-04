@@ -1023,6 +1023,28 @@ def analysis_count_api():
     return {"cve_analysis": db_analysis.count_analysis()}
 
 
+@app.get("/api/cve-summary/{cve_id}")
+def cve_summary_api(cve_id: str):
+    """Resume enrichi d'une CVE pour le dashboard : produits, EPSS, analyse IA."""
+    from src.database import get_db_connection
+    cve_id = cve_id.upper()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    out: dict = {"cve_id": cve_id}
+    cur.execute("""SELECT product, vendor, version FROM cve_affected_products
+                   WHERE cve_id=%s ORDER BY vendor NULLS LAST LIMIT 5""", (cve_id,))
+    out["products"] = [{"product": r[0], "vendor": r[1], "version": r[2]} for r in cur.fetchall()]
+    cur.execute("SELECT epss, percentile FROM epss_scores WHERE cve_id=%s", (cve_id,))
+    row = cur.fetchone()
+    out["epss"] = {"epss": float(row[0]), "percentile": float(row[1])} if row else None
+    cur.execute("SELECT summary, recommendation FROM cve_analysis WHERE cve_id=%s", (cve_id,))
+    ar = cur.fetchone()
+    out["analysis"] = {"summary": ar[0], "recommendation": ar[1]} if ar else None
+    cur.close()
+    conn.close()
+    return out
+
+
 @app.get("/api/token-status")
 def token_status_api():
     """Retourne le nombre de tokens configurés (sans exposer les valeurs)."""
