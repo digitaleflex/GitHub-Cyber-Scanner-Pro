@@ -75,8 +75,13 @@
   --text-muted: #64748B;
   --text-inverse: #0F172A;
   --overlay: rgba(2, 6, 23, 0.7);
+  /* Couleurs sémantiques — versions claires pour lisibilité dark */
   --success-text: #4ADE80;    --success-light: rgba(34, 197, 94, 0.12);
   --warning-text: #FBBF24;    --warning-light: rgba(245, 158, 11, 0.12);
+  --ai-text: #A78BFA;         --ai-light: rgba(139, 92, 246, 0.12);
+  --critical-text: #FCA5A5;   --critical-light: rgba(239, 68, 68, 0.12);
+  --mission-text: #FCD34D;    --mission-light: rgba(245, 158, 11, 0.12);
+  --decision-text: #93C5FD;   --decision-light: rgba(59, 130, 246, 0.12);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────── */
