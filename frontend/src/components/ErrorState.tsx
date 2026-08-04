@@ -18,17 +18,26 @@ export default function ErrorState({
       className={`flex flex-col items-center justify-center text-center ${compact ? 'py-8' : 'py-16'} px-4`}
       role="alert"
     >
-      <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-3">
-        <AlertTriangle size={20} className="text-rose-400" />
+      <div
+        className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+        style={{
+          background: 'var(--critical-light)',
+          border: '1px solid var(--critical)',
+          opacity: 0.6,
+        }}
+      >
+        <AlertTriangle size={20} style={{ color: 'var(--critical-text)' }} />
       </div>
-      <p className="text-sm font-medium text-rose-300 mb-1">{title}</p>
-      {description && <p className="text-xs text-slate-500 max-w-xs leading-relaxed mb-1">{description}</p>}
+      <p className="body-sm font-medium mb-1" style={{ color: 'var(--critical-text)', opacity: 0.8 }}>{title}</p>
+      {description && (
+        <p className="text-xs max-w-xs leading-relaxed mb-1" style={{ color: 'var(--text-muted)' }}>{description}</p>
+      )}
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-xs text-slate-300 hover:text-white hover:border-indigo-500/30 transition"
+          className="btn-secondary mt-3 text-xs"
         >
-          <RefreshCw size={11} /> Reessayer
+          <RefreshCw size={11} /> Réessayer
         </button>
       )}
     </div>

@@ -2,31 +2,33 @@ import type { LucideIcon } from 'lucide-react'
 
 export type ChipVariant = 'verdict' | 'severity' | 'status' | 'category' | 'default'
 
-const verdictColors: Record<string, string> = {
-  'sain': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  'suspect': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  'critique': 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+const verdictStyles: Record<string, { bg: string; text: string; border: string }> = {
+  'sain':     { bg: 'var(--success-light)', text: '#166534', border: 'var(--success)' },
+  'suspect':  { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)' },
+  'critique': { bg: 'var(--critical-light)', text: 'var(--critical-text)', border: 'var(--critical)' },
 }
 
-const severityColors: Record<string, string> = {
-  'critical': 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-  'high': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  'medium': 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-  'low': 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+const severityStyles: Record<string, { bg: string; text: string; border: string }> = {
+  'critical': { bg: 'var(--critical-light)', text: 'var(--critical-text)', border: 'var(--critical)' },
+  'high':     { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)' },
+  'medium':   { bg: 'var(--warning-light)', text: '#92400E', border: 'var(--mission)' },
+  'low':      { bg: 'var(--bg-alt)', text: 'var(--text-muted)', border: 'var(--border)' },
 }
 
-const statusColors: Record<string, string> = {
-  'active': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  'idle': 'bg-slate-500/10 text-slate-400 border-slate-500/20',
-  'error': 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-  'en cours': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  'pret': 'bg-slate-500/10 text-slate-400 border-slate-500/20',
-  'ok': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  'oui': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  'non': 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-  'gratuit': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  'pro': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  'enterprise': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+const statusStyles: Record<string, { bg: string; text: string; border: string }> = {
+  'active':     { bg: 'var(--success-light)', text: '#166534', border: 'var(--success)' },
+  'idle':       { bg: 'var(--bg-alt)', text: 'var(--text-muted)', border: 'var(--border)' },
+  'error':      { bg: 'var(--critical-light)', text: 'var(--critical-text)', border: 'var(--critical)' },
+  'en cours':   { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)' },
+  'pret':       { bg: 'var(--bg-alt)', text: 'var(--text-muted)', border: 'var(--border)' },
+  'ok':         { bg: 'var(--success-light)', text: '#166534', border: 'var(--success)' },
+  'oui':        { bg: 'var(--success-light)', text: '#166534', border: 'var(--success)' },
+  'non':        { bg: 'var(--bg-alt)', text: 'var(--text-muted)', border: 'var(--border)' },
+  'gratuit':    { bg: 'var(--success-light)', text: '#166534', border: 'var(--success)' },
+  'pro':        { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)' },
+  'enterprise': { bg: 'var(--ai-light)', text: 'var(--ai-text)', border: 'var(--ai)' },
+  'completed':  { bg: 'var(--success-light)', text: '#166534', border: 'var(--success)' },
+  'in_progress':{ bg: 'var(--decision-light)', text: 'var(--decision-text)', border: 'var(--decision)' },
 }
 
 export type ChipProps = {
@@ -37,23 +39,34 @@ export type ChipProps = {
 }
 
 export default function Chip({ variant, value, icon: Icon, className = '' }: ChipProps) {
-  let colorClass = 'glass text-slate-400'
+  let style: { bg: string; text: string; border: string } = {
+    bg: 'var(--bg-alt)',
+    text: 'var(--text-secondary)',
+    border: 'var(--border)',
+  }
 
   if (variant === 'verdict') {
     const key = value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    colorClass = verdictColors[key] || 'glass text-slate-400'
+    style = verdictStyles[key] || style
   } else if (variant === 'severity') {
     const key = value.toLowerCase()
-    colorClass = severityColors[key] || 'glass text-slate-400'
+    style = severityStyles[key] || style
   } else if (variant === 'status') {
     const key = value.toLowerCase()
-    colorClass = statusColors[key] || 'glass text-slate-400'
+    style = statusStyles[key] || style
   } else if (variant === 'category') {
-    colorClass = 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+    style = { bg: 'var(--decision-light)', text: 'var(--decision-text)', border: 'var(--decision)' }
   }
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass} ${className}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${className}`}
+      style={{
+        background: style.bg,
+        color: style.text,
+        borderColor: style.border,
+      }}
+    >
       {Icon && <Icon size={10} />}
       {value}
     </span>

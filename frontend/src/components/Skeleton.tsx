@@ -2,21 +2,22 @@ import type { ReactNode } from 'react'
 
 export function Skeleton({ className = '' }: { className?: string }) {
   return (
-    <div className={`rounded-lg animate-pulse ${className}`}
-      style={{ background: 'var(--surface-secondary)' }}
+    <div
+      className={`rounded-lg animate-shimmer ${className}`}
       role="status"
-      aria-label="Chargement" />
+      aria-label="Chargement"
+    />
   )
 }
 
 export function SkeletonCard({ lines = 3 }: { lines?: number }) {
   return (
-    <div className="surface p-5 space-y-3" role="status" aria-label="Chargement du contenu">
+    <div className="surface p-5 space-y-3" role="status" aria-label="Chargement du contenu" style={{ border: '1px solid var(--border)' }}>
       <Skeleton className="h-4 w-3/4" />
       <Skeleton className="h-3 w-full" />
       {lines > 1 && <Skeleton className="h-3 w-5/6" />}
       {lines > 2 && <Skeleton className="h-3 w-2/3" />}
-      <div className="flex gap-3 pt-2">
+      <div className="flex gap-3 pt-1">
         <Skeleton className="h-8 w-20 rounded-lg" />
         <Skeleton className="h-8 w-24 rounded-lg" />
       </div>
@@ -26,7 +27,7 @@ export function SkeletonCard({ lines = 3 }: { lines?: number }) {
 
 export function SkeletonHero() {
   return (
-    <div className="surface p-6 space-y-4" role="status" aria-label="Chargement de la decision">
+    <div className="card-hero p-6 space-y-4" role="status" aria-label="Chargement de la décision" style={{ border: '1px solid var(--border)' }}>
       <Skeleton className="h-3 w-40" />
       <Skeleton className="h-6 w-full" />
       <Skeleton className="h-4 w-2/3" />
@@ -62,16 +63,18 @@ export function EmptyState({ icon, title, description, action }: {
   action?: { label: string; onClick?: () => void; href?: string }
 }) {
   return (
-    <div className="surface p-10 text-center max-w-md mx-auto" role="status">
-      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center"
-        style={{ background: 'var(--surface-secondary)', color: 'var(--text-disabled)' }}>
+    <div className="surface p-12 text-center max-w-md mx-auto" role="status" style={{ border: '1px solid var(--border)' }}>
+      <div
+        className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+        style={{ background: 'var(--bg-alt)', color: 'var(--text-muted)' }}
+      >
         {icon}
       </div>
-      <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>{title}</h3>
-      <p className="text-xs mb-5" style={{ color: 'var(--text-secondary)' }}>{description}</p>
+      <h3 className="body font-semibold mb-1" style={{ color: 'var(--text)' }}>{title}</h3>
+      <p className="body-sm mb-6 text-secondary">{description}</p>
       {action && (
         action.href ? (
-          <a href={action.href} className="btn-primary inline-flex no-underline">
+          <a href={action.href} className="btn-primary no-underline">
             {action.label}
           </a>
         ) : (

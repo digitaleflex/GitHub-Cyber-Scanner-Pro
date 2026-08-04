@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
-import { Menu, X, Play, Shield, User, Building2, Settings, ChevronDown, Sun, Moon } from 'lucide-react'
+import { Menu, X, Shield, Building2, Settings, ChevronDown, Sun, Moon, Search, Activity } from 'lucide-react'
 import { useScanStatus } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 import useSearchHotkey from '../lib/useSearchHotkey'
@@ -22,8 +22,18 @@ function ThemeToggle() {
   }, [dark])
 
   return (
-    <button onClick={() => setDark(!dark)} className="nav-link" title={dark ? 'Mode clair' : 'Mode sombre'}>
-      {dark ? <Sun size={15} /> : <Moon size={15} />}
+    <button
+      onClick={() => setDark(!dark)}
+      className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-[var(--surface-hover)]"
+      title={dark ? 'Mode clair' : 'Mode sombre'}
+      aria-label={dark ? 'Passer en mode clair' : 'Passer en mode sombre'}
+    >
+      <span className="transition-all duration-300" style={{ transform: dark ? 'rotate(180deg) scale(0)' : 'rotate(0deg) scale(1)', position: dark ? 'absolute' : 'relative', color: 'var(--text-secondary)' }}>
+        <Sun size={17} />
+      </span>
+      <span className="transition-all duration-300" style={{ transform: dark ? 'rotate(0deg) scale(1)' : 'rotate(-180deg) scale(0)', position: dark ? 'relative' : 'absolute', color: 'var(--text-secondary)' }}>
+        <Moon size={17} />
+      </span>
     </button>
   )
 }
@@ -38,10 +48,16 @@ function UserBadge() {
   const org = data?.organization
   if (!profile) return null
   return (
-    <div className="hidden sm:flex items-center gap-2 surface-secondary rounded-full px-3 py-1 text-xs" style={{ border: 'none' }}>
-      <User size={12} style={{ color: 'var(--color-brand-text)' }} />
-      <span className="font-medium capitalize" style={{ color: 'var(--color-text)' }}>{profile.role || 'non_defini'}</span>
-      {org && <><span className="text-disabled">·</span><Building2 size={11} style={{ color: 'var(--color-text-disabled)' }} /><span className="truncate max-w-[80px]" style={{ color: 'var(--color-text-disabled)' }}>{org.name}</span></>}
+    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs surface-flat" style={{ border: '1px solid var(--border)' }}>
+      <span className="w-2 h-2 rounded-full" style={{ background: 'var(--success)' }} />
+      <span className="font-medium capitalize" style={{ color: 'var(--text)' }}>{profile.role || 'non_defini'}</span>
+      {org && (
+        <>
+          <span className="text-muted">·</span>
+          <Building2 size={11} className="text-muted" />
+          <span className="truncate max-w-[80px] text-muted">{org.name}</span>
+        </>
+      )}
     </div>
   )
 }
@@ -49,17 +65,39 @@ function UserBadge() {
 function Dropdown({ children, items }: { children: React.ReactNode; items: { label: string; to: string; icon?: React.ReactNode }[] }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => { const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }; if (open) document.addEventListener('click', h); return () => document.removeEventListener('click', h) }, [open])
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    if (open) document.addEventListener('click', h)
+    return () => document.removeEventListener('click', h)
+  }, [open])
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen(!open)} className="nav-link flex items-center gap-1">
-        {children} <ChevronDown size={11} className={`transition ${open ? 'rotate-180' : ''}`} />
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+        style={{ color: open ? 'var(--text)' : 'var(--text-secondary)' }}
+      >
+        {children}
+        <ChevronDown size={12} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute top-full right-0 mt-1 surface p-1.5 min-w-[160px] z-50 animate-fade" style={{ boxShadow: 'var(--shadow-elevated)' }}>
+        <div
+          className="absolute top-full right-0 mt-2 py-1.5 px-1 min-w-[180px] z-50 animate-fade"
+          style={{
+            background: 'var(--surface-elevated)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: 'var(--shadow-xl)',
+          }}
+        >
           {items.map(item => (
-            <Link key={item.to} to={item.to as any} onClick={() => setOpen(false)} className="dropdown-item">
-              {item.icon && <span className="shrink-0">{item.icon}</span>}
+            <Link
+              key={item.to}
+              to={item.to as any}
+              onClick={() => setOpen(false)}
+              className="dropdown-item"
+            >
+              {item.icon && <span className="shrink-0" style={{ color: 'var(--text-muted)' }}>{item.icon}</span>}
               {item.label}
             </Link>
           ))}
@@ -74,46 +112,91 @@ function ScanBtn() {
   const [scanning, setScanning] = useState(false)
   const router = useRouter()
   const isScanning = scanning || data?.status?.includes('en cours')
+
   const handleScan = useCallback(async () => {
-    if (isScanning) return; setScanning(true)
+    if (isScanning) return
+    setScanning(true)
     try {
       const res = await fetch('/api/scan', { method: 'POST' })
       if (res.ok) { setTimeout(() => { refetch(); router.invalidate() }, 1000) }
     } catch {}
     setTimeout(() => setScanning(false), 2000)
   }, [isScanning, refetch, router])
+
   return (
-    <button onClick={handleScan} disabled={isScanning} aria-label={isScanning ? 'Scan en cours' : 'Lancer un scan'}
-      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full surface-secondary hover:bg-[var(--hover-bg)] disabled:opacity-40 transition">
-      <Play size={11} className={isScanning ? 'animate-pulse' : ''} /> {isScanning ? 'Scan...' : 'Scanner'}
+    <button
+      onClick={handleScan}
+      disabled={isScanning}
+      aria-label={isScanning ? 'Scan en cours' : 'Lancer un scan'}
+      className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
+        isScanning ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+      }`}
+      style={{
+        background: isScanning ? 'var(--surface)' : 'var(--brand)',
+        color: isScanning ? 'var(--text-secondary)' : 'var(--brand-text)',
+        border: isScanning ? '1px solid var(--border)' : 'none',
+      }}
+    >
+      <Activity size={13} className={isScanning ? 'animate-pulse' : ''} />
+      {isScanning ? 'Scan...' : 'Scanner'}
     </button>
   )
 }
 
 function RootLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const router = useRouter()
+  const currentPath = router.state.location.pathname
   useSearchHotkey()
+
+  const isActive = (path: string) => currentPath === path || (path !== '/' && currentPath.startsWith(path))
 
   return (
     <div className="min-h-screen" style={{ color: 'var(--text)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <header className="flex items-center justify-between py-3 sm:py-4" style={{ borderBottom: `1px solid var(--border)` }}>
-          <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition shrink-0">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm" style={{ background: 'var(--brand)', color: 'var(--brand-text)' }}>H</div>
+        <header
+          className="flex items-center justify-between py-3 sm:py-4 gap-4"
+          style={{ borderBottom: `1px solid var(--border)` }}
+        >
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 shrink-0 group" style={{ textDecoration: 'none' }}>
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all group-hover:scale-105 group-hover:shadow-lg"
+              style={{
+                background: 'var(--brand)',
+                color: 'var(--brand-text)',
+                boxShadow: '0 0 0 4px var(--brand-ring)',
+              }}
+            >
+              H
+            </div>
             <div className="hidden sm:block">
-              <span className="text-sm font-semibold tracking-tight">HashCode</span>
-              <span className="text-[10px] font-medium ml-1.5 px-1.5 py-0.5 rounded" style={{ background: 'var(--brand-bg)', color: 'var(--brand-text)' }}>Decision OS</span>
+              <div className="text-sm font-bold tracking-tight" style={{ color: 'var(--text)' }}>HashCode</div>
+              <div className="text-[10px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
+                Decision <span style={{ color: 'var(--brand-text)' }}>OS</span>
+              </div>
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-0.5" role="navigation" aria-label="Navigation principale">
-            <Link to="/" className="nav-link [&.active]:nav-active" aria-current="page">Aujourd'hui</Link>
-            <Link to="/threats" className="nav-link [&.active]:nav-active">Menaces</Link>
-            <Link to="/missions" className="nav-link [&.active]:nav-active">Missions</Link>
-            <Link to="/tools" className="nav-link [&.active]:nav-active">Outils</Link>
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Navigation principale">
+            {[
+              { to: '/', label: "Aujourd'hui" },
+              { to: '/threats', label: 'Menaces' },
+              { to: '/missions', label: 'Missions' },
+              { to: '/tools', label: 'Outils' },
+            ].map(item => (
+              <Link
+                key={item.to}
+                to={item.to as any}
+                className={`nav-link ${isActive(item.to) ? 'active' : ''}`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
+          {/* Right side */}
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <UserBadge />
@@ -124,51 +207,65 @@ function RootLayout() {
                 { label: 'Assistant', to: '/assistant' },
                 { label: 'CVE', to: '/cves' },
               ]}>
-                Plus
+                <Search size={15} />
               </Dropdown>
               <Dropdown items={[
                 { label: 'Assets', to: '/assets', icon: <Shield size={11} /> },
                 { label: 'Organisation', to: '/organization', icon: <Building2 size={11} /> },
-                { label: 'Parametres', to: '/settings', icon: <Settings size={11} /> },
-                { label: 'A propos', to: '/about' },
+                { label: 'Paramètres', to: '/settings', icon: <Settings size={11} /> },
+                { label: 'À propos', to: '/about' },
               ]}>
-                <Settings size={14} />
+                <Settings size={15} />
               </Dropdown>
             </div>
             <ScanBtn />
-            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-1" style={{ color: 'var(--text-secondary)' }}>
+
+            {/* Mobile menu toggle */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden p-2 rounded-lg transition-colors hover:bg-[var(--surface-hover)]"
+            >
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </header>
 
+        {/* Mobile nav overlay */}
         {menuOpen && (
-          <nav className="md:hidden flex flex-col gap-1 pb-4 -mt-1 mb-4 surface rounded-xl p-2 animate-fade">
-            <Link to="/" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg font-medium" style={{ color: 'var(--text)' }}>Aujourd'hui</Link>
-            <Link to="/threats" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg" style={{ color: 'var(--text-secondary)' }}>Menaces</Link>
-            <Link to="/missions" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg" style={{ color: 'var(--text-secondary)' }}>Missions</Link>
-            <Link to="/tools" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg" style={{ color: 'var(--text-secondary)' }}>Outils</Link>
-            <div className="separator my-1" />
-            <Link to="/timeline" className="text-sm py-2 px-3 rounded-lg text-disabled">Timeline</Link>
-            <Link to="/reports" className="text-sm py-2 px-3 rounded-lg text-disabled">Rapports</Link>
-            <Link to="/assistant" className="text-sm py-2 px-3 rounded-lg text-disabled">Assistant</Link>
-            <Link to="/cves" className="text-sm py-2 px-3 rounded-lg text-disabled">CVE</Link>
-            <div className="separator my-1" />
-            <Link to="/assets" className="text-sm py-2 px-3 rounded-lg text-disabled">Assets</Link>
-            <Link to="/organization" className="text-sm py-2 px-3 rounded-lg text-disabled">Organisation</Link>
-            <Link to="/settings" className="text-sm py-2 px-3 rounded-lg text-disabled">Parametres</Link>
+          <nav
+            className="md:hidden flex flex-col gap-0.5 pb-4 -mt-1 mb-4 animate-scale p-3"
+            style={{
+              background: 'var(--surface-elevated)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-xl)',
+            }}
+          >
+            <Link to="/" onClick={() => setMenuOpen(false)} className={`nav-link ${isActive('/') ? 'active' : ''}`}>Aujourd'hui</Link>
+            <Link to="/threats" onClick={() => setMenuOpen(false)} className={`nav-link ${isActive('/threats') ? 'active' : ''}`}>Menaces</Link>
+            <Link to="/missions" onClick={() => setMenuOpen(false)} className={`nav-link ${isActive('/missions') ? 'active' : ''}`}>Missions</Link>
+            <Link to="/tools" onClick={() => setMenuOpen(false)} className={`nav-link ${isActive('/tools') ? 'active' : ''}`}>Outils</Link>
+            <div className="separator my-2" />
+            <Link to="/timeline" onClick={() => setMenuOpen(false)} className="nav-link text-muted">Timeline</Link>
+            <Link to="/reports" onClick={() => setMenuOpen(false)} className="nav-link text-muted">Rapports</Link>
+            <Link to="/assistant" onClick={() => setMenuOpen(false)} className="nav-link text-muted">Assistant</Link>
+            <Link to="/cves" onClick={() => setMenuOpen(false)} className="nav-link text-muted">CVE</Link>
+            <div className="separator my-2" />
+            <Link to="/assets" onClick={() => setMenuOpen(false)} className="nav-link text-muted">Assets</Link>
+            <Link to="/organization" onClick={() => setMenuOpen(false)} className="nav-link text-muted">Organisation</Link>
+            <Link to="/settings" onClick={() => setMenuOpen(false)} className="nav-link text-muted">Paramètres</Link>
           </nav>
         )}
 
         <Outlet />
 
-        <footer className="py-8 mt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs" style={{ borderTop: `1px solid var(--border)` }}>
+        <footer className="py-8 mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ borderTop: `1px solid var(--border)` }}>
           <div className="flex items-center gap-3">
-            <span className="text-secondary">HashCode Decision OS</span>
+            <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>HashCode Decision OS</span>
             <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
-            <Link to="/about" className="text-disabled hover:text-[var(--text)] transition">A propos</Link>
+            <Link to="/about" className="hover:underline" style={{ color: 'var(--text-muted)' }}>À propos</Link>
           </div>
-          <span className="text-disabled">Decision Engine · NVD · Exploit-DB · EPSS · CISA KEV</span>
+          <span className="text-muted">Decision Engine · NVD · Exploit-DB · EPSS · CISA KEV</span>
         </footer>
       </div>
     </div>

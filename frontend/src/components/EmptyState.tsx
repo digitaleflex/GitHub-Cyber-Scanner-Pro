@@ -10,7 +10,7 @@ type EmptyStateProps = {
 }
 
 export default function EmptyState({
-  title = 'Aucune donnee',
+  title = 'Aucune donnée',
   description,
   icon: Icon = Inbox,
   action,
@@ -21,11 +21,19 @@ export default function EmptyState({
       className={`flex flex-col items-center justify-center text-center ${compact ? 'py-8' : 'py-16'} px-4`}
       role="status"
     >
-      <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mb-3">
-        <Icon size={20} className="text-slate-500" />
+      <div
+        className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+        style={{
+          background: 'var(--bg-alt)',
+          border: '1px solid var(--border)',
+        }}
+      >
+        <Icon size={20} style={{ color: 'var(--text-muted)' }} />
       </div>
-      <p className="text-sm font-medium text-slate-400 mb-1">{title}</p>
-      {description && <p className="text-xs text-slate-500 max-w-xs leading-relaxed">{description}</p>}
+      <p className="body-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{title}</p>
+      {description && (
+        <p className="text-xs max-w-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>{description}</p>
+      )}
       {action && <div className="mt-4">{action}</div>}
     </div>
   )
