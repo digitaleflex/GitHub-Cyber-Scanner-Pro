@@ -3,6 +3,7 @@ import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { Sidebar } from '../components/Sidebar'
 import { TopBar } from '../components/TopBar'
 import { CyberLoader } from '../components/CyberLoader'
+import useSearchHotkey from '../lib/useSearchHotkey'
 import NotFound from './not-found'
 
 export const Route = createRootRoute({
@@ -11,6 +12,7 @@ export const Route = createRootRoute({
 })
 
 function RootLayout() {
+  useSearchHotkey()
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--bg)' }}>
       <Sidebar />

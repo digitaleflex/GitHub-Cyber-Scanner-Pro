@@ -1,18 +1,23 @@
 import { Activity } from 'lucide-react'
+import { useRouter } from '@tanstack/react-router'
 import { useScanStatus } from '../lib/api'
 import { useState, useCallback } from 'react'
 
 export function TopBar({ title }: { title: string }) {
   const { data, refetch } = useScanStatus()
+  const router = useRouter()
   const [scanning, setScanning] = useState(false)
   const isScanning = scanning || data?.status?.includes('en cours')
 
   const handleScan = useCallback(async () => {
     if (isScanning) return
     setScanning(true)
-    await fetch('/api/scan', { method: 'POST' })
-    setTimeout(() => { refetch(); setScanning(false) }, 2000)
-  }, [isScanning, refetch])
+    try {
+      const res = await fetch('/api/scan', { method: 'POST' })
+      if (res.ok) { setTimeout(() => { refetch(); router.invalidate() }, 1000) }
+    } catch {}
+    setTimeout(() => setScanning(false), 2000)
+  }, [isScanning, refetch, router])
 
   return (
     <header
