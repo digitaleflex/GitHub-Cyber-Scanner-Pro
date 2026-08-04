@@ -3,7 +3,7 @@ import { createRoute, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Target, Shield, CheckCircle2, Play, ChevronRight } from 'lucide-react'
-import { SkeletonCard } from '../components/Skeleton'
+import { CyberLoader } from '../components/CyberLoader'
 
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
@@ -84,8 +84,8 @@ function MissionsPage() {
 
   if (isLoading) return (
     <div className="max-w-3xl mx-auto py-4 sm:py-8 animate-fade" role="status" aria-label="Chargement des missions">
-      <SkeletonCard lines={4} />
-      <div className="mt-4"><SkeletonCard lines={3} /></div>
+      <CyberLoader text="Chargement des missions..." />
+      <div className="mt-4"><CyberLoader text="Analyse des objectifs..." /></div>
     </div>
   )
 

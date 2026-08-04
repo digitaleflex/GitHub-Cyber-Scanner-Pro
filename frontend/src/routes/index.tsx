@@ -7,7 +7,8 @@ import {
   Brain, Wifi, AlertTriangle, Play, AlertCircle, TrendingUp, Zap,
 } from 'lucide-react'
 import { useStats } from '../lib/api'
-import { SkeletonHero, EmptyState } from '../components/Skeleton'
+import { PageLoader } from '../components/CyberLoader'
+import { EmptyState } from '../components/Skeleton'
 
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/', component: HomePage })
 
@@ -97,7 +98,7 @@ function HomePage() {
       {/* ── Loading ───────────────────────────────────────────── */}
       {isLoading && (
         <div aria-label="Chargement des décisions" role="status">
-          <SkeletonHero />
+          <PageLoader text="Priorisation des menaces..." />
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="surface p-5 space-y-3" style={{ border: '1px solid var(--border)' }}>
               <div className="h-4 w-2/3 rounded animate-pulse" style={{ background: 'var(--bg-alt)' }} />

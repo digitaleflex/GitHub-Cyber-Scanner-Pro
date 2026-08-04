@@ -1,10 +1,11 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, Suspense } from 'react'
 import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
 import { Menu, X, Shield, Building2, Settings, ChevronDown, Sun, Moon, Search, Activity } from 'lucide-react'
 import { useScanStatus } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 import useSearchHotkey from '../lib/useSearchHotkey'
 import NotFound from './not-found'
+import { CyberLoader } from '../components/CyberLoader'
 
 export const Route = createRootRoute({ component: RootLayout, notFoundComponent: NotFound })
 
@@ -257,7 +258,9 @@ function RootLayout() {
           </nav>
         )}
 
-        <Outlet />
+        <Suspense fallback={<CyberLoader text="Chargement..." />}>
+          <Outlet />
+        </Suspense>
 
         <footer className="py-8 mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ borderTop: `1px solid var(--border)` }}>
           <div className="flex items-center gap-3">
