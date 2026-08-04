@@ -129,7 +129,7 @@ def _parse_entry(cve_item):
     severity = None
     cvss_score = None
     metrics = cve.get("metrics", {})
-    for key in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2"):
+    for key in ("cvssMetricV40", "cvssMetricV31", "cvssMetricV30", "cvssMetricV2"):
         mlist = metrics.get(key)
         if mlist:
             m0 = mlist[0]
