@@ -7,6 +7,8 @@ import { Route as MethodologyRoute } from './routes/methodology'
 import { Route as SourcesRoute } from './routes/sources'
 import { Route as FeedbackRoute } from './routes/feedback'
 import { Route as ContactRoute } from './routes/contact'
+import { Route as LibraryRoute } from './routes/library'
+import { Route as DocsRoute } from './routes/docs'
 import { Route as CvesRoute } from './routes/cves'
 import { Route as CveDetailRoute } from './routes/cve'
 import { Route as OrganizationRoute } from './routes/organization'
@@ -19,4 +21,4 @@ import { Route as AssistantRoute } from './routes/assistant'
 import { Route as SettingsRoute } from './routes/settings'
 import { Route as AdminRoute } from './routes/admin'
 
-export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, AboutRoute, MethodologyRoute, SourcesRoute, FeedbackRoute, ContactRoute, ToolRoute, CveDetailRoute, CvesRoute, OrganizationRoute, AssetsRoute, MissionsRoute, ThreatsRoute, TimelineRoute, ReportsRoute, AssistantRoute, SettingsRoute, AdminRoute])
+export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, AboutRoute, MethodologyRoute, SourcesRoute, FeedbackRoute, ContactRoute, LibraryRoute, DocsRoute, ToolRoute, CveDetailRoute, CvesRoute, OrganizationRoute, AssetsRoute, MissionsRoute, ThreatsRoute, TimelineRoute, ReportsRoute, AssistantRoute, SettingsRoute, AdminRoute])

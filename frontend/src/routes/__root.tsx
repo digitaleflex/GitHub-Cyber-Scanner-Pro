@@ -275,6 +275,10 @@ function RootLayout() {
               <Link to="/feedback" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Contribuer</Link>
               <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
               <Link to="/contact" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Contact</Link>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+              <Link to="/library" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Bibliothèque</Link>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+              <Link to="/docs" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Documentation</Link>
           </div>
           <span className="text-muted">Decision Engine · NVD · Exploit-DB · EPSS · CISA KEV</span>
         </footer>
