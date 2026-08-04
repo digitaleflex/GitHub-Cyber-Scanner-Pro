@@ -24,7 +24,7 @@ export default function EmptyState({
       <div
         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
         style={{
-          background: 'var(--bg-alt)',
+          background: 'var(--surface-elevated)',
           border: '1px solid var(--border)',
         }}
       >

@@ -32,8 +32,8 @@ function ReportsPage() {
 
       <div className="surface rounded-2xl p-5 sm:p-6 mb-6" style={{ border: '1px solid var(--border)' }}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--info-light)' }}>
-            <FileText size={18} style={{ color: 'var(--info)' }} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--surface-elevated)' }}>
+            <FileText size={18} style={{ color: 'var(--cyan)' }} />
           </div>
           <div>
             <h2 className="h3" style={{ color: 'var(--text)' }}>Rapport de sécurité</h2>
@@ -55,7 +55,7 @@ function ReportsPage() {
             </button>
           </div>
           <pre className="text-xs whitespace-pre-wrap mono rounded-xl p-4 max-h-96 overflow-auto leading-relaxed"
-            style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+            style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
             {report}
           </pre>
         </div>

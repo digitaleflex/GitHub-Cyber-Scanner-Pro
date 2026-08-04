@@ -179,7 +179,7 @@ export default function GraphView() {
   return (
     <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <h2 className="caption" style={{ color: 'var(--info-text)' }}>
+        <h2 className="caption" style={{ color: 'var(--cyan)' }}>
           Social Graph
         </h2>
         {data && (
@@ -198,7 +198,7 @@ export default function GraphView() {
             style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' }}
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}><X size={10} /></button>
+            <button onClick={() => setSearchTerm('')} aria-label="Effacer la recherche" className="absolute right-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}><X size={10} /></button>
           )}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -210,7 +210,7 @@ export default function GraphView() {
               style={{
                 background: labelFilter === l ? 'var(--surface-elevated)' : 'var(--surface)',
                 color: labelFilter === l ? 'var(--text)' : 'var(--text-muted)',
-                borderColor: labelFilter === l ? 'var(--brand)' : 'var(--border)',
+                borderColor: labelFilter === l ? 'var(--amber)' : 'var(--border)',
               }}
             >
               {l || 'Tout'}
@@ -220,7 +220,7 @@ export default function GraphView() {
             onClick={() => seedMutation.mutate()}
             disabled={seedMutation.isPending}
             className="text-xs px-3 py-1 rounded-full border font-medium transition-all disabled:opacity-40"
-            style={{ color: 'var(--info-text)', borderColor: 'var(--info)' }}
+            style={{ color: 'var(--cyan)', borderColor: 'var(--cyan)' }}
           >
             {seedMutation.isPending ? 'Seed...' : '⟳ Seed'}
           </button>
@@ -228,7 +228,7 @@ export default function GraphView() {
       </div>
 
       {isLoading ? (
-        <div className="h-96 rounded animate-pulse" style={{ background: 'var(--bg-alt)' }} />
+        <div className="h-96 rounded animate-pulse" style={{ background: 'var(--surface-elevated)' }} />
       ) : !data?.available ? (
         <div className="h-96 flex items-center justify-center">
           <p className="body-sm text-secondary">Neo4j non disponible</p>
@@ -304,17 +304,17 @@ export default function GraphView() {
               </div>
               <div className="mb-1" style={{ color: 'var(--text-secondary)' }}>{selected.name}</div>
               {selected.label === 'Hacker' && (
-                <a href={selected.properties.profile_url as string} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--info-text)' }}>
+                <a href={selected.properties.profile_url as string} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--cyan)' }}>
                   Voir le profil
                 </a>
               )}
               {selected.label === 'CVE' && (
-                <a href={`https://nvd.nist.gov/vuln/detail/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--info-text)' }}>
+                <a href={`https://nvd.nist.gov/vuln/detail/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--cyan)' }}>
                   Voir sur NVD
                 </a>
               )}
               {selected.label === 'Repo' && (
-                <a href={`https://github.com/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--info-text)' }}>
+                <a href={`https://github.com/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--cyan)' }}>
                   Voir sur GitHub
                 </a>
               )}

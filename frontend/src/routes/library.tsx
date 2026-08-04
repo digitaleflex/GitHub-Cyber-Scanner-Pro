@@ -40,7 +40,7 @@ function LibraryPage() {
   return (
     <div className="w-full py-8 animate-fade">
       <div className="flex items-center gap-3 mb-6">
-        <Library size={24} style={{ color: 'var(--brand)' }} />
+        <Library size={24} style={{ color: 'var(--amber)' }} />
         <div>
           <h1 className="h1" style={{ color: 'var(--text)' }}>Bibliothèque</h1>
           <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -56,15 +56,15 @@ function LibraryPage() {
           <input type="text" value={q} onChange={e => { setQ(e.target.value); setPage(1) }}
             placeholder="Rechercher par nom, description, langage..."
             className="w-full pl-9 pr-8 py-2 rounded-xl text-sm"
-            style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text)', outline: 'none' }} />
-          {q && <button onClick={() => { setQ(''); setPage(1) }} className="absolute right-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}><X size={14} /></button>}
+            style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text)', outline: 'none' }} />
+          {q && <button onClick={() => { setQ(''); setPage(1) }} aria-label="Effacer la recherche" className="absolute right-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}><X size={14} /></button>}
         </div>
         <select value={sort} onChange={e => { setSort(e.target.value); setPage(1) }}
-          className="px-3 py-2 rounded-xl text-sm" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text)' }}>
+          className="px-3 py-2 rounded-xl text-sm" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text)' }}>
           {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>Trier: {o.label}</option>)}
         </select>
         <select value={verdict} onChange={e => { setVerdict(e.target.value); setPage(1) }}
-          className="px-3 py-2 rounded-xl text-sm" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text)' }}>
+          className="px-3 py-2 rounded-xl text-sm" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text)' }}>
           <option value="">Tous les verdicts</option>
           {VERDICTS.filter(Boolean).map(v => <option key={v} value={v}>{v}</option>)}
         </select>
@@ -95,7 +95,7 @@ function LibraryPage() {
               )}
               <div className="flex items-center gap-3 text-[10px] mt-auto pt-1" style={{ color: 'var(--text-muted)' }}>
                 <span className="flex items-center gap-1"><Star size={10} />{r.stars ?? '—'}</span>
-                {r.language && <span className="px-1.5 py-0.5 rounded-full" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>{r.language}</span>}
+                {r.language && <span className="px-1.5 py-0.5 rounded-full" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>{r.language}</span>}
                 {r.security_verdict && (
                   <span className="flex items-center gap-0.5">
                     <Shield size={10} style={{ color: r.security_verdict === 'legitimate' ? '#22c55e' : r.security_verdict === 'malicious' ? '#ef4444' : 'var(--text-muted)' }} />
@@ -118,7 +118,7 @@ function LibraryPage() {
             return (
               <button key={p} onClick={() => setPage(p)}
                 className="w-8 h-8 rounded-lg text-xs font-medium transition-colors"
-                style={{ background: p === page ? 'var(--brand)' : 'var(--bg-alt)', color: p === page ? '#fff' : 'var(--text-secondary)', border: p === page ? 'none' : '1px solid var(--border)' }}>
+                style={{ background: p === page ? 'var(--amber)' : 'var(--surface-elevated)', color: p === page ? '#fff' : 'var(--text-secondary)', border: p === page ? 'none' : '1px solid var(--border)' }}>
                 {p}
               </button>
             )

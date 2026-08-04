@@ -21,14 +21,14 @@ export default function ErrorState({
       <div
         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
         style={{
-          background: 'var(--danger-light)',
-          border: '1px solid var(--danger)',
+          background: 'var(--red-light)',
+          border: '1px solid var(--red)',
           opacity: 0.6,
         }}
       >
-        <AlertTriangle size={20} style={{ color: 'var(--danger-text)' }} />
+        <AlertTriangle size={20} style={{ color: 'var(--red)' }} />
       </div>
-      <p className="body-sm font-medium mb-1" style={{ color: 'var(--danger-text)', opacity: 0.8 }}>{title}</p>
+      <p className="body-sm font-medium mb-1" style={{ color: 'var(--red)', opacity: 0.8 }}>{title}</p>
       {description && (
         <p className="text-xs max-w-xs leading-relaxed mb-1" style={{ color: 'var(--text-muted)' }}>{description}</p>
       )}

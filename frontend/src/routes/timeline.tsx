@@ -6,10 +6,10 @@ import { Clock, Shield, Bug, Target, Box } from 'lucide-react'
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/timeline', component: TimelinePage })
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
-  cve: { icon: <Shield size={13} />, color: 'var(--danger)' },
-  mission: { icon: <Target size={13} />, color: 'var(--brand)' },
-  asset: { icon: <Box size={13} />, color: 'var(--warning)' },
-  exploit: { icon: <Bug size={13} />, color: 'var(--info)' },
+  cve: { icon: <Shield size={13} />, color: 'var(--red)' },
+  mission: { icon: <Target size={13} />, color: 'var(--amber)' },
+  asset: { icon: <Box size={13} />, color: 'var(--amber)' },
+  exploit: { icon: <Bug size={13} />, color: 'var(--cyan)' },
 }
 
 function TimelinePage() {
@@ -19,7 +19,7 @@ function TimelinePage() {
     staleTime: 60_000,
   })
 
-  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" /></div>
+  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--amber)] border-t-transparent rounded-full animate-spin" /></div>
 
   return (
     <div className="max-w-2xl mx-auto py-4 sm:py-8 animate-fade">
@@ -42,18 +42,18 @@ function TimelinePage() {
                     <span className="text-xs font-medium" style={{ color: 'var(--text)' }}>{e.title}</span>
                     {e.severity && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded-full border font-medium" style={{
-                        background: e.severity === 'CRITICAL' ? 'var(--danger-light)' : e.severity === 'HIGH' ? 'var(--warning-light)' : 'var(--bg-alt)',
-                        color: e.severity === 'CRITICAL' ? 'var(--danger-text)' : e.severity === 'HIGH' ? 'var(--warning-text)' : 'var(--text-muted)',
-                        borderColor: e.severity === 'CRITICAL' ? 'var(--danger)' : e.severity === 'HIGH' ? 'var(--warning)' : 'var(--border)',
+                        background: e.severity === 'CRITICAL' ? 'var(--red-light)' : e.severity === 'HIGH' ? 'var(--amber-light)' : 'var(--surface-elevated)',
+                        color: e.severity === 'CRITICAL' ? 'var(--red)' : e.severity === 'HIGH' ? 'var(--amber)' : 'var(--text-muted)',
+                        borderColor: e.severity === 'CRITICAL' ? 'var(--red)' : e.severity === 'HIGH' ? 'var(--amber)' : 'var(--border)',
                       }}>
                         {e.severity}
                       </span>
                     )}
                     {e.status && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded-full border font-medium" style={{
-                        background: e.status === 'completed' ? 'var(--success-light)' : 'var(--info-light)',
-                        color: e.status === 'completed' ? '#166534' : 'var(--info-text)',
-                        borderColor: e.status === 'completed' ? 'var(--success)' : 'var(--info)',
+                        background: e.status === 'completed' ? 'var(--lime-light)' : 'var(--surface-elevated)',
+                        color: e.status === 'completed' ? 'var(--lime)' : 'var(--cyan)',
+                        borderColor: e.status === 'completed' ? 'var(--lime)' : 'var(--cyan)',
                       }}>
                         {e.status}
                       </span>

@@ -11,9 +11,9 @@ const CATEGORIES = [
   { key: 'Général / InfoSec', label: 'InfoSec' },
 ]
 
-const TYPE_ACCENT: Record<string, string> = { Book: 'var(--ai)', Tool: 'var(--warning)', 'Write-up': 'var(--info)', Hardening: 'var(--success)', Interview: 'var(--ai)', 'Threat-Intel': 'var(--danger)', Template: 'var(--warning)' }
+const TYPE_ACCENT: Record<string, string> = { Book: 'var(--violet)', Tool: 'var(--amber)', 'Write-up': 'var(--cyan)', Hardening: 'var(--lime)', Interview: 'var(--violet)', 'Threat-Intel': 'var(--red)', Template: 'var(--amber)' }
 
-const CAT_ACCENT: Record<string, string> = { 'Offensive / Red Team': 'var(--danger)', 'Defensive / Blue Team': 'var(--info)', Certifications: 'var(--warning)', 'Cheat Sheets / Références': 'var(--ai)', 'Général / InfoSec': 'var(--success)' }
+const CAT_ACCENT: Record<string, string> = { 'Offensive / Red Team': 'var(--red)', 'Defensive / Blue Team': 'var(--cyan)', Certifications: 'var(--amber)', 'Cheat Sheets / Références': 'var(--violet)', 'Général / InfoSec': 'var(--lime)' }
 
 function StatusBadge({ book }: { book: Book }) {
   const lastChecked = book.last_checked ? new Date(book.last_checked + 'Z').toLocaleString('fr-FR') : 'Jamais vérifié'
@@ -46,7 +46,7 @@ export default function BooksTable() {
         {CATEGORIES.map(cat => (
           <button key={cat.key ?? 'all'} onClick={() => setCategory(cat.key)}
             className="text-[11px] px-2.5 py-1 rounded-full border transition-colors"
-            style={{ background: category === cat.key ? 'var(--bg-alt)' : 'transparent', color: category === cat.key ? 'var(--text)' : 'var(--text-muted)', borderColor: category === cat.key ? 'var(--border-hover)' : 'var(--border-light)' }}>
+            style={{ background: category === cat.key ? 'var(--surface-elevated)' : 'transparent', color: category === cat.key ? 'var(--text)' : 'var(--text-muted)', borderColor: category === cat.key ? 'var(--surface-hover)' : 'var(--border-light)' }}>
             {cat.label}
           </button>
         ))}
@@ -54,7 +54,7 @@ export default function BooksTable() {
 
       <input type="text" placeholder="Rechercher par titre, catégorie..." value={search} onChange={e => setSearch(e.target.value)}
         className="w-full mb-4 px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors"
-        style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text)' }}
+        style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text)' }}
         aria-label="Rechercher une ressource" />
 
       {filtered.length === 0 ? (
@@ -75,10 +75,10 @@ export default function BooksTable() {
                 <tr key={book.id} className={book.is_dead === 1 ? 'opacity-50' : ''} style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <td className="py-2 px-2 t-p font-medium">{book.title}</td>
                   <td className="py-2 px-2 text-center">
-                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-medium border" style={{ background: 'var(--bg-alt)', borderColor: TYPE_ACCENT[book.type_ressource] || 'var(--border)', color: TYPE_ACCENT[book.type_ressource] || 'var(--text-secondary)' }}>{book.type_ressource || 'Book'}</span>
+                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-medium border" style={{ background: 'var(--surface-elevated)', borderColor: TYPE_ACCENT[book.type_ressource] || 'var(--border)', color: TYPE_ACCENT[book.type_ressource] || 'var(--text-secondary)' }}>{book.type_ressource || 'Book'}</span>
                   </td>
                   <td className="py-2 px-2 text-center">
-                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-medium border" style={{ background: 'var(--bg-alt)', borderColor: CAT_ACCENT[book.category] || 'var(--border)', color: CAT_ACCENT[book.category] || 'var(--text-secondary)' }}>{book.category}</span>
+                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-medium border" style={{ background: 'var(--surface-elevated)', borderColor: CAT_ACCENT[book.category] || 'var(--border)', color: CAT_ACCENT[book.category] || 'var(--text-secondary)' }}>{book.category}</span>
                   </td>
                   <td className="py-2 px-2 max-md:hidden">
                     <a href={book.repo_url} target="_blank" rel="noopener noreferrer" className="t-info hover:underline">{book.repo_name}</a>

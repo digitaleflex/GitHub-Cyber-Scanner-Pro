@@ -36,12 +36,12 @@ function SettingsPage() {
     setTimeout(() => setDone(false), 2000)
   }
 
-  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" /></div>
+  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--amber)] border-t-transparent rounded-full animate-spin" /></div>
 
   const chipStyle = (active: boolean) => ({
     background: active ? 'var(--surface-elevated)' : 'var(--surface)',
     color: active ? 'var(--text)' : 'var(--text-muted)',
-    borderColor: active ? 'var(--brand)' : 'var(--border)',
+    borderColor: active ? 'var(--amber)' : 'var(--border)',
   })
 
   return (
@@ -52,11 +52,11 @@ function SettingsPage() {
       <div className="space-y-4">
         <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Shield size={15} style={{ color: 'var(--info)' }} />
+            <Shield size={15} style={{ color: 'var(--cyan)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>Profil</h2>
           </div>
           <div className="mb-3">
-            <label className="caption mb-1.5 block" style={{ color: 'var(--brand)' }}>Rôle</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--amber)' }}>Rôle</label>
             <div className="flex flex-wrap gap-1.5">
               {ROLES.map(r => (
                 <button key={r} onClick={() => setRole(r)}
@@ -71,14 +71,14 @@ function SettingsPage() {
 
         <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Bell size={15} style={{ color: 'var(--warning)' }} />
+            <Bell size={15} style={{ color: 'var(--amber)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>Notifications</h2>
           </div>
           <label className="flex items-center justify-between cursor-pointer">
             <span className="body-sm" style={{ color: 'var(--text-secondary)' }}>Alertes urgentes (KEV, exploit actif)</span>
             <button onClick={() => setNotifyUrgent(!notifyUrgent)}
               className="w-10 h-6 rounded-full transition relative"
-              style={{ background: notifyUrgent ? 'var(--success)' : 'var(--border)' }}>
+              style={{ background: notifyUrgent ? 'var(--lime)' : 'var(--border)' }}>
               <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition" style={{ left: notifyUrgent ? '1.25rem' : '0.125rem' }} />
             </button>
           </label>

@@ -66,7 +66,7 @@ export function EmptyState({ icon, title, description, action }: {
     <div className="surface p-12 text-center max-w-md mx-auto" role="status" style={{ border: '1px solid var(--border)' }}>
       <div
         className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center"
-        style={{ background: 'var(--bg-alt)', color: 'var(--text-muted)' }}
+        style={{ background: 'var(--surface-elevated)', color: 'var(--text-muted)' }}
       >
         {icon}
       </div>

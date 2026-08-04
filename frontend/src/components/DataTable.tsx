@@ -46,7 +46,6 @@ function DataTableInner<T extends Record<string, any>>({
 
   return (
     <div className="surface rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-      {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
           {total.toLocaleString()} résultats
@@ -60,11 +59,10 @@ function DataTableInner<T extends Record<string, any>>({
         )}
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+            <tr style={{ background: 'var(--surface-elevated)' }}>
               {columns.map(col => (
                 <th key={col.key}
                   onClick={() => col.sortable ? handleSort(col.key) : undefined}
@@ -74,8 +72,8 @@ function DataTableInner<T extends Record<string, any>>({
                     {col.label}
                     {col.sortable && sortKey === col.key && (
                       sortDir === 'asc'
-                        ? <ChevronUp size={10} style={{ color: 'var(--info)' }} />
-                        : <ChevronDown size={10} style={{ color: 'var(--info)' }} />
+                        ? <ChevronUp size={10} style={{ color: 'var(--amber)' }} />
+                        : <ChevronDown size={10} style={{ color: 'var(--amber)' }} />
                     )}
                   </span>
                 </th>
@@ -107,7 +105,15 @@ function DataTableInner<T extends Record<string, any>>({
               </tr>
             ) : (
               data.map((row, i) => (
-                <tr key={i} className="transition-colors" style={{ borderBottom: '1px solid var(--border-light)' }}>
+                <tr key={i}
+                  className="transition-colors"
+                  style={{
+                    borderBottom: '1px solid var(--border-light)',
+                    background: 'transparent',
+                    '--hover-bg': 'var(--surface-hover)',
+                  } as React.CSSProperties}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-hover)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   {columns.map(col => (
                     <td key={col.key} className={`px-4 py-3 text-xs ${col.className || ''}`}
                       style={{ color: 'var(--text-secondary)' }}>
@@ -121,27 +127,18 @@ function DataTableInner<T extends Record<string, any>>({
         </table>
       </div>
 
-      {/* Pagination */}
       {pages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="flex items-center justify-between px-4 py-2.5" style={{ borderTop: '1px solid var(--border)' }}>
           <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Page {page} sur {pages}</span>
           <div className="flex items-center gap-1">
-            <button onClick={() => onPageChange(1)} disabled={page === 1} aria-label="Première page"
-              className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-              <ChevronLeft size={12} /><ChevronLeft size={12} className="-ml-2" />
-            </button>
             <button onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page === 1} aria-label="Page précédente"
-              className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-              <ChevronLeft size={12} />
+              className="p-1.5 rounded disabled:opacity-20 transition-opacity" style={{ color: 'var(--text-muted)' }}>
+              <ChevronLeft size={14} />
             </button>
-            <span className="px-2 text-[10px]" style={{ color: 'var(--text-muted)' }} aria-current="page">{page}</span>
+            <span className="text-[10px] px-1 font-mono" style={{ color: 'var(--amber)' }}>{page}</span>
             <button onClick={() => onPageChange(Math.min(pages, page + 1))} disabled={page >= pages} aria-label="Page suivante"
-              className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-              <ChevronRight size={12} />
-            </button>
-            <button onClick={() => onPageChange(pages)} disabled={page >= pages} aria-label="Dernière page"
-              className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-              <ChevronRight size={12} /><ChevronRight size={12} className="-ml-2" />
+              className="p-1.5 rounded disabled:opacity-20 transition-opacity" style={{ color: 'var(--text-muted)' }}>
+              <ChevronRight size={14} />
             </button>
           </div>
         </div>

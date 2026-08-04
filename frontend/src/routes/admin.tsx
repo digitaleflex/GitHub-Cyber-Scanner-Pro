@@ -89,8 +89,8 @@ function AdminPage() {
 
   if (!authenticated) return (
     <div className="max-w-sm mx-auto py-24 animate-fade text-center">
-      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: 'var(--warning-light)', border: '1px solid var(--warning)' }}>
-        <Lock size={24} style={{ color: 'var(--warning)' }} />
+      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: 'var(--amber-light)', border: '1px solid var(--amber)' }}>
+        <Lock size={24} style={{ color: 'var(--amber)' }} />
       </div>
       <h1 className="h2 mb-1" style={{ color: 'var(--text)' }}>Administration</h1>
       <p className="body-sm text-secondary mb-5">Mot de passe administrateur.</p>
@@ -99,7 +99,7 @@ function AdminPage() {
         placeholder="Mot de passe..."
         className="w-full rounded-xl px-4 py-3 text-sm mb-3 ring-brand"
         style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' }} />
-      {authError && <p className="text-xs mb-3" style={{ color: 'var(--danger-text)' }}>Mot de passe incorrect.</p>}
+      {authError && <p className="text-xs mb-3" style={{ color: 'var(--red)' }}>Mot de passe incorrect.</p>}
       <button onClick={login} disabled={!password} className="btn-primary w-full justify-center">
         Connexion
       </button>
@@ -112,8 +112,8 @@ function AdminPage() {
       <aside className="hidden sm:flex flex-col w-48 shrink-0 px-3 py-4" style={{ background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{ background: 'var(--warning-light)' }}>
-              <Settings size={11} style={{ color: 'var(--warning)' }} />
+            <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{ background: 'var(--amber-light)' }}>
+              <Settings size={11} style={{ color: 'var(--amber)' }} />
             </div>
             <span className="text-xs font-semibold" style={{ color: 'var(--text)' }}>Admin</span>
           </div>
@@ -125,9 +125,9 @@ function AdminPage() {
             <button key={item.key} onClick={() => setSection(item.key)}
               className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs transition-all text-left"
               style={{
-                color: section === item.key ? 'var(--warning-text)' : 'var(--text-secondary)',
-                background: section === item.key ? 'var(--warning-light)' : 'transparent',
-                border: section === item.key ? '1px solid var(--warning)' : '1px solid transparent',
+                color: section === item.key ? 'var(--amber)' : 'var(--text-secondary)',
+                background: section === item.key ? 'var(--amber-light)' : 'transparent',
+                border: section === item.key ? '1px solid var(--amber)' : '1px solid transparent',
               }}>
               {item.icon}
               {item.label}
@@ -152,9 +152,9 @@ function AdminPage() {
             <button key={item.key} onClick={() => setSection(item.key)}
               className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
               style={{
-                background: section === item.key ? 'var(--warning-light)' : 'var(--surface)',
-                color: section === item.key ? 'var(--warning-text)' : 'var(--text-muted)',
-                borderColor: section === item.key ? 'var(--warning)' : 'var(--border)',
+                background: section === item.key ? 'var(--amber-light)' : 'var(--surface)',
+                color: section === item.key ? 'var(--amber)' : 'var(--text-muted)',
+                borderColor: section === item.key ? 'var(--amber)' : 'var(--border)',
               }}>
               {item.label}
             </button>
@@ -173,26 +173,26 @@ function AdminPage() {
             <h1 className="h2 mb-4" style={{ color: 'var(--text)' }}>Tableau de bord</h1>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
               <div className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
-                <p className="caption mb-1" style={{ color: 'var(--brand)' }}>CVE Import</p>
+                <p className="caption mb-1" style={{ color: 'var(--amber)' }}>CVE Import</p>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{ background: cveStatus?.running ? 'var(--warning)' : 'var(--success)' }} />
+                  <span className="w-2 h-2 rounded-full" style={{ background: cveStatus?.running ? 'var(--amber)' : 'var(--lime)' }} />
                   <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{cveStatus?.running ? 'En cours' : 'Prêt'}</span>
                 </div>
                 {cveStatus?.imported > 0 && <p className="text-[10px] text-muted mt-1">{cveStatus.imported.toLocaleString()} CVEs</p>}
               </div>
               <div className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
-                <p className="caption mb-1" style={{ color: 'var(--brand)' }}>HF API</p>
+                <p className="caption mb-1" style={{ color: 'var(--amber)' }}>HF API</p>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{ background: hfStatus?.available ? 'var(--success)' : 'var(--danger)' }} />
+                  <span className="w-2 h-2 rounded-full" style={{ background: hfStatus?.available ? 'var(--lime)' : 'var(--red)' }} />
                   <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{hfStatus?.available ? 'OK' : 'OFF'}</span>
                 </div>
               </div>
               <div className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
-                <p className="caption mb-1" style={{ color: 'var(--brand)' }}>Exploit-DB</p>
+                <p className="caption mb-1" style={{ color: 'var(--amber)' }}>Exploit-DB</p>
                 <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{exploitStats?.total_exploits?.toLocaleString() || '?'} exploits</p>
               </div>
               <div className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
-                <p className="caption mb-1" style={{ color: 'var(--brand)' }}>Base</p>
+                <p className="caption mb-1" style={{ color: 'var(--amber)' }}>Base</p>
                 <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{dbStats?.total_repos?.toLocaleString() || '?'} repos</p>
                 <p className="text-[10px] text-muted">{dbStats?.total_cves?.toLocaleString() || '?'} CVEs</p>
               </div>
@@ -219,15 +219,15 @@ function AdminPage() {
                       <button onClick={() => run(op.key, op.url)} disabled={st?.running}
                         className="shrink-0 px-4 py-2 rounded-lg text-xs font-medium border transition-all disabled:opacity-40"
                         style={{
-                          background: 'var(--warning-light)',
-                          color: 'var(--warning-text)',
-                          borderColor: 'var(--warning)',
+                          background: 'var(--amber-light)',
+                          color: 'var(--amber)',
+                          borderColor: 'var(--amber)',
                         }}>
                         {st?.running ? 'En cours...' : 'Exécuter'}
                       </button>
                     </div>
                     {st?.result && <div className="mt-2 flex items-start gap-2 text-[10px]"><CheckCircle2 size={10} className="mt-0.5 shrink-0" style={{ color: '#166534' }} /><span style={{ color: '#166534' }}>{st.result}</span></div>}
-                    {st?.error && <div className="mt-2 flex items-start gap-2 text-[10px]"><XCircle size={10} className="mt-0.5 shrink-0" style={{ color: 'var(--danger-text)' }} /><span style={{ color: 'var(--danger-text)' }}>{st.error}</span></div>}
+                    {st?.error && <div className="mt-2 flex items-start gap-2 text-[10px]"><XCircle size={10} className="mt-0.5 shrink-0" style={{ color: 'var(--red)' }} /><span style={{ color: 'var(--red)' }}>{st.error}</span></div>}
                   </div>
                 )
               })}
@@ -252,15 +252,15 @@ function AdminPage() {
             <div className="surface rounded-2xl p-5 space-y-3" style={{ border: '1px solid var(--border)' }}>
               <div className="flex justify-between text-sm">
                 <span className="text-muted">Decision Engine</span>
-                <span style={{ color: '#166534' }} className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)' }} /> Actif</span>
+                <span style={{ color: '#166534' }} className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--lime)' }} /> Actif</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted">NVD Backfill</span>
-                <span style={{ color: cveStatus?.running ? 'var(--warning-text)' : '#166534' }}>{cveStatus?.running ? 'En cours' : 'À jour'}</span>
+                <span style={{ color: cveStatus?.running ? 'var(--amber)' : '#166534' }}>{cveStatus?.running ? 'En cours' : 'À jour'}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted">HF API</span>
-                <span style={{ color: hfStatus?.available ? '#166534' : 'var(--danger-text)' }}>{hfStatus?.available ? 'Connectée' : 'Absente'}</span>
+                <span style={{ color: hfStatus?.available ? '#166534' : 'var(--red)' }}>{hfStatus?.available ? 'Connectée' : 'Absente'}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted">Exploit-DB</span>
@@ -268,7 +268,7 @@ function AdminPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted">PostgreSQL</span>
-                <span style={{ color: '#166534' }} className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)' }} /> Connectée</span>
+                <span style={{ color: '#166534' }} className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--lime)' }} /> Connectée</span>
               </div>
             </div>
           </>

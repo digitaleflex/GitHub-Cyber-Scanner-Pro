@@ -12,13 +12,13 @@ export const Route = createRoute({
 function TrustMeter({ score }: { score: number }) {
   const strokeColor = score >= 70 ? '#16A34A' : score >= 40 ? '#D97706' : '#DC2626'
   const label = score >= 70 ? 'Confiance élevée' : score >= 40 ? 'À surveiller' : 'Risque élevé'
-  const labelColor = score >= 70 ? '#166534' : score >= 40 ? 'var(--warning-text)' : 'var(--danger-text)'
-  const labelBg = score >= 70 ? 'var(--success-light)' : score >= 40 ? 'var(--warning-light)' : 'var(--danger-light)'
-  const labelBorder = score >= 70 ? 'var(--success)' : score >= 40 ? 'var(--warning)' : 'var(--danger)'
+  const labelColor = score >= 70 ? 'var(--lime)' : score >= 40 ? 'var(--amber)' : 'var(--red)'
+  const labelBg = score >= 70 ? 'var(--lime-light)' : score >= 40 ? 'var(--amber-light)' : 'var(--red-light)'
+  const labelBorder = score >= 70 ? 'var(--lime)' : score >= 40 ? 'var(--amber)' : 'var(--red)'
   const r = 28; const circ = 2 * Math.PI * r
   return (
     <div className="surface rounded-2xl p-4 sm:p-5" style={{ border: '1px solid var(--border)' }}>
-      <p className="caption mb-2" style={{ color: 'var(--brand)' }}>Score de confiance</p>
+      <p className="caption mb-2" style={{ color: 'var(--amber)' }}>Score de confiance</p>
       <div className="flex items-center gap-3">
         <div className="relative w-16 h-16 shrink-0">
           <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
@@ -51,14 +51,14 @@ function ToolDetail() {
     <div className="text-center py-16">
       <Shield size={32} className="mx-auto text-muted mb-3" />
       <p className="text-secondary">Outil introuvable</p>
-      <Link to="/" className="text-xs mt-2 inline-block" style={{ color: 'var(--info-text)' }}>← Retour</Link>
+      <Link to="/" className="text-xs mt-2 inline-block" style={{ color: 'var(--cyan)' }}>← Retour</Link>
     </div>
   )
 
   const verdictStyle = () => {
-    if (tool.security_verdict === 'Critique') return { bg: 'var(--danger-light)', text: 'var(--danger-text)', border: 'var(--danger)' }
-    if (tool.security_verdict === 'Suspect') return { bg: 'var(--warning-light)', text: 'var(--warning-text)', border: 'var(--warning)' }
-    return { bg: 'var(--success-light)', text: '#166534', border: 'var(--success)' }
+    if (tool.security_verdict === 'Critique') return { bg: 'var(--red-light)', text: 'var(--red)', border: 'var(--red)' }
+    if (tool.security_verdict === 'Suspect') return { bg: 'var(--amber-light)', text: 'var(--amber)', border: 'var(--amber)' }
+    return { bg: 'var(--lime-light)', text: 'var(--lime)', border: 'var(--lime)' }
   }
   const vs = verdictStyle()
 
@@ -84,14 +84,14 @@ function ToolDetail() {
             <p className="body-sm mb-4" style={{ color: 'var(--text-secondary)' }}>{tool.description || 'Aucune description'}</p>
 
             <div className="flex flex-wrap items-center gap-2 mb-4">
-              {tool.language && <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>{tool.language}</span>}
-              {tool.stars != null && <span className="text-xs px-2 py-1 rounded-lg flex items-center gap-1" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--warning)' }}><Star size={10} /> {tool.stars.toLocaleString()} stars</span>}
+              {tool.language && <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>{tool.language}</span>}
+              {tool.stars != null && <span className="text-xs px-2 py-1 rounded-lg flex items-center gap-1" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--amber)' }}><Star size={10} /> {tool.stars.toLocaleString()} stars</span>}
               {tool.security_verdict && <span className="text-xs px-2 py-1 rounded-lg font-medium border" style={{ background: vs.bg, color: vs.text, borderColor: vs.border }}>{tool.security_verdict}</span>}
-              {tool.updated_at && <span className="text-xs px-2 py-1 rounded-lg flex items-center gap-1" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}><Clock size={10} /> {new Date(tool.updated_at).toLocaleDateString('fr-FR')}</span>}
+              {tool.updated_at && <span className="text-xs px-2 py-1 rounded-lg flex items-center gap-1" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}><Clock size={10} /> {new Date(tool.updated_at).toLocaleDateString('fr-FR')}</span>}
             </div>
 
             {tool.security_details && (
-              <div className="rounded-xl p-3 text-xs" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+              <div className="rounded-xl p-3 text-xs" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                 <span className="text-muted">Analyse IA :</span> {tool.security_details}
               </div>
             )}
@@ -101,7 +101,7 @@ function ToolDetail() {
           {tool.similar?.length > 0 && (
             <div>
               <h2 className="h3 mb-3 flex items-center gap-2" style={{ color: 'var(--text)' }}>
-                <TrendingUp size={14} style={{ color: 'var(--info)' }} /> Outils similaires
+                <TrendingUp size={14} style={{ color: 'var(--cyan)' }} /> Outils similaires
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {tool.similar.map((s: any, i: number) => (
@@ -126,7 +126,7 @@ function ToolDetail() {
           {tool.trust_score != null && <TrustMeter score={tool.trust_score} />}
 
           <div className="surface rounded-2xl p-4 sm:p-5" style={{ border: '1px solid var(--border)' }}>
-            <p className="caption mb-3" style={{ color: 'var(--brand)' }}>Statistiques</p>
+            <p className="caption mb-3" style={{ color: 'var(--amber)' }}>Statistiques</p>
             <div className="space-y-2 text-xs sm:text-sm">
               <div className="flex justify-between"><span className="text-muted">Stars</span><span className="font-medium" style={{ color: 'var(--text)' }}>{tool.stars?.toLocaleString() || '0'}</span></div>
               <div className="flex justify-between"><span className="text-muted">Langage</span><span style={{ color: 'var(--text)' }}>{tool.language || '?'}</span></div>
@@ -137,7 +137,7 @@ function ToolDetail() {
 
           <a href={tool.html_url} target="_blank" rel="noopener"
             className="block w-full text-center surface rounded-xl p-3 text-xs font-medium transition-all hover:-translate-y-0.5"
-            style={{ border: '1px solid var(--border)', color: 'var(--info-text)', textDecoration: 'none' }}>
+            style={{ border: '1px solid var(--border)', color: 'var(--cyan)', textDecoration: 'none' }}>
             Voir sur GitHub <ExternalLink size={10} />
           </a>
         </div>

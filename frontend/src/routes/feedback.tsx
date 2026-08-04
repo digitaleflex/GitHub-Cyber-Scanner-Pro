@@ -29,7 +29,7 @@ function FeedbackPage() {
           <a key={i} href={`${gh}?template=feature_request.md&labels=${cat.tag}`} target="_blank" rel="noopener noreferrer"
             className="surface rounded-xl p-4 hover:border transition-colors flex flex-col gap-2" style={{ border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-2">
-              <span style={{ color: 'var(--brand)' }}>{cat.icon}</span>
+              <span style={{ color: 'var(--amber)' }}>{cat.icon}</span>
               <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{cat.title}</span>
             </div>
             <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{cat.desc}</p>
@@ -48,7 +48,7 @@ function FeedbackPage() {
             { step: '4', label: 'On intègre', desc: 'PR, review, merge, déploiement en production' },
           ].map((s, i) => (
             <div key={i}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1.5 text-sm font-bold" style={{ background: 'var(--bg-alt)', color: 'var(--brand)', border: '1px solid var(--border)' }}>{s.step}</div>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1.5 text-sm font-bold" style={{ background: 'var(--surface-elevated)', color: 'var(--amber)', border: '1px solid var(--border)' }}>{s.step}</div>
               <div className="font-medium mb-0.5" style={{ color: 'var(--text)' }}>{s.label}</div>
               <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{s.desc}</div>
             </div>
