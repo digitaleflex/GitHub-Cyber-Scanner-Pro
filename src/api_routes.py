@@ -1119,6 +1119,51 @@ def keyword_stats_api():
     """Statistiques de validation des mots-cles."""
 
 
+# ── Bibliothèque / Ressources ─────────────────────────────────────────
+
+@app.get("/api/books")
+def books_api(q: str = "", category: str = "", page: int = 1, per_page: int = 50):
+    from src.database import get_db_connection
+    from psycopg2.extras import RealDictCursor
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    conditions = []
+    params: list = []
+    if q:
+        conditions.append("(LOWER(title) LIKE %s OR LOWER(url) LIKE %s OR LOWER(category) LIKE %s)")
+        like = f"%{q.lower()}%"
+        params.extend([like, like, like])
+    if category:
+        conditions.append("LOWER(category) = %s")
+        params.append(category.lower())
+    where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+    cursor.execute(f"SELECT COUNT(*) FROM books {where}", params)
+    total = cursor.fetchone()["count"]
+    offset = (page - 1) * per_page
+    cursor.execute(
+        f"""SELECT id, title, url, category, score_qualite, type_ressource, discovered_at
+            FROM books {where} ORDER BY score_qualite DESC NULLS LAST, title ASC
+            LIMIT %s OFFSET %s""",
+        params + [per_page, offset],
+    )
+    rows = [dict(r) for r in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return {"total": total, "page": page, "per_page": per_page, "pages": max(1, (total + per_page - 1) // per_page), "books": rows}
+
+
+@app.get("/api/books/categories")
+def books_categories_api():
+    from src.database import get_db_connection
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT category FROM books WHERE category IS NOT NULL AND category != '' ORDER BY category")
+    categories = [r[0] for r in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return {"categories": categories}
+
+
 # ── EPSS & Patches/Advisories ─────────────────────────────────────────
 
 @app.post("/api/import-epss")
