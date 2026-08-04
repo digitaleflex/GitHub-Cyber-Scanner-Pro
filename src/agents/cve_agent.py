@@ -4,6 +4,9 @@ import logging
 import os
 
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -81,26 +84,39 @@ def _fallback(cve_id: str, reason: str) -> dict:
     }
 
 
-def batch_analyze_recent(limit: int = 10) -> int:
-    """Analyse les CVE recentes (sans analyse) en batch. Retourne nb analyse."""
+def batch_analyze_recent(limit: int = 10, only_unanalyzed: bool = True) -> int:
+    """Analyse les CVE prioritaires en batch et persiste dans cve_analysis.
+
+    Retourne le nombre de CVE analysees et enregistrees.
+    """
     from src.database import get_db_connection
     from psycopg2.extras import RealDictCursor
     import src.correlation as corr
+    from src.db import analysis as db_analysis
 
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
-    # On prend les CVE qui n'ont pas encore d'analyse IA
-    cursor.execute("""
-        SELECT cve_id, description, severity, cvss_score
-        FROM cve_entries
-        WHERE (description IS NOT NULL AND description != '')
-          AND (weaknesses IS NULL OR weaknesses NOT LIKE '%%AI_ANALYSIS%%')
-        ORDER BY
-            CASE WHEN weaknesses ILIKE '%%CISA_KEV%%' THEN 0 ELSE 1 END,
-            cvss_score DESC NULLS LAST,
-            published DESC NULLS LAST
-        LIMIT %s
-    """, (limit,))
+    # CVE sans analyse IA deja enregistree (table dediee cve_analysis)
+    if only_unanalyzed:
+        cursor.execute("""
+            SELECT c.cve_id, c.description, c.severity, c.cvss_score
+            FROM cve_entries c
+            WHERE (c.description IS NOT NULL AND c.description != '')
+              AND NOT EXISTS (SELECT 1 FROM cve_analysis a WHERE a.cve_id = c.cve_id)
+            ORDER BY
+                CASE WHEN c.weaknesses ILIKE '%%CISA_KEV%%' THEN 0 ELSE 1 END,
+                c.cvss_score DESC NULLS LAST,
+                c.published DESC NULLS LAST
+            LIMIT %s
+        """, (limit,))
+    else:
+        cursor.execute("""
+            SELECT cve_id, description, severity, cvss_score
+            FROM cve_entries
+            WHERE (description IS NOT NULL AND description != '')
+            ORDER BY cvss_score DESC NULLS LAST, published DESC NULLS LAST
+            LIMIT %s
+        """, (limit,))
     rows = cursor.fetchall()
     analyzed = 0
     for r in rows:
@@ -111,13 +127,8 @@ def batch_analyze_recent(limit: int = 10) -> int:
             r.get("severity", ""), False, len(exploits),
         )
         if result.get("summary") and "indisponible" not in result["summary"]:
-            # Stocker dans la DB (colonne weaknesses en mode cache)
-            cursor.execute(
-                "UPDATE cve_entries SET weaknesses = COALESCE(weaknesses, '') || ' | AI_ANALYSIS:' || %s WHERE cve_id = %s",
-                (json.dumps(result)[:1500], cve_id),
-            )
+            db_analysis.save_analysis(cve_id, result, MODEL)
             analyzed += 1
-    conn.commit()
     cursor.close()
     conn.close()
     return analyzed

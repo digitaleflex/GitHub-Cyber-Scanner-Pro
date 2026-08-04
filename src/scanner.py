@@ -129,6 +129,24 @@ if __name__ == "__main__":
     exploit_thread = threading.Thread(target=_run_exploit_updater, daemon=True)
     exploit_thread.start()
 
+    def _run_ia_analyzer():
+        """Daemon IA : backfill periodique des analyses CVE dans cve_analysis."""
+        import src.agents.cve_agent as cve_agent
+        from src.db import analysis as db_analysis
+        time.sleep(60)
+        while True:
+            try:
+                before = db_analysis.count_analysis()
+                n = cve_agent.batch_analyze_recent(limit=300)
+                logging.info("IA analyzer: %d CVE analysees (total %d)", n, before + n)
+            except Exception as e:
+                logging.error(f"IA analyzer error: {e}")
+            time.sleep(3600)
+
+    ia_thread = threading.Thread(target=_run_ia_analyzer, daemon=True)
+    ia_thread.start()
+    logging.info("IA analyzer daemon: demarre (backfill cve_analysis)")
+
     from mcp.server.fastmcp import FastMCP
     from src.mcp_server import register_tools
 

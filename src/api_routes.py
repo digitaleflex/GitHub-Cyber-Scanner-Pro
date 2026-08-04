@@ -719,29 +719,32 @@ def onboard_profile_api(profile_id: int, role: str, assets: str = "[]", org_name
 
 @app.get("/api/cve/{cve_id}/analysis")
 def cve_analysis_api(cve_id: str):
-    """Analyse IA d'une CVE (Groq)."""
-    from src.database import get_db_connection
-    import src.correlation as corr
+    """Analyse IA d'une CVE (table dediee cve_analysis, alimentee par le daemon)."""
+    from src.db import analysis as db_analysis
     import src.agents.cve_agent as cve_agent
+    import src.correlation as corr
 
-    cached = cve_agent.get_analyzed_cve(cve_id)
-    if cached:
-        return cached
+    cve_id = cve_id.upper()
+    data = db_analysis.get_analysis(cve_id)
+    if data:
+        return data
 
-    conn = get_db_connection()
+    # Analyse a la volee si absente et GROQ disponible, puis persistance
+    conn = database.get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT description, severity, cvss_score, weaknesses FROM cve_entries WHERE cve_id = %s", (cve_id.upper(),))
+    cursor.execute("SELECT description, severity, cvss_score FROM cve_entries WHERE cve_id = %s", (cve_id,))
     row = cursor.fetchone()
     cursor.close()
     conn.close()
 
     if not row:
-        return {"error": "CVE introuvable"}
+        return {"error": "CVE introuvable", "cve_id": cve_id}
 
-    desc, sev, cvss, weaknesses = row
-    kev = "CISA_KEV" in (weaknesses or "")
+    desc, sev, cvss = row
     exploits = corr.get_exploits_for_cve(cve_id)
-    return cve_agent.analyze_cve(cve_id, desc, str(cvss or ""), sev, kev, len(exploits))
+    result = cve_agent.analyze_cve(cve_id, desc or "", str(cvss or ""), sev or "", False, len(exploits))
+    db_analysis.save_analysis(cve_id, result, cve_agent.MODEL)
+    return result
 
 
 @app.post("/api/cve/{cve_id}/analyze")
@@ -968,6 +971,56 @@ def backfill_cve_severity_api(background_tasks: BackgroundTasks):
 
     background_tasks.add_task(cve_importer.backfill_cve_severity)
     return {"message": f"Backfill sévérité lancé ({pending} CVE en attente).", "pending": pending}
+
+
+@app.post("/api/import-products")
+def start_products_import(background_tasks: BackgroundTasks, max_pages: int = 0):
+    """Rejoue NVD et remplit cve_affected_products (CPE produits affectés)."""
+    import src.ingest_products as ingest_products
+
+    if ingest_products.is_running():
+        return {"message": "Un import produits est déjà en cours."}
+
+    def _run():
+        try:
+            lim = max_pages if max_pages > 0 else None
+            result = ingest_products.import_products_all(max_pages=lim)
+            logging.info(f"🧩 Import produits terminé: {result}")
+        except Exception as e:
+            logging.error(f"❌ Erreur import produits: {e}")
+
+    background_tasks.add_task(_run)
+    return {"message": "Import produits CPE NVD lancé en arrière-plan."}
+
+
+@app.get("/api/products-status")
+def products_status_api():
+    """Retourne l'état d'avancement de l'import produits CPE."""
+    import src.ingest_products as ingest_products
+    return ingest_products.get_products_status()
+
+
+@app.post("/api/analyze-cve")
+def analyze_cve_batch_api(background_tasks: BackgroundTasks, limit: int = 200,
+                          _u: str = Depends(src.auth.verify_admin)):
+    """Declenche le backfill d'analyses IA (table cve_analysis) en arriere-plan."""
+    import src.agents.cve_agent as cve_agent
+
+    def _run():
+        try:
+            n = cve_agent.batch_analyze_recent(limit=limit)
+            logging.info(f"🤖 Backfill IA: {n} CVE analysees")
+        except Exception as e:
+            logging.error(f"❌ Erreur backfill IA: {e}")
+
+    background_tasks.add_task(_run)
+    return {"message": f"Backfill analyses IA lance ({limit} CVE max)."}
+
+
+@app.get("/api/analysis-count")
+def analysis_count_api():
+    from src.db import analysis as db_analysis
+    return {"cve_analysis": db_analysis.count_analysis()}
 
 
 @app.get("/api/token-status")

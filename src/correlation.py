@@ -142,6 +142,7 @@ def _get_cve_lifecycle(conn, cve_id: str) -> dict:
         "affected_products": [],
         "patches": [],
         "advisories": [],
+        "analysis": None,
     }
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -254,6 +255,26 @@ def _get_cve_lifecycle(conn, cve_id: str) -> dict:
         )
         for r in cursor.fetchall():
             out["advisories"].append(dict(r))
+
+        # Analyse IA (daemon) - table dediee cve_analysis
+        cursor.execute(
+            """SELECT summary, impact, recommendation, patched_in,
+                      exploitation_likelihood, audience, model, created_at
+               FROM cve_analysis WHERE cve_id = %s""",
+            (cve_id,),
+        )
+        ar = cursor.fetchone()
+        if ar:
+            out["analysis"] = {
+                "summary": ar["summary"],
+                "impact": ar["impact"],
+                "recommendation": ar["recommendation"],
+                "patched_in": ar["patched_in"],
+                "exploitation_likelihood": ar["exploitation_likelihood"],
+                "audience": ar["audience"],
+                "model": ar["model"],
+                "created_at": str(ar["created_at"]) if ar["created_at"] else None,
+            }
 
         cursor.close()
     except Exception as e:

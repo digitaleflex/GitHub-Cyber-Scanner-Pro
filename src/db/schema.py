@@ -551,6 +551,10 @@ def init_db():
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_products_cve ON cve_affected_products (cve_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_products_cpe ON cve_affected_products (cpe_uri)")
+    cursor.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_products_cve ON cve_affected_products "
+        "(cve_id, COALESCE(cpe_uri, ''), COALESCE(vendor, ''), COALESCE(product, ''))"
+    )
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS cve_patches (
             id SERIAL PRIMARY KEY,
@@ -567,6 +571,23 @@ def init_db():
         )
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_patches_cve ON cve_patches (cve_id)")
+
+    # Analyses IA dediees (au lieu de la colonne weaknesses, etrangere et bruitee)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS cve_analysis (
+            id SERIAL PRIMARY KEY,
+            cve_id VARCHAR(30) UNIQUE REFERENCES cve_entries(cve_id) ON DELETE CASCADE,
+            summary TEXT,
+            impact TEXT,
+            recommendation TEXT,
+            patched_in VARCHAR(200),
+            exploitation_likelihood VARCHAR(20),
+            audience VARCHAR(100),
+            model VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_analysis_cve ON cve_analysis (cve_id)")
 
     # Advisories fournisseurs
     cursor.execute("""
