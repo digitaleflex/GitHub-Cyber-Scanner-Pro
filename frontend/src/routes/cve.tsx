@@ -80,7 +80,7 @@ function DecisionCenter() {
   )
 
   if (!cve || cve.error) return (
-    <div className="max-w-4xl mx-auto py-24 text-center">
+    <div className="w-full py-24 text-center">
       <Shield size={40} className="mx-auto text-muted mb-4" />
       <p className="text-secondary">{cve?.error || 'CVE introuvable'}</p>
       <Link to="/" className="btn-secondary mt-3 text-xs">Retour</Link>
@@ -92,7 +92,7 @@ function DecisionCenter() {
   const colors = LEVEL_COLORS[decisionLevel] || LEVEL_COLORS.BAS
 
   return (
-    <div className="max-w-4xl mx-auto py-4 sm:py-8 animate-fade">
+    <div className="w-full py-4 sm:py-8 animate-fade">
       <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-secondary hover:underline transition mb-6">
         <ArrowLeft size={13} /> Aujourd'hui
       </Link>

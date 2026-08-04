@@ -15,7 +15,7 @@ function FeedbackPage() {
   const gh = 'https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/issues/new'
 
   return (
-    <div className="max-w-3xl mx-auto py-8 sm:py-16 animate-fade">
+    <div className="w-full py-8 sm:py-16 animate-fade">
       <div className="text-center mb-10">
         <h1 className="h1 mb-2" style={{ color: 'var(--text)' }}>Contribuer &amp; Améliorer</h1>
         <p className="body-sm max-w-xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>

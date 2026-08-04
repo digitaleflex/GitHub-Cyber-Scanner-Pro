@@ -6,7 +6,7 @@ export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/docs
 
 function DocsPage() {
   return (
-    <div className="max-w-4xl mx-auto py-8 sm:py-12 animate-fade">
+    <div className="w-full py-8 sm:py-12 animate-fade">
       <div className="text-center mb-8">
         <h1 className="h1 mb-2" style={{ color: 'var(--text)' }}>Documentation &amp; Recherche</h1>
         <p className="body-sm max-w-xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>

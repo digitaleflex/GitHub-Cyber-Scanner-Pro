@@ -64,10 +64,10 @@ function SourcesPage() {
   ]
 
   return (
-    <div className="max-w-5xl mx-auto py-8 sm:py-16 animate-fade">
+    <div className="w-full py-8 sm:py-16 animate-fade">
       <div className="text-center mb-10">
         <h1 className="h1 mb-2" style={{ color: 'var(--text)' }}>Sources de données</h1>
-        <p className="body-sm max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+        <p className="body-sm w-full leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           Transparence totale : chaque source, sa licence, sa fréquence de mise à jour et les données extraites.
           Tout est vérifiable publiquement.
         </p>

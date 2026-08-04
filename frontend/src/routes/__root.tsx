@@ -154,7 +154,7 @@ function RootLayout() {
 
   return (
     <div className="min-h-screen" style={{ color: 'var(--text)' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-8">
         <header
           className="flex items-center justify-between py-3 sm:py-4 gap-4"
           style={{ borderBottom: `1px solid var(--border)` }}

@@ -45,10 +45,10 @@ function MethodologyPage() {
   ]
 
   return (
-    <div className="max-w-4xl mx-auto py-8 sm:py-16 animate-fade">
+    <div className="w-full py-8 sm:py-16 animate-fade">
       <div className="text-center mb-10">
         <h1 className="h1 mb-2" style={{ color: 'var(--text)' }}>Méthodologie</h1>
-        <p className="body-sm max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+        <p className="body-sm w-full leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           Comment CyberScan Pro transforme les données brutes en décisions actionnables.
           Un processus transparent, vérifiable et reproductible en 6 étapes.
         </p>

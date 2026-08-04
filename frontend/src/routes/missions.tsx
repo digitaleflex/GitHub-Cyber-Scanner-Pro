@@ -73,7 +73,7 @@ function MissionsPage() {
   }
 
   if (!orgId) return (
-    <div className="max-w-3xl mx-auto py-24 text-center animate-fade">
+    <div className="w-full py-24 text-center animate-fade">
       <Shield size={40} className="mx-auto text-muted mb-4" />
       <p className="text-secondary mb-3">Définissez votre organisation pour activer les missions.</p>
       <Link to="/organization" className="btn-secondary inline-flex items-center gap-1.5 text-xs">
@@ -83,14 +83,14 @@ function MissionsPage() {
   )
 
   if (isLoading) return (
-    <div className="max-w-3xl mx-auto py-4 sm:py-8 animate-fade" role="status" aria-label="Chargement des missions">
+    <div className="w-full py-4 sm:py-8 animate-fade" role="status" aria-label="Chargement des missions">
       <CyberLoader text="Chargement des missions..." />
       <div className="mt-4"><CyberLoader text="Analyse des objectifs..." /></div>
     </div>
   )
 
   return (
-    <div className="max-w-3xl mx-auto py-4 sm:py-8 animate-fade">
+    <div className="w-full py-4 sm:py-8 animate-fade">
       <h1 className="h1 mb-1" style={{ color: 'var(--text)' }}>Missions</h1>
       <p className="body-sm text-secondary mb-6">Comment réduire mon risque ? Chaque mission est un plan d'action mesurable.</p>
 

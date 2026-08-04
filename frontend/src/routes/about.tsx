@@ -6,12 +6,12 @@ export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/abou
 
 function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto py-8 sm:py-16 animate-fade">
+    <div className="w-full py-8 sm:py-16 animate-fade">
       <div className="text-center mb-10 sm:mb-16">
         <h1 className="h1 mb-4" style={{ color: 'var(--text)' }}>
           Transformer le chaos en <span style={{ color: 'var(--brand-text)' }}>décisions</span>
         </h1>
-        <p className="body-sm sm:text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+        <p className="body-sm sm:text-lg w-full leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           CyberScan Pro réduit 10 000 signaux quotidiens à 20 informations réellement exploitables.
           Collecte, enrichissement, corrélation et priorisation automatiques pour les professionnels de la cybersécurité.
         </p>
@@ -118,7 +118,7 @@ function AboutPage() {
       {/* Model */}
       <div className="surface rounded-2xl p-6 text-center" style={{ border: '1px solid var(--border)' }}>
         <h2 className="h3 mb-2" style={{ color: 'var(--text)' }}>Modèle économique</h2>
-        <p className="text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-xs sm:text-sm w-full leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>
           CyberScan Pro suit un modèle <b style={{ color: 'var(--text)' }}>Open Core / Freemium</b>. La version Community est et restera
           100% gratuite et open source (MIT). Les offres Pro et Enterprise financent l'infrastructure,
           les API premium, et la recherche continue.

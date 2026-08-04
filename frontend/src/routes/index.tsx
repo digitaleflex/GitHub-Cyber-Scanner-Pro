@@ -68,7 +68,7 @@ function HomePage() {
   const riskScore = top.score > 80 ? 82 : top.score > 50 ? 65 : top.score > 25 ? 42 : 25
   const riskDelta = 5
 
-  return <div className="max-w-5xl mx-auto w-full" role="main" aria-label="Tableau de bord Decision OS">
+  return <div className="w-full" role="main" aria-label="Tableau de bord Decision OS">
 
     {/* ═══ HERO — Decision OS ─────────────────────────────────── */}
     <section className="py-8 sm:py-10 animate-fade">
