@@ -3,11 +3,18 @@ import { Route as RootRoute } from './__root'
 import { useQuery } from '@tanstack/react-query'
 import { Shield, ExternalLink, AlertTriangle, Bug, Star, ArrowLeft, Brain, CheckCircle2 } from 'lucide-react'
 
-const LEVEL_BADGE: Record<string, string> = {
-  CRITIQUE: 'bg-rose-50 text-rose-600 border-rose-200',
-  ELEVE: 'bg-amber-50 text-amber-600 border-amber-200',
-  MOYEN: 'bg-blue-50 text-blue-600 border-blue-200',
-  BAS: 'bg-slate-100 text-slate-500 border-slate-200',
+const LEVEL_LABEL: Record<string, string> = {
+  CRITIQUE: 'Critique',
+  ELEVE: 'Élevé',
+  MOYEN: 'Moyen',
+  BAS: 'Faible',
+}
+
+const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string; stroke: string }> = {
+  CRITIQUE: { bg: 'var(--critical-light)', text: 'var(--critical-text)', border: 'var(--critical)', stroke: '#DC2626' },
+  ELEVE: { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)', stroke: '#D97706' },
+  MOYEN: { bg: 'var(--decision-light)', text: 'var(--decision-text)', border: 'var(--decision)', stroke: '#2563EB' },
+  BAS: { bg: 'var(--surface-hover)', text: 'var(--text-muted)', border: 'var(--border)', stroke: '#94A3B8' },
 }
 
 export const Route = createRoute({
@@ -33,21 +40,21 @@ interface DecisionData {
   sources: string[]
 }
 
-function ScoreRing({ score, level, maxScore }: { score: number; level: string; maxScore: number }) {
+function ScoreRing({ score, level }: { score: number; level: string; maxScore: number }) {
   const r = 45
   const circ = 2 * Math.PI * r
-  const pct = Math.min(score / maxScore, 1)
-  const color = level === 'CRITIQUE' ? 'stroke-rose-400' : level === 'ELEVE' ? 'stroke-amber-400' : 'stroke-slate-400'
+  const pct = Math.min(score / 100, 1)
+  const colors = LEVEL_COLORS[level] || LEVEL_COLORS.BAS
   return (
     <div className="relative w-28 h-28 mx-auto">
       <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-        <circle cx="50" cy="50" r={r} fill="none" stroke="currentColor" strokeWidth="4" className="text-slate-800" />
-        <circle cx="50" cy="50" r={r} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" className={color}
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--border)" strokeWidth="4" />
+        <circle cx="50" cy="50" r={r} fill="none" stroke={colors.stroke} strokeWidth="4" strokeLinecap="round"
           strokeDasharray={`${pct * circ} ${circ}`} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-white">{score}</span>
-        <span className="text-[10px] text-slate-500">/ {maxScore}</span>
+        <span className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{score}</span>
+        <span className="text-[10px] text-muted">/ 100</span>
       </div>
     </div>
   )
@@ -68,44 +75,44 @@ function DecisionCenter() {
 
   if (isLoading || dl) return (
     <div className="flex items-center justify-center py-24">
-      <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   if (!cve || cve.error) return (
     <div className="max-w-4xl mx-auto py-24 text-center">
-      <Shield size={40} className="mx-auto text-slate-600 mb-4" />
-      <p className="text-slate-400">{cve?.error || 'CVE introuvable'}</p>
-      <Link to="/" className="text-emerald-400 text-sm mt-3 inline-block">Retour</Link>
+      <Shield size={40} className="mx-auto text-muted mb-4" />
+      <p className="text-secondary">{cve?.error || 'CVE introuvable'}</p>
+      <Link to="/" className="btn-secondary mt-3 text-xs">Retour</Link>
     </div>
   )
 
   const dec: DecisionData | null = decision && !decision.error ? decision : null
   const decisionLevel = dec?.level === 'CRITIQUE' ? 'CRITIQUE' : dec?.level === 'ELEVE' ? 'ELEVE' : dec?.level === 'MOYEN' ? 'MOYEN' : 'BAS'
-  const levelBadge = LEVEL_BADGE[decisionLevel] || LEVEL_BADGE.BAS
+  const colors = LEVEL_COLORS[decisionLevel] || LEVEL_COLORS.BAS
 
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8 animate-fade">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition mb-6">
+      <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-secondary hover:underline transition mb-6">
         <ArrowLeft size={13} /> Aujourd'hui
       </Link>
 
       {/* Header */}
-      <div className="glass-card rounded-2xl p-5 sm:p-7 mb-5 text-center">
-        <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Decision Center</p>
-        <h1 className="text-lg sm:text-xl font-semibold text-white mb-2">
+      <div className="surface p-5 sm:p-7 mb-5 text-center" style={{ border: '1px solid var(--border)' }}>
+        <p className="caption mb-2" style={{ color: 'var(--brand-text)' }}>Decision Center</p>
+        <h1 className="h2 mb-2" style={{ color: 'var(--text)' }}>
           {cve.description?.slice(0, 150) || 'Aucune description'}
         </h1>
         <div className="flex items-center justify-center gap-3 flex-wrap">
-          <span className="text-xs font-mono text-indigo-400">{cve.cve_id}</span>
+          <span className="mono font-semibold" style={{ color: 'var(--decision-text)' }}>{cve.cve_id}</span>
           {cve.cvss_score != null && (
-            <span className="text-xs text-slate-400">CVSS {cve.cvss_score}</span>
+            <span style={{ color: 'var(--text-secondary)' }}>CVSS {cve.cvss_score}</span>
           )}
-          <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${levelBadge}`}>
-            {dec?.level || cve.severity || '?'}
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full border" style={{ background: colors.bg, color: colors.text, borderColor: colors.border }}>
+            {LEVEL_LABEL[decisionLevel] || decisionLevel}
           </span>
           {cve.is_kev && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-rose-500/20 text-rose-300 border border-rose-500/30">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border" style={{ background: 'var(--critical-light)', color: 'var(--critical-text)', borderColor: 'var(--critical)' }}>
               <AlertTriangle size={9} /> CISA KEV
             </span>
           )}
@@ -115,45 +122,39 @@ function DecisionCenter() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Main column */}
         <div className="lg:col-span-2 space-y-5">
-          {/* Score & metrics */}
           {dec && (
-            <div className="glass-card rounded-2xl p-5 sm:p-6">
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-4">Pourquoi cette décision ?</p>
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
+              <p className="caption mb-4" style={{ color: 'var(--brand-text)' }}>Pourquoi cette décision ?</p>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                <div className="glass rounded-xl p-3 text-center">
-                  <div className="text-lg font-bold text-white">{dec.score}</div>
-                  <div className="text-[10px] text-slate-500">Score</div>
-                </div>
-                <div className="glass rounded-xl p-3 text-center">
-                  <div className="text-lg font-bold text-white">{dec.confidence}</div>
-                  <div className="text-[10px] text-slate-500">Confiance</div>
-                </div>
-                <div className="glass rounded-xl p-3 text-center">
-                  <div className="text-lg font-bold text-white">{dec.exploits_count}</div>
-                  <div className="text-[10px] text-slate-500">Exploits</div>
-                </div>
-                <div className="glass rounded-xl p-3 text-center">
-                  <div className="text-lg font-bold text-amber-400">{dec.is_kev ? 'Oui' : 'Non'}</div>
-                  <div className="text-[10px] text-slate-500">CISA KEV</div>
-                </div>
+                {[
+                  { v: dec.score, l: 'Score' },
+                  { v: dec.confidence, l: 'Confiance' },
+                  { v: dec.exploits_count, l: 'Exploits' },
+                  { v: dec.is_kev ? 'Oui' : 'Non', l: 'CISA KEV', c: dec.is_kev ? 'var(--mission-text)' : undefined },
+                ].map((s, i) => (
+                  <div key={i} className="rounded-xl p-3 text-center" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                    <div className="text-lg font-bold" style={{ color: s.c || 'var(--text)' }}>{s.v}</div>
+                    <div className="text-xs text-muted">{s.l}</div>
+                  </div>
+                ))}
               </div>
 
               <div className="space-y-2.5 mb-5">
                 {dec.reasons.map((r, i) => (
-                  <div key={i} className="flex items-start gap-2.5 text-sm text-slate-300">
-                    <CheckCircle2 size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                  <div key={i} className="flex items-start gap-2.5 body-sm" style={{ color: 'var(--text)' }}>
+                    <CheckCircle2 size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--brand-text)' }} />
                     <span>{r}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="glass rounded-xl p-4 mb-4 border-amber-500/10">
-                <p className="text-[10px] uppercase tracking-widest text-amber-400 mb-1.5">Si vous ignorez</p>
-                <p className="text-sm text-slate-300 leading-relaxed">{dec.risk_if_ignored}</p>
+              <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--mission-light)', borderLeft: '4px solid var(--mission)' }}>
+                <p className="caption mb-1" style={{ color: 'var(--mission-text)' }}>Si vous ignorez</p>
+                <p className="body-sm" style={{ color: 'var(--text)' }}>{dec.risk_if_ignored}</p>
               </div>
 
-              <div className="text-[10px] text-slate-500 flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 text-xs text-muted">
                 <Brain size={11} />
                 <span>Sources : {dec.sources.join(', ')}</span>
               </div>
@@ -161,30 +162,30 @@ function DecisionCenter() {
           )}
 
           {/* Description */}
-          <div className="glass-card rounded-2xl p-5 sm:p-6">
-            <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-3">Contexte</p>
-            <p className="text-sm text-slate-300 leading-relaxed">{cve.description || 'Aucune description'}</p>
+          <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
+            <p className="caption mb-3" style={{ color: 'var(--brand-text)' }}>Contexte</p>
+            <p className="body-sm" style={{ color: 'var(--text-secondary)' }}>{cve.description || 'Aucune description'}</p>
             {cve.weaknesses && (
-              <div className="mt-4 pt-4 border-t border-white/[0.04]">
-                <p className="text-xs text-slate-500">Faiblesses CWE : {String(cve.weaknesses).replace(/CISA_KEV[^,]*/g, '').slice(0, 300)}</p>
+              <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+                <p className="text-xs text-muted">Faiblesses CWE : {String(cve.weaknesses).replace(/CISA_KEV[^,]*/g, '').slice(0, 300)}</p>
               </div>
             )}
           </div>
 
           {/* Exploits */}
           {cve.exploits?.length > 0 && (
-            <div className="glass-card rounded-2xl p-5 sm:p-6">
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <Bug size={15} className="text-amber-400" />
-                <h2 className="text-sm font-semibold text-white">{cve.exploits.length} exploit{cve.exploits.length > 1 ? 's' : ''} public{cve.exploits.length > 1 ? 's' : ''}</h2>
+                <Bug size={15} style={{ color: 'var(--mission)' }} />
+                <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.exploits.length} exploit{cve.exploits.length > 1 ? 's' : ''} public{cve.exploits.length > 1 ? 's' : ''}</h2>
               </div>
               <div className="space-y-2">
                 {cve.exploits.map((e: any, i: number) => (
-                  <div key={i} className="glass rounded-xl p-3.5">
+                  <div key={i} className="rounded-xl p-3.5" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <div className="text-xs text-slate-200">{e.description}</div>
-                        <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-500">
+                        <div className="text-xs" style={{ color: 'var(--text)' }}>{e.description}</div>
+                        <div className="flex items-center gap-2 mt-1.5 text-[10px] text-muted">
                           {e.platform && <span>{e.platform}</span>}
                           {e.type && <span>{e.type}</span>}
                           {e.author && <span>{e.author}</span>}
@@ -192,7 +193,9 @@ function DecisionCenter() {
                         </div>
                       </div>
                       <a href={`https://www.exploit-db.com/exploits/${e.id}`} target="_blank" rel="noopener"
-                        className="shrink-0 text-slate-500 hover:text-indigo-400"><ExternalLink size={13} /></a>
+                        className="shrink-0 p-1 rounded transition-colors" style={{ color: 'var(--text-muted)' }}>
+                        <ExternalLink size={13} />
+                      </a>
                     </div>
                   </div>
                 ))}
@@ -202,20 +205,21 @@ function DecisionCenter() {
 
           {/* Tools */}
           {cve.tools?.length > 0 && (
-            <div className="glass-card rounded-2xl p-5 sm:p-6">
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <Star size={15} className="text-indigo-400" />
-                <h2 className="text-sm font-semibold text-white">{cve.tools.length} outil{cve.tools.length > 1 ? 's' : ''} associé{cve.tools.length > 1 ? 's' : ''}</h2>
+                <Star size={15} style={{ color: 'var(--decision)' }} />
+                <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.tools.length} outil{cve.tools.length > 1 ? 's' : ''} associé{cve.tools.length > 1 ? 's' : ''}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {cve.tools.map((t: any, i: number) => (
                   <Link key={i} to="/tool/$name" params={{ name: t.name }}
-                    className="glass rounded-xl p-3 block hover:bg-white/5 transition group">
-                    <div className="text-xs font-medium text-slate-200 group-hover:text-indigo-400 truncate">{t.name}</div>
-                    {t.desc && <div className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{t.desc}</div>}
-                    <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-500">
-                      {t.stars && <span className="flex items-center gap-0.5"><Star size={9} className="text-amber-500" /> {t.stars}</span>}
-                      <span className="text-indigo-500">{t.match_type}</span>
+                    className="rounded-xl p-3 block transition-all hover:-translate-y-0.5"
+                    style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)', textDecoration: 'none' }}>
+                    <div className="text-xs font-medium truncate" style={{ color: 'var(--text)' }}>{t.name}</div>
+                    {t.desc && <div className="text-[10px] text-muted mt-0.5 line-clamp-1">{t.desc}</div>}
+                    <div className="flex items-center gap-2 mt-1.5 text-[9px] text-muted">
+                      {t.stars && <span className="flex items-center gap-0.5" style={{ color: 'var(--mission)' }}><Star size={9} /> {t.stars}</span>}
+                      <span>{t.match_type}</span>
                     </div>
                   </Link>
                 ))}
@@ -227,42 +231,42 @@ function DecisionCenter() {
         {/* Sidebar */}
         <div className="space-y-4">
           {dec && (
-            <div className="glass-card rounded-2xl p-5">
+            <div className="surface p-5 text-center" style={{ border: '1px solid var(--border)' }}>
               <ScoreRing score={dec.score} level={dec.level} maxScore={100} />
-              <div className="text-center mt-3">
-                <span className={`text-xs font-medium px-2.5 py-1 rounded ${levelBadge}`}>
-                  {dec.level}
+              <div className="mt-3">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full border" style={{ background: colors.bg, color: colors.text, borderColor: colors.border }}>
+                  {LEVEL_LABEL[decisionLevel] || decisionLevel}
                 </span>
               </div>
             </div>
           )}
 
-          <div className="glass-card rounded-2xl p-5">
-            <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-3">Informations</p>
+          <div className="surface p-5" style={{ border: '1px solid var(--border)' }}>
+            <p className="caption mb-3" style={{ color: 'var(--brand-text)' }}>Informations</p>
             <div className="space-y-3 text-xs">
               <div className="flex justify-between">
-                <span className="text-slate-500">Score CVSS</span>
-                <span className="text-white font-medium">{cve.cvss_score || '?'}</span>
+                <span className="text-muted">Score CVSS</span>
+                <span className="font-medium" style={{ color: 'var(--text)' }}>{cve.cvss_score || '?'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Sévérité</span>
-                <span className="text-white">{cve.severity || '?'}</span>
+                <span className="text-muted">Sévérité</span>
+                <span className="font-medium" style={{ color: 'var(--text)' }}>{cve.severity || '?'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Publiée</span>
-                <span className="text-white">{cve.published ? new Date(cve.published).toLocaleDateString('fr-FR') : '?'}</span>
+                <span className="text-muted">Publiée</span>
+                <span className="font-medium" style={{ color: 'var(--text)' }}>{cve.published ? new Date(cve.published).toLocaleDateString('fr-FR') : '?'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Exploits</span>
-                <span className="text-white">{cve.exploits?.length || 0}</span>
+                <span className="text-muted">Exploits</span>
+                <span className="font-medium" style={{ color: 'var(--text)' }}>{cve.exploits?.length || 0}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Outils</span>
-                <span className="text-white">{cve.tools?.length || 0}</span>
+                <span className="text-muted">Outils</span>
+                <span className="font-medium" style={{ color: 'var(--text)' }}>{cve.tools?.length || 0}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">CISA KEV</span>
-                <span className={cve.is_kev ? 'text-rose-400 font-medium' : 'text-slate-500'}>
+                <span className="text-muted">CISA KEV</span>
+                <span className="font-semibold" style={{ color: cve.is_kev ? 'var(--critical-text)' : 'var(--text-muted)' }}>
                   {cve.is_kev ? 'OUI' : 'NON'}
                 </span>
               </div>
@@ -270,13 +274,15 @@ function DecisionCenter() {
           </div>
 
           <a href={`https://nvd.nist.gov/vuln/detail/${cve.cve_id}`} target="_blank" rel="noopener"
-            className="glass-card rounded-xl p-3 text-xs text-center text-indigo-400 hover:text-white hover:bg-indigo-500/10 transition flex items-center justify-center gap-1.5">
+            className="surface rounded-xl p-3 flex items-center justify-center gap-1.5 text-xs font-medium transition-all hover:-translate-y-0.5"
+            style={{ color: 'var(--decision-text)', border: '1px solid var(--border)', textDecoration: 'none' }}>
             Voir sur NVD <ExternalLink size={10} />
           </a>
 
           <a href={`https://www.exploit-db.com/search?cve=${cve.cve_id}`} target="_blank" rel="noopener"
-            className="glass-card rounded-xl p-3 text-xs text-center text-slate-500 hover:text-white hover:bg-slate-500/10 transition">
-            Exploit-DB <ExternalLink size={10} className="inline ml-1" />
+            className="surface rounded-xl p-3 flex items-center justify-center gap-1.5 text-xs transition-all hover:-translate-y-0.5"
+            style={{ color: 'var(--text-secondary)', border: '1px solid var(--border)', textDecoration: 'none' }}>
+            Exploit-DB <ExternalLink size={10} />
           </a>
         </div>
       </div>

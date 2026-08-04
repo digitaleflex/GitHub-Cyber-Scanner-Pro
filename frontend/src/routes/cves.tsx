@@ -49,7 +49,7 @@ function CvesPage() {
     {
       key: 'cve_id', label: 'CVE ID', sortable: true,
       render: (cve) => (
-        <Link to="/cve/$id" params={{ id: cve.cve_id }} className="text-indigo-400 hover:text-indigo-300 font-mono">
+        <Link to="/cve/$id" params={{ id: cve.cve_id }} className="mono font-semibold" style={{ color: 'var(--decision-text)' }}>
           {cve.cve_id}
         </Link>
       ),
@@ -61,68 +61,79 @@ function CvesPage() {
     {
       key: 'cvss_score', label: 'CVSS', sortable: true,
       render: (cve) => cve.cvss_score ? (
-        <span className={`font-mono font-bold ${cve.cvss_score >= 9 ? 'text-rose-400' : cve.cvss_score >= 7 ? 'text-amber-400' : 'text-slate-400'}`}>
+        <span className="mono font-bold" style={{ color: cve.cvss_score >= 9 ? 'var(--critical-text)' : cve.cvss_score >= 7 ? 'var(--mission-text)' : 'var(--text-muted)' }}>
           {cve.cvss_score.toFixed(1)}
         </span>
-      ) : <span className="text-slate-500">-</span>,
+      ) : <span className="text-muted">-</span>,
     },
     {
       key: 'published', label: 'Publiée', sortable: true,
       render: (cve) => cve.published ? (
-        <span className="text-slate-500">{new Date(cve.published).toLocaleDateString('fr-FR')}</span>
-      ) : <span className="text-slate-500">-</span>,
+        <span className="text-muted">{new Date(cve.published).toLocaleDateString('fr-FR')}</span>
+      ) : <span className="text-muted">-</span>,
     },
     {
       key: 'description', label: 'Description',
-      render: (cve) => <span className="line-clamp-1 text-slate-400">{cve.description?.slice(0, 120)}</span>,
+      render: (cve) => <span className="line-clamp-1" style={{ color: 'var(--text-secondary)' }}>{cve.description?.slice(0, 120)}</span>,
       className: 'hidden md:table-cell',
     },
   ]
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto py-4 sm:py-8 animate-fade">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-semibold text-white">Base CVE</h1>
+        <h1 className="h1" style={{ color: 'var(--text)' }}>Base CVE</h1>
         <a href="/api/stix/download?what=cves&limit=100"
-          className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-[10px] text-indigo-400 hover:text-white transition">
+          className="btn-secondary text-xs">
           <Download size={11} /> STIX 2.1
         </a>
       </div>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
-        <div className="glass-card rounded-xl p-3 text-center">
-          <Shield size={14} className="text-rose-400 mx-auto mb-1" />
-          <div className="text-lg font-bold text-white">{cveStats?.total?.toLocaleString() || '?'}</div>
-          <div className="text-[9px] text-slate-500">Total CVEs</div>
+        <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
+          <Shield size={14} className="mx-auto mb-1" style={{ color: 'var(--critical)' }} />
+          <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{cveStats?.total?.toLocaleString() || '?'}</div>
+          <div className="text-[9px] text-muted">Total CVEs</div>
         </div>
-        <div className="glass-card rounded-xl p-3 text-center">
-          <Bug size={14} className="text-indigo-400 mx-auto mb-1" />
-          <div className="text-lg font-bold text-white">{stats?.pending_keywords || '?'}</div>
-          <div className="text-[9px] text-slate-500">Mots-clés</div>
+        <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
+          <Bug size={14} className="mx-auto mb-1" style={{ color: 'var(--decision)' }} />
+          <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.pending_keywords || '?'}</div>
+          <div className="text-[9px] text-muted">Mots-clés</div>
         </div>
-        <div className="glass-card rounded-xl p-3 text-center">
-          <AlertTriangle size={14} className="text-amber-400 mx-auto mb-1" />
-          <div className="text-lg font-bold text-white">{stats?.security_critique || '?'}</div>
-          <div className="text-[9px] text-slate-500">Outils critiques</div>
+        <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
+          <AlertTriangle size={14} className="mx-auto mb-1" style={{ color: 'var(--mission)' }} />
+          <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.security_critique || '?'}</div>
+          <div className="text-[9px] text-muted">Outils critiques</div>
         </div>
-        <div className="glass-card rounded-xl p-3 text-center">
-          <TrendingUp size={14} className="text-emerald-400 mx-auto mb-1" />
-          <div className="text-lg font-bold text-white">{stats?.new_repos_24h || '?'}</div>
-          <div className="text-[9px] text-slate-500">Nouveaux 24h</div>
+        <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
+          <TrendingUp size={14} className="mx-auto mb-1" style={{ color: 'var(--brand-text)' }} />
+          <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.new_repos_24h || '?'}</div>
+          <div className="text-[9px] text-muted">Nouveaux 24h</div>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input value={q} onChange={e => { setQ(e.target.value); setPage(1) }}
             placeholder="CVE-2024-... (appuyez / pour chercher)"
-            className="w-full pl-9 pr-3 py-2 glass rounded-lg text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/40" />
+            className="w-full pl-9 pr-3 py-2 rounded-lg text-xs ring-brand"
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              color: 'var(--text)',
+            }}
+          />
         </div>
         <select value={severity} onChange={e => { setSeverity(e.target.value); setPage(1) }}
-          className="px-3 py-2 glass rounded-lg text-xs text-white">
+          className="px-3 py-2 rounded-lg text-xs"
+          style={{
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            color: 'var(--text)',
+          }}>
           <option value="">Toutes sévérités</option>
           {['CRITICAL','HIGH','MEDIUM','LOW'].map(s => <option key={s}>{s}</option>)}
         </select>
