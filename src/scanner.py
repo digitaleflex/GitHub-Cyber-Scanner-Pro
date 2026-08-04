@@ -171,6 +171,16 @@ if __name__ == "__main__":
     graph_thread = threading.Thread(target=_seed_graph, daemon=True)
     graph_thread.start()
 
+    def _warm_embeddings():
+        try:
+            import src.embeddings as emb
+            emb._build_or_load_model()
+            logging.info("Modele TF-IDF/SVD pret (warmup demarrage)")
+        except Exception as e:
+            logging.warning("Warmup embeddings non effectue: %s", e)
+
+    threading.Thread(target=_warm_embeddings, daemon=True).start()
+
     daemon_thread = threading.Thread(target=run_scanner_daemon, daemon=True)
     daemon_thread.start()
 

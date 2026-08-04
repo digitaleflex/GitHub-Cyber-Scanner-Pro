@@ -185,7 +185,7 @@ def get_cves_bundle(limit: int = 50, what: str = "cves") -> dict:
     """Bundle STIX 2.1 des CVEs les plus critiques/recents (KEV d'abord)."""
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
-    order = "weaknesses ILIKE '%CISA_KEV%'" if what == "kev" else "severity IN ('CRITICAL','HIGH')"
+    order = "weaknesses ILIKE '%%CISA_KEV%%'" if what == "kev" else "severity IN ('CRITICAL','HIGH')"
     cursor.execute(
         f"""SELECT cve_id, description, severity, cvss_score, published, last_modified
             FROM cve_entries

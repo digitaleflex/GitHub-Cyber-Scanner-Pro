@@ -77,9 +77,9 @@ def ingest_cisa_kev() -> dict:
             cursor.execute(
                 """UPDATE cve_entries
                    SET weaknesses = CASE
-                        WHEN weaknesses ILIKE '%CISA_KEV%' THEN weaknesses
+                        WHEN weaknesses ILIKE '%%CISA_KEV%%' THEN weaknesses
                         ELSE COALESCE(weaknesses, '') || ' | CISA_KEV' END
-                   WHERE cve_id = %s AND weaknesses NOT ILIKE '%CISA_KEV%'""",
+                   WHERE cve_id = %s AND weaknesses NOT ILIKE '%%CISA_KEV%%'""",
                 (cve_id,),
             )
             if cursor.rowcount > 0:
@@ -134,31 +134,35 @@ def _classify_ioc(value: str, ioc_type: str) -> str:
 
 
 def ingest_urlhaus() -> dict:
-    """IOCs URLs malveillantes + hashes de payloads (CSV recent)."""
+    """IOCs URLs malveillantes + hashes de payloads (CSV recent, vraie colonne URL)."""
     r = _get("https://urlhaus.abuse.ch/downloads/csv_recent/")
     if not r:
         return {"urlhaus": {"fetched": 0, "error": "source indisponible"}}
 
+    import csv as _csv
+    from io import StringIO
+
     conn = get_db_connection()
     cursor = conn.cursor()
     inserted = total = 0
-    for line in r.text.splitlines():
-        if line.startswith("#") or not line.strip():
+    reader = _csv.reader(StringIO(r.text))
+    for parts in reader:
+        if not parts or parts[0].startswith("#") or len(parts) < 3:
             continue
-        parts = [p.strip() for p in line.split(",")]
-        if len(parts) < 3:
-            continue
-        url = parts[2]
+        url = (parts[2] or "").strip()
         if not url.startswith(("http://", "https://")):
             continue
         total += 1
-        threat = parts[1] or "malware"
+        threat = (parts[4] or "malware").strip() if len(parts) > 4 else "malware"
         if _upsert_ioc(cursor, "urlhaus", url, "url", threat, None, {"row": parts[:8]}):
             inserted += 1
-        if len(parts) > 4 and parts[4]:
-            if _upsert_ioc(cursor, "urlhaus", parts[4], _classify_ioc(parts[4], parts[3] or ""),
-                           threat, None, {"url": url}):
-                inserted += 1
+        if len(parts) > 5 and parts[5].strip():
+            # colonne tags : contient parfois des hashes de payloads
+            for tag in parts[5].split(","):
+                tag = tag.strip()
+                if len(tag) in (32, 40, 64):
+                    if _upsert_ioc(cursor, "urlhaus", tag, _classify_ioc(tag, tag), threat, None, {"url": url}):
+                        inserted += 1
     conn.commit()
     cursor.close()
     conn.close()
@@ -173,9 +177,11 @@ def ingest_threatfox() -> dict:
         return {"threatfox": {"fetched": 0, "error": "source indisponible"}}
 
     try:
-        items = r.json()
+        payload = r.json()
     except Exception as e:
         return {"threatfox": {"fetched": 0, "error": f"JSON invalide: {e}"}}
+    items = payload if isinstance(payload, list) else \
+        [item for group in payload.values() if isinstance(group, list) for item in group]
     if not isinstance(items, list):
         return {"threatfox": {"fetched": 0, "error": "format inattendu"}}
 
@@ -183,7 +189,7 @@ def ingest_threatfox() -> dict:
     cursor = conn.cursor()
     inserted = 0
     for item in items:
-        value = item.get("ioc", "").strip()
+        value = (item.get("ioc_value") or item.get("ioc") or "").strip()
         if not value:
             continue
         ioc_type = _classify_ioc(value, item.get("ioc_type") or "")

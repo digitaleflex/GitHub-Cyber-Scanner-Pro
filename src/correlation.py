@@ -11,7 +11,7 @@ EXPLOITDB_URL = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/files_
 
 # ── Cache des references Exploit-DB ──────────────────────────────────────
 
-_exploitdb_cache = None  # {cve_id: [exploit_row, ...]}
+_exploitdb_cache: dict | None = None  # {cve_id: [exploit_row, ...]}
 
 
 def _load_exploitdb_cache():
@@ -47,9 +47,40 @@ def _load_exploitdb_cache():
 
 
 def get_exploits_for_cve(cve_id: str) -> list[dict]:
-    """Retourne les exploits connus pour une CVE (Exploit-DB)."""
+    """Retourne les exploits connus pour une CVE (cache CSV + liens en DB)."""
+    cve_id = cve_id.upper()
     _load_exploitdb_cache()
-    return _exploitdb_cache.get(cve_id.upper(), [])
+    cache = _exploitdb_cache or {}
+    exploits = list(cache.get(cve_id, []))
+    try:
+        import src.db.connection as _conn
+        conn = _conn.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT exploit_id, description, platform, exploit_type, author, date, file_url "
+            "FROM exploits WHERE cve_id = %s",
+            (cve_id,),
+        )
+        seen = {e["id"] for e in exploits}
+        for r in cursor.fetchall():
+            eid = str(r[0])
+            if eid in seen:
+                continue
+            exploits.append({
+                "id": eid,
+                "file": "",
+                "description": (r[1] or "")[:200],
+                "platform": r[2] or "",
+                "author": r[4] or "",
+                "date": r[5] or "",
+                "type": r[3] or "",
+                "port": "",
+            })
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        logging.error(f"Erreur get_exploits_for_cve (DB): {e}")
+    return exploits
 
 
 def get_tools_for_cve(cve_id: str, limit: int = 10) -> list[dict]:
