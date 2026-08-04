@@ -53,15 +53,15 @@ function AssistantPage() {
               </div>
             )}
             <div className="rounded-2xl px-4 py-2.5 text-sm max-w-[80%]" style={{
-              background: m.role === 'user' ? 'var(--info-light)' : 'var(--bg-alt)',
+              background: m.role === 'user' ? 'var(--surface-elevated)' : 'var(--surface-elevated)',
               color: 'var(--text)',
-              border: m.role === 'user' ? '1px solid var(--info)' : '1px solid var(--border-light)',
+              border: m.role === 'user' ? '1px solid var(--cyan)' : '1px solid var(--border-light)',
             }}>
               <p className="leading-relaxed whitespace-pre-wrap">{m.text}</p>
             </div>
             {m.role === 'user' && (
               <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                style={{ background: 'var(--surface-hover)', border: '1px solid var(--border)' }}>
+                style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)' }}>
                 <User size={13} style={{ color: 'var(--text-muted)' }} />
               </div>
             )}
@@ -72,7 +72,7 @@ function AssistantPage() {
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--ai-light)' }}>
               <Brain size={13} style={{ color: 'var(--ai)' }} />
             </div>
-            <div className="rounded-2xl px-4 py-2.5" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+            <div className="rounded-2xl px-4 py-2.5" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
               <div className="flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--text-muted)', animationDelay: '0ms' }} />
                 <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--text-muted)', animationDelay: '150ms' }} />
@@ -96,7 +96,7 @@ function AssistantPage() {
         <button onClick={send} disabled={loading || !input.trim()}
           className="px-4 py-3 rounded-xl font-medium transition-all disabled:opacity-40 flex items-center justify-center"
           style={{
-            background: 'var(--info)',
+            background: 'var(--cyan)',
             color: 'white',
           }}>
           <Send size={16} />

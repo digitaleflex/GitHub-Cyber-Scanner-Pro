@@ -61,7 +61,7 @@ function AssetsPage() {
     qc.invalidateQueries({ queryKey: ['organization'] })
   }
 
-  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" /></div>
+  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--amber)] border-t-transparent rounded-full animate-spin" /></div>
 
   return (
     <div className="max-w-3xl mx-auto py-4 sm:py-8 animate-fade">
@@ -91,7 +91,7 @@ function AssetsPage() {
             <div className="surface rounded-2xl p-4 sm:p-5 mb-5 space-y-3" style={{ border: '1px solid var(--border)' }}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="caption mb-1 block" style={{ color: 'var(--brand)' }}>Type</label>
+                  <label className="caption mb-1 block" style={{ color: 'var(--amber)' }}>Type</label>
                   <div className="flex flex-wrap gap-1">
                     {ASSET_TYPES.map(t => (
                       <button key={t} onClick={() => setNewType(t)}
@@ -99,7 +99,7 @@ function AssetsPage() {
                         style={{
                           background: newType === t ? 'var(--surface-elevated)' : 'var(--surface)',
                           color: newType === t ? 'var(--text)' : 'var(--text-muted)',
-                          borderColor: newType === t ? 'var(--brand)' : 'var(--border)',
+                          borderColor: newType === t ? 'var(--amber)' : 'var(--border)',
                         }}>
                         {t}
                       </button>
@@ -107,27 +107,27 @@ function AssetsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="caption mb-1 block" style={{ color: 'var(--brand)' }}>Criticité (1-5)</label>
+                  <label className="caption mb-1 block" style={{ color: 'var(--amber)' }}>Criticité (1-5)</label>
                   <input type="range" min="1" max="5" value={newCrit} onChange={e => setNewCrit(Number(e.target.value))}
-                    className="w-full" style={{ accentColor: 'var(--brand)' }} />
+                    className="w-full" style={{ accentColor: 'var(--amber)' }} />
                   <span className="text-[10px] text-muted">{newCrit}</span>
                 </div>
                 <div>
-                  <label className="caption mb-1 block" style={{ color: 'var(--brand)' }}>Nom</label>
+                  <label className="caption mb-1 block" style={{ color: 'var(--amber)' }}>Nom</label>
                   <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
                     placeholder="PostgreSQL, Docker, AWS..."
                     className="w-full rounded-xl px-3 py-2 text-sm ring-brand"
                     style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' }} />
                 </div>
                 <div>
-                  <label className="caption mb-1 block" style={{ color: 'var(--brand)' }}>Fournisseur</label>
+                  <label className="caption mb-1 block" style={{ color: 'var(--amber)' }}>Fournisseur</label>
                   <input type="text" value={newVendor} onChange={e => setNewVendor(e.target.value)}
                     placeholder="PostgreSQL, Docker Inc..."
                     className="w-full rounded-xl px-3 py-2 text-sm ring-brand"
                     style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' }} />
                 </div>
                 <div>
-                  <label className="caption mb-1 block" style={{ color: 'var(--brand)' }}>Version</label>
+                  <label className="caption mb-1 block" style={{ color: 'var(--amber)' }}>Version</label>
                   <input type="text" value={newVersion} onChange={e => setNewVersion(e.target.value)}
                     placeholder="15.4, 24.0..."
                     className="w-full rounded-xl px-3 py-2 text-sm ring-brand"
@@ -157,7 +157,7 @@ function AssetsPage() {
               </div>
               <div className="space-y-1.5">
                 {items.map((a: any) => (
-                  <div key={a.id} className="rounded-xl p-3 flex items-center justify-between gap-2" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                  <div key={a.id} className="rounded-xl p-3 flex items-center justify-between gap-2" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>{a.name}</span>

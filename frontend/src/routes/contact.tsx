@@ -7,28 +7,28 @@ export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/cont
 function ContactPage() {
   const contacts = [
     {
-      icon: <Mail size={20} style={{ color: 'var(--brand)' }} />,
+      icon: <Mail size={20} style={{ color: 'var(--amber)' }} />,
       title: 'Email direct',
       desc: 'Pour les demandes professionnelles, partenariats, ou questions confidentielles.',
       action: 'contact@eurin.tech',
       href: 'mailto:contact@eurin.tech',
     },
     {
-      icon: <Github size={20} style={{ color: 'var(--brand)' }} />,
+      icon: <Github size={20} style={{ color: 'var(--amber)' }} />,
       title: 'GitHub Issues',
       desc: 'Bugs, suggestions, contributions techniques. Le moyen le plus rapide d\'obtenir une réponse.',
       action: 'github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/issues',
       href: 'https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/issues',
     },
     {
-      icon: <MessageCircle size={20} style={{ color: 'var(--brand)' }} />,
+      icon: <MessageCircle size={20} style={{ color: 'var(--amber)' }} />,
       title: 'Discussions GitHub',
       desc: 'Échanges techniques, questions d\'architecture, propositions de design, roadmap.',
       action: 'github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/discussions',
       href: 'https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/discussions',
     },
     {
-      icon: <Globe size={20} style={{ color: 'var(--brand)' }} />,
+      icon: <Globe size={20} style={{ color: 'var(--amber)' }} />,
       title: 'Site web',
       desc: 'Documentation complète, API reference, guides de déploiement et cas d\'usage.',
       action: 'cyberbook.eurin.tech',
@@ -50,7 +50,7 @@ function ContactPage() {
         {contacts.map((c, i) => (
           <a key={i} href={c.href} target="_blank" rel="noopener noreferrer"
             className="surface rounded-xl p-4 flex items-start gap-4 hover:border transition-colors" style={{ border: '1px solid var(--border)' }}>
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--bg-alt)' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--surface-elevated)' }}>
               {c.icon}
             </div>
             <div className="min-w-0 flex-1">

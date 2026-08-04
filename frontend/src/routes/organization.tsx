@@ -51,7 +51,7 @@ function OrganizationPage() {
     setCompliance(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])
   }
 
-  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" /></div>
+  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--amber)] border-t-transparent rounded-full animate-spin" /></div>
 
   const org = data?.organization
   const profile = data?.profile
@@ -59,7 +59,7 @@ function OrganizationPage() {
   const getChipStyle = (active: boolean) => ({
     background: active ? 'var(--surface-elevated)' : 'var(--surface)',
     color: active ? 'var(--text)' : 'var(--text-muted)',
-    borderColor: active ? 'var(--brand)' : 'var(--border)',
+    borderColor: active ? 'var(--amber)' : 'var(--border)',
     boxShadow: active ? 'var(--shadow-sm)' : 'none',
   })
 
@@ -82,19 +82,19 @@ function OrganizationPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-xl p-4" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
-                <p className="caption mb-2" style={{ color: 'var(--brand)' }}>Rôle</p>
+              <div className="rounded-xl p-4" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
+                <p className="caption mb-2" style={{ color: 'var(--amber)' }}>Rôle</p>
                 <p className="body font-medium capitalize" style={{ color: 'var(--text)' }}>{profile?.role || 'Non défini'}</p>
               </div>
-              <div className="rounded-xl p-4" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
-                <p className="caption mb-2" style={{ color: 'var(--brand)' }}>Secteur</p>
+              <div className="rounded-xl p-4" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
+                <p className="caption mb-2" style={{ color: 'var(--amber)' }}>Secteur</p>
                 <p className="body font-medium" style={{ color: 'var(--text)' }}>{org.sector || 'Non défini'}</p>
               </div>
             </div>
 
             {org.compliance && (
-              <div className="mt-4 rounded-xl p-4" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
-                <p className="caption mb-2" style={{ color: 'var(--brand)' }}>Conformité</p>
+              <div className="mt-4 rounded-xl p-4" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
+                <p className="caption mb-2" style={{ color: 'var(--amber)' }}>Conformité</p>
                 <div className="flex flex-wrap gap-1.5">
                   {org.compliance.split(',').map((c: string, i: number) => (
                     <span key={i} className="badge badge-success">
@@ -113,7 +113,7 @@ function OrganizationPage() {
       ) : (
         <div className="surface rounded-2xl p-5 sm:p-6 space-y-5" style={{ border: '1px solid var(--border)' }}>
           <div>
-            <label className="caption mb-1.5 block" style={{ color: 'var(--brand)' }}>Rôle</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--amber)' }}>Rôle</label>
             <div className="flex flex-wrap gap-1.5">
               {ROLES.map(r => (
                 <button key={r} onClick={() => setRole(r)}
@@ -126,7 +126,7 @@ function OrganizationPage() {
           </div>
 
           <div>
-            <label className="caption mb-1.5 block" style={{ color: 'var(--brand)' }}>Nom de l'organisation</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--amber)' }}>Nom de l'organisation</label>
             <input type="text" value={orgName} onChange={e => setOrgName(e.target.value)}
               placeholder="Ex: MaBoite, Acme Corp..."
               className="w-full rounded-xl px-4 py-3 text-sm ring-brand"
@@ -134,7 +134,7 @@ function OrganizationPage() {
           </div>
 
           <div>
-            <label className="caption mb-1.5 block" style={{ color: 'var(--brand)' }}>Secteur</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--amber)' }}>Secteur</label>
             <div className="flex flex-wrap gap-1.5">
               {SECTORS.map(s => (
                 <button key={s} onClick={() => setSector(s)}
@@ -147,7 +147,7 @@ function OrganizationPage() {
           </div>
 
           <div>
-            <label className="caption mb-1.5 block" style={{ color: 'var(--brand)' }}>Conformité</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--amber)' }}>Conformité</label>
             <div className="flex flex-wrap gap-1.5">
               {COMPLIANCE_OPTS.map(c => (
                 <button key={c} onClick={() => toggleCompliance(c)}
