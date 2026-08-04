@@ -5,11 +5,11 @@ import { Clock, Shield, Bug, Target, Box } from 'lucide-react'
 
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/timeline', component: TimelinePage })
 
-const TYPE_ICONS: Record<string, React.ReactNode> = {
-  cve: <Shield size={13} className="text-rose-400" />,
-  mission: <Target size={13} className="text-emerald-400" />,
-  asset: <Box size={13} className="text-amber-400" />,
-  exploit: <Bug size={13} className="text-indigo-400" />,
+const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
+  cve: { icon: <Shield size={13} />, color: 'var(--critical)' },
+  mission: { icon: <Target size={13} />, color: 'var(--brand-text)' },
+  asset: { icon: <Box size={13} />, color: 'var(--mission)' },
+  exploit: { icon: <Bug size={13} />, color: 'var(--decision)' },
 }
 
 function TimelinePage() {
@@ -19,43 +19,55 @@ function TimelinePage() {
     staleTime: 60_000,
   })
 
-  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" /></div>
+  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" /></div>
 
   return (
     <div className="max-w-2xl mx-auto py-4 sm:py-8 animate-fade">
-      <h1 className="text-xl sm:text-2xl font-semibold text-white mb-1">Timeline</h1>
-      <p className="text-sm text-slate-500 mb-6">Que s'est-il passe ? Toute l'histoire de votre securite.</p>
+      <h1 className="h1 mb-1" style={{ color: 'var(--text)' }}>Timeline</h1>
+      <p className="body-sm text-secondary mb-6">Que s'est-il passé ? Toute l'histoire de votre sécurité.</p>
 
       <div className="relative">
-        <div className="absolute left-4 top-2 bottom-2 w-px bg-slate-800" />
+        <div className="absolute left-4 top-2 bottom-2 w-px" style={{ background: 'var(--border)' }} />
         <div className="space-y-1">
-          {data?.events?.map((e: any, i: number) => (
-            <div key={i} className="relative pl-10 py-2 group">
-              <div className="absolute left-2 top-3 w-4 h-4 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center">
-                {TYPE_ICONS[e.type] || <Clock size={10} className="text-slate-500" />}
-              </div>
-              <div className="glass rounded-xl p-3 hover:bg-white/[0.02] transition">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs font-medium text-slate-200">{e.title}</span>
-                  {e.severity && (
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded ${e.severity === 'CRITICAL' ? 'bg-rose-500/10 text-rose-400' : e.severity === 'HIGH' ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-500/10 text-slate-400'}`}>
-                      {e.severity}
-                    </span>
-                  )}
-                  {e.status && (
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded ${e.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-indigo-500/10 text-indigo-400'}`}>
-                      {e.status}
-                    </span>
-                  )}
+          {data?.events?.map((e: any, i: number) => {
+            const cfg = TYPE_CONFIG[e.type]
+            return (
+              <div key={i} className="relative pl-10 py-2 group">
+                <div className="absolute left-2 top-3 w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                  style={{ background: 'var(--bg)', borderColor: cfg?.color || 'var(--border)' }}>
+                  {cfg?.icon || <Clock size={10} style={{ color: 'var(--text-muted)' }} />}
                 </div>
-                {e.desc && <p className="text-[10px] text-slate-500 line-clamp-1">{e.desc}</p>}
-                <span className="text-[9px] text-slate-600 mt-1 block">{e.ts?.slice(0, 10)}</span>
+                <div className="rounded-xl p-3 transition-all hover:-translate-y-0.5" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs font-medium" style={{ color: 'var(--text)' }}>{e.title}</span>
+                    {e.severity && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full border font-medium" style={{
+                        background: e.severity === 'CRITICAL' ? 'var(--critical-light)' : e.severity === 'HIGH' ? 'var(--mission-light)' : 'var(--bg-alt)',
+                        color: e.severity === 'CRITICAL' ? 'var(--critical-text)' : e.severity === 'HIGH' ? 'var(--mission-text)' : 'var(--text-muted)',
+                        borderColor: e.severity === 'CRITICAL' ? 'var(--critical)' : e.severity === 'HIGH' ? 'var(--mission)' : 'var(--border)',
+                      }}>
+                        {e.severity}
+                      </span>
+                    )}
+                    {e.status && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full border font-medium" style={{
+                        background: e.status === 'completed' ? 'var(--success-light)' : 'var(--decision-light)',
+                        color: e.status === 'completed' ? '#166534' : 'var(--decision-text)',
+                        borderColor: e.status === 'completed' ? 'var(--success)' : 'var(--decision)',
+                      }}>
+                        {e.status}
+                      </span>
+                    )}
+                  </div>
+                  {e.desc && <p className="text-[10px] text-secondary line-clamp-1">{e.desc}</p>}
+                  <span className="text-[9px] text-muted mt-1 block">{e.ts?.slice(0, 10)}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
         {!data?.events?.length && (
-          <p className="text-center text-sm text-slate-500 py-12">Aucun evenement. La timeline se remplit au fur et a mesure.</p>
+          <p className="text-center body-sm text-secondary py-12">Aucun événement. La timeline se remplit au fur et à mesure.</p>
         )}
       </div>
     </div>
