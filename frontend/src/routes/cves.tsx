@@ -4,8 +4,9 @@ import { Route as RootRoute } from './__root'
 import { useCves, useStats, type CveEntry } from '../lib/api'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import DataTable, { type DataTableColumn } from '../components/DataTable'
+import { KpiTile } from '../components/KpiTile'
 import Chip from '../components/Chip'
-import { Search, Shield, AlertTriangle, TrendingUp, Bug, Download } from 'lucide-react'
+import { Search, Shield, Download } from 'lucide-react'
 
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
@@ -61,7 +62,7 @@ function CvesPage() {
     {
       key: 'cvss_score', label: 'CVSS', sortable: true,
       render: (cve) => cve.cvss_score ? (
-        <span className="mono font-bold" style={{ color: cve.cvss_score >= 9 ? 'var(--danger-text)' : cve.cvss_score >= 7 ? 'var(--warning-text)' : 'var(--text-muted)' }}>
+        <span className="mono font-bold" style={{ color: cve.cvss_score >= 9 ? 'var(--red)' : cve.cvss_score >= 7 ? 'var(--amber)' : 'var(--text-muted)' }}>
           {cve.cvss_score.toFixed(1)}
         </span>
       ) : <span className="text-muted">-</span>,
@@ -81,39 +82,24 @@ function CvesPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-4 sm:py-8 animate-fade">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="h1" style={{ color: 'var(--text)' }}>Base CVE</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Shield size={22} style={{ color: 'var(--cyan)' }} />
+          <h1 className="h1" style={{ color: 'var(--text)' }}>Base CVE</h1>
+        </div>
         <a href="/api/stix/download?what=cves&limit=100"
           className="btn-secondary text-xs">
           <Download size={11} /> STIX 2.1
         </a>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
-        <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-          <Shield size={14} className="mx-auto mb-1" style={{ color: 'var(--danger)' }} />
-          <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{cveStats?.total?.toLocaleString() || '?'}</div>
-          <div className="text-[9px] text-muted">Total CVEs</div>
-        </div>
-        <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-          <Bug size={14} className="mx-auto mb-1" style={{ color: 'var(--info)' }} />
-          <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.pending_keywords || '?'}</div>
-          <div className="text-[9px] text-muted">Mots-clés</div>
-        </div>
-        <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-          <AlertTriangle size={14} className="mx-auto mb-1" style={{ color: 'var(--warning)' }} />
-          <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.security_critique || '?'}</div>
-          <div className="text-[9px] text-muted">Outils critiques</div>
-        </div>
-        <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-          <TrendingUp size={14} className="mx-auto mb-1" style={{ color: 'var(--brand)' }} />
-          <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.new_repos_24h || '?'}</div>
-          <div className="text-[9px] text-muted">Nouveaux 24h</div>
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <KpiTile value={cveStats?.total?.toLocaleString() || '?'} label="Total CVEs" color="red" />
+        <KpiTile value={stats?.pending_keywords || '?'} label="Mots-clés" color="cyan" />
+        <KpiTile value={stats?.security_critique || '?'} label="Outils critiques" color="amber" />
+        <KpiTile value={stats?.new_repos_24h || '?'} label="Nouveaux 24h" color="violet" />
       </div>
 
-      {/* Filters */}
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
