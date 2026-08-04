@@ -54,6 +54,9 @@
   --text-muted: #94A3B8;
   --text-inverse: #F8FAFC;
   --overlay: rgba(15, 23, 42, 0.45);
+  /* Couleurs sémantiques adaptatives */
+  --success-text: #166534;    --success-light: #F0FDF4;
+  --warning-text: #92400E;    --warning-light: #FFFBEB;
 }
 
 /* ── Dark Theme — deep ink, sharp contrast, deliberate ────────────── */
@@ -72,6 +75,8 @@
   --text-muted: #64748B;
   --text-inverse: #0F172A;
   --overlay: rgba(2, 6, 23, 0.7);
+  --success-text: #4ADE80;    --success-light: rgba(34, 197, 94, 0.12);
+  --warning-text: #FBBF24;    --warning-light: rgba(245, 158, 11, 0.12);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────── */
@@ -130,10 +135,12 @@ body {
   }
 
   /* Card hierarchy */
-  .card-stat { composes: surface; text-align: center; }
-  .card-content { composes: surface; }
+  .card-stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); text-align: center; }
+  .card-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
   .card-action {
-    composes: surface;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
     cursor: pointer;
     transition: all 0.2s var(--ease-out);
   }

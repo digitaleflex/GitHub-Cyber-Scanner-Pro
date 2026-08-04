@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download } from 'lucide-react'
 import EmptyState from './EmptyState'
 import ErrorState from './ErrorState'
@@ -30,7 +31,7 @@ type DataTableProps<T> = {
 
 const SKELETON_ROWS = 8
 
-export default function DataTable<T extends Record<string, any>>({
+function DataTableInner<T extends Record<string, any>>({
   columns, data, total, page, perPage, onPageChange, onSort, sortKey, sortDir, loading, emptyMessage, error, onRetry, exportCSV, exportLabel,
 }: DataTableProps<T>) {
   const pages = Math.max(1, Math.ceil(total / perPage))
@@ -125,20 +126,20 @@ export default function DataTable<T extends Record<string, any>>({
         <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid var(--border)' }}>
           <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Page {page} sur {pages}</span>
           <div className="flex items-center gap-1">
-            <button onClick={() => onPageChange(1)} disabled={page === 1}
+            <button onClick={() => onPageChange(1)} disabled={page === 1} aria-label="Première page"
               className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               <ChevronLeft size={12} /><ChevronLeft size={12} className="-ml-2" />
             </button>
-            <button onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page === 1}
+            <button onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page === 1} aria-label="Page précédente"
               className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               <ChevronLeft size={12} />
             </button>
-            <span className="px-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>{page}</span>
-            <button onClick={() => onPageChange(Math.min(pages, page + 1))} disabled={page >= pages}
+            <span className="px-2 text-[10px]" style={{ color: 'var(--text-muted)' }} aria-current="page">{page}</span>
+            <button onClick={() => onPageChange(Math.min(pages, page + 1))} disabled={page >= pages} aria-label="Page suivante"
               className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               <ChevronRight size={12} />
             </button>
-            <button onClick={() => onPageChange(pages)} disabled={page >= pages}
+            <button onClick={() => onPageChange(pages)} disabled={page >= pages} aria-label="Dernière page"
               className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               <ChevronRight size={12} /><ChevronRight size={12} className="-ml-2" />
             </button>
@@ -148,3 +149,6 @@ export default function DataTable<T extends Record<string, any>>({
     </div>
   )
 }
+
+const DataTable = memo(DataTableInner) as typeof DataTableInner
+export default DataTable
