@@ -20,7 +20,7 @@ function ProgressBar({ pct }: { pct: number }) {
     <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
       <div className="h-full rounded-full transition-all duration-500" style={{
         width: `${Math.min(pct, 100)}%`,
-        background: pct >= 100 ? 'var(--success)' : pct >= 50 ? 'var(--decision)' : 'var(--text-muted)',
+        background: pct >= 100 ? 'var(--success)' : pct >= 50 ? 'var(--info)' : 'var(--text-muted)',
       }} />
     </div>
   )
@@ -97,7 +97,7 @@ function MissionsPage() {
       {active.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <Target size={15} style={{ color: 'var(--brand-text)' }} />
+            <Target size={15} style={{ color: 'var(--brand)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>En cours</h2>
             <span className="text-xs text-muted">{active.length}</span>
           </div>
@@ -112,9 +112,9 @@ function MissionsPage() {
                     </div>
                     <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
                       style={{
-                        background: m.status === 'in_progress' ? 'var(--decision-light)' : '#F0FDF4',
-                        color: m.status === 'in_progress' ? 'var(--decision-text)' : '#166534',
-                        borderColor: m.status === 'in_progress' ? 'var(--decision)' : 'var(--success)',
+                        background: m.status === 'in_progress' ? 'var(--info-light)' : '#F0FDF4',
+                        color: m.status === 'in_progress' ? 'var(--info-text)' : '#166534',
+                        borderColor: m.status === 'in_progress' ? 'var(--info)' : 'var(--success)',
                       }}>
                       {m.status === 'in_progress' ? 'En cours' : 'Active'}
                     </span>
@@ -132,7 +132,7 @@ function MissionsPage() {
                       <div className="text-[9px] text-muted">Estimé</div>
                     </div>
                     <div className="rounded-lg p-2 text-center" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
-                      <div className="text-sm font-bold" style={{ color: 'var(--brand-text)' }}>-{m.risk_reduction_percent || 0}%</div>
+                      <div className="text-sm font-bold" style={{ color: 'var(--brand)' }}>-{m.risk_reduction_percent || 0}%</div>
                       <div className="text-[9px] text-muted">Risque</div>
                     </div>
                   </div>
@@ -150,7 +150,7 @@ function MissionsPage() {
                       </button>
                     )}
                     {m.cve_ids && (
-                      <Link to="/cve/$id" params={{ id: m.cve_ids }} className="text-xs font-semibold ml-auto" style={{ color: 'var(--decision-text)' }}>
+                      <Link to="/cve/$id" params={{ id: m.cve_ids }} className="text-xs font-semibold ml-auto" style={{ color: 'var(--info-text)' }}>
                         {m.cve_ids}
                       </Link>
                     )}

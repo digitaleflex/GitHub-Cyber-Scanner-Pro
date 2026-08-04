@@ -67,14 +67,14 @@ function ToolsPage() {
     {
       key: 'name', label: 'Outil', sortable: true,
       render: (t) => (
-        <button onClick={() => setDrawer(t)} className="text-left truncate max-w-[200px] block font-medium hover:underline" style={{ color: 'var(--decision-text)' }}>
+        <button onClick={() => setDrawer(t)} className="text-left truncate max-w-[200px] block font-medium hover:underline" style={{ color: 'var(--info-text)' }}>
           {t.name}
         </button>
       ),
     },
     {
       key: 'stars', label: 'Stars', sortable: true,
-      render: (t) => <span className="mono" style={{ color: 'var(--mission)' }}>{t.stars?.toLocaleString()}</span>,
+      render: (t) => <span className="mono" style={{ color: 'var(--warning)' }}>{t.stars?.toLocaleString()}</span>,
     },
     {
       key: 'security_verdict', label: 'Verdict', sortable: true,
@@ -83,7 +83,7 @@ function ToolsPage() {
     {
       key: 'vitality_score', label: 'Vitalité', sortable: true,
       render: (t) => t.vitality_score != null ? (
-        <span className="mono text-[10px]" style={{ color: t.vitality_score >= 70 ? 'var(--brand-text)' : t.vitality_score >= 40 ? 'var(--mission-text)' : 'var(--text-muted)' }}>
+        <span className="mono text-[10px]" style={{ color: t.vitality_score >= 70 ? 'var(--brand)' : t.vitality_score >= 40 ? 'var(--warning-text)' : 'var(--text-muted)' }}>
           {t.vitality_score}/100
         </span>
       ) : <span className="text-muted">-</span>,
@@ -185,7 +185,7 @@ function ToolsPage() {
                   <div className="flex-1 min-w-0">
                     <span className="text-xs sm:text-sm font-medium truncate block" style={{ color: 'var(--text)' }}>{t.name}</span>
                   </div>
-                  <span className="flex items-center gap-0.5 text-[10px] sm:text-xs shrink-0" style={{ color: 'var(--mission)' }}><Star size={10} />{t.stars?.toLocaleString()}</span>
+                  <span className="flex items-center gap-0.5 text-[10px] sm:text-xs shrink-0" style={{ color: 'var(--warning)' }}><Star size={10} />{t.stars?.toLocaleString()}</span>
                 </div>
                 {t.desc && <p className="text-[10px] sm:text-xs leading-relaxed line-clamp-2 mb-2 text-secondary">{t.desc}</p>}
                 <div className="flex items-center gap-2 text-[9px] sm:text-[10px] text-muted">
@@ -210,7 +210,7 @@ function ToolsPage() {
             <div className="flex flex-wrap gap-2 mb-4">
               {drawer.security_verdict && <Chip variant="verdict" value={drawer.security_verdict} />}
               {drawer.lang && <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>{drawer.lang}</span>}
-              <span className="text-xs px-2 py-1 rounded-lg flex items-center gap-1" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--mission)' }}>
+              <span className="text-xs px-2 py-1 rounded-lg flex items-center gap-1" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--warning)' }}>
                 <Star size={9} />{drawer.stars?.toLocaleString()}
               </span>
             </div>
@@ -220,7 +220,7 @@ function ToolsPage() {
                 <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
                   <div className="h-full rounded-full" style={{
                     width: `${drawer.vitality_score}%`,
-                    background: drawer.vitality_score >= 70 ? 'var(--success)' : drawer.vitality_score >= 40 ? 'var(--mission)' : 'var(--critical)',
+                    background: drawer.vitality_score >= 70 ? 'var(--success)' : drawer.vitality_score >= 40 ? 'var(--warning)' : 'var(--danger)',
                   }} />
                 </div>
               </div>
@@ -228,7 +228,7 @@ function ToolsPage() {
             <div className="space-y-2">
               <Link to="/tool/$name" params={{ name: drawer.name }}
                 className="block w-full text-center rounded-xl p-3 text-xs font-medium transition-all hover:-translate-y-0.5"
-                style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--decision-text)', textDecoration: 'none' }}>
+                style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--info-text)', textDecoration: 'none' }}>
                 Fiche complète
               </Link>
               <a href={drawer.url} target="_blank" rel="noopener"

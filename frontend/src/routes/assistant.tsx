@@ -53,9 +53,9 @@ function AssistantPage() {
               </div>
             )}
             <div className="rounded-2xl px-4 py-2.5 text-sm max-w-[80%]" style={{
-              background: m.role === 'user' ? 'var(--decision-light)' : 'var(--bg-alt)',
+              background: m.role === 'user' ? 'var(--info-light)' : 'var(--bg-alt)',
               color: 'var(--text)',
-              border: m.role === 'user' ? '1px solid var(--decision)' : '1px solid var(--border-light)',
+              border: m.role === 'user' ? '1px solid var(--info)' : '1px solid var(--border-light)',
             }}>
               <p className="leading-relaxed whitespace-pre-wrap">{m.text}</p>
             </div>
@@ -96,7 +96,7 @@ function AssistantPage() {
         <button onClick={send} disabled={loading || !input.trim()}
           className="px-4 py-3 rounded-xl font-medium transition-all disabled:opacity-40 flex items-center justify-center"
           style={{
-            background: 'var(--decision)',
+            background: 'var(--info)',
             color: 'white',
           }}>
           <Send size={16} />

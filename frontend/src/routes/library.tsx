@@ -40,7 +40,7 @@ function LibraryPage() {
   return (
     <div className="w-full py-8 animate-fade">
       <div className="flex items-center gap-3 mb-6">
-        <Library size={24} style={{ color: 'var(--brand-text)' }} />
+        <Library size={24} style={{ color: 'var(--brand)' }} />
         <div>
           <h1 className="h1" style={{ color: 'var(--text)' }}>Bibliothèque</h1>
           <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -118,7 +118,7 @@ function LibraryPage() {
             return (
               <button key={p} onClick={() => setPage(p)}
                 className="w-8 h-8 rounded-lg text-xs font-medium transition-colors"
-                style={{ background: p === page ? 'var(--brand-text)' : 'var(--bg-alt)', color: p === page ? '#fff' : 'var(--text-secondary)', border: p === page ? 'none' : '1px solid var(--border)' }}>
+                style={{ background: p === page ? 'var(--brand)' : 'var(--bg-alt)', color: p === page ? '#fff' : 'var(--text-secondary)', border: p === page ? 'none' : '1px solid var(--border)' }}>
                 {p}
               </button>
             )

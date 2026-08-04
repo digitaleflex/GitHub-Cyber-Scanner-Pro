@@ -7,12 +7,12 @@ export function CyberLoader({ text = 'Analyse en cours...' }: { text?: string })
       <div className="relative mb-6">
         {/* Anneau pulsant externe */}
         <div className="absolute inset-0 w-20 h-20 rounded-full mx-auto -mt-10 -ml-10"
-          style={{ border: '2px solid var(--brand-text)', opacity: 0.15, animation: 'pulse-ring 2s ease-out infinite' }} />
+          style={{ border: '2px solid var(--brand)', opacity: 0.15, animation: 'pulse-ring 2s ease-out infinite' }} />
         {/* Anneau scan */}
         <div className="absolute w-20 h-20 rounded-full mx-auto -mt-10 -ml-10"
           style={{
             border: '2px solid transparent',
-            borderTopColor: 'var(--brand-text)',
+            borderTopColor: 'var(--brand)',
             opacity: 0.5,
             animation: 'spin-scan 1.5s linear infinite',
           }} />
@@ -24,7 +24,7 @@ export function CyberLoader({ text = 'Analyse en cours...' }: { text?: string })
             animation: 'spin-scan 2s linear infinite reverse',
           }} />
         <Shield size={32} className="relative z-10" style={{
-          color: 'var(--brand-text)',
+          color: 'var(--brand)',
           animation: 'pulse-brand-loader 2s ease-in-out infinite',
         }} />
       </div>
@@ -40,7 +40,7 @@ export function CyberLoader({ text = 'Analyse en cours...' }: { text?: string })
       {/* Barre de progression infinie */}
       <div className="mt-4 w-48 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-alt)' }}>
         <div className="h-full rounded-full" style={{
-          background: 'linear-gradient(90deg, var(--brand-text), var(--ai), var(--mission))',
+          background: 'linear-gradient(90deg, var(--brand), var(--ai), var(--warning))',
           width: '30%',
           animation: 'slide-bar 1.2s ease-in-out infinite',
         }} />

@@ -49,7 +49,7 @@ function CvesPage() {
     {
       key: 'cve_id', label: 'CVE ID', sortable: true,
       render: (cve) => (
-        <Link to="/cve/$id" params={{ id: cve.cve_id }} className="mono font-semibold" style={{ color: 'var(--decision-text)' }}>
+        <Link to="/cve/$id" params={{ id: cve.cve_id }} className="mono font-semibold" style={{ color: 'var(--info-text)' }}>
           {cve.cve_id}
         </Link>
       ),
@@ -61,7 +61,7 @@ function CvesPage() {
     {
       key: 'cvss_score', label: 'CVSS', sortable: true,
       render: (cve) => cve.cvss_score ? (
-        <span className="mono font-bold" style={{ color: cve.cvss_score >= 9 ? 'var(--critical-text)' : cve.cvss_score >= 7 ? 'var(--mission-text)' : 'var(--text-muted)' }}>
+        <span className="mono font-bold" style={{ color: cve.cvss_score >= 9 ? 'var(--danger-text)' : cve.cvss_score >= 7 ? 'var(--warning-text)' : 'var(--text-muted)' }}>
           {cve.cvss_score.toFixed(1)}
         </span>
       ) : <span className="text-muted">-</span>,
@@ -92,22 +92,22 @@ function CvesPage() {
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
         <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-          <Shield size={14} className="mx-auto mb-1" style={{ color: 'var(--critical)' }} />
+          <Shield size={14} className="mx-auto mb-1" style={{ color: 'var(--danger)' }} />
           <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{cveStats?.total?.toLocaleString() || '?'}</div>
           <div className="text-[9px] text-muted">Total CVEs</div>
         </div>
         <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-          <Bug size={14} className="mx-auto mb-1" style={{ color: 'var(--decision)' }} />
+          <Bug size={14} className="mx-auto mb-1" style={{ color: 'var(--info)' }} />
           <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.pending_keywords || '?'}</div>
           <div className="text-[9px] text-muted">Mots-clés</div>
         </div>
         <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-          <AlertTriangle size={14} className="mx-auto mb-1" style={{ color: 'var(--mission)' }} />
+          <AlertTriangle size={14} className="mx-auto mb-1" style={{ color: 'var(--warning)' }} />
           <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.security_critique || '?'}</div>
           <div className="text-[9px] text-muted">Outils critiques</div>
         </div>
         <div className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-          <TrendingUp size={14} className="mx-auto mb-1" style={{ color: 'var(--brand-text)' }} />
+          <TrendingUp size={14} className="mx-auto mb-1" style={{ color: 'var(--brand)' }} />
           <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>{stats?.new_repos_24h || '?'}</div>
           <div className="text-[9px] text-muted">Nouveaux 24h</div>
         </div>

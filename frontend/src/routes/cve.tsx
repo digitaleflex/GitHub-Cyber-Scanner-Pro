@@ -11,9 +11,9 @@ const LEVEL_LABEL: Record<string, string> = {
 }
 
 const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string; stroke: string }> = {
-  CRITIQUE: { bg: 'var(--critical-light)', text: 'var(--critical-text)', border: 'var(--critical)', stroke: '#DC2626' },
-  ELEVE: { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)', stroke: '#D97706' },
-  MOYEN: { bg: 'var(--decision-light)', text: 'var(--decision-text)', border: 'var(--decision)', stroke: '#2563EB' },
+  CRITIQUE: { bg: 'var(--danger-light)', text: 'var(--danger-text)', border: 'var(--danger)', stroke: '#DC2626' },
+  ELEVE: { bg: 'var(--warning-light)', text: 'var(--warning-text)', border: 'var(--warning)', stroke: '#D97706' },
+  MOYEN: { bg: 'var(--info-light)', text: 'var(--info-text)', border: 'var(--info)', stroke: '#2563EB' },
   BAS: { bg: 'var(--surface-hover)', text: 'var(--text-muted)', border: 'var(--border)', stroke: '#94A3B8' },
 }
 
@@ -99,12 +99,12 @@ function DecisionCenter() {
 
       {/* Header */}
       <div className="surface p-5 sm:p-7 mb-5 text-center" style={{ border: '1px solid var(--border)' }}>
-        <p className="caption mb-2" style={{ color: 'var(--brand-text)' }}>Decision Center</p>
+        <p className="caption mb-2" style={{ color: 'var(--brand)' }}>Decision Center</p>
         <h1 className="h2 mb-2" style={{ color: 'var(--text)' }}>
           {cve.description?.slice(0, 150) || 'Aucune description'}
         </h1>
         <div className="flex items-center justify-center gap-3 flex-wrap">
-          <span className="mono font-semibold" style={{ color: 'var(--decision-text)' }}>{cve.cve_id}</span>
+          <span className="mono font-semibold" style={{ color: 'var(--info-text)' }}>{cve.cve_id}</span>
           {cve.cvss_score != null && (
             <span style={{ color: 'var(--text-secondary)' }}>CVSS {cve.cvss_score}</span>
           )}
@@ -112,7 +112,7 @@ function DecisionCenter() {
             {LEVEL_LABEL[decisionLevel] || decisionLevel}
           </span>
           {cve.is_kev && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border" style={{ background: 'var(--critical-light)', color: 'var(--critical-text)', borderColor: 'var(--critical)' }}>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border" style={{ background: 'var(--danger-light)', color: 'var(--danger-text)', borderColor: 'var(--danger)' }}>
               <AlertTriangle size={9} /> CISA KEV
             </span>
           )}
@@ -124,14 +124,14 @@ function DecisionCenter() {
         <div className="lg:col-span-2 space-y-5">
           {dec && (
             <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
-              <p className="caption mb-4" style={{ color: 'var(--brand-text)' }}>Pourquoi cette décision ?</p>
+              <p className="caption mb-4" style={{ color: 'var(--brand)' }}>Pourquoi cette décision ?</p>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                 {[
                   { v: dec.score, l: 'Score' },
                   { v: dec.confidence, l: 'Confiance' },
                   { v: dec.exploits_count, l: 'Exploits' },
-                  { v: dec.is_kev ? 'Oui' : 'Non', l: 'CISA KEV', c: dec.is_kev ? 'var(--mission-text)' : undefined },
+                  { v: dec.is_kev ? 'Oui' : 'Non', l: 'CISA KEV', c: dec.is_kev ? 'var(--warning-text)' : undefined },
                 ].map((s, i) => (
                   <div key={i} className="rounded-xl p-3 text-center" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
                     <div className="text-lg font-bold" style={{ color: s.c || 'var(--text)' }}>{s.v}</div>
@@ -143,14 +143,14 @@ function DecisionCenter() {
               <div className="space-y-2.5 mb-5">
                 {dec.reasons.map((r, i) => (
                   <div key={i} className="flex items-start gap-2.5 body-sm" style={{ color: 'var(--text)' }}>
-                    <CheckCircle2 size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--brand-text)' }} />
+                    <CheckCircle2 size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--brand)' }} />
                     <span>{r}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--mission-light)', borderLeft: '4px solid var(--mission)' }}>
-                <p className="caption mb-1" style={{ color: 'var(--mission-text)' }}>Si vous ignorez</p>
+              <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--warning-light)', borderLeft: '4px solid var(--warning)' }}>
+                <p className="caption mb-1" style={{ color: 'var(--warning-text)' }}>Si vous ignorez</p>
                 <p className="body-sm" style={{ color: 'var(--text)' }}>{dec.risk_if_ignored}</p>
               </div>
 
@@ -163,7 +163,7 @@ function DecisionCenter() {
 
           {/* Description */}
           <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
-            <p className="caption mb-3" style={{ color: 'var(--brand-text)' }}>Contexte</p>
+            <p className="caption mb-3" style={{ color: 'var(--brand)' }}>Contexte</p>
             <p className="body-sm" style={{ color: 'var(--text-secondary)' }}>{cve.description || 'Aucune description'}</p>
             {cve.weaknesses && (
               <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
@@ -176,7 +176,7 @@ function DecisionCenter() {
           {cve.exploits?.length > 0 && (
             <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <Bug size={15} style={{ color: 'var(--mission)' }} />
+                <Bug size={15} style={{ color: 'var(--warning)' }} />
                 <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.exploits.length} exploit{cve.exploits.length > 1 ? 's' : ''} public{cve.exploits.length > 1 ? 's' : ''}</h2>
               </div>
               <div className="space-y-2">
@@ -207,7 +207,7 @@ function DecisionCenter() {
           {cve.tools?.length > 0 && (
             <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <Star size={15} style={{ color: 'var(--decision)' }} />
+                <Star size={15} style={{ color: 'var(--info)' }} />
                 <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.tools.length} outil{cve.tools.length > 1 ? 's' : ''} associé{cve.tools.length > 1 ? 's' : ''}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -218,7 +218,7 @@ function DecisionCenter() {
                     <div className="text-xs font-medium truncate" style={{ color: 'var(--text)' }}>{t.name}</div>
                     {t.desc && <div className="text-[10px] text-muted mt-0.5 line-clamp-1">{t.desc}</div>}
                     <div className="flex items-center gap-2 mt-1.5 text-[9px] text-muted">
-                      {t.stars && <span className="flex items-center gap-0.5" style={{ color: 'var(--mission)' }}><Star size={9} /> {t.stars}</span>}
+                      {t.stars && <span className="flex items-center gap-0.5" style={{ color: 'var(--warning)' }}><Star size={9} /> {t.stars}</span>}
                       <span>{t.match_type}</span>
                     </div>
                   </Link>
@@ -229,23 +229,23 @@ function DecisionCenter() {
 
           {/* KEV */}
           {cve.kev && (
-            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--critical)' }}>
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--danger)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <CalendarClock size={15} style={{ color: 'var(--critical)' }} />
+                <CalendarClock size={15} style={{ color: 'var(--danger)' }} />
                 <h2 className="h3" style={{ color: 'var(--text)' }}>CISA KEV — {cve.kev.vulnerability_name || 'Vulnérabilité exploitée'}</h2>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="rounded-xl p-3" style={{ background: 'var(--critical-light)' }}>
+                <div className="rounded-xl p-3" style={{ background: 'var(--danger-light)' }}>
                   <div className="text-muted">Ajoutée au catalogue</div>
                   <div className="font-semibold mt-0.5" style={{ color: 'var(--text)' }}>{cve.kev.cisa_kev_date ? new Date(cve.kev.cisa_kev_date).toLocaleDateString('fr-FR') : '?'}</div>
                 </div>
-                <div className="rounded-xl p-3" style={{ background: 'var(--critical-light)' }}>
+                <div className="rounded-xl p-3" style={{ background: 'var(--danger-light)' }}>
                   <div className="text-muted">Échéance de remédiation</div>
-                  <div className="font-semibold mt-0.5" style={{ color: 'var(--critical-text)' }}>{cve.kev.due_date ? new Date(cve.kev.due_date).toLocaleDateString('fr-FR') : '?'}</div>
+                  <div className="font-semibold mt-0.5" style={{ color: 'var(--danger-text)' }}>{cve.kev.due_date ? new Date(cve.kev.due_date).toLocaleDateString('fr-FR') : '?'}</div>
                 </div>
-                <div className="rounded-xl p-3 col-span-2" style={{ background: 'var(--critical-light)' }}>
+                <div className="rounded-xl p-3 col-span-2" style={{ background: 'var(--danger-light)' }}>
                   <div className="text-muted">Ransomware</div>
-                  <div className="font-semibold mt-0.5" style={{ color: cve.kev.ransomware_campaign ? 'var(--critical-text)' : 'var(--text-muted)' }}>
+                  <div className="font-semibold mt-0.5" style={{ color: cve.kev.ransomware_campaign ? 'var(--danger-text)' : 'var(--text-muted)' }}>
                     {cve.kev.ransomware_campaign || 'Non associé'}
                   </div>
                 </div>
@@ -260,7 +260,7 @@ function DecisionCenter() {
           {cve.iocs?.length > 0 && (
             <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <Fingerprint size={15} style={{ color: 'var(--decision)' }} />
+                <Fingerprint size={15} style={{ color: 'var(--info)' }} />
                 <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.iocs.length} IOC{cve.iocs.length > 1 ? 's' : ''} associé{cve.iocs.length > 1 ? 's' : ''}</h2>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -281,7 +281,7 @@ function DecisionCenter() {
           {cve.attack_techniques?.length > 0 && (
             <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <Target size={15} style={{ color: 'var(--mission)' }} />
+                <Target size={15} style={{ color: 'var(--warning)' }} />
                 <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.attack_techniques.length} technique{cve.attack_techniques.length > 1 ? 's' : ''} MITRE ATT&CK</h2>
               </div>
               <div className="space-y-2">
@@ -289,7 +289,7 @@ function DecisionCenter() {
                   <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
                     <div className="min-w-0">
                       <div className="text-xs font-medium" style={{ color: 'var(--text)' }}>
-                        <span className="mono mr-2" style={{ color: 'var(--mission-text)' }}>{t.technique_id}</span>{t.name}
+                        <span className="mono mr-2" style={{ color: 'var(--warning-text)' }}>{t.technique_id}</span>{t.name}
                       </div>
                       {t.tactic && <div className="text-[10px] text-muted mt-0.5">{t.tactic}</div>}
                     </div>
@@ -307,17 +307,17 @@ function DecisionCenter() {
           {cve.sigma_rules?.length + cve.yara_rules?.length + cve.ids_rules?.length > 0 && (
             <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <FileCode size={15} style={{ color: 'var(--brand-text)' }} />
+                <FileCode size={15} style={{ color: 'var(--brand)' }} />
                 <h2 className="h3" style={{ color: 'var(--text)' }}>Règles de détection</h2>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {cve.sigma_rules.map((r: any, i: number) => (
-                  <span key={`s-${i}`} className="text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--brand-bg)', color: 'var(--brand-text)', borderColor: 'var(--border-light)' }}>
+                  <span key={`s-${i}`} className="text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--brand-bg)', color: 'var(--brand)', borderColor: 'var(--border-light)' }}>
                     Sigma — {r.title}
                   </span>
                 ))}
                 {cve.yara_rules.map((r: any, i: number) => (
-                  <span key={`y-${i}`} className="text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--mission-light)', color: 'var(--mission-text)', borderColor: 'var(--border-light)' }}>
+                  <span key={`y-${i}`} className="text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--warning-light)', color: 'var(--warning-text)', borderColor: 'var(--border-light)' }}>
                     YARA — {r.rule_name}
                   </span>
                 ))}
@@ -363,7 +363,7 @@ function DecisionCenter() {
           {/* Produits affectes */}
           {cve.affected_products?.length > 0 && (
             <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
-              <p className="caption mb-3" style={{ color: 'var(--brand-text)' }}>Produits affectés</p>
+              <p className="caption mb-3" style={{ color: 'var(--brand)' }}>Produits affectés</p>
               <div className="flex flex-wrap gap-1.5">
                 {cve.affected_products.map((p: any, i: number) => (
                   <span key={i} className="text-[10px] px-2.5 py-1 rounded-full border" style={{ background: 'var(--bg-alt)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
@@ -378,7 +378,7 @@ function DecisionCenter() {
           {cve.advisories?.length > 0 && (
             <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <FileText size={15} style={{ color: 'var(--decision)' }} />
+                <FileText size={15} style={{ color: 'var(--info)' }} />
                 <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.advisories.length} avis fournisseur{cve.advisories.length > 1 ? 's' : ''}</h2>
               </div>
               <div className="space-y-2">
@@ -410,7 +410,7 @@ function DecisionCenter() {
           )}
 
           <div className="surface p-5" style={{ border: '1px solid var(--border)' }}>
-            <p className="caption mb-3" style={{ color: 'var(--brand-text)' }}>Informations</p>
+            <p className="caption mb-3" style={{ color: 'var(--brand)' }}>Informations</p>
             <div className="space-y-3 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted">Score CVSS</span>
@@ -434,14 +434,14 @@ function DecisionCenter() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">CISA KEV</span>
-                <span className="font-semibold" style={{ color: cve.is_kev ? 'var(--critical-text)' : 'var(--text-muted)' }}>
+                <span className="font-semibold" style={{ color: cve.is_kev ? 'var(--danger-text)' : 'var(--text-muted)' }}>
                   {cve.is_kev ? 'OUI' : 'NON'}
                 </span>
               </div>
               {cve.kev?.due_date && (
                 <div className="flex justify-between">
                   <span className="text-muted">Échéance KEV</span>
-                  <span className="font-semibold" style={{ color: 'var(--mission-text)' }}>
+                  <span className="font-semibold" style={{ color: 'var(--warning-text)' }}>
                     {new Date(cve.kev.due_date).toLocaleDateString('fr-FR')}
                   </span>
                 </div>
@@ -453,7 +453,7 @@ function DecisionCenter() {
                     <span className="font-semibold" style={{ color: 'var(--text)' }}>{(cve.epss.epss * 100).toFixed(1)}%</span>
                   </div>
                   <div className="h-1.5 rounded-full mt-1.5" style={{ background: 'var(--bg-alt)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${Math.min(cve.epss.epss * 100, 100)}%`, background: cve.epss.epss >= 0.5 ? 'var(--critical)' : cve.epss.epss >= 0.1 ? 'var(--mission)' : 'var(--success)' }} />
+                    <div className="h-full rounded-full" style={{ width: `${Math.min(cve.epss.epss * 100, 100)}%`, background: cve.epss.epss >= 0.5 ? 'var(--danger)' : cve.epss.epss >= 0.1 ? 'var(--warning)' : 'var(--success)' }} />
                   </div>
                   <div className="text-right text-[9px] text-muted mt-0.5">P{Math.round((cve.epss.percentile || 0) * 100)} — {cve.epss.percentile != null ? `top ${Math.round((1 - (cve.epss.percentile || 0)) * 100)}%` : ''}</div>
                 </div>
@@ -463,7 +463,7 @@ function DecisionCenter() {
 
           <a href={`https://nvd.nist.gov/vuln/detail/${cve.cve_id}`} target="_blank" rel="noopener"
             className="surface rounded-xl p-3 flex items-center justify-center gap-1.5 text-xs font-medium transition-all hover:-translate-y-0.5"
-            style={{ color: 'var(--decision-text)', border: '1px solid var(--border)', textDecoration: 'none' }}>
+            style={{ color: 'var(--info-text)', border: '1px solid var(--border)', textDecoration: 'none' }}>
             Voir sur NVD <ExternalLink size={10} />
           </a>
 
@@ -475,7 +475,7 @@ function DecisionCenter() {
 
           <a href={`/api/cve/${encodeURIComponent(cve.cve_id)}/stix`} target="_blank" rel="noopener"
             className="surface rounded-xl p-3 flex items-center justify-center gap-1.5 text-xs font-medium transition-all hover:-translate-y-0.5"
-            style={{ color: 'var(--brand-text)', border: '1px solid var(--border)', textDecoration: 'none', background: 'var(--brand-bg)' }}>
+            style={{ color: 'var(--brand)', border: '1px solid var(--border)', textDecoration: 'none', background: 'var(--brand-bg)' }}>
             Export STIX 2.1 <FileDown size={11} />
           </a>
         </div>

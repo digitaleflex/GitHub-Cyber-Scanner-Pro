@@ -17,7 +17,7 @@ function DocsPage() {
 
       {/* ═══ Section 1 : Documentation interne ═══ */}
       <h2 className="h3 mb-3 flex items-center gap-2" style={{ color: 'var(--text)' }}>
-        <BookOpen size={18} style={{ color: 'var(--brand-text)' }} /> Documentation de la plateforme
+        <BookOpen size={18} style={{ color: 'var(--brand)' }} /> Documentation de la plateforme
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         {[
@@ -28,7 +28,7 @@ function DocsPage() {
         ].map(doc => (
           <Link key={doc.to} to={doc.to as any}
             className="surface rounded-xl p-4 hover:-translate-y-0.5 transition-all" style={{ border: '1px solid var(--border)', textDecoration: 'none' }}>
-            <div className="mb-2" style={{ color: 'var(--brand-text)' }}>{doc.icon}</div>
+            <div className="mb-2" style={{ color: 'var(--brand)' }}>{doc.icon}</div>
             <div className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>{doc.label}</div>
             <div className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{doc.desc}</div>
           </Link>
@@ -37,7 +37,7 @@ function DocsPage() {
 
       {/* ═══ Section 2 : Bibliothèque & Base de données ═══ */}
       <h2 className="h3 mb-3 flex items-center gap-2" style={{ color: 'var(--text)' }}>
-        <Database size={18} style={{ color: 'var(--brand-text)' }} /> Base de données — Recherche indépendante
+        <Database size={18} style={{ color: 'var(--brand)' }} /> Base de données — Recherche indépendante
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
         {[
@@ -47,8 +47,8 @@ function DocsPage() {
         ].map(item => (
           item.to ? (
             <Link key={item.to} to={item.to as any}
-              className="surface rounded-xl p-4 hover:-translate-y-0.5 transition-all" style={{ border: item.highlight ? '2px solid var(--brand-text)' : '1px solid var(--border)', textDecoration: 'none' }}>
-              <div className="mb-2" style={{ color: item.highlight ? 'var(--brand-text)' : 'var(--text-muted)' }}>{item.icon}</div>
+              className="surface rounded-xl p-4 hover:-translate-y-0.5 transition-all" style={{ border: item.highlight ? '2px solid var(--brand)' : '1px solid var(--border)', textDecoration: 'none' }}>
+              <div className="mb-2" style={{ color: item.highlight ? 'var(--brand)' : 'var(--text-muted)' }}>{item.icon}</div>
               <div className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>{item.label}</div>
               <div className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{item.desc}</div>
             </Link>
@@ -65,7 +65,7 @@ function DocsPage() {
 
       {/* ═══ Section 3 : Export & API ═══ */}
       <h2 className="h3 mb-3 flex items-center gap-2" style={{ color: 'var(--text)' }}>
-        <Download size={18} style={{ color: 'var(--brand-text)' }} /> Exports &amp; API — Données brutes pour analyse externe
+        <Download size={18} style={{ color: 'var(--brand)' }} /> Exports &amp; API — Données brutes pour analyse externe
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
         {[
@@ -75,7 +75,7 @@ function DocsPage() {
         ].map(exp => (
           <a key={exp.href} href={exp.href} target="_blank" rel="noopener noreferrer"
             className="surface rounded-xl p-4 hover:-translate-y-0.5 transition-all" style={{ border: '1px solid var(--border)', textDecoration: 'none' }}>
-            <div className="mb-2" style={{ color: 'var(--decision)' }}>{exp.icon}</div>
+            <div className="mb-2" style={{ color: 'var(--info)' }}>{exp.icon}</div>
             <div className="text-sm font-semibold mb-1 flex items-center gap-1" style={{ color: 'var(--text)' }}>
               {exp.label} <ExternalLink size={11} style={{ color: 'var(--text-muted)' }} />
             </div>

@@ -9,7 +9,7 @@ function AboutPage() {
     <div className="w-full py-8 sm:py-16 animate-fade">
       <div className="text-center mb-10 sm:mb-16">
         <h1 className="h1 mb-4" style={{ color: 'var(--text)' }}>
-          Transformer le chaos en <span style={{ color: 'var(--brand-text)' }}>décisions</span>
+          Transformer le chaos en <span style={{ color: 'var(--brand)' }}>décisions</span>
         </h1>
         <p className="body-sm sm:text-lg w-full leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           CyberScan Pro réduit 10 000 signaux quotidiens à 20 informations réellement exploitables.
@@ -39,13 +39,13 @@ function AboutPage() {
 
       {/* Mission */}
       <div className="surface rounded-2xl p-6 mb-8" style={{ border: '1px solid var(--border)' }}>
-        <div className="flex items-center gap-2 mb-4"><Rocket size={18} style={{ color: 'var(--decision)' }} /><h2 className="h2" style={{ color: 'var(--text)' }}>Notre mission</h2></div>
-        <blockquote className="body-sm sm:text-base leading-relaxed italic pl-4 mb-4" style={{ color: 'var(--text-secondary)', borderLeft: '2px solid var(--decision)' }}>
+        <div className="flex items-center gap-2 mb-4"><Rocket size={18} style={{ color: 'var(--info)' }} /><h2 className="h2" style={{ color: 'var(--text)' }}>Notre mission</h2></div>
+        <blockquote className="body-sm sm:text-base leading-relaxed italic pl-4 mb-4" style={{ color: 'var(--text-secondary)', borderLeft: '2px solid var(--info)' }}>
           Démocratiser la Cyber Threat Intelligence en rendant accessible, gratuitement et en open source,
           une plateforme de veille qui agrège les meilleures sources de données cybersécurité au monde.
         </blockquote>
-        <div className="flex items-center gap-2 mb-4"><Star size={18} style={{ color: 'var(--mission)' }} /><h2 className="h2" style={{ color: 'var(--text)' }}>Notre vision</h2></div>
-        <p className="body-sm leading-relaxed pl-4" style={{ color: 'var(--text-secondary)', borderLeft: '2px solid var(--mission)' }}>
+        <div className="flex items-center gap-2 mb-4"><Star size={18} style={{ color: 'var(--warning)' }} /><h2 className="h2" style={{ color: 'var(--text)' }}>Notre vision</h2></div>
+        <p className="body-sm leading-relaxed pl-4" style={{ color: 'var(--text-secondary)', borderLeft: '2px solid var(--warning)' }}>
           Devenir la référence open source de la Threat Intelligence — la plateforme que chaque SOC, chercheur et
           étudiant utilise pour comprendre le paysage des menaces. Financer la recherche par un modèle freemium
           équitable où 90% des fonctionnalités restent gratuites à vie.
@@ -56,10 +56,10 @@ function AboutPage() {
       <h2 className="h3 text-center mb-4" style={{ color: 'var(--text)' }}>Les 6 piliers</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
         {[
-          { icon: <Search size={16} style={{ color: 'var(--mission)' }} />, title: 'Collecter', desc: '30+ sources: GitHub, NVD, CISA KEV, Exploit-DB, abuse.ch, OTX, OSV, GHSA, Shodan, VirusTotal...' },
+          { icon: <Search size={16} style={{ color: 'var(--warning)' }} />, title: 'Collecter', desc: '30+ sources: GitHub, NVD, CISA KEV, Exploit-DB, abuse.ch, OTX, OSV, GHSA, Shodan, VirusTotal...' },
           { icon: <Brain size={16} style={{ color: 'var(--ai)' }} />, title: 'Enrichir', desc: 'Chaque CVE liée à ses exploits, PoC, IOCs. 22 modèles IA pour verdict, classification, Q&A, détection.' },
-          { icon: <GitBranch size={16} style={{ color: 'var(--brand-text)' }} />, title: 'Corréler', desc: "Knowledge Graph Neo4j. CVE ↔ Exploit ↔ Outil ↔ MITRE ATT&CK. Plus rien n'est isolé." },
-          { icon: <Target size={16} style={{ color: 'var(--critical)' }} />, title: 'Prioriser', desc: 'Pas un CVSS brut. Score intelligent: EPSS, KEV, exploits disponibles, verdict IA.' },
+          { icon: <GitBranch size={16} style={{ color: 'var(--brand)' }} />, title: 'Corréler', desc: "Knowledge Graph Neo4j. CVE ↔ Exploit ↔ Outil ↔ MITRE ATT&CK. Plus rien n'est isolé." },
+          { icon: <Target size={16} style={{ color: 'var(--danger)' }} />, title: 'Prioriser', desc: 'Pas un CVSS brut. Score intelligent: EPSS, KEV, exploits disponibles, verdict IA.' },
           { icon: <CloudLightning size={16} style={{ color: 'var(--ai)' }} />, title: 'Automatiser', desc: 'Pipeline d\'ingestion automatisé, STIX 2.1 export, IOC feed, MCP server pour agents IA.' },
           { icon: <Globe size={16} style={{ color: '#06B6D4' }} />, title: 'Partager', desc: '100% open source MIT. API publique, STIX/TAXII, MCP. Intégration avec MISP, OpenCTI, SIEM.' },
         ].map((p, i) => (
@@ -85,7 +85,7 @@ function AboutPage() {
           { label: 'Étudiants', icon: <Zap size={14} />, desc: 'Apprendre et pratiquer' },
         ].map((p, i) => (
           <div key={i} className="surface rounded-xl p-3 text-center" style={{ border: '1px solid var(--border)' }}>
-            <div className="flex justify-center mb-1.5" style={{ color: 'var(--decision)' }}>{p.icon}</div>
+            <div className="flex justify-center mb-1.5" style={{ color: 'var(--info)' }}>{p.icon}</div>
             <div className="text-xs font-medium" style={{ color: 'var(--text)' }}>{p.label}</div>
             <div className="text-[9px] text-muted mt-0.5">{p.desc}</div>
           </div>
@@ -103,7 +103,7 @@ function AboutPage() {
             { cat: 'Infra', techs: 'Docker Compose, Traefik, GitHub Actions CI/CD, auto-hébergement' },
           ].map((t, i) => (
             <div key={i} className="rounded-xl p-3" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
-              <div className="caption mb-1" style={{ color: 'var(--brand-text)' }}>{t.cat}</div>
+              <div className="caption mb-1" style={{ color: 'var(--brand)' }}>{t.cat}</div>
               <p className="text-[10px] leading-relaxed text-muted">{t.techs}</p>
             </div>
           ))}
@@ -128,7 +128,7 @@ function AboutPage() {
           Voir le code source
         </a>
         <p className="text-[10px] sm:text-xs text-muted mt-4">
-          100% open source &middot; Auto-hébergeable &middot; Licence MIT &middot; <a href="https://cyberbook.eurin.tech" style={{ color: 'var(--decision-text)' }}>cyberbook.eurin.tech</a>
+          100% open source &middot; Auto-hébergeable &middot; Licence MIT &middot; <a href="https://cyberbook.eurin.tech" style={{ color: 'var(--info-text)' }}>cyberbook.eurin.tech</a>
         </p>
       </div>
     </div>

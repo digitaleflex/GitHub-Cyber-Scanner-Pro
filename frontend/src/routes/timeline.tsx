@@ -6,10 +6,10 @@ import { Clock, Shield, Bug, Target, Box } from 'lucide-react'
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/timeline', component: TimelinePage })
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
-  cve: { icon: <Shield size={13} />, color: 'var(--critical)' },
-  mission: { icon: <Target size={13} />, color: 'var(--brand-text)' },
-  asset: { icon: <Box size={13} />, color: 'var(--mission)' },
-  exploit: { icon: <Bug size={13} />, color: 'var(--decision)' },
+  cve: { icon: <Shield size={13} />, color: 'var(--danger)' },
+  mission: { icon: <Target size={13} />, color: 'var(--brand)' },
+  asset: { icon: <Box size={13} />, color: 'var(--warning)' },
+  exploit: { icon: <Bug size={13} />, color: 'var(--info)' },
 }
 
 function TimelinePage() {
@@ -42,18 +42,18 @@ function TimelinePage() {
                     <span className="text-xs font-medium" style={{ color: 'var(--text)' }}>{e.title}</span>
                     {e.severity && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded-full border font-medium" style={{
-                        background: e.severity === 'CRITICAL' ? 'var(--critical-light)' : e.severity === 'HIGH' ? 'var(--mission-light)' : 'var(--bg-alt)',
-                        color: e.severity === 'CRITICAL' ? 'var(--critical-text)' : e.severity === 'HIGH' ? 'var(--mission-text)' : 'var(--text-muted)',
-                        borderColor: e.severity === 'CRITICAL' ? 'var(--critical)' : e.severity === 'HIGH' ? 'var(--mission)' : 'var(--border)',
+                        background: e.severity === 'CRITICAL' ? 'var(--danger-light)' : e.severity === 'HIGH' ? 'var(--warning-light)' : 'var(--bg-alt)',
+                        color: e.severity === 'CRITICAL' ? 'var(--danger-text)' : e.severity === 'HIGH' ? 'var(--warning-text)' : 'var(--text-muted)',
+                        borderColor: e.severity === 'CRITICAL' ? 'var(--danger)' : e.severity === 'HIGH' ? 'var(--warning)' : 'var(--border)',
                       }}>
                         {e.severity}
                       </span>
                     )}
                     {e.status && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded-full border font-medium" style={{
-                        background: e.status === 'completed' ? 'var(--success-light)' : 'var(--decision-light)',
-                        color: e.status === 'completed' ? '#166534' : 'var(--decision-text)',
-                        borderColor: e.status === 'completed' ? 'var(--success)' : 'var(--decision)',
+                        background: e.status === 'completed' ? 'var(--success-light)' : 'var(--info-light)',
+                        color: e.status === 'completed' ? '#166534' : 'var(--info-text)',
+                        borderColor: e.status === 'completed' ? 'var(--success)' : 'var(--info)',
                       }}>
                         {e.status}
                       </span>

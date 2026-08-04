@@ -26,7 +26,7 @@ function ThreatIntelPage() {
     staleTime: 120_000,
   })
 
-  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--critical)] border-t-transparent rounded-full animate-spin" /></div>
+  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--danger)] border-t-transparent rounded-full animate-spin" /></div>
 
   const kev = data?.kev
   const epss = data?.epss
@@ -40,18 +40,18 @@ function ThreatIntelPage() {
 
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <KpiCard icon={<AlertTriangle size={18} />} value={kev?.total?.toLocaleString() || '0'} label="CISA KEV actives" iconColor="var(--critical)" />
-        <KpiCard icon={<Bug size={18} />} value={platforms?.total_exploits?.toLocaleString() || '0'} label="Exploits publics" iconColor="var(--mission)" />
-        <KpiCard icon={<Zap size={18} />} value={(epss?.top?.length || 0).toString()} label="Top EPSS" iconColor="var(--decision)" />
-        <KpiCard icon={<Shield size={18} />} value={(recent?.total || 0).toString()} label="Critiques 30j" iconColor="var(--brand-text)" />
+        <KpiCard icon={<AlertTriangle size={18} />} value={kev?.total?.toLocaleString() || '0'} label="CISA KEV actives" iconColor="var(--danger)" />
+        <KpiCard icon={<Bug size={18} />} value={platforms?.total_exploits?.toLocaleString() || '0'} label="Exploits publics" iconColor="var(--warning)" />
+        <KpiCard icon={<Zap size={18} />} value={(epss?.top?.length || 0).toString()} label="Top EPSS" iconColor="var(--info)" />
+        <KpiCard icon={<Shield size={18} />} value={(recent?.total || 0).toString()} label="Critiques 30j" iconColor="var(--brand)" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Active campaigns (KEV) */}
         <div className="surface p-4 sm:p-5 lg:col-span-2" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--critical-light)' }}>
-              <AlertTriangle size={14} style={{ color: 'var(--critical-text)' }} />
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--danger-light)' }}>
+              <AlertTriangle size={14} style={{ color: 'var(--danger-text)' }} />
             </div>
             <h2 className="h3" style={{ color: 'var(--text)' }}>Campagnes actives (CISA KEV)</h2>
             <span className="text-xs text-muted ml-auto">{kev?.total} CVEs</span>
@@ -62,8 +62,8 @@ function ThreatIntelPage() {
                 className="rounded-xl p-3 block transition-all hover:-translate-y-0.5"
                 style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)', textDecoration: 'none' }}>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="mono font-semibold" style={{ color: 'var(--decision-text)' }}>{c.cve_id}</span>
-                  {c.cvss_score && <span className="text-xs font-medium" style={{ color: 'var(--critical-text)' }}>CVSS {c.cvss_score}</span>}
+                  <span className="mono font-semibold" style={{ color: 'var(--info-text)' }}>{c.cve_id}</span>
+                  {c.cvss_score && <span className="text-xs font-medium" style={{ color: 'var(--danger-text)' }}>CVSS {c.cvss_score}</span>}
                 </div>
                 <p className="text-xs text-secondary line-clamp-2">{c.description}</p>
               </Link>
@@ -74,7 +74,7 @@ function ThreatIntelPage() {
         {/* Recent criticals */}
         <div className="surface p-4 sm:p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <Shield size={15} style={{ color: 'var(--brand-text)' }} />
+            <Shield size={15} style={{ color: 'var(--brand)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>Critiques récentes</h2>
           </div>
           <div className="space-y-1.5">
@@ -82,8 +82,8 @@ function ThreatIntelPage() {
               <Link key={i} to="/cve/$id" params={{ id: c.cve_id }}
                 className="rounded-lg p-2.5 flex items-center gap-2 transition-all hover:-translate-y-0.5"
                 style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)', textDecoration: 'none' }}>
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: c.severity === 'CRITICAL' ? 'var(--critical)' : 'var(--mission)' }} />
-                <span className="mono font-semibold shrink-0" style={{ color: 'var(--decision-text)' }}>{c.cve_id}</span>
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: c.severity === 'CRITICAL' ? 'var(--danger)' : 'var(--warning)' }} />
+                <span className="mono font-semibold shrink-0" style={{ color: 'var(--info-text)' }}>{c.cve_id}</span>
                 <span className="text-xs text-secondary line-clamp-1 flex-1">{c.description?.slice(0, 80)}</span>
                 {c.cvss_score && <span className="text-xs text-muted shrink-0">{c.cvss_score}</span>}
               </Link>
@@ -94,7 +94,7 @@ function ThreatIntelPage() {
         {/* Top EPSS */}
         <div className="surface p-4 sm:p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <TrendingUp size={15} style={{ color: 'var(--decision)' }} />
+            <TrendingUp size={15} style={{ color: 'var(--info)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>Probables exploits (EPSS)</h2>
           </div>
           <div className="space-y-1.5">
@@ -103,10 +103,10 @@ function ThreatIntelPage() {
                 className="rounded-lg p-2.5 flex items-center gap-2 transition-all hover:-translate-y-0.5"
                 style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)', textDecoration: 'none' }}>
                 <Brain size={12} style={{ color: 'var(--ai)' }} />
-                <span className="mono font-semibold" style={{ color: 'var(--decision-text)' }}>{e.cve_id}</span>
+                <span className="mono font-semibold" style={{ color: 'var(--info-text)' }}>{e.cve_id}</span>
                 <div className="ml-auto flex items-center gap-2 shrink-0">
                   <div className="h-1.5 w-20 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${Math.min(e.epss * 100, 100)}%`, background: 'var(--decision)' }} />
+                    <div className="h-full rounded-full" style={{ width: `${Math.min(e.epss * 100, 100)}%`, background: 'var(--info)' }} />
                   </div>
                   <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{(e.epss * 100).toFixed(0)}%</span>
                 </div>
@@ -120,7 +120,7 @@ function ThreatIntelPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6">
         <div className="surface p-4 sm:p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <Globe size={15} style={{ color: 'var(--mission)' }} />
+            <Globe size={15} style={{ color: 'var(--warning)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>Plateformes ciblées</h2>
           </div>
           <div className="space-y-1.5">
@@ -134,7 +134,7 @@ function ThreatIntelPage() {
         </div>
         <div className="surface p-4 sm:p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <Target size={15} style={{ color: 'var(--decision)' }} />
+            <Target size={15} style={{ color: 'var(--info)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>Langages les plus actifs</h2>
           </div>
           <div className="space-y-1.5">

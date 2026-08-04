@@ -7,28 +7,28 @@ export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/cont
 function ContactPage() {
   const contacts = [
     {
-      icon: <Mail size={20} style={{ color: 'var(--brand-text)' }} />,
+      icon: <Mail size={20} style={{ color: 'var(--brand)' }} />,
       title: 'Email direct',
       desc: 'Pour les demandes professionnelles, partenariats, ou questions confidentielles.',
       action: 'contact@eurin.tech',
       href: 'mailto:contact@eurin.tech',
     },
     {
-      icon: <Github size={20} style={{ color: 'var(--brand-text)' }} />,
+      icon: <Github size={20} style={{ color: 'var(--brand)' }} />,
       title: 'GitHub Issues',
       desc: 'Bugs, suggestions, contributions techniques. Le moyen le plus rapide d\'obtenir une réponse.',
       action: 'github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/issues',
       href: 'https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/issues',
     },
     {
-      icon: <MessageCircle size={20} style={{ color: 'var(--brand-text)' }} />,
+      icon: <MessageCircle size={20} style={{ color: 'var(--brand)' }} />,
       title: 'Discussions GitHub',
       desc: 'Échanges techniques, questions d\'architecture, propositions de design, roadmap.',
       action: 'github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/discussions',
       href: 'https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro/discussions',
     },
     {
-      icon: <Globe size={20} style={{ color: 'var(--brand-text)' }} />,
+      icon: <Globe size={20} style={{ color: 'var(--brand)' }} />,
       title: 'Site web',
       desc: 'Documentation complète, API reference, guides de déploiement et cas d\'usage.',
       action: 'cyberbook.eurin.tech',

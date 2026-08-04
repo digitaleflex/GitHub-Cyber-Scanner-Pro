@@ -179,7 +179,7 @@ export default function GraphView() {
   return (
     <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <h2 className="caption" style={{ color: 'var(--decision-text)' }}>
+        <h2 className="caption" style={{ color: 'var(--info-text)' }}>
           Social Graph
         </h2>
         {data && (
@@ -220,7 +220,7 @@ export default function GraphView() {
             onClick={() => seedMutation.mutate()}
             disabled={seedMutation.isPending}
             className="text-xs px-3 py-1 rounded-full border font-medium transition-all disabled:opacity-40"
-            style={{ color: 'var(--decision-text)', borderColor: 'var(--decision)' }}
+            style={{ color: 'var(--info-text)', borderColor: 'var(--info)' }}
           >
             {seedMutation.isPending ? 'Seed...' : '⟳ Seed'}
           </button>
@@ -304,17 +304,17 @@ export default function GraphView() {
               </div>
               <div className="mb-1" style={{ color: 'var(--text-secondary)' }}>{selected.name}</div>
               {selected.label === 'Hacker' && (
-                <a href={selected.properties.profile_url as string} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--decision-text)' }}>
+                <a href={selected.properties.profile_url as string} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--info-text)' }}>
                   Voir le profil
                 </a>
               )}
               {selected.label === 'CVE' && (
-                <a href={`https://nvd.nist.gov/vuln/detail/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--decision-text)' }}>
+                <a href={`https://nvd.nist.gov/vuln/detail/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--info-text)' }}>
                   Voir sur NVD
                 </a>
               )}
               {selected.label === 'Repo' && (
-                <a href={`https://github.com/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--decision-text)' }}>
+                <a href={`https://github.com/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--info-text)' }}>
                   Voir sur GitHub
                 </a>
               )}

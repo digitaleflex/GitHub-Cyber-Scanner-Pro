@@ -134,7 +134,7 @@ function ScanBtn() {
       }`}
       style={{
         background: isScanning ? 'var(--surface)' : 'var(--brand)',
-        color: isScanning ? 'var(--text-secondary)' : 'var(--brand-text)',
+        color: isScanning ? 'var(--text-secondary)' : 'var(--brand)',
         border: isScanning ? '1px solid var(--border)' : 'none',
       }}
     >
@@ -165,7 +165,7 @@ function RootLayout() {
               className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all group-hover:scale-105 group-hover:shadow-lg"
               style={{
                 background: 'var(--brand)',
-                color: 'var(--brand-text)',
+                color: 'var(--brand)',
                 boxShadow: '0 0 0 4px var(--brand-ring)',
               }}
             >
@@ -174,7 +174,7 @@ function RootLayout() {
             <div className="hidden sm:block">
               <div className="text-sm font-bold tracking-tight" style={{ color: 'var(--text)' }}>HashCode</div>
               <div className="text-[10px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
-                Decision <span style={{ color: 'var(--brand-text)' }}>OS</span>
+                Decision <span style={{ color: 'var(--brand)' }}>OS</span>
               </div>
             </div>
           </Link>

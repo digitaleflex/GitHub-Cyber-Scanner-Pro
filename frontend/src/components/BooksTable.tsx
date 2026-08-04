@@ -11,9 +11,9 @@ const CATEGORIES = [
   { key: 'Général / InfoSec', label: 'InfoSec' },
 ]
 
-const TYPE_ACCENT: Record<string, string> = { Book: 'var(--ai)', Tool: 'var(--mission)', 'Write-up': 'var(--decision)', Hardening: 'var(--success)', Interview: 'var(--ai)', 'Threat-Intel': 'var(--critical)', Template: 'var(--warning)' }
+const TYPE_ACCENT: Record<string, string> = { Book: 'var(--ai)', Tool: 'var(--warning)', 'Write-up': 'var(--info)', Hardening: 'var(--success)', Interview: 'var(--ai)', 'Threat-Intel': 'var(--danger)', Template: 'var(--warning)' }
 
-const CAT_ACCENT: Record<string, string> = { 'Offensive / Red Team': 'var(--critical)', 'Defensive / Blue Team': 'var(--decision)', Certifications: 'var(--mission)', 'Cheat Sheets / Références': 'var(--ai)', 'Général / InfoSec': 'var(--success)' }
+const CAT_ACCENT: Record<string, string> = { 'Offensive / Red Team': 'var(--danger)', 'Defensive / Blue Team': 'var(--info)', Certifications: 'var(--warning)', 'Cheat Sheets / Références': 'var(--ai)', 'Général / InfoSec': 'var(--success)' }
 
 function StatusBadge({ book }: { book: Book }) {
   const lastChecked = book.last_checked ? new Date(book.last_checked + 'Z').toLocaleString('fr-FR') : 'Jamais vérifié'

@@ -52,11 +52,11 @@ function SettingsPage() {
       <div className="space-y-4">
         <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Shield size={15} style={{ color: 'var(--decision)' }} />
+            <Shield size={15} style={{ color: 'var(--info)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>Profil</h2>
           </div>
           <div className="mb-3">
-            <label className="caption mb-1.5 block" style={{ color: 'var(--brand-text)' }}>Rôle</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--brand)' }}>Rôle</label>
             <div className="flex flex-wrap gap-1.5">
               {ROLES.map(r => (
                 <button key={r} onClick={() => setRole(r)}
@@ -71,7 +71,7 @@ function SettingsPage() {
 
         <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Bell size={15} style={{ color: 'var(--mission)' }} />
+            <Bell size={15} style={{ color: 'var(--warning)' }} />
             <h2 className="h3" style={{ color: 'var(--text)' }}>Notifications</h2>
           </div>
           <label className="flex items-center justify-between cursor-pointer">

@@ -74,8 +74,8 @@ function DataTableInner<T extends Record<string, any>>({
                     {col.label}
                     {col.sortable && sortKey === col.key && (
                       sortDir === 'asc'
-                        ? <ChevronUp size={10} style={{ color: 'var(--decision)' }} />
-                        : <ChevronDown size={10} style={{ color: 'var(--decision)' }} />
+                        ? <ChevronUp size={10} style={{ color: 'var(--info)' }} />
+                        : <ChevronDown size={10} style={{ color: 'var(--info)' }} />
                     )}
                   </span>
                 </th>

@@ -7,7 +7,7 @@ export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/sour
 function SourcesPage() {
   const categories = [
     {
-      icon: <ShieldAlert size={16} style={{ color: 'var(--critical)' }} />,
+      icon: <ShieldAlert size={16} style={{ color: 'var(--danger)' }} />,
       title: 'Vulnérabilités & Exploits',
       sources: [
         { name: 'NVD (National Vulnerability Database)', url: 'https://nvd.nist.gov/', freq: 'Mise à jour continue (API 2.0)', data: '372 899 CVE, descriptions, CVSS v2/v3/v4, CWE, CPE, références, correctifs, advisories éditeurs', license: 'Domaine public (US Gov)' },
@@ -17,7 +17,7 @@ function SourcesPage() {
       ],
     },
     {
-      icon: <BarChart3 size={16} style={{ color: 'var(--mission)' }} />,
+      icon: <BarChart3 size={16} style={{ color: 'var(--warning)' }} />,
       title: 'Scoring & Classification',
       sources: [
         { name: 'CVSS (Common Vulnerability Scoring System)', url: 'https://www.first.org/cvss/', freq: 'Inclus dans les données NVD', data: 'Scores CVSS v3.1, v3.0, v2.0, v4.0, vecteurs d\'attaque, sévérité qualitative', license: 'Standard ouvert (FIRST.org)' },
@@ -27,7 +27,7 @@ function SourcesPage() {
       ],
     },
     {
-      icon: <Globe size={16} style={{ color: 'var(--brand-text)' }} />,
+      icon: <Globe size={16} style={{ color: 'var(--brand)' }} />,
       title: 'Threat Intelligence',
       sources: [
         { name: 'MITRE ATT&CK', url: 'https://attack.mitre.org/', freq: 'Mise à jour via bundles STIX locaux', data: '1 140 techniques, 193 groupes APT, 136 campagnes, 21 025 relations (uses, mitigates, detects...), 729 malwares, 95 outils', license: 'Domaine public (MITRE)' },
@@ -46,7 +46,7 @@ function SourcesPage() {
       ],
     },
     {
-      icon: <Server size={16} style={{ color: 'var(--decision)' }} />,
+      icon: <Server size={16} style={{ color: 'var(--info)' }} />,
       title: 'Code Source & Repositories',
       sources: [
         { name: 'GitHub API (recherche thématique)', url: 'https://docs.github.com/en/rest', freq: 'Scan périodique (toutes les 30 min)', data: '19 020 dépôts scannés, stars, forks, description, langages, verdict de sécurité, score de vitalité', license: 'API GitHub (rate limits)' },

@@ -1,51 +1,74 @@
 @import "tailwindcss";
 
-/* ── HashCode Design Tokens v3 · Sharp Contrast ──────────────────── */
+/* ── HashCode Color Philosophy — chaque couleur a UN rôle ────────── */
+/*
+   🟢 Vert   → Action positive, succès, correction, réduction du risque
+   🔴 Rouge  → Danger immédiat, urgence, exploitation active
+   🟠 Orange → Attention, surveillance, délai, pending
+   🔵 Bleu   → Information, contexte, documentation, confiance
+   🟣 Violet → Intelligence artificielle, analyse, prédiction
+   🔷 Cyan   → Infrastructure, cloud, conteneurs, réseau
+   ⚪ Gris    → Structure, métadonnées, hiérarchie (jamais dominant)
+*/
 
 :root {
-  /* Brand — lime signature. brand-text = toujours lisible sur brand */
-  --brand: #A3E635;
-  --brand-hover: #BEF264;
-  --brand-active: #84CC16;
-  --brand-text: #111827;
-  --brand-bg: rgba(163, 230, 53, 0.12);
-  --brand-ring: rgba(163, 230, 53, 0.3);
-  --brand-accent: #A3E635;
+  /* Brand — vert signature : action, succès */
+  --brand: #C5F441;
+  --brand-hover: #D0F85A;
+  --brand-active: #B8E830;
+  --brand-text: #0F172A;
+  --brand-bg: rgba(197, 244, 65, 0.12);
+  --brand-ring: rgba(197, 244, 65, 0.25);
 
-  /* Semantic */
-  --ai: #8B5CF6;           --ai-light: #EDE9FE;    --ai-text: #6D28D9;
-  --decision: #3B82F6;     --decision-light: #EFF6FF; --decision-text: #1D4ED8;
-  --mission: #F59E0B;      --mission-light: #FFF7ED; --mission-text: #B45309;
-  --critical: #EF4444;     --critical-light: #FEF2F2; --critical-text: #B91C1C;
-  --warning: #F59E0B;      --warning-light: #FFFBEB;
-  --success: #22C55E;      --success-light: #F0FDF4;
+  /* Semantic — rôles stricts */
+  --danger: #FF5A5F;
+  --danger-text: #FF5A5F;
+  --danger-light: rgba(255, 90, 95, 0.12);
+
+  --warning: #FFB020;
+  --warning-text: #FFB020;
+  --warning-light: rgba(255, 176, 32, 0.12);
+
+  --info: #3B82F6;
+  --info-text: #93C5FD;
+  --info-light: rgba(59, 130, 246, 0.12);
+
+  --ai: #8B5CF6;
+  --ai-text: #A78BFA;
+  --ai-light: rgba(139, 92, 246, 0.12);
+
+  --infra: #22D3EE;
+  --infra-text: #67E8F9;
+  --infra-light: rgba(34, 211, 238, 0.12);
+
+  --success: #C5F441;
+  --success-text: #C5F441;
+  --success-light: rgba(197, 244, 65, 0.12);
 
   /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-pill: 9999px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.05);
-  --shadow-lg: 0 2px 8px rgba(0,0,0,0.10), 0 8px 32px rgba(0,0,0,0.07);
-  --shadow-xl: 0 4px 16px rgba(0,0,0,0.12), 0 16px 48px rgba(0,0,0,0.09);
+  /* Shadows — légères, hiérarchie par ombre */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.12);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.16);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.20);
+  --shadow-xl: 0 8px 32px rgba(0,0,0,0.24);
 
   /* Transitions */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Light Theme — bright, clean, professional ────────────────────── */
+/* ── Light Theme ──────────────────────────────────────────────────── */
 
 :root, [data-theme="light"] {
   --bg: #F8FAFC;
   --bg-alt: #F1F5F9;
   --surface: #FFFFFF;
-  --surface-hover: #F8FAFC;
+  --surface-alt: #F1F5F9;
   --surface-elevated: #FFFFFF;
+  --card: #FFFFFF;
   --border: #CBD5E1;
   --border-light: #E2E8F0;
   --border-hover: #94A3B8;
@@ -54,34 +77,38 @@
   --text-muted: #94A3B8;
   --text-inverse: #F8FAFC;
   --overlay: rgba(15, 23, 42, 0.45);
-  /* Couleurs sémantiques adaptatives */
-  --success-text: #166534;    --success-light: #F0FDF4;
-  --warning-text: #92400E;    --warning-light: #FFFBEB;
+
+  --danger-text: #DC2626;
+  --danger-light: #FEF2F2;
+  --warning-text: #D97706;
+  --warning-light: #FFF7ED;
+  --info-text: #1D4ED8;
+  --info-light: #EFF6FF;
+  --ai-text: #6D28D9;
+  --ai-light: #F3E8FF;
+  --infra-text: #0E7490;
+  --infra-light: #ECFEFF;
+  --success-text: #3F6212;
+  --success-light: #F4FDE0;
 }
 
-/* ── Dark Theme — deep ink, sharp contrast, deliberate ────────────── */
+/* ── Dark Theme — deep ink, couleurs vives, contraste ────────────── */
 
 [data-theme="dark"] {
-  --bg: #020617;
-  --bg-alt: #0A0F1E;
+  --bg: #070B14;
+  --bg-alt: #0D1320;
   --surface: #111827;
-  --surface-hover: #1A2332;
-  --surface-elevated: #1E293B;
-  --border: #334155;
-  --border-light: #1E293B;
-  --border-hover: #475569;
+  --surface-alt: #151D2A;
+  --surface-elevated: #1B2433;
+  --card: #1B2433;
+  --border: #2A3648;
+  --border-light: #1E2A3A;
+  --border-hover: #3A4A5E;
   --text: #F1F5F9;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-secondary: #A8B3C5;
+  --text-muted: #6B7280;
   --text-inverse: #0F172A;
-  --overlay: rgba(2, 6, 23, 0.7);
-  /* Couleurs sémantiques — versions claires pour lisibilité dark */
-  --success-text: #4ADE80;    --success-light: rgba(34, 197, 94, 0.12);
-  --warning-text: #FBBF24;    --warning-light: rgba(245, 158, 11, 0.12);
-  --ai-text: #A78BFA;         --ai-light: rgba(139, 92, 246, 0.12);
-  --critical-text: #FCA5A5;   --critical-light: rgba(239, 68, 68, 0.12);
-  --mission-text: #FCD34D;    --mission-light: rgba(245, 158, 11, 0.12);
-  --decision-text: #93C5FD;   --decision-light: rgba(59, 130, 246, 0.12);
+  --overlay: rgba(7, 11, 20, 0.75);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────── */
@@ -158,53 +185,55 @@ body {
     background: var(--surface-elevated);
     border: 1px solid var(--border);
 
-  /* Text colors */
-  .t-p     { color: var(--text); }
-  .t-s     { color: var(--text-secondary); }
-  .t-m     { color: var(--text-muted); }
-  .t-b     { color: var(--brand-text); }
-  .t-c     { color: var(--critical-text); }
-  .t-mi    { color: var(--mission-text); }
-  .t-d     { color: var(--decision-text); }
-  .t-a     { color: var(--ai-text); }
-  .t-ok    { color: var(--success-text); }
-  .t-warn  { color: var(--warning-text); }
+  /* Text colors — sémantique stricte */
+  .t-p      { color: var(--text); }
+  .t-s      { color: var(--text-secondary); }
+  .t-m      { color: var(--text-muted); }
+  .t-brand  { color: var(--brand); }
+  .t-danger { color: var(--danger-text); }
+  .t-warn   { color: var(--warning-text); }
+  .t-info   { color: var(--info-text); }
+  .t-ai     { color: var(--ai-text); }
+  .t-infra  { color: var(--infra-text); }
+  .t-success{ color: var(--success-text); }
 
   /* Backgrounds */
-  .bg-s    { background: var(--surface); }
-  .bg-se   { background: var(--surface-elevated); }
-  .bg-a    { background: var(--bg-alt); }
-  .bg-c-l  { background: var(--critical-light); }
-  .bg-mi-l { background: var(--mission-light); }
-  .bg-d-l  { background: var(--decision-light); }
-  .bg-a-l  { background: var(--ai-light); }
-  .bg-ok-l { background: var(--success-light); }
+  .bg-s      { background: var(--surface); }
+  .bg-se     { background: var(--surface-elevated); }
+  .bg-a      { background: var(--bg-alt); }
+  .bg-danger { background: var(--danger-light); }
+  .bg-warn   { background: var(--warning-light); }
+  .bg-info   { background: var(--info-light); }
+  .bg-ai     { background: var(--ai-light); }
+  .bg-success{ background: var(--success-light); }
+  .bg-infra  { background: var(--infra-light); }
 
   /* Borders */
-  .b-d     { border: 1px solid var(--border); }
-  .b-dl    { border: 1px solid var(--border-light); }
-  .b-c     { border-color: var(--critical); }
-  .b-mi    { border-color: var(--mission); }
-  .b-dc    { border-color: var(--decision); }
-  .b-ai    { border-color: var(--ai); }
-  .b-ok    { border-color: var(--success); }
+  .b-d       { border: 1px solid var(--border); }
+  .b-dl      { border: 1px solid var(--border-light); }
+  .b-danger  { border-color: var(--danger); }
+  .b-warn    { border-color: var(--warning); }
+  .b-info    { border-color: var(--info); }
+  .b-ai      { border-color: var(--ai); }
+  .b-success { border-color: var(--success); }
+  .b-infra   { border-color: var(--infra); }
 
   /* Layout */
   .flex-center { display: flex; align-items: center; justify-content: center; }
 
   /* Accent borders */
-  .border-accent-critical { border-left: 3px solid var(--critical); }
-  .border-accent-eleve { border-left: 3px solid var(--mission); }
-  .border-accent-moyen { border-left: 3px solid var(--decision); }
+  .border-accent-critical { border-left: 3px solid var(--danger); }
+  .border-accent-eleve { border-left: 3px solid var(--warning); }
+  .border-accent-moyen { border-left: 3px solid var(--info); }
   .border-accent-bas { border-left: 3px solid var(--text-muted); }
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
   }
 
   /* Brand border accent for decision cards */
-  .border-accent-critical { border-left: 3px solid var(--critical); }
-  .border-accent-eleve { border-left: 3px solid var(--mission); }
-  .border-accent-moyen { border-left: 3px solid var(--decision); }
+  .border-accent-critical { border-left: 3px solid var(--danger); }
+  .border-accent-eleve { border-left: 3px solid var(--warning); }
+  .border-accent-moyen { border-left: 3px solid var(--info); }
   .border-accent-bas { border-left: 3px solid var(--text-muted); }
 
   /* Separator */
@@ -213,7 +242,7 @@ body {
   /* Buttons */
   .btn-primary {
     background: var(--brand);
-    color: var(--brand-text);
+    color: var(--brand);
     border-radius: var(--radius-md);
     font-weight: 600;
     font-size: 0.813rem;
@@ -284,11 +313,11 @@ body {
     gap: 4px;
     letter-spacing: 0.01em;
   }
-  .badge-brand    { background: var(--brand-bg); color: var(--brand-text); }
+  .badge-brand    { background: var(--brand-bg); color: var(--brand); }
   .badge-ai       { background: var(--ai-light); color: var(--ai-text); }
-  .badge-mission  { background: var(--mission-light); color: var(--mission-text); }
-  .badge-critical { background: var(--critical-light); color: var(--critical-text); }
-  .badge-decision { background: var(--decision-light); color: var(--decision-text); }
+  .badge-mission  { background: var(--warning-light); color: var(--warning-text); }
+  .badge-critical { background: var(--danger-light); color: var(--danger-text); }
+  .badge-decision { background: var(--info-light); color: var(--info-text); }
   .badge-success  { background: var(--success-light); color: #166534; }
 
   /* Text utilities */
@@ -366,62 +395,62 @@ body {
 .text-white, .text-slate-200, .text-slate-300 { color: var(--text); }
 .text-slate-400 { color: var(--text-secondary); }
 .text-slate-500, .text-slate-600 { color: var(--text-muted); }
-.text-indigo-400, .text-indigo-500 { color: var(--decision); }
-.text-emerald-400, .text-emerald-500 { color: var(--brand-text); }
-.text-amber-400, .text-amber-500 { color: var(--mission); }
-.text-rose-400, .text-rose-500 { color: var(--critical); }
+.text-indigo-400, .text-indigo-500 { color: var(--info); }
+.text-emerald-400, .text-emerald-500 { color: var(--brand); }
+.text-amber-400, .text-amber-500 { color: var(--warning); }
+.text-rose-400, .text-rose-500 { color: var(--danger); }
 .text-violet-400 { color: var(--ai); }
 
 .bg-slate-900, .bg-slate-800, .bg-slate-700, .bg-slate-900\/50 { background: var(--surface); }
 .bg-slate-950 { background: var(--surface-elevated); }
 .bg-slate-800\/50 { background: var(--bg-alt); }
-.bg-indigo-500\/10, .bg-indigo-500\/20 { background: var(--decision-light); }
+.bg-indigo-500\/10, .bg-indigo-500\/20 { background: var(--info-light); }
 .bg-emerald-500\/10, .bg-emerald-500\/20 { background: var(--brand-bg); }
-.bg-rose-500\/10, .bg-rose-500\/20 { background: var(--critical-light); }
-.bg-amber-500\/10, .bg-amber-500\/20 { background: var(--mission-light); }
+.bg-rose-500\/10, .bg-rose-500\/20 { background: var(--danger-light); }
+.bg-amber-500\/10, .bg-amber-500\/20 { background: var(--warning-light); }
 .bg-violet-500\/10 { background: var(--ai-light); }
 .bg-fuchsia-500\/10 { background: var(--ai-light); }
 
 .bg-indigo-500 { background: var(--brand); }
 .bg-emerald-500 { background: var(--brand); }
-.bg-rose-500 { background: var(--critical); }
-.bg-amber-500 { background: var(--mission); }
+.bg-rose-500 { background: var(--danger); }
+.bg-amber-500 { background: var(--warning); }
 .bg-slate-700 { background: var(--surface-hover); }
 
 .border-white\/\[0\.04\], .border-white\/\[0\.03\], .border-white\/5, .border-white\/\[0\.05\] { border-color: var(--border); }
 .border-white\/\[0\.08\] { border-color: var(--border-hover); }
 .border-slate-600 { border-color: var(--border-hover); }
 .border-slate-700 { border-color: var(--border); }
-.border-indigo-500\/10, .border-indigo-500\/20 { border-color: var(--decision); opacity: 0.25; }
+.border-indigo-500\/10, .border-indigo-500\/20 { border-color: var(--info); opacity: 0.25; }
 .border-emerald-500\/10, .border-emerald-500\/20 { border-color: var(--brand); opacity: 0.25; }
-.border-amber-500\/10, .border-amber-500\/20 { border-color: var(--mission); opacity: 0.25; }
-.border-rose-500\/10, .border-rose-500\/20 { border-color: var(--critical); opacity: 0.25; }
+.border-amber-500\/10, .border-amber-500\/20 { border-color: var(--warning); opacity: 0.25; }
+.border-rose-500\/10, .border-rose-500\/20 { border-color: var(--danger); opacity: 0.25; }
 .border-fuchsia-500\/20 { border-color: var(--ai); opacity: 0.25; }
 .border-indigo-500\/30, .border-rose-500\/30 { opacity: 0.35; }
 
 .hover\:bg-indigo-400:hover, .hover\:bg-emerald-400:hover { background: var(--brand-hover); }
 .hover\:bg-white\/5:hover, .hover\:bg-slate-500\/10:hover, .hover\:bg-white\/\[0\.02\]:hover,
 .hover\:bg-white\/\[0\.03\]:hover, .hover\:bg-white\/\[0\.05\]:hover { background: var(--surface-hover); }
-.hover\:bg-indigo-500\/10:hover { background: var(--decision-light); }
+.hover\:bg-indigo-500\/10:hover { background: var(--info-light); }
 .hover\:bg-indigo-500\/20:hover { background: var(--surface-hover); }
 
 .hover\:text-white:hover { color: var(--text); }
 .hover\:text-slate-300:hover, .hover\:text-slate-400:hover { color: var(--text); }
-.hover\:text-indigo-300:hover { color: var(--decision-text); }
-.hover\:text-indigo-400:hover { color: var(--decision); }
-.hover\:text-neon-cyan:hover { color: var(--decision); }
+.hover\:text-indigo-300:hover { color: var(--info-text); }
+.hover\:text-indigo-400:hover { color: var(--info); }
+.hover\:text-neon-cyan:hover { color: var(--info); }
 
 .text-fuchsia-400 { color: var(--ai); }
 .text-cyan-400 { color: #06B6D4; }
-.text-neon-cyan { color: var(--decision); }
+.text-neon-cyan { color: var(--info); }
 .text-white\/80 { color: var(--text); }
 
 .bg-white\/\[0\.02\] { background: var(--surface-hover); }
 .bg-white\/\[0\.03\] { background: var(--surface); }
 .bg-white\/\[0\.05\] { background: var(--bg-alt); }
 .bg-white\/\[0\.06\] { background: var(--bg-alt); }
-.bg-indigo-500\/10 { background: var(--decision-light); }
-.text-indigo-400 { color: var(--decision); }
+.bg-indigo-500\/10 { background: var(--info-light); }
+.text-indigo-400 { color: var(--info); }
 
 .border-white\/\[0\.06\] { border-color: var(--border); }
 .border-white\/\[0\.10\] { border-color: var(--border-hover); }

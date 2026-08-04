@@ -36,7 +36,7 @@ function HomePage() {
   const more = decisions.slice(1, 4)
 
   if (isLoading) return <PageLoader text="Analyse de votre environnement..." />
-  if (error) return <div className="py-20 text-center"><AlertCircle size={40} className="mx-auto mb-4" style={{ color: 'var(--mission)' }} /><h2 className="h2 t-p mb-2">Decision Engine indisponible</h2><p className="t-s">Backfill en cours. Réessayez.</p></div>
+  if (error) return <div className="py-20 text-center"><AlertCircle size={40} className="mx-auto mb-4" style={{ color: 'var(--warning)' }} /><h2 className="h2 t-p mb-2">Decision Engine indisponible</h2><p className="t-s">Backfill en cours. Réessayez.</p></div>
   if (!top) return <div className="py-20 text-center"><CheckCircle2 size={40} className="mx-auto mb-4" style={{ color: 'var(--success)' }} /><h2 className="h2 t-p mb-2">Aucune décision urgente</h2><p className="t-s">Configurez votre organisation pour personnaliser.</p></div>
 
   const newToday = summary?.new_today ?? 0
@@ -51,10 +51,10 @@ function HomePage() {
       <p className="body-sm t-s mb-4">
         {newToday > 0 && <><strong className="t-p">{newToday}</strong> nouvelles CVE aujourd'hui · </>}
         <strong className="t-p">{concerning}</strong> concernent votre environnement
-        {urgent > 0 && <>. <strong className="t-c">{urgent} nécessite une action</strong></>}
+        {urgent > 0 && <>. <strong className="t-danger">{urgent} nécessite une action</strong></>}
       </p>
       <div className="flex items-center gap-3 text-[11px] t-m">
-        <Activity size={11} /> Depuis hier : <span className="t-c">+{summary?.new_kev ?? 0} KEV</span> · +{newToday || '?'} CVE · <span className="t-ok">-3 patchées</span>
+        <Activity size={11} /> Depuis hier : <span className="t-danger">+{summary?.new_kev ?? 0} KEV</span> · +{newToday || '?'} CVE · <span className="t-success">-3 patchées</span>
       </div>
     </section>
 
@@ -65,7 +65,7 @@ function HomePage() {
     {more.length > 0 && (
       <section className="mt-32">
         <div className="flex items-center gap-2 mb-16">
-          <Brain size={14} className="t-a" />
+          <Brain size={14} className="t-ai" />
           <h2 className="h3 t-p">Pour vous</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-16">
@@ -99,7 +99,7 @@ function HomePage() {
       ].map(link => (
         <Link key={link.to} to={link.to as any}
           className="surface rounded-xl p-12 group hover:-translate-y-0.5 transition-all flex flex-col gap-4" style={{ textDecoration: 'none' }}>
-          <div className="t-b">{link.icon}</div>
+          <div className="t-brand">{link.icon}</div>
           <div className="body font-semibold t-p">{link.label}</div>
           <div className="text-[11px] t-m">{link.desc}</div>
         </Link>
@@ -175,7 +175,7 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
                 <h3 className="h3 t-p">HashScore</h3>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold t-p">{decision.score}</span>
-                  {delta !== 0 && <span className="text-xs font-bold flex items-center gap-0.5" style={{ color: delta < 0 ? 'var(--success)' : 'var(--critical)' }}>{delta < 0 ? <><TrendingDown size={12} /> {delta}</> : <><TrendingUp size={12} /> +{delta}</>}</span>}
+                  {delta !== 0 && <span className="text-xs font-bold flex items-center gap-0.5" style={{ color: delta < 0 ? 'var(--success)' : 'var(--danger)' }}>{delta < 0 ? <><TrendingDown size={12} /> {delta}</> : <><TrendingUp size={12} /> +{delta}</>}</span>}
                 </div>
               </div>
               <div className="h-2 rounded-full overflow-hidden flex" style={{ background: 'var(--bg-alt)' }}>
@@ -196,10 +196,10 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
               <div className="space-y-0">
                 {[
                   { date: decision.published ? new Date(decision.published).toLocaleDateString('fr') : '?', label: 'Publication', color: 'var(--text-muted)', dot: 'var(--text-muted)' },
-                  { date: decision.is_kev ? 'KEV' : '—', label: 'Ajout CISA KEV', color: decision.is_kev ? 'var(--critical)' : 'var(--text-muted)', dot: decision.is_kev ? 'var(--critical)' : 'var(--text-muted)' },
-                  ...(decision.exploits_count > 0 ? [{ date: `${decision.exploits_count} PoC`, label: 'Exploits publics', color: 'var(--mission)', dot: 'var(--mission)' }] : []),
+                  { date: decision.is_kev ? 'KEV' : '—', label: 'Ajout CISA KEV', color: decision.is_kev ? 'var(--danger)' : 'var(--text-muted)', dot: decision.is_kev ? 'var(--danger)' : 'var(--text-muted)' },
+                  ...(decision.exploits_count > 0 ? [{ date: `${decision.exploits_count} PoC`, label: 'Exploits publics', color: 'var(--warning)', dot: 'var(--warning)' }] : []),
                   { date: 'Disponible', label: 'Correctif', color: 'var(--success)', dot: 'var(--success)' },
-                  { date: "Aujourd'hui", label: 'Décision attendue', color: 'var(--brand-text)', dot: 'var(--brand)' },
+                  { date: "Aujourd'hui", label: 'Décision attendue', color: 'var(--brand)', dot: 'var(--brand)' },
                 ].map((e, i) => (
                   <div key={i} className="flex items-stretch" style={{ minHeight: i < 4 ? '40px' : 'auto' }}>
                     <div className="flex flex-col items-center mr-3" style={{ width: 28 }}>
@@ -218,7 +218,7 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
             {/* ── Produits + EPSS ───────────────────── */}
             {products.length > 0 && (
               <div>
-                <h3 className="h3 t-p mb-2 flex items-center gap-2"><Server size={13} className="t-mi" /> Actifs concernés</h3>
+                <h3 className="h3 t-p mb-2 flex items-center gap-2"><Server size={13} className="t-warn" /> Actifs concernés</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {products.map((p: any, i: number) => (
                     <span key={i} className="text-[10px] px-2 py-1 rounded-full surface-flat t-s">{p.vendor && <><strong className="t-p">{p.vendor}</strong> · </>}{p.product}{p.version ? ` ${p.version}` : ''}</span>
@@ -238,9 +238,9 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
             )}
 
             {/* ── SI VOUS N'AGISSEZ PAS — seul endroit rouge ── */}
-            <div className="rounded-xl p-4 bg-c-l" style={{ borderLeft: '3px solid var(--critical)' }} role="alert">
+            <div className="rounded-xl p-4 bg-c-l" style={{ borderLeft: '3px solid var(--danger)' }} role="alert">
               <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle size={16} className="t-c" />
+                <AlertTriangle size={16} className="t-danger" />
                 <span className="body font-bold t-c">Si vous n'agissez pas</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-2">
@@ -279,20 +279,20 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
                   </div>
                 ))}
               </div>
-              <div className="mt-3 flex items-center gap-2 text-[10px] t-m"><PieChart size={11} /> Après correction : <span className="t-ok">−18% risque</span></div>
+              <div className="mt-3 flex items-center gap-2 text-[10px] t-m"><PieChart size={11} /> Après correction : <span className="t-success">−18% risque</span></div>
             </div>
 
             {/* ── Tendance ───────────────────── */}
             <div className="rounded-xl p-3 surface-flat">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="h3 t-p">Évolution</h3>
-                {delta !== 0 && <span className="text-xs font-bold flex items-center gap-1" style={{ color: delta < 0 ? 'var(--success)' : 'var(--critical)' }}>{delta < 0 ? <TrendingDown size={12} /> : <TrendingUp size={12} />}{delta < 0 ? delta : `+${delta}`}</span>}
+                {delta !== 0 && <span className="text-xs font-bold flex items-center gap-1" style={{ color: delta < 0 ? 'var(--success)' : 'var(--danger)' }}>{delta < 0 ? <TrendingDown size={12} /> : <TrendingUp size={12} />}{delta < 0 ? delta : `+${delta}`}</span>}
               </div>
               {history.length > 0 ? (
                 <div className="flex items-end gap-1 h-10">
                   {history.map((h: any, i: number) => (
                     <div key={i} className="flex-1 rounded-t-sm" title={`${h.at?.slice(0, 10)}: ${h.score}`}
-                      style={{ height: `${Math.max(8, (h.score / 100) * 100)}%`, background: i === history.length - 1 ? 'var(--brand)' : h.score > 70 ? 'var(--critical)' : h.score > 50 ? 'var(--mission)' : 'var(--decision)' }} />
+                      style={{ height: `${Math.max(8, (h.score / 100) * 100)}%`, background: i === history.length - 1 ? 'var(--brand)' : h.score > 70 ? 'var(--danger)' : h.score > 50 ? 'var(--warning)' : 'var(--info)' }} />
                   ))}
                 </div>
               ) : <div className="text-[10px] t-m flex items-center gap-2"><Activity size={11} />Historique en construction — s'enrichit à chaque visite</div>}
@@ -301,7 +301,7 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
             {/* ── CTA — discret ──────────────── */}
             <button onClick={startMission} disabled={creating}
               className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
-              style={{ background: 'var(--brand)', color: 'var(--brand-text)' }}>
+              style={{ background: 'var(--brand)', color: 'var(--brand)' }}>
               {creating ? 'Création...' : done ? '✓ Mission créée' : <><Play size={15} /> Créer une mission</>}
             </button>
 

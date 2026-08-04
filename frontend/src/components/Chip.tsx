@@ -5,31 +5,31 @@ export type ChipVariant = 'verdict' | 'severity' | 'status' | 'category' | 'defa
 
 const verdictStyles: Record<string, { bg: string; text: string; border: string }> = {
   'sain':     { bg: 'var(--success-light)', text: 'var(--success-text)', border: 'var(--success)' },
-  'suspect':  { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)' },
-  'critique': { bg: 'var(--critical-light)', text: 'var(--critical-text)', border: 'var(--critical)' },
+  'suspect':  { bg: 'var(--warning-light)', text: 'var(--warning-text)', border: 'var(--warning)' },
+  'critique': { bg: 'var(--danger-light)', text: 'var(--danger-text)', border: 'var(--danger)' },
 }
 
 const severityStyles: Record<string, { bg: string; text: string; border: string }> = {
-  'critical': { bg: 'var(--critical-light)', text: 'var(--critical-text)', border: 'var(--critical)' },
-  'high':     { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)' },
-  'medium':   { bg: 'var(--warning-light)', text: 'var(--warning-text)', border: 'var(--mission)' },
+  'critical': { bg: 'var(--danger-light)', text: 'var(--danger-text)', border: 'var(--danger)' },
+  'high':     { bg: 'var(--warning-light)', text: 'var(--warning-text)', border: 'var(--warning)' },
+  'medium':   { bg: 'var(--warning-light)', text: 'var(--warning-text)', border: 'var(--warning)' },
   'low':      { bg: 'var(--bg-alt)', text: 'var(--text-muted)', border: 'var(--border)' },
 }
 
 const statusStyles: Record<string, { bg: string; text: string; border: string }> = {
   'active':     { bg: 'var(--success-light)', text: 'var(--success-text)', border: 'var(--success)' },
   'idle':       { bg: 'var(--bg-alt)', text: 'var(--text-muted)', border: 'var(--border)' },
-  'error':      { bg: 'var(--critical-light)', text: 'var(--critical-text)', border: 'var(--critical)' },
-  'en cours':   { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)' },
+  'error':      { bg: 'var(--danger-light)', text: 'var(--danger-text)', border: 'var(--danger)' },
+  'en cours':   { bg: 'var(--warning-light)', text: 'var(--warning-text)', border: 'var(--warning)' },
   'pret':       { bg: 'var(--bg-alt)', text: 'var(--text-muted)', border: 'var(--border)' },
   'ok':         { bg: 'var(--success-light)', text: 'var(--success-text)', border: 'var(--success)' },
   'oui':        { bg: 'var(--success-light)', text: 'var(--success-text)', border: 'var(--success)' },
   'non':        { bg: 'var(--bg-alt)', text: 'var(--text-muted)', border: 'var(--border)' },
   'gratuit':    { bg: 'var(--success-light)', text: 'var(--success-text)', border: 'var(--success)' },
-  'pro':        { bg: 'var(--mission-light)', text: 'var(--mission-text)', border: 'var(--mission)' },
+  'pro':        { bg: 'var(--warning-light)', text: 'var(--warning-text)', border: 'var(--warning)' },
   'enterprise': { bg: 'var(--ai-light)', text: 'var(--ai-text)', border: 'var(--ai)' },
   'completed':  { bg: 'var(--success-light)', text: 'var(--success-text)', border: 'var(--success)' },
-  'in_progress':{ bg: 'var(--decision-light)', text: 'var(--decision-text)', border: 'var(--decision)' },
+  'in_progress':{ bg: 'var(--info-light)', text: 'var(--info-text)', border: 'var(--info)' },
 }
 
 export type ChipProps = {
@@ -56,7 +56,7 @@ const Chip = memo(function Chip({ variant, value, icon: Icon, className = '' }: 
     const key = value.toLowerCase()
     style = statusStyles[key] || style
   } else if (variant === 'category') {
-    style = { bg: 'var(--decision-light)', text: 'var(--decision-text)', border: 'var(--decision)' }
+    style = { bg: 'var(--info-light)', text: 'var(--info-text)', border: 'var(--info)' }
   }
 
   return (
