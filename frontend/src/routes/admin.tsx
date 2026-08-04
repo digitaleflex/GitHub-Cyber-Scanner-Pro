@@ -73,34 +73,34 @@ function AdminPage() {
   const ops = [
     { key: 'scan', label: 'Scan GitHub', desc: 'Scan manuel des repos', icon: <Play size={14} />, url: '/api/scan' },
     { key: 'cve', label: 'Import CVE NVD', desc: 'Import complet depuis NVD', icon: <Database size={14} />, url: '/api/import-cve' },
-    { key: 'backfill', label: 'Backfill Severite', desc: 'Remplir severity/CVSS', icon: <Shield size={14} />, url: '/api/cves/backfill-severity' },
+    { key: 'backfill', label: 'Backfill Sévérité', desc: 'Remplir severity/CVSS', icon: <Shield size={14} />, url: '/api/cves/backfill-severity' },
     { key: 'exploit', label: 'Refresh Exploits', desc: 'MAJ Exploit-DB', icon: <Bug size={14} />, url: '/api/exploits/refresh' },
     { key: 'readme', label: 'Backfill README', desc: 'Chunks RAG', icon: <FileText size={14} />, url: '/api/tools/backfill-readmes?limit=50' },
-    { key: 'vitality', label: 'Recalcul Vitalite', desc: 'Scores qualite repos', icon: <RefreshCw size={14} />, url: '/api/tools/recompute-vitality' },
+    { key: 'vitality', label: 'Recalcul Vitalité', desc: 'Scores qualité repos', icon: <RefreshCw size={14} />, url: '/api/tools/recompute-vitality' },
     { key: 'guard', label: 'Content Safety', desc: 'Scan Granite Guardian', icon: <Brain size={14} />, url: '/api/hf/guard?limit=20' },
   ]
 
   const sidebarItems = [
     { key: 'dashboard', label: 'Tableau de bord', icon: <LayoutDashboard size={13} /> },
-    { key: 'operations', label: 'Operations', icon: <Play size={13} /> },
+    { key: 'operations', label: 'Opérations', icon: <Play size={13} /> },
     { key: 'exports', label: 'Exports', icon: <Download size={13} /> },
-    { key: 'status', label: 'Status systeme', icon: <Activity size={13} /> },
+    { key: 'status', label: 'Statut système', icon: <Activity size={13} /> },
   ]
 
   if (!authenticated) return (
     <div className="max-w-sm mx-auto py-24 animate-fade text-center">
-      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-        <Lock size={24} className="text-amber-400" />
+      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: 'var(--mission-light)', border: '1px solid var(--mission)' }}>
+        <Lock size={24} style={{ color: 'var(--mission)' }} />
       </div>
-      <h1 className="text-lg font-semibold text-white mb-1">Administration</h1>
-      <p className="text-sm text-slate-500 mb-5">Mot de passe administrateur.</p>
+      <h1 className="h2 mb-1" style={{ color: 'var(--text)' }}>Administration</h1>
+      <p className="body-sm text-secondary mb-5">Mot de passe administrateur.</p>
       <input type="password" value={password} onChange={e => { setPassword(e.target.value); setAuthError(false) }}
         onKeyDown={e => e.key === 'Enter' && login()}
         placeholder="Mot de passe..."
-        className="w-full glass rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-amber-500/30 mb-3" />
-      {authError && <p className="text-xs text-rose-400 mb-3">Mot de passe incorrect.</p>}
-      <button onClick={login} disabled={!password}
-        className="w-full px-4 py-3 rounded-xl bg-amber-500 text-white text-sm font-medium hover:bg-amber-400 disabled:opacity-40 transition">
+        className="w-full rounded-xl px-4 py-3 text-sm mb-3 ring-brand"
+        style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' }} />
+      {authError && <p className="text-xs mb-3" style={{ color: 'var(--critical-text)' }}>Mot de passe incorrect.</p>}
+      <button onClick={login} disabled={!password} className="btn-primary w-full justify-center">
         Connexion
       </button>
     </div>
@@ -109,33 +109,38 @@ function AdminPage() {
   return (
     <div className="flex gap-5 -mx-4 sm:-mx-6 lg:-mx-8 min-h-[calc(100vh-12rem)]">
       {/* Sidebar */}
-      <aside className="hidden sm:flex flex-col w-48 shrink-0 glass border-r border-white/[0.03] px-3 py-4">
+      <aside className="hidden sm:flex flex-col w-48 shrink-0 px-3 py-4" style={{ background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-5 h-5 rounded-md bg-amber-500/20 flex items-center justify-center"><Settings size={11} className="text-amber-400" /></div>
-            <span className="text-xs font-semibold text-white">Admin</span>
+            <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{ background: 'var(--mission-light)' }}>
+              <Settings size={11} style={{ color: 'var(--mission)' }} />
+            </div>
+            <span className="text-xs font-semibold" style={{ color: 'var(--text)' }}>Admin</span>
           </div>
-          <p className="text-[9px] text-slate-500">Decision Engine</p>
+          <p className="text-[9px] text-muted">Decision Engine</p>
         </div>
 
         <nav className="flex flex-col gap-0.5 flex-1">
           {sidebarItems.map(item => (
             <button key={item.key} onClick={() => setSection(item.key)}
-              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs transition text-left ${
-                section === item.key ? 'bg-amber-500/10 text-amber-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}>
+              className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs transition-all text-left"
+              style={{
+                color: section === item.key ? 'var(--mission-text)' : 'var(--text-secondary)',
+                background: section === item.key ? 'var(--mission-light)' : 'transparent',
+                border: section === item.key ? '1px solid var(--mission)' : '1px solid transparent',
+              }}>
               {item.icon}
               {item.label}
             </button>
           ))}
         </nav>
 
-        <div className="pt-3 border-t border-white/[0.04] space-y-1">
-          <Link to="/" className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs text-slate-500 hover:text-white hover:bg-white/5 transition">
+        <div className="pt-3 space-y-1" style={{ borderTop: '1px solid var(--border)' }}>
+          <Link to="/" className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs transition-colors" style={{ color: 'var(--text-muted)' }}>
             <ArrowLeft size={11} /> Retour au site
           </Link>
-          <button onClick={logout} className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs text-slate-500 hover:text-rose-400 hover:bg-rose-500/5 transition w-full text-left">
-            <LogOut size={11} /> Deconnexion
+          <button onClick={logout} className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs transition-colors w-full text-left" style={{ color: 'var(--text-muted)' }}>
+            <LogOut size={11} /> Déconnexion
           </button>
         </div>
       </aside>
@@ -145,9 +150,12 @@ function AdminPage() {
         <div className="flex gap-1 mb-4 overflow-x-auto pb-1">
           {sidebarItems.map(item => (
             <button key={item.key} onClick={() => setSection(item.key)}
-              className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                section === item.key ? 'bg-amber-500/10 text-amber-400' : 'glass text-slate-500'
-              }`}>
+              className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
+              style={{
+                background: section === item.key ? 'var(--mission-light)' : 'var(--surface)',
+                color: section === item.key ? 'var(--mission-text)' : 'var(--text-muted)',
+                borderColor: section === item.key ? 'var(--mission)' : 'var(--border)',
+              }}>
               {item.label}
             </button>
           ))}
@@ -157,34 +165,36 @@ function AdminPage() {
       {/* Main content */}
       <main className="flex-1 min-w-0 py-4 pr-4 sm:pr-6 lg:pr-8 pl-4 sm:pl-0">
         <div className="sm:hidden mb-4">
-          <Link to="/" className="text-xs text-slate-500 hover:text-white flex items-center gap-1"><ArrowLeft size={11} /> Retour</Link>
+          <Link to="/" className="text-xs flex items-center gap-1" style={{ color: 'var(--text-muted)' }}><ArrowLeft size={11} /> Retour</Link>
         </div>
 
         {section === 'dashboard' && (
           <>
-            <h1 className="text-lg font-semibold text-white mb-4">Tableau de bord</h1>
+            <h1 className="h2 mb-4" style={{ color: 'var(--text)' }}>Tableau de bord</h1>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-              <div className="glass-card rounded-xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">CVE Import</p>
+              <div className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
+                <p className="caption mb-1" style={{ color: 'var(--brand-text)' }}>CVE Import</p>
                 <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${cveStatus?.running ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
-                  <span className="text-xs text-slate-300">{cveStatus?.running ? 'En cours' : 'Pret'}</span>
+                  <span className="w-2 h-2 rounded-full" style={{ background: cveStatus?.running ? 'var(--mission)' : 'var(--success)' }} />
+                  <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{cveStatus?.running ? 'En cours' : 'Prêt'}</span>
                 </div>
-                {cveStatus?.imported > 0 && <p className="text-[10px] text-slate-500 mt-1">{cveStatus.imported.toLocaleString()} CVEs</p>}
+                {cveStatus?.imported > 0 && <p className="text-[10px] text-muted mt-1">{cveStatus.imported.toLocaleString()} CVEs</p>}
               </div>
-              <div className="glass-card rounded-xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">HF API</p>
-                <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: hfStatus?.available ? '#34d399' : '#f43f5e' }} />
-                <span className="text-xs text-slate-300">{hfStatus?.available ? 'OK' : 'OFF'}</span>
+              <div className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
+                <p className="caption mb-1" style={{ color: 'var(--brand-text)' }}>HF API</p>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ background: hfStatus?.available ? 'var(--success)' : 'var(--critical)' }} />
+                  <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{hfStatus?.available ? 'OK' : 'OFF'}</span>
+                </div>
               </div>
-              <div className="glass-card rounded-xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Exploit-DB</p>
-                <p className="text-xs text-slate-300">{exploitStats?.total_exploits?.toLocaleString() || '?'} exploits</p>
+              <div className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
+                <p className="caption mb-1" style={{ color: 'var(--brand-text)' }}>Exploit-DB</p>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{exploitStats?.total_exploits?.toLocaleString() || '?'} exploits</p>
               </div>
-              <div className="glass-card rounded-xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Base</p>
-                <p className="text-xs text-slate-300">{dbStats?.total_repos?.toLocaleString() || '?'} repos</p>
-                <p className="text-[10px] text-slate-500">{dbStats?.total_cves?.toLocaleString() || '?'} CVEs</p>
+              <div className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
+                <p className="caption mb-1" style={{ color: 'var(--brand-text)' }}>Base</p>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{dbStats?.total_repos?.toLocaleString() || '?'} repos</p>
+                <p className="text-[10px] text-muted">{dbStats?.total_cves?.toLocaleString() || '?'} CVEs</p>
               </div>
             </div>
           </>
@@ -192,27 +202,32 @@ function AdminPage() {
 
         {section === 'operations' && (
           <>
-            <h1 className="text-lg font-semibold text-white mb-4">Operations</h1>
+            <h1 className="h2 mb-4" style={{ color: 'var(--text)' }}>Opérations</h1>
             <div className="space-y-2">
               {ops.map(op => {
                 const st = statuses[op.key]
                 return (
-                  <div key={op.key} className="glass-card rounded-xl p-4">
+                  <div key={op.key} className="surface rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-slate-400 shrink-0">{op.icon}</span>
+                        <span style={{ color: 'var(--text-secondary)' }} className="shrink-0">{op.icon}</span>
                         <div className="min-w-0">
-                          <span className="text-sm text-slate-200 font-medium">{op.label}</span>
-                          <p className="text-[10px] text-slate-500">{op.desc}</p>
+                          <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>{op.label}</span>
+                          <p className="text-[10px] text-muted">{op.desc}</p>
                         </div>
                       </div>
                       <button onClick={() => run(op.key, op.url)} disabled={st?.running}
-                        className="shrink-0 px-4 py-2 rounded-lg bg-amber-500/10 text-amber-400 text-xs font-medium hover:bg-amber-500/20 disabled:opacity-40 transition border border-amber-500/20">
-                        {st?.running ? 'En cours...' : 'Executer'}
+                        className="shrink-0 px-4 py-2 rounded-lg text-xs font-medium border transition-all disabled:opacity-40"
+                        style={{
+                          background: 'var(--mission-light)',
+                          color: 'var(--mission-text)',
+                          borderColor: 'var(--mission)',
+                        }}>
+                        {st?.running ? 'En cours...' : 'Exécuter'}
                       </button>
                     </div>
-                    {st?.result && <div className="mt-2 flex items-start gap-2 text-[10px]"><CheckCircle2 size={10} className="text-emerald-400 mt-0.5 shrink-0" /><span className="text-emerald-400">{st.result}</span></div>}
-                    {st?.error && <div className="mt-2 flex items-start gap-2 text-[10px]"><XCircle size={10} className="text-rose-400 mt-0.5 shrink-0" /><span className="text-rose-400">{st.error}</span></div>}
+                    {st?.result && <div className="mt-2 flex items-start gap-2 text-[10px]"><CheckCircle2 size={10} className="mt-0.5 shrink-0" style={{ color: '#166534' }} /><span style={{ color: '#166534' }}>{st.result}</span></div>}
+                    {st?.error && <div className="mt-2 flex items-start gap-2 text-[10px]"><XCircle size={10} className="mt-0.5 shrink-0" style={{ color: 'var(--critical-text)' }} /><span style={{ color: 'var(--critical-text)' }}>{st.error}</span></div>}
                   </div>
                 )
               })}
@@ -222,10 +237,10 @@ function AdminPage() {
 
         {section === 'exports' && (
           <>
-            <h1 className="text-lg font-semibold text-white mb-4">Exports</h1>
-            <div className="glass-card rounded-2xl p-5">
-              <a href="/api/download" className="inline-flex items-center gap-2 px-4 py-2 glass rounded-xl text-sm text-slate-400 hover:text-white transition">
-                <Download size={14} /> Telecharger Excel
+            <h1 className="h2 mb-4" style={{ color: 'var(--text)' }}>Exports</h1>
+            <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
+              <a href="/api/download" className="btn-secondary inline-flex text-sm">
+                <Download size={14} /> Télécharger Excel
               </a>
             </div>
           </>
@@ -233,13 +248,28 @@ function AdminPage() {
 
         {section === 'status' && (
           <>
-            <h1 className="text-lg font-semibold text-white mb-4">Status systeme</h1>
-            <div className="glass-card rounded-2xl p-5 space-y-3">
-              <div className="flex justify-between text-sm"><span className="text-slate-500">Decision Engine</span><span className="text-emerald-400 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Actif</span></div>
-              <div className="flex justify-between text-sm"><span className="text-slate-500">NVD Backfill</span><span className={cveStatus?.running ? 'text-amber-400' : 'text-emerald-400'}>{cveStatus?.running ? 'En cours' : 'A jour'}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-slate-500">HF API</span><span className={hfStatus?.available ? 'text-emerald-400' : 'text-rose-400'}>{hfStatus?.available ? 'Connectee' : 'Absente'}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-slate-500">Exploit-DB</span><span className="text-slate-400">{exploitStats?.total_exploits?.toLocaleString() || '?'} exploits</span></div>
-              <div className="flex justify-between text-sm"><span className="text-slate-500">PostgreSQL</span><span className="text-emerald-400 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Connectee</span></div>
+            <h1 className="h2 mb-4" style={{ color: 'var(--text)' }}>Statut système</h1>
+            <div className="surface rounded-2xl p-5 space-y-3" style={{ border: '1px solid var(--border)' }}>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">Decision Engine</span>
+                <span style={{ color: '#166534' }} className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)' }} /> Actif</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">NVD Backfill</span>
+                <span style={{ color: cveStatus?.running ? 'var(--mission-text)' : '#166534' }}>{cveStatus?.running ? 'En cours' : 'À jour'}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">HF API</span>
+                <span style={{ color: hfStatus?.available ? '#166534' : 'var(--critical-text)' }}>{hfStatus?.available ? 'Connectée' : 'Absente'}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">Exploit-DB</span>
+                <span style={{ color: 'var(--text-secondary)' }}>{exploitStats?.total_exploits?.toLocaleString() || '?'} exploits</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">PostgreSQL</span>
+                <span style={{ color: '#166534' }} className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)' }} /> Connectée</span>
+              </div>
             </div>
           </>
         )}

@@ -36,27 +36,32 @@ function SettingsPage() {
     setTimeout(() => setDone(false), 2000)
   }
 
-  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" /></div>
+  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" /></div>
+
+  const chipStyle = (active: boolean) => ({
+    background: active ? 'var(--surface-elevated)' : 'var(--surface)',
+    color: active ? 'var(--text)' : 'var(--text-muted)',
+    borderColor: active ? 'var(--brand)' : 'var(--border)',
+  })
 
   return (
     <div className="max-w-xl mx-auto py-4 sm:py-8 animate-fade">
-      <h1 className="text-xl sm:text-2xl font-semibold text-white mb-1">Parametres</h1>
-      <p className="text-sm text-slate-500 mb-6">Profil, notifications, preferences.</p>
+      <h1 className="h1 mb-1" style={{ color: 'var(--text)' }}>Paramètres</h1>
+      <p className="body-sm text-secondary mb-6">Profil, notifications, préférences.</p>
 
       <div className="space-y-4">
-        <div className="glass-card rounded-2xl p-5">
+        <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Shield size={15} className="text-indigo-400" />
-            <h2 className="text-sm font-semibold text-white">Profil</h2>
+            <Shield size={15} style={{ color: 'var(--decision)' }} />
+            <h2 className="h3" style={{ color: 'var(--text)' }}>Profil</h2>
           </div>
           <div className="mb-3">
-            <label className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5 block">Role</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--brand-text)' }}>Rôle</label>
             <div className="flex flex-wrap gap-1.5">
               {ROLES.map(r => (
                 <button key={r} onClick={() => setRole(r)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition border capitalize ${
-                    role === r ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'glass text-slate-500 hover:text-slate-300'
-                  }`}>
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border capitalize transition-all"
+                  style={chipStyle(role === r)}>
                   {r}
                 </button>
               ))}
@@ -64,31 +69,32 @@ function SettingsPage() {
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl p-5">
+        <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Bell size={15} className="text-amber-400" />
-            <h2 className="text-sm font-semibold text-white">Notifications</h2>
+            <Bell size={15} style={{ color: 'var(--mission)' }} />
+            <h2 className="h3" style={{ color: 'var(--text)' }}>Notifications</h2>
           </div>
           <label className="flex items-center justify-between cursor-pointer">
-            <span className="text-sm text-slate-300">Alertes urgentes (KEV, exploit actif)</span>
+            <span className="body-sm" style={{ color: 'var(--text-secondary)' }}>Alertes urgentes (KEV, exploit actif)</span>
             <button onClick={() => setNotifyUrgent(!notifyUrgent)}
-              className={`w-10 h-6 rounded-full transition relative ${notifyUrgent ? 'bg-emerald-500' : 'bg-slate-700'}`}>
-              <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition ${notifyUrgent ? 'left-5' : 'left-0.5'}`} />
+              className="w-10 h-6 rounded-full transition relative"
+              style={{ background: notifyUrgent ? 'var(--success)' : 'var(--border)' }}>
+              <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition" style={{ left: notifyUrgent ? '1.25rem' : '0.125rem' }} />
             </button>
           </label>
         </div>
 
-        <div className="glass-card rounded-2xl p-5">
+        <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Key size={15} className="text-slate-500" />
-            <h2 className="text-sm font-semibold text-white">API & Integrations</h2>
+            <Key size={15} style={{ color: 'var(--text-muted)' }} />
+            <h2 className="h3" style={{ color: 'var(--text)' }}>API & Intégrations</h2>
           </div>
-          <p className="text-xs text-slate-500">Les cles API (HF, Groq, Gemini) sont configurees via les variables d'environnement du conteneur.</p>
+          <p className="text-xs text-muted">Les clés API (HF, Groq, Gemini) sont configurées via les variables d'environnement du conteneur.</p>
         </div>
 
         <button onClick={save} disabled={saving}
-          className="w-full px-4 py-3 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 disabled:opacity-40 transition flex items-center justify-center gap-2">
-          {done ? <><Check size={15} /> Enregistre</> : saving ? 'Enregistrement...' : 'Enregistrer les preferences'}
+          className="btn-primary w-full justify-center">
+          {done ? <><Check size={15} /> Enregistré</> : saving ? 'Enregistrement...' : 'Enregistrer les préférences'}
         </button>
       </div>
     </div>

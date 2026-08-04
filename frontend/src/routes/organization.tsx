@@ -51,47 +51,53 @@ function OrganizationPage() {
     setCompliance(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])
   }
 
-  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" /></div>
+  if (isLoading) return <div className="flex justify-center py-24"><div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" /></div>
 
   const org = data?.organization
   const profile = data?.profile
 
+  const getChipStyle = (active: boolean) => ({
+    background: active ? 'var(--surface-elevated)' : 'var(--surface)',
+    color: active ? 'var(--text)' : 'var(--text-muted)',
+    borderColor: active ? 'var(--brand)' : 'var(--border)',
+    boxShadow: active ? 'var(--shadow-sm)' : 'none',
+  })
+
   return (
     <div className="max-w-3xl mx-auto py-4 sm:py-8 animate-fade">
-      <h1 className="text-xl sm:text-2xl font-semibold text-white mb-1">Organisation</h1>
-      <p className="text-sm text-slate-500 mb-6">Qui sommes-nous ? Définissez votre contexte pour des décisions personnalisees.</p>
+      <h1 className="h1 mb-1" style={{ color: 'var(--text)' }}>Organisation</h1>
+      <p className="body-sm text-secondary mb-6">Qui sommes-nous ? Définissez votre contexte pour des décisions personnalisées.</p>
 
       {!editing && org ? (
         <div className="space-y-4">
-          <div className="glass-card rounded-2xl p-5 sm:p-6">
+          <div className="surface rounded-2xl p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-white">{org.name}</h2>
-                <p className="text-sm text-slate-400 mt-0.5">{org.sector || 'Secteur non defini'}</p>
+                <h2 className="h2" style={{ color: 'var(--text)' }}>{org.name}</h2>
+                <p className="body-sm text-secondary mt-0.5">{org.sector || 'Secteur non défini'}</p>
               </div>
-              <button onClick={() => setEditing(true)}
-                className="px-4 py-2 glass rounded-xl text-xs text-slate-400 hover:text-white transition">
+              <button onClick={() => setEditing(true)} className="btn-secondary text-xs">
                 Modifier
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="glass rounded-xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Role</p>
-                <p className="text-sm text-white font-medium capitalize">{profile?.role || 'Non defini'}</p>
+              <div className="rounded-xl p-4" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                <p className="caption mb-2" style={{ color: 'var(--brand-text)' }}>Rôle</p>
+                <p className="body font-medium capitalize" style={{ color: 'var(--text)' }}>{profile?.role || 'Non défini'}</p>
               </div>
-              <div className="glass rounded-xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Secteur</p>
-                <p className="text-sm text-white font-medium">{org.sector || 'Non defini'}</p>
+              <div className="rounded-xl p-4" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                <p className="caption mb-2" style={{ color: 'var(--brand-text)' }}>Secteur</p>
+                <p className="body font-medium" style={{ color: 'var(--text)' }}>{org.sector || 'Non défini'}</p>
               </div>
             </div>
 
             {org.compliance && (
-              <div className="mt-4 glass rounded-xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Conformite</p>
+              <div className="mt-4 rounded-xl p-4" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                <p className="caption mb-2" style={{ color: 'var(--brand-text)' }}>Conformité</p>
                 <div className="flex flex-wrap gap-1.5">
                   {org.compliance.split(',').map((c: string, i: number) => (
-                    <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span key={i} className="badge badge-success">
                       {c.trim()}
                     </span>
                   ))}
@@ -101,19 +107,18 @@ function OrganizationPage() {
           </div>
 
           <div className="text-center">
-            <p className="text-xs text-slate-600">Ces informations sont utilisees pour personnaliser vos decisions de securite.</p>
+            <p className="text-xs text-muted">Ces informations sont utilisées pour personnaliser vos décisions de sécurité.</p>
           </div>
         </div>
       ) : (
-        <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-5">
+        <div className="surface rounded-2xl p-5 sm:p-6 space-y-5" style={{ border: '1px solid var(--border)' }}>
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5 block">Role</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--brand-text)' }}>Rôle</label>
             <div className="flex flex-wrap gap-1.5">
               {ROLES.map(r => (
                 <button key={r} onClick={() => setRole(r)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition border capitalize ${
-                    role === r ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'glass text-slate-500 hover:text-slate-300'
-                  }`}>
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border capitalize transition-all"
+                  style={getChipStyle(role === r)}>
                   {r}
                 </button>
               ))}
@@ -121,20 +126,20 @@ function OrganizationPage() {
           </div>
 
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5 block">Nom de l'organisation</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--brand-text)' }}>Nom de l'organisation</label>
             <input type="text" value={orgName} onChange={e => setOrgName(e.target.value)}
               placeholder="Ex: MaBoite, Acme Corp..."
-              className="w-full glass rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-emerald-500/30" />
+              className="w-full rounded-xl px-4 py-3 text-sm ring-brand"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' }} />
           </div>
 
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5 block">Secteur</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--brand-text)' }}>Secteur</label>
             <div className="flex flex-wrap gap-1.5">
               {SECTORS.map(s => (
                 <button key={s} onClick={() => setSector(s)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition border capitalize ${
-                    sector === s ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'glass text-slate-500 hover:text-slate-300'
-                  }`}>
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border capitalize transition-all"
+                  style={getChipStyle(sector === s)}>
                   {s}
                 </button>
               ))}
@@ -142,13 +147,12 @@ function OrganizationPage() {
           </div>
 
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5 block">Conformite</label>
+            <label className="caption mb-1.5 block" style={{ color: 'var(--brand-text)' }}>Conformité</label>
             <div className="flex flex-wrap gap-1.5">
               {COMPLIANCE_OPTS.map(c => (
                 <button key={c} onClick={() => toggleCompliance(c)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition border ${
-                    compliance.includes(c) ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'glass text-slate-500 hover:text-slate-300'
-                  }`}>
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
+                  style={getChipStyle(compliance.includes(c))}>
                   {c}
                 </button>
               ))}
@@ -156,13 +160,11 @@ function OrganizationPage() {
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <button onClick={handleSave} disabled={saving || !orgName}
-              className="px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 disabled:opacity-40 transition flex items-center gap-2">
-              {done ? <><Check size={15} /> Enregistre</> : saving ? 'Enregistrement...' : 'Enregistrer'}
+            <button onClick={handleSave} disabled={saving || !orgName} className="btn-primary">
+              {done ? <><Check size={15} /> Enregistré</> : saving ? 'Enregistrement...' : 'Enregistrer'}
             </button>
             {org && (
-              <button onClick={() => setEditing(false)}
-                className="px-5 py-2.5 rounded-xl glass text-sm text-slate-400 hover:text-white transition">
+              <button onClick={() => setEditing(false)} className="btn-secondary">
                 Annuler
               </button>
             )}
@@ -171,8 +173,8 @@ function OrganizationPage() {
       )}
 
       <div className="mt-6 text-right">
-        <a href="/assets" className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition">
-          Gerer les assets <ArrowRight size={12} />
+        <a href="/assets" className="btn-ghost text-xs inline-flex items-center gap-1.5">
+          Gérer les assets <ArrowRight size={12} />
         </a>
       </div>
     </div>

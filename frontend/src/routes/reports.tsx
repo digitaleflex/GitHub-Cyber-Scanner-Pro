@@ -27,33 +27,35 @@ function ReportsPage() {
 
   return (
     <div className="max-w-2xl mx-auto py-4 sm:py-8 animate-fade">
-      <h1 className="text-xl sm:text-2xl font-semibold text-white mb-1">Rapports</h1>
-      <p className="text-sm text-slate-500 mb-6">Comment communiquer ? Generez des rapports pour la direction, les audits et la conformite.</p>
+      <h1 className="h1 mb-1" style={{ color: 'var(--text)' }}>Rapports</h1>
+      <p className="body-sm text-secondary mb-6">Comment communiquer ? Générez des rapports pour la direction, les audits et la conformité.</p>
 
-      <div className="glass-card rounded-2xl p-5 sm:p-6 mb-6">
+      <div className="surface rounded-2xl p-5 sm:p-6 mb-6" style={{ border: '1px solid var(--border)' }}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center"><FileText size={18} className="text-indigo-400" /></div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--decision-light)' }}>
+            <FileText size={18} style={{ color: 'var(--decision)' }} />
+          </div>
           <div>
-            <h2 className="text-sm font-semibold text-white">Rapport de securite</h2>
-            <p className="text-xs text-slate-500">Resume executif, menaces actives, recommandations</p>
+            <h2 className="h3" style={{ color: 'var(--text)' }}>Rapport de sécurité</h2>
+            <p className="text-xs text-muted">Résumé exécutif, menaces actives, recommandations</p>
           </div>
         </div>
         <button onClick={generate} disabled={generating}
-          className="w-full px-4 py-2.5 rounded-xl bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-400 disabled:opacity-40 transition flex items-center justify-center gap-2">
-          {generating ? <><RefreshCw size={15} className="animate-spin" /> Generation...</> : <>Generer le rapport</>}
+          className="btn-primary w-full justify-center">
+          {generating ? <><RefreshCw size={15} className="animate-spin" /> Génération...</> : 'Générer le rapport'}
         </button>
       </div>
 
       {report && (
-        <div className="glass-card rounded-2xl p-5 sm:p-6">
+        <div className="surface rounded-2xl p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-white">Apercu</h2>
-            <button onClick={download}
-              className="px-3 py-1.5 glass rounded-lg text-xs text-emerald-400 hover:text-white transition flex items-center gap-1.5">
-              <Download size={12} /> Telecharger
+            <h2 className="h3" style={{ color: 'var(--text)' }}>Aperçu</h2>
+            <button onClick={download} className="btn-secondary text-xs">
+              <Download size={12} /> Télécharger
             </button>
           </div>
-          <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono bg-slate-900/50 rounded-xl p-4 max-h-96 overflow-auto leading-relaxed">
+          <pre className="text-xs whitespace-pre-wrap mono rounded-xl p-4 max-h-96 overflow-auto leading-relaxed"
+            style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
             {report}
           </pre>
         </div>
