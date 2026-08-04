@@ -18,9 +18,9 @@ const CAT_ACCENT: Record<string, string> = { 'Offensive / Red Team': 'var(--dang
 function StatusBadge({ book }: { book: Book }) {
   const lastChecked = book.last_checked ? new Date(book.last_checked + 'Z').toLocaleString('fr-FR') : 'Jamais vérifié'
   const title = `Dernier contrôle : ${lastChecked}`
-  if (book.is_dead === 1) return <span title={title} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-c-l t-c b-c b-d">✕ Hors ligne</span>
-  if (book.last_checked) return <span title={title} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-ok-l t-ok b-ok b-d">✓ Disponible</span>
-  return <span title={title} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-mi-l t-mi b-mi b-d">⚠ Non vérifié</span>
+  if (book.is_dead === 1) return <span title={title} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-danger t-danger b-danger b-d">✕ Hors ligne</span>
+  if (book.last_checked) return <span title={title} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-success t-success b-success b-d">✓ Disponible</span>
+  return <span title={title} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-warn t-warn b-warn b-d">⚠ Non vérifié</span>
 }
 
 function useDebounce<T>(value: T, delay: number): T { const [debounced, setDebounced] = useState(value); useEffect(() => { const t = setTimeout(() => setDebounced(value), delay); return () => clearTimeout(t) }, [value, delay]); return debounced }
@@ -33,7 +33,7 @@ export default function BooksTable() {
   const filtered = useMemo(() => { if (!books) return []; return category ? books.filter(b => b.category === category) : books }, [books, category])
 
   if (isLoading) return <PageLoader text="Chargement des ressources..." />
-  if (error) return <div className="surface p-8 text-center b-d"><p className="t-c text-sm">Erreur de chargement</p></div>
+  if (error) return <div className="surface p-8 text-center b-d"><p className="t-danger text-sm">Erreur de chargement</p></div>
 
   return (
     <div className="surface rounded-xl p-5 b-d">
@@ -81,12 +81,12 @@ export default function BooksTable() {
                     <span className="inline-block px-2 py-0.5 rounded text-[10px] font-medium border" style={{ background: 'var(--bg-alt)', borderColor: CAT_ACCENT[book.category] || 'var(--border)', color: CAT_ACCENT[book.category] || 'var(--text-secondary)' }}>{book.category}</span>
                   </td>
                   <td className="py-2 px-2 max-md:hidden">
-                    <a href={book.repo_url} target="_blank" rel="noopener noreferrer" className="t-d hover:underline">{book.repo_name}</a>
+                    <a href={book.repo_url} target="_blank" rel="noopener noreferrer" className="t-info hover:underline">{book.repo_name}</a>
                   </td>
                   <td className="py-2 px-2 text-center"><StatusBadge book={book} /></td>
                   <td className="py-2 px-2 text-center">
                     <a href={book.url} target="_blank" rel="noopener noreferrer"
-                      className="inline-block px-2.5 py-1 rounded text-[10px] font-semibold bg-a-l t-a border b-ai transition-colors hover:opacity-80">{book.is_dead === 1 ? 'Voir' : 'Ouvrir'}</a>
+                      className="inline-block px-2.5 py-1 rounded text-[10px] font-semibold bg-ai t-ai border b-ai transition-colors hover:opacity-80">{book.is_dead === 1 ? 'Voir' : 'Ouvrir'}</a>
                   </td>
                 </tr>
               ))}

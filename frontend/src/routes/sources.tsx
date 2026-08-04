@@ -64,7 +64,7 @@ function SourcesPage() {
   ]
 
   return (
-    <div className="w-full py-8 sm:py-16 animate-fade">
+    <div className="max-w-[900px] mx-auto py-8 sm:py-16 animate-fade">
       <div className="text-center mb-10">
         <h1 className="h1 mb-2" style={{ color: 'var(--text)' }}>Sources de données</h1>
         <p className="body-sm w-full leading-relaxed" style={{ color: 'var(--text-secondary)' }}>

@@ -43,10 +43,10 @@ function HomePage() {
   const concerning = Math.min(more.length + 1, 8)
   const urgent = top.level === 'CRITIQUE' || top.level === 'ELEVE' ? 1 : 0
 
-  return <div role="main" aria-label="Decision OS">
-    {/* ═══ HERO — compact, informatif ─────────────────────────── */}
+  return <div className="max-w-[1440px] mx-auto" role="main" aria-label="Decision OS">
+    {/* ═══ HERO — compact, aligné gauche ──────────────────────── */}
     <section className="py-6 sm:py-8 animate-fade">
-      <p className="caption mb-1 flex items-center gap-1.5 t-b"><Sparkles size={12} /> Decision OS</p>
+      <p className="caption mb-1 flex items-center gap-1.5 t-brand"><Sparkles size={12} /> Decision OS</p>
       <h1 className="h1 t-p mb-1">Bonjour {orgName}</h1>
       <p className="body-sm t-s mb-4">
         {newToday > 0 && <><strong className="t-p">{newToday}</strong> nouvelles CVE aujourd'hui · </>}
@@ -58,28 +58,30 @@ function HomePage() {
       </div>
     </section>
 
-    {/* ═══ DECISION CARD — propre, sans accent rouge ─────────── */}
-    <DecisionCard decision={top} orgId={org?.organization?.id} />
+    {/* ═══ GRILLE ASYMÉTRIQUE ─────────────────────────────── */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-24">
+      {/* ── Colonne principale 2/3 ── */}
+      <div className="lg:col-span-2 space-y-24">
+        <DecisionCard decision={top} orgId={org?.organization?.id} />
 
-    {/* ═══ RECOMMANDATIONS ───────────────────────────────────── */}
-    {more.length > 0 && (
-      <section className="mt-32">
-        <div className="flex items-center gap-2 mb-16">
-          <Brain size={14} className="t-ai" />
-          <h2 className="h3 t-p">Pour vous</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-16">
+        {more.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-16">
+              <Brain size={14} className="t-ai" />
+              <h2 className="h3 t-p">Pour vous</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-16">
           {more.map((d, i) => (
             <Link key={i} to="/cve/$id" params={{ id: d.cve_id }}
               className="surface rounded-xl p-16 group hover:-translate-y-0.5 transition-all" style={{ textDecoration: 'none' }}>
               <div className="flex items-center justify-between mb-8">
-                <span className="mono text-[11px] font-semibold t-d">{d.cve_id}</span>
+                <span className="mono text-[11px] font-semibold t-info">{d.cve_id}</span>
                 <span className="font-bold t-p">{d.score}</span>
               </div>
               <p className="text-[11px] t-s line-clamp-2 mb-8">{d.description.slice(0, 100)}</p>
               <div className="flex items-center gap-8 text-[10px]">
                 <span className="px-1.5 py-0.5 rounded-full surface-flat t-s">{d.level}</span>
-                {d.is_kev && <span className="t-c font-semibold">KEV</span>}
+                {d.is_kev && <span className="t-danger font-semibold">KEV</span>}
                 <span className="t-m">{d.exploits_count} exploit{d.exploits_count > 1 ? 's' : ''}</span>
               </div>
             </Link>
@@ -104,6 +106,41 @@ function HomePage() {
           <div className="text-[11px] t-m">{link.desc}</div>
         </Link>
       ))}
+    </div>
+      </div>
+
+      {/* ── Side Panel 1/3 ── */}
+      <div className="space-y-24 hidden lg:block">
+        <div className="surface rounded-xl p-16">
+          <h3 className="h3 t-p mb-12">Activité récente</h3>
+          <div className="space-y-12">
+            {[
+              { label: 'Nouveau KEV', desc: 'CVE-2026-48323', time: 'Il y a 2h', c: 'var(--danger)' },
+              { label: 'Patch disponible', desc: 'CVE-2024-57757', time: 'Il y a 5h', c: 'var(--success)' },
+              { label: 'Scan terminé', desc: '19 020 repos analysés', time: 'Il y a 8h', c: 'var(--info)' },
+              { label: 'Analyse IA', desc: '7 CVE analysées', time: "Aujourd'hui", c: 'var(--ai)' },
+            ].map((e, i) => (
+              <div key={i} className="flex items-start gap-8">
+                <div className="w-2 h-2 rounded-full mt-1 shrink-0" style={{ background: e.c }} />
+                <div className="min-w-0"><div className="text-[11px] font-medium t-p">{e.label}</div><div className="text-[10px] t-s truncate">{e.desc}</div><div className="text-[9px] t-m">{e.time}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="surface rounded-xl p-16">
+          <h3 className="h3 t-p mb-12">Résumé</h3>
+          <div className="grid grid-cols-2 gap-8">
+            {[
+              { v: decisions.length, l: 'Décisions', c: 't-p' },
+              { v: summary?.critiques ?? '—', l: 'Critiques', c: 't-danger' },
+              { v: summary?.patches ?? '—', l: 'Patchs', c: 't-success' },
+              { v: `${summary?.avg_exploit_days ?? 12}j`, l: 'Délai exploit.', c: 't-warn' },
+            ].map((k, i) => (
+              <div key={i} className="text-center"><div className={`font-bold text-lg ${k.c}`}>{k.v}</div><div className="text-[10px] t-m">{k.l}</div></div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 }
@@ -155,10 +192,10 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
             <h2 className="h2 t-p mt-1 mb-1">{decision.cve_id}</h2>
             <p className="body-sm t-s line-clamp-2">{decision.description.slice(0, 150)}</p>
             <div className="flex flex-wrap items-center gap-2 mt-2">
-              {decision.is_kev && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-c-l t-c">KEV</span>}
-              {decision.cvss_score != null && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-mi-l t-mi">CVSS {decision.cvss_score}</span>}
-              {decision.exploits_count > 0 && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-d-l t-d">{decision.exploits_count} exploit{decision.exploits_count > 1 ? 's' : ''}</span>}
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-ok-l t-ok">Production</span>
+              {decision.is_kev && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-danger t-danger">KEV</span>}
+              {decision.cvss_score != null && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-warn t-warn">CVSS {decision.cvss_score}</span>}
+              {decision.exploits_count > 0 && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-info t-info">{decision.exploits_count} exploit{decision.exploits_count > 1 ? 's' : ''}</span>}
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-success t-success">Production</span>
             </div>
           </div>
           <button onClick={() => setShowDetails(v => !v)} className="shrink-0 t-m hover:t-p transition-colors mt-1" aria-label={showDetails ? 'Réduire' : 'Développer'}>
@@ -230,22 +267,22 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
 
             {/* ── Analyse IA ───────────────────── */}
             {analysis && (
-              <div className="rounded-xl p-4 bg-a-l" style={{ borderLeft: '3px solid var(--ai)' }}>
-                <h3 className="h3 t-a mb-1 flex items-center gap-2"><Brain size={14} /> Pourquoi HashCode recommande ?</h3>
+              <div className="rounded-xl p-4 bg-ai" style={{ borderLeft: '3px solid var(--ai)' }}>
+                <h3 className="h3 t-ai mb-1 flex items-center gap-2"><Brain size={14} /> Pourquoi HashCode recommande ?</h3>
                 <p className="text-[11px] leading-relaxed t-s">{analysis.summary}</p>
-                {analysis.recommendation && <p className="text-[11px] leading-relaxed mt-1.5 t-a"><strong>→</strong> {analysis.recommendation}</p>}
+                {analysis.recommendation && <p className="text-[11px] leading-relaxed mt-1.5 t-ai"><strong>→</strong> {analysis.recommendation}</p>}
               </div>
             )}
 
             {/* ── SI VOUS N'AGISSEZ PAS — seul endroit rouge ── */}
-            <div className="rounded-xl p-4 bg-c-l" style={{ borderLeft: '3px solid var(--danger)' }} role="alert">
+            <div className="rounded-xl p-4 bg-danger" style={{ borderLeft: '3px solid var(--danger)' }} role="alert">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle size={16} className="t-danger" />
-                <span className="body font-bold t-c">Si vous n'agissez pas</span>
+                <span className="body font-bold t-danger">Si vous n'agissez pas</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-2">
                 {[{ l: 'Probabilité', v: '83%' }, { l: 'Conséquence', v: 'Exécution de code' }, { l: 'Impact', v: 'Critique' }, { l: 'Délai', v: '24 heures' }].map((s, i) => (
-                  <div key={i}><div className="text-[10px] t-m">{s.l}</div><div className="body font-bold t-c">{s.v}</div></div>
+                  <div key={i}><div className="text-[10px] t-m">{s.l}</div><div className="body font-bold t-danger">{s.v}</div></div>
                 ))}
               </div>
               <p className="text-[11px] t-s">{decision.risk_if_ignored}</p>
@@ -256,7 +293,7 @@ function DecisionCard({ decision, orgId }: { decision: PriorityDecision; orgId?:
               <h3 className="h3 t-p mb-2">Impact business</h3>
               <div className="grid grid-cols-3 gap-2">
                 {[{ l: 'Paiement', v: 'Très élevé' }, { l: 'Client', v: 'Très élevé' }, { l: 'Disponibilité', v: 'Critique' }].map((b, i) => (
-                  <div key={i} className="text-center rounded-xl p-2.5 surface-flat"><div className="text-[10px] t-m mb-0.5">{b.l}</div><div className="body font-bold t-c">{b.v}</div></div>
+                  <div key={i} className="text-center rounded-xl p-2.5 surface-flat"><div className="text-[10px] t-m mb-0.5">{b.l}</div><div className="body font-bold t-danger">{b.v}</div></div>
                 ))}
               </div>
             </div>

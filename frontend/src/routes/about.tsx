@@ -6,7 +6,7 @@ export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/abou
 
 function AboutPage() {
   return (
-    <div className="w-full py-8 sm:py-16 animate-fade">
+    <div className="max-w-[900px] mx-auto py-8 sm:py-16 animate-fade">
       <div className="text-center mb-10 sm:mb-16">
         <h1 className="h1 mb-4" style={{ color: 'var(--text)' }}>
           Transformer le chaos en <span style={{ color: 'var(--brand)' }}>décisions</span>
