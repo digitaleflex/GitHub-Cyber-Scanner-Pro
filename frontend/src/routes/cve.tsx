@@ -1,7 +1,7 @@
 import { createRoute, useParams, Link } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useQuery } from '@tanstack/react-query'
-import { Shield, ExternalLink, AlertTriangle, Bug, Star, ArrowLeft, Brain, CheckCircle2 } from 'lucide-react'
+import { Shield, ExternalLink, AlertTriangle, Bug, Star, ArrowLeft, Brain, CheckCircle2, Target, Fingerprint, FileCode, Package, CalendarClock, FileDown, FileText } from 'lucide-react'
 
 const LEVEL_LABEL: Record<string, string> = {
   CRITIQUE: 'Critique',
@@ -226,6 +226,174 @@ function DecisionCenter() {
               </div>
             </div>
           )}
+
+          {/* KEV */}
+          {cve.kev && (
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--critical)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <CalendarClock size={15} style={{ color: 'var(--critical)' }} />
+                <h2 className="h3" style={{ color: 'var(--text)' }}>CISA KEV — {cve.kev.vulnerability_name || 'Vulnérabilité exploitée'}</h2>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="rounded-xl p-3" style={{ background: 'var(--critical-light)' }}>
+                  <div className="text-muted">Ajoutée au catalogue</div>
+                  <div className="font-semibold mt-0.5" style={{ color: 'var(--text)' }}>{cve.kev.cisa_kev_date ? new Date(cve.kev.cisa_kev_date).toLocaleDateString('fr-FR') : '?'}</div>
+                </div>
+                <div className="rounded-xl p-3" style={{ background: 'var(--critical-light)' }}>
+                  <div className="text-muted">Échéance de remédiation</div>
+                  <div className="font-semibold mt-0.5" style={{ color: 'var(--critical-text)' }}>{cve.kev.due_date ? new Date(cve.kev.due_date).toLocaleDateString('fr-FR') : '?'}</div>
+                </div>
+                <div className="rounded-xl p-3 col-span-2" style={{ background: 'var(--critical-light)' }}>
+                  <div className="text-muted">Ransomware</div>
+                  <div className="font-semibold mt-0.5" style={{ color: cve.kev.ransomware_campaign ? 'var(--critical-text)' : 'var(--text-muted)' }}>
+                    {cve.kev.ransomware_campaign || 'Non associé'}
+                  </div>
+                </div>
+              </div>
+              {cve.kev.required_action && (
+                <p className="body-sm mt-3" style={{ color: 'var(--text-secondary)' }}>{cve.kev.required_action}</p>
+              )}
+            </div>
+          )}
+
+          {/* IOCs */}
+          {cve.iocs?.length > 0 && (
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Fingerprint size={15} style={{ color: 'var(--decision)' }} />
+                <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.iocs.length} IOC{cve.iocs.length > 1 ? 's' : ''} associé{cve.iocs.length > 1 ? 's' : ''}</h2>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {cve.iocs.map((i: any) => (
+                  <button key={i.id}
+                    onClick={() => navigator.clipboard?.writeText(i.value)}
+                    title={`Source: ${i.source || '?'} — cliquer pour copier`}
+                    className="mono text-[10px] px-2.5 py-1 rounded-full border transition-colors"
+                    style={{ background: 'var(--bg-alt)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
+                    {i.value}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ATT&CK */}
+          {cve.attack_techniques?.length > 0 && (
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Target size={15} style={{ color: 'var(--mission)' }} />
+                <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.attack_techniques.length} technique{cve.attack_techniques.length > 1 ? 's' : ''} MITRE ATT&CK</h2>
+              </div>
+              <div className="space-y-2">
+                {cve.attack_techniques.map((t: any, i: number) => (
+                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium" style={{ color: 'var(--text)' }}>
+                        <span className="mono mr-2" style={{ color: 'var(--mission-text)' }}>{t.technique_id}</span>{t.name}
+                      </div>
+                      {t.tactic && <div className="text-[10px] text-muted mt-0.5">{t.tactic}</div>}
+                    </div>
+                    <a href={`https://attack.mitre.org/techniques/${t.technique_id}`} target="_blank" rel="noopener"
+                      className="shrink-0 p-1 rounded transition-colors" style={{ color: 'var(--text-muted)' }}>
+                      <ExternalLink size={13} />
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Detection rules */}
+          {cve.sigma_rules?.length + cve.yara_rules?.length + cve.ids_rules?.length > 0 && (
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <FileCode size={15} style={{ color: 'var(--brand-text)' }} />
+                <h2 className="h3" style={{ color: 'var(--text)' }}>Règles de détection</h2>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {cve.sigma_rules.map((r: any, i: number) => (
+                  <span key={`s-${i}`} className="text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--brand-bg)', color: 'var(--brand-text)', borderColor: 'var(--border-light)' }}>
+                    Sigma — {r.title}
+                  </span>
+                ))}
+                {cve.yara_rules.map((r: any, i: number) => (
+                  <span key={`y-${i}`} className="text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--mission-light)', color: 'var(--mission-text)', borderColor: 'var(--border-light)' }}>
+                    YARA — {r.rule_name}
+                  </span>
+                ))}
+                {cve.ids_rules.map((r: any, i: number) => (
+                  <span key={`i-${i}`} className="mono text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--bg-alt)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
+                    {r.engine} {r.sid} — {r.message}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Patches & produits */}
+          {cve.patches?.length > 0 && (
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Package size={15} style={{ color: 'var(--success)' }} />
+                <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.patches.length} correctif{cve.patches.length > 1 ? 's' : ''}</h2>
+              </div>
+              <div className="space-y-2">
+                {cve.patches.map((p: any, i: number) => (
+                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium" style={{ color: 'var(--text)' }}>
+                        {p.patch_name || p.vendor || 'Correctif'}
+                        {p.version_fixed && <span className="mono ml-2" style={{ color: 'var(--success)' }}>fix {p.version_fixed}</span>}
+                      </div>
+                      {p.notes && <div className="text-[10px] text-muted mt-0.5 line-clamp-1">{p.notes}</div>}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full border"
+                        style={{ background: p.available ? 'var(--success-light)' : 'var(--bg-alt)', color: p.available ? '#166534' : 'var(--text-muted)', borderColor: 'var(--border-light)' }}>
+                        {p.available ? 'DISPONIBLE' : 'ATTENTE'}
+                      </span>
+                      {p.url && <a href={p.url} target="_blank" rel="noopener" className="p-1 rounded" style={{ color: 'var(--text-muted)' }}><ExternalLink size={12} /></a>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Produits affectes */}
+          {cve.affected_products?.length > 0 && (
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
+              <p className="caption mb-3" style={{ color: 'var(--brand-text)' }}>Produits affectés</p>
+              <div className="flex flex-wrap gap-1.5">
+                {cve.affected_products.map((p: any, i: number) => (
+                  <span key={i} className="text-[10px] px-2.5 py-1 rounded-full border" style={{ background: 'var(--bg-alt)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
+                    {[p.vendor, p.product, p.version].filter(Boolean).join(' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Advisories */}
+          {cve.advisories?.length > 0 && (
+            <div className="surface p-5 sm:p-6" style={{ border: '1px solid var(--border)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <FileText size={15} style={{ color: 'var(--decision)' }} />
+                <h2 className="h3" style={{ color: 'var(--text)' }}>{cve.advisories.length} avis fournisseur{cve.advisories.length > 1 ? 's' : ''}</h2>
+              </div>
+              <div className="space-y-2">
+                {cve.advisories.map((a: any, i: number) => (
+                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium" style={{ color: 'var(--text)' }}>{a.vendor} — {a.title}</div>
+                      {a.published && <div className="text-[10px] text-muted mt-0.5">{new Date(a.published).toLocaleDateString('fr-FR')}</div>}
+                    </div>
+                    {a.url && <a href={a.url} target="_blank" rel="noopener" className="shrink-0 p-1 rounded" style={{ color: 'var(--text-muted)' }}><ExternalLink size={13} /></a>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -270,6 +438,26 @@ function DecisionCenter() {
                   {cve.is_kev ? 'OUI' : 'NON'}
                 </span>
               </div>
+              {cve.kev?.due_date && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Échéance KEV</span>
+                  <span className="font-semibold" style={{ color: 'var(--mission-text)' }}>
+                    {new Date(cve.kev.due_date).toLocaleDateString('fr-FR')}
+                  </span>
+                </div>
+              )}
+              {cve.epss?.epss != null && (
+                <div>
+                  <div className="flex justify-between">
+                    <span className="text-muted">EPSS (prob. exploitation)</span>
+                    <span className="font-semibold" style={{ color: 'var(--text)' }}>{(cve.epss.epss * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full mt-1.5" style={{ background: 'var(--bg-alt)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${Math.min(cve.epss.epss * 100, 100)}%`, background: cve.epss.epss >= 0.5 ? 'var(--critical)' : cve.epss.epss >= 0.1 ? 'var(--mission)' : 'var(--success)' }} />
+                  </div>
+                  <div className="text-right text-[9px] text-muted mt-0.5">P{Math.round((cve.epss.percentile || 0) * 100)} — {cve.epss.percentile != null ? `top ${Math.round((1 - (cve.epss.percentile || 0)) * 100)}%` : ''}</div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -283,6 +471,12 @@ function DecisionCenter() {
             className="surface rounded-xl p-3 flex items-center justify-center gap-1.5 text-xs transition-all hover:-translate-y-0.5"
             style={{ color: 'var(--text-secondary)', border: '1px solid var(--border)', textDecoration: 'none' }}>
             Exploit-DB <ExternalLink size={10} />
+          </a>
+
+          <a href={`/api/cve/${encodeURIComponent(cve.cve_id)}/stix`} target="_blank" rel="noopener"
+            className="surface rounded-xl p-3 flex items-center justify-center gap-1.5 text-xs font-medium transition-all hover:-translate-y-0.5"
+            style={{ color: 'var(--brand-text)', border: '1px solid var(--border)', textDecoration: 'none', background: 'var(--brand-bg)' }}>
+            Export STIX 2.1 <FileDown size={11} />
           </a>
         </div>
       </div>
