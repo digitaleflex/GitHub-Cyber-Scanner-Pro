@@ -152,6 +152,46 @@ body {
   .card-hero {
     background: var(--surface-elevated);
     border: 1px solid var(--border);
+
+  /* Text colors */
+  .t-p     { color: var(--text); }
+  .t-s     { color: var(--text-secondary); }
+  .t-m     { color: var(--text-muted); }
+  .t-b     { color: var(--brand-text); }
+  .t-c     { color: var(--critical-text); }
+  .t-mi    { color: var(--mission-text); }
+  .t-d     { color: var(--decision-text); }
+  .t-a     { color: var(--ai-text); }
+  .t-ok    { color: var(--success-text); }
+  .t-warn  { color: var(--warning-text); }
+
+  /* Backgrounds */
+  .bg-s    { background: var(--surface); }
+  .bg-se   { background: var(--surface-elevated); }
+  .bg-a    { background: var(--bg-alt); }
+  .bg-c-l  { background: var(--critical-light); }
+  .bg-mi-l { background: var(--mission-light); }
+  .bg-d-l  { background: var(--decision-light); }
+  .bg-a-l  { background: var(--ai-light); }
+  .bg-ok-l { background: var(--success-light); }
+
+  /* Borders */
+  .b-d     { border: 1px solid var(--border); }
+  .b-dl    { border: 1px solid var(--border-light); }
+  .b-c     { border-color: var(--critical); }
+  .b-mi    { border-color: var(--mission); }
+  .b-dc    { border-color: var(--decision); }
+  .b-ai    { border-color: var(--ai); }
+  .b-ok    { border-color: var(--success); }
+
+  /* Layout */
+  .flex-center { display: flex; align-items: center; justify-content: center; }
+
+  /* Accent borders */
+  .border-accent-critical { border-left: 3px solid var(--critical); }
+  .border-accent-eleve { border-left: 3px solid var(--mission); }
+  .border-accent-moyen { border-left: 3px solid var(--decision); }
+  .border-accent-bas { border-left: 3px solid var(--text-muted); }
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
   }
