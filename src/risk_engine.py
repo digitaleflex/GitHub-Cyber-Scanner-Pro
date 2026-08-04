@@ -34,7 +34,7 @@ _IGNORED_TOKENS = {
     "server", "service", "services", "system", "systems", "application", "apps",
     "vulnerability", "vulnerabilities", "remote", "local", "via", "allow", "allows",
     "cause", "execute", "execution", "code", "arbitrary", "attack", "attacker",
-    "could", "may", "this", "that", "with", "before", "after", "version", "versions",
+    "could", "may", "this", "that", "before", "after", "version", "versions",
     "information", "disclosure", "user", "users", "web", "http", "https", "affected",
 }
 

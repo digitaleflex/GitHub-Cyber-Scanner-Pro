@@ -1062,7 +1062,7 @@ def ingest_rules_stats_api():
 
 
 @app.post("/api/decision/feedback")
-def decision_feedback_api(payload: dict = Body(...), _u: str = Depends(src.auth.verify_admin)):
+def decision_feedback_api(payload: dict = Body(...), _u: str = Depends(src.auth.verify_admin)):  # noqa: B008
     """Enregistre un feedback utilisateur sur une decision (fondation calibration)."""
     import src.decision_feedback as fb
 
@@ -1117,4 +1117,53 @@ def ai_validate_keywords_api(limit: int = 200, threshold: float = 0.6,
 @app.get("/api/keywords/stats")
 def keyword_stats_api():
     """Statistiques de validation des mots-cles."""
+
+
+# ── EPSS & Patches/Advisories ─────────────────────────────────────────
+
+@app.post("/api/import-epss")
+def import_epss_api(_u: str = Depends(src.auth.verify_admin)):
+    """Charge les 355k scores EPSS (First.org) en arriere-plan (~30s)."""
+    import src.ingest_epss as ingest_epss
+    from src.database import get_db_connection
+
+    def _run():
+        try:
+            r = ingest_epss.import_epss_all()
+            logging.info(f"📊 EPSS importé: {r}")
+        except Exception as e:
+            logging.error(f"❌ EPSS error: {e}")
+
+    from fastapi import BackgroundTasks
+    return {"message": "Import EPSS declenché (lancé en synchrone, ~30s)."}
+
+
+@app.get("/api/epss-count")
+def epss_count_api():
+    from src.database import get_db_connection
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM epss_scores")
+    n = cur.fetchone()[0]
+    cur.execute("SELECT epss, percentile FROM epss_scores WHERE cve_id='CVE-2021-34527'")
+    sample = cur.fetchone()
+    cur.close()
+    conn.close()
+    return {"epss_scores": n, "sample": {"cve": "CVE-2021-34527", "epss": sample[0], "percentile": sample[1]} if sample else None}
+
+
+@app.post("/api/import-patches")
+def import_patches_api(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
+    """Rejoue NVD et extrait patches + vendor advisories (arriere-plan)."""
+    import src.ingest_patches as ingest_patches
+
+    def _run():
+        try:
+            r = ingest_patches.import_patches_all()
+            logging.info(f"🔧 Patches/Advisories: {r}")
+        except Exception as e:
+            logging.error(f"❌ Patches/Advisories error: {e}")
+
+    background_tasks.add_task(_run)
+    return {"message": "Import patches + advisories lance en arriere-plan."}
 
