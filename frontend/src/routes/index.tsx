@@ -1,6 +1,6 @@
-import { createRoute, Link } from '@tanstack/react-router'
+import { createRoute, Link, useRouter } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Shield, Activity, TrendingUp, Brain, Target, Layers, Server, AlertCircle, Sparkles,
 } from 'lucide-react'
@@ -9,6 +9,7 @@ import { InstrumentPanel } from '../components/InstrumentPanel'
 import { KpiTile } from '../components/KpiTile'
 import { AlertTile } from '../components/AlertTile'
 import { ScoreRing } from '../components/ScoreRing'
+import { MissionCard } from '../components/MissionCard'
 
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/', component: HomePage })
 
@@ -19,6 +20,9 @@ interface PriorityDecision {
 }
 
 function HomePage() {
+  const router = useRouter()
+  const queryClient = useQueryClient()
+
   const { data: org } = useQuery({
     queryKey: ['organization', 1],
     queryFn: () => fetch('/api/organization?profile_id=1').then(r => r.json()),
@@ -31,6 +35,13 @@ function HomePage() {
     queryFn: async () => { const r = await fetch('/api/priority/cves?days=90&limit=8'); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() },
     staleTime: 120_000,
   })
+
+  const { data: missionsData } = useQuery({
+    queryKey: ['missions-home', org?.organization?.id],
+    queryFn: () => fetch(`/api/missions?org_id=${org?.organization?.id}&limit=3`).then(r => r.json()),
+    enabled: !!org?.organization?.id,
+  })
+  const missions = (missionsData?.missions || []).filter((m: any) => m.status === 'active' || m.status === 'in_progress')
 
   const summary = priority?.summary
   const decisions: PriorityDecision[] = priority?.decisions || []
@@ -108,6 +119,32 @@ function HomePage() {
                     exploits={d.exploits_count}
                   />
                 </Link>
+              ))}
+            </div>
+          </InstrumentPanel>
+        )}
+
+        {/* Missions actives */}
+        {missions.length > 0 && (
+          <InstrumentPanel title="Missions actives" icon={<Target size={18} />} accent="amber">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {missions.map((m: any) => (
+                <MissionCard
+                  key={m.id}
+                  title={m.title}
+                  objective={m.objective}
+                  progress={m.progress}
+                  status={m.status}
+                  estimatedMinutes={m.estimated_minutes}
+                  riskReduction={m.risk_reduction_percent}
+                  onStart={() => {
+                    fetch(`/api/missions/${m.id}/start`, { method: 'POST' }).then(() => {
+                      queryClient.invalidateQueries({ queryKey: ['missions-home'] })
+                      queryClient.invalidateQueries({ queryKey: ['missions'] })
+                    })
+                  }}
+                  onViewSteps={() => router.navigate({ to: '/missions' })}
+                />
               ))}
             </div>
           </InstrumentPanel>
