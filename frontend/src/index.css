@@ -1,23 +1,24 @@
 @import "tailwindcss";
 
-/* ── HashCode Design Tokens v2 · Warm Precision ─────────────────── */
+/* ── HashCode Design Tokens v3 · Sharp Contrast ──────────────────── */
 
 :root {
-  /* Brand — lime signature */
-  --brand: #C5F441;
-  --brand-hover: #D0F85A;
-  --brand-active: #B8E830;
-  --brand-bg: #F4FDE0;
-  --brand-text: #3F6212;
-  --brand-ring: rgba(197, 244, 65, 0.5);
+  /* Brand — lime signature. brand-text = toujours lisible sur brand */
+  --brand: #A3E635;
+  --brand-hover: #BEF264;
+  --brand-active: #84CC16;
+  --brand-text: #111827;
+  --brand-bg: rgba(163, 230, 53, 0.12);
+  --brand-ring: rgba(163, 230, 53, 0.3);
+  --brand-accent: #A3E635;
 
   /* Semantic */
-  --ai: #7C3AED;           --ai-light: #EDE9FE;    --ai-text: #5B21B6;
-  --decision: #2563EB;     --decision-light: #EFF6FF; --decision-text: #1E40AF;
-  --mission: #D97706;      --mission-light: #FFF7ED; --mission-text: #9A3412;
-  --critical: #DC2626;     --critical-light: #FEF2F2; --critical-text: #991B1B;
+  --ai: #8B5CF6;           --ai-light: #EDE9FE;    --ai-text: #6D28D9;
+  --decision: #3B82F6;     --decision-light: #EFF6FF; --decision-text: #1D4ED8;
+  --mission: #F59E0B;      --mission-light: #FFF7ED; --mission-text: #B45309;
+  --critical: #EF4444;     --critical-light: #FEF2F2; --critical-text: #B91C1C;
   --warning: #F59E0B;      --warning-light: #FFFBEB;
-  --success: #16A34A;      --success-light: #F0FDF4;
+  --success: #22C55E;      --success-light: #F0FDF4;
 
   /* Radius */
   --radius-sm: 8px;
@@ -27,50 +28,50 @@
   --radius-pill: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
-  --shadow-lg: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
-  --shadow-xl: 0 4px 16px rgba(0,0,0,0.10), 0 16px 48px rgba(0,0,0,0.08);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.05);
+  --shadow-lg: 0 2px 8px rgba(0,0,0,0.10), 0 8px 32px rgba(0,0,0,0.07);
+  --shadow-xl: 0 4px 16px rgba(0,0,0,0.12), 0 16px 48px rgba(0,0,0,0.09);
 
   /* Transitions */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Light Theme (default) — warm, crafted, premium ─────────────── */
+/* ── Light Theme — bright, clean, professional ────────────────────── */
 
 :root, [data-theme="light"] {
-  --bg: #F5F2ED;
-  --bg-alt: #EFECE6;
-  --surface: #FFFDF9;
-  --surface-hover: #F9F6F0;
+  --bg: #F8FAFC;
+  --bg-alt: #F1F5F9;
+  --surface: #FFFFFF;
+  --surface-hover: #F8FAFC;
   --surface-elevated: #FFFFFF;
-  --border: #E5DFD5;
-  --border-light: #F0EBE3;
-  --border-hover: #D4CCC0;
-  --text: #181614;
-  --text-secondary: #6B6560;
-  --text-muted: #A09A94;
-  --text-inverse: #FAFAFA;
-  --overlay: rgba(28, 25, 23, 0.5);
+  --border: #CBD5E1;
+  --border-light: #E2E8F0;
+  --border-hover: #94A3B8;
+  --text: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-inverse: #F8FAFC;
+  --overlay: rgba(15, 23, 42, 0.45);
 }
 
-/* ── Dark Theme — charcoal ink, high contrast, deliberate ────────── */
+/* ── Dark Theme — deep ink, sharp contrast, deliberate ────────────── */
 
 [data-theme="dark"] {
-  --bg: #0A0A0F;
-  --bg-alt: #0E0E14;
-  --surface: #141416;
-  --surface-hover: #1A1A1E;
-  --surface-elevated: #1E1E22;
-  --border: #222228;
-  --border-light: #1A1A20;
-  --border-hover: #2E2E34;
-  --text: #FAFAFA;
-  --text-secondary: #A1A1A6;
-  --text-muted: #696970;
-  --text-inverse: #181614;
-  --overlay: rgba(0, 0, 0, 0.6);
+  --bg: #020617;
+  --bg-alt: #0A0F1E;
+  --surface: #111827;
+  --surface-hover: #1A2332;
+  --surface-elevated: #1E293B;
+  --border: #334155;
+  --border-light: #1E293B;
+  --border-hover: #475569;
+  --text: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-inverse: #0F172A;
+  --overlay: rgba(2, 6, 23, 0.7);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────── */
