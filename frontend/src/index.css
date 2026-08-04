@@ -1,63 +1,70 @@
 @import "tailwindcss";
 
-/* ── HashCode Decision Design Principles — Design Tokens ───────────── */
+/* ── HashCode Design Tokens ──────────────────────────────────────── */
 
-@theme {
+:root {
   /* Brand */
-  --color-brand: #C5F441;
-  --color-brand-hover: #B3E030;
-  --color-brand-bg: #F7FEE7;
-  --color-brand-text: #365314;
+  --brand: #C5F441;
+  --brand-hover: #B3E030;
+  --brand-bg: #F0FBE0;
+  --brand-text: #3F6212;
 
-  /* AI / Intelligence */
-  --color-ai: #7C3AED;
-  --color-ai-light: #EDE9FE;
-  --color-ai-text: #5B21B6;
-
-  /* Decision */
-  --color-decision: #2563EB;
-  --color-decision-light: #EFF6FF;
-  --color-decision-text: #1E40AF;
-
-  /* Mission */
-  --color-mission: #F59E0B;
-  --color-mission-light: #FEF3C7;
-  --color-mission-text: #92400E;
-
-  /* Danger / Critical */
-  --color-critical: #EF4444;
-  --color-critical-light: #FEE2E2;
-  --color-critical-text: #991B1B;
-
-  /* Success */
-  --color-ok: #22C55E;
-  --color-ok-light: #DCFCE7;
-
-  /* Surfaces */
-  --color-surface: #FFFFFF;
-  --color-surface-secondary: #F8FAFC;
-  --color-background: #FAFAFA;
-  --color-border: #E5E7EB;
-  --color-border-light: #F1F5F9;
-
-  /* Text */
-  --color-text: #111827;
-  --color-text-secondary: #6B7280;
-  --color-text-disabled: #9CA3AF;
-
-  /* Dark mode */
-  --color-dark-bg: #0F172A;
-  --color-dark-surface: #1E293B;
-  --color-dark-border: #334155;
+  /* Semantic */
+  --ai: #7C3AED;
+  --ai-light: #EDE9FE;
+  --ai-text: #5B21B6;
+  --decision: #2563EB;
+  --decision-light: #EFF6FF;
+  --decision-text: #1E40AF;
+  --mission: #D97706;
+  --mission-light: #FFF7ED;
+  --mission-text: #9A3412;
+  --critical: #DC2626;
+  --critical-light: #FEF2F2;
+  --critical-text: #991B1B;
+  --success: #16A34A;
+  --success-light: #F0FDF4;
 
   /* Shadows */
-  --shadow-card: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(15,23,42,.06);
-  --shadow-elevated: 0 2px 4px rgba(0,0,0,.06), 0 12px 40px rgba(15,23,42,.08);
+  --shadow-card: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.04);
+  --shadow-elevated: 0 2px 8px rgba(0,0,0,.06), 0 16px 48px rgba(0,0,0,.06);
 
   /* Radius */
   --radius-card: 16px;
   --radius-button: 12px;
   --radius-pill: 9999px;
+}
+
+/* ── Light Theme (default) — chaleureux, accueillant ────────────── */
+
+:root, [data-theme="light"] {
+  --bg: #F5F2ED;
+  --surface: #FFFDF9;
+  --surface-secondary: #F7F4EE;
+  --border: #E5DFD5;
+  --border-light: #F0EBE3;
+  --text: #1C1917;
+  --text-secondary: #78716C;
+  --text-disabled: #A8A29E;
+  --hover-bg: rgba(0,0,0,.03);
+  --active-bg: var(--brand-bg);
+  --active-text: var(--brand-text);
+}
+
+/* ── Dark Theme ──────────────────────────────────────────────────── */
+
+[data-theme="dark"] {
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --surface-secondary: #1A2332;
+  --border: #334155;
+  --border-light: #1E293B;
+  --text: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-disabled: #64748B;
+  --hover-bg: rgba(255,255,255,.05);
+  --active-bg: rgba(197,244,65,.10);
+  --active-text: #C5F441;
 }
 
 /* ── Base ─────────────────────────────────────────────────────────── */
@@ -66,47 +73,54 @@
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
 
 body {
-  background: var(--color-background);
-  color: var(--color-text);
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
   font-size: 14px;
   line-height: 1.6;
+  transition: background .3s, color .3s;
 }
 
 /* ── Utilities ────────────────────────────────────────────────────── */
 
 @layer utilities {
   .surface {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
+    transition: background .3s, border-color .3s;
   }
 
   .surface-secondary {
-    background: var(--color-surface-secondary);
-    border: 1px solid var(--color-border-light);
+    background: var(--surface-secondary);
+    border: 1px solid var(--border-light);
     border-radius: var(--radius-card);
+    transition: background .3s;
   }
 
+  .separator { height: 1px; background: var(--border); }
+
   .btn-primary {
-    background: var(--color-brand);
-    color: var(--color-brand-text);
+    background: var(--brand);
+    color: var(--brand-text);
     border-radius: var(--radius-button);
     font-weight: 600;
     font-size: 14px;
     padding: 10px 24px;
     border: none;
     cursor: pointer;
-    transition: background .15s;
+    transition: background .15s, transform .1s;
   }
-  .btn-primary:hover { background: var(--color-brand-hover); }
-  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-primary:hover { background: var(--brand-hover); }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 
   .btn-secondary {
-    background: var(--color-surface);
-    color: var(--color-text-secondary);
-    border: 1px solid var(--color-border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
     border-radius: var(--radius-button);
     font-weight: 500;
     font-size: 13px;
@@ -114,7 +128,7 @@ body {
     cursor: pointer;
     transition: all .15s;
   }
-  .btn-secondary:hover { background: var(--color-surface-secondary); color: var(--color-text); }
+  .btn-secondary:hover { background: var(--surface-secondary); color: var(--text); }
 
   .badge {
     font-size: 11px;
@@ -125,67 +139,86 @@ body {
     align-items: center;
     gap: 4px;
   }
-  .badge-brand  { background: var(--color-brand-bg); color: var(--color-brand-text); }
-  .badge-ai     { background: var(--color-ai-light); color: var(--color-ai-text); }
-  .badge-mission{ background: var(--color-mission-light); color: var(--color-mission-text); }
-  .badge-critical{ background: var(--color-critical-light); color: var(--color-critical-text); }
-  .badge-decision{ background: var(--color-decision-light); color: var(--color-decision-text); }
-  .badge-ok     { background: var(--color-ok-light); color: #166534; }
+  .badge-brand   { background: var(--brand-bg); color: var(--brand-text); }
+  .badge-ai      { background: var(--ai-light); color: var(--ai-text); }
+  .badge-mission { background: var(--mission-light); color: var(--mission-text); }
+  .badge-critical{ background: var(--critical-light); color: var(--critical-text); }
+  .badge-decision{ background: var(--decision-light); color: var(--decision-text); }
+  .badge-success { background: var(--success-light); color: #166534; }
 
-  .text-secondary { color: var(--color-text-secondary); }
-  .text-disabled  { color: var(--color-text-disabled); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-disabled  { color: var(--text-disabled); }
 
   .ring-brand:focus { outline: none; box-shadow: 0 0 0 3px rgba(197,244,65,.4); }
-
-  .separator { height: 1px; background: var(--color-border); }
-
-  .nav-link {
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text-secondary);
-    transition: all .15s;
-  }
-  .nav-link:hover { background: var(--color-surface-secondary); color: var(--color-text); }
-  .nav-active { color: var(--color-brand-text) !important; background: var(--color-brand-bg) !important; }
-
-  .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    color: var(--color-text-secondary);
-    transition: all .1s;
-  }
-  .dropdown-item:hover { background: var(--color-surface-secondary); color: var(--color-text); }
-
-  /* Backward compat — pages use glass/slate classes, mapped to new tokens */
-  .glass, .glass-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-  }
-  .text-white, .text-slate-200, .text-slate-300 { color: var(--color-text) !important; }
-  .text-slate-400 { color: var(--color-text-secondary) !important; }
-  .text-slate-500, .text-slate-600 { color: var(--color-text-disabled) !important; }
-  .text-indigo-400, .text-indigo-500 { color: var(--color-decision) !important; }
-  .text-emerald-400, .text-emerald-500 { color: var(--color-brand-text) !important; }
-  .text-amber-400, .text-amber-500 { color: var(--color-mission) !important; }
-  .text-rose-400, .text-rose-500 { color: var(--color-critical) !important; }
-  .text-violet-400 { color: var(--color-ai) !important; }
-  .bg-slate-900, .bg-slate-800, .bg-slate-700 { background: var(--color-surface-secondary); }
-  .bg-indigo-500 { background: var(--color-brand) !important; }
-  .bg-emerald-500 { background: var(--color-brand) !important; }
-  .bg-rose-500 { background: var(--color-critical) !important; }
-  .bg-amber-500 { background: var(--color-mission) !important; }
-  .border-indigo-500, .border-emerald-500, .border-rose-500, .border-amber-500 { border-color: var(--color-border) !important; }
-  .hover\:bg-indigo-400:hover { background: var(--color-brand-hover) !important; }
-  .hover\:bg-emerald-400:hover { background: var(--color-brand-hover) !important; }
 }
+
+/* ── Navigation ──────────────────────────────────────────────────── */
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all .15s;
+  text-decoration: none;
+}
+.nav-link:hover { background: var(--hover-bg); color: var(--text); }
+.nav-link.active { color: var(--active-text) !important; background: var(--active-bg) !important; font-weight: 600; }
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all .1s;
+}
+.dropdown-item:hover { background: var(--hover-bg); color: var(--text); }
+
+/* ── Glass backward compat (old pages) ────────────────────────────── */
+
+.glass, .glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: background .3s, border-color .3s;
+}
+
+.text-white, .text-slate-200, .text-slate-300 { color: var(--text) !important; }
+.text-slate-400 { color: var(--text-secondary) !important; }
+.text-slate-500, .text-slate-600 { color: var(--text-disabled) !important; }
+.text-indigo-400, .text-indigo-500 { color: var(--decision) !important; }
+.text-emerald-400, .text-emerald-500 { color: var(--brand-text) !important; }
+.text-amber-400, .text-amber-500 { color: var(--mission) !important; }
+.text-rose-400, .text-rose-500 { color: var(--critical) !important; }
+.text-violet-400 { color: var(--ai) !important; }
+
+.bg-slate-900, .bg-slate-800, .bg-slate-700, .bg-slate-900\/50 { background: var(--surface-secondary); }
+.bg-indigo-500\/10, .bg-indigo-500\/20 { background: var(--decision-light); }
+.bg-emerald-500\/10, .bg-emerald-500\/20 { background: var(--brand-bg); }
+.bg-rose-500\/10, .bg-rose-500\/20 { background: var(--critical-light); }
+.bg-amber-500\/10, .bg-amber-500\/20 { background: var(--mission-light); }
+.bg-violet-500\/10 { background: var(--ai-light); }
+
+.bg-indigo-500 { background: var(--brand) !important; }
+.bg-emerald-500 { background: var(--brand) !important; }
+.bg-rose-500 { background: var(--critical) !important; }
+.bg-amber-500 { background: var(--mission) !important; }
+
+.border-white\/\[0\.04\], .border-white\/\[0\.03\], .border-white\/5 { border-color: var(--border) !important; }
+.border-indigo-500\/10, .border-indigo-500\/20 { border-color: var(--decision) !important; opacity: .2; }
+.border-emerald-500\/10, .border-emerald-500\/20 { border-color: var(--brand) !important; opacity: .2; }
+.border-amber-500\/10, .border-amber-500\/20 { border-color: var(--mission) !important; opacity: .2; }
+.border-rose-500\/10, .border-rose-500\/20 { border-color: var(--critical) !important; opacity: .2; }
+
+.hover\:bg-indigo-400:hover, .hover\:bg-emerald-400:hover { background: var(--brand-hover) !important; }
 
 /* ── Animations ───────────────────────────────────────────────────── */
 
@@ -194,6 +227,4 @@ body {
 .animate-fade  { animation: fade-in .3s ease-out; }
 .animate-slide { animation: slide-up .4s ease-out; }
 
-/* ── Spacing grid (8px multiples) ─────────────────────────────────── */
-
-/* Default Tailwind spacing: 1=4px. We use: p-2 (8px), p-4 (16px), p-6 (24px), p-8 (32px), p-12 (48px), p-16 (64px) */
+/* 8px spacing grid: p-2=8px, p-4=16px, p-6=24px, p-8=32px, p-12=48px */

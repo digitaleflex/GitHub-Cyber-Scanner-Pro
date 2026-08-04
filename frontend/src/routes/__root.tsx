@@ -1,12 +1,32 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { Link, Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
-import { Menu, X, Play, Shield, User, Building2, Settings, ChevronDown } from 'lucide-react'
+import { Menu, X, Play, Shield, User, Building2, Settings, ChevronDown, Sun, Moon } from 'lucide-react'
 import { useScanStatus } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 import useSearchHotkey from '../lib/useSearchHotkey'
 import NotFound from './not-found'
 
 export const Route = createRootRoute({ component: RootLayout, notFoundComponent: NotFound })
+
+function ThemeToggle() {
+  const [dark, setDark] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const stored = localStorage.getItem('theme')
+    if (stored) return stored === 'dark'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+    localStorage.setItem('theme', dark ? 'dark' : 'light')
+  }, [dark])
+
+  return (
+    <button onClick={() => setDark(!dark)} className="nav-link" title={dark ? 'Mode clair' : 'Mode sombre'}>
+      {dark ? <Sun size={15} /> : <Moon size={15} />}
+    </button>
+  )
+}
 
 function UserBadge() {
   const { data } = useQuery({
@@ -75,15 +95,15 @@ function RootLayout() {
   useSearchHotkey()
 
   return (
-    <div className="min-h-screen" style={{ color: 'var(--color-text)' }}>
+    <div className="min-h-screen" style={{ color: 'var(--text)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <header className="flex items-center justify-between py-3 sm:py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+        <header className="flex items-center justify-between py-3 sm:py-4" style={{ borderBottom: `1px solid var(--border)` }}>
           <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition shrink-0">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm" style={{ background: 'var(--color-brand)', color: 'var(--color-brand-text)' }}>H</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm" style={{ background: 'var(--brand)', color: 'var(--brand-text)' }}>H</div>
             <div className="hidden sm:block">
-              <span className="text-sm font-semibold tracking-tight" style={{ color: 'var(--color-text)' }}>HashCode</span>
-              <span className="text-[10px] font-medium ml-1.5 px-1.5 py-0.5 rounded" style={{ background: 'var(--color-brand-bg)', color: 'var(--color-brand-text)' }}>Decision OS</span>
+              <span className="text-sm font-semibold tracking-tight">HashCode</span>
+              <span className="text-[10px] font-medium ml-1.5 px-1.5 py-0.5 rounded" style={{ background: 'var(--brand-bg)', color: 'var(--brand-text)' }}>Decision OS</span>
             </div>
           </Link>
 
@@ -95,6 +115,7 @@ function RootLayout() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
             <UserBadge />
             <div className="hidden md:flex items-center gap-1">
               <Dropdown items={[
@@ -115,7 +136,7 @@ function RootLayout() {
               </Dropdown>
             </div>
             <ScanBtn />
-            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-1" style={{ color: 'var(--color-text-secondary)' }}>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-1" style={{ color: 'var(--text-secondary)' }}>
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
@@ -123,31 +144,31 @@ function RootLayout() {
 
         {menuOpen && (
           <nav className="md:hidden flex flex-col gap-1 pb-4 -mt-1 mb-4 surface rounded-xl p-2 animate-fade">
-            <Link to="/" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)] font-medium">Aujourd'hui</Link>
-            <Link to="/threats" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]">Menaces</Link>
-            <Link to="/missions" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]">Missions</Link>
-            <Link to="/tools" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]">Outils</Link>
+            <Link to="/" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg font-medium" style={{ color: 'var(--text)' }}>Aujourd'hui</Link>
+            <Link to="/threats" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg" style={{ color: 'var(--text-secondary)' }}>Menaces</Link>
+            <Link to="/missions" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg" style={{ color: 'var(--text-secondary)' }}>Missions</Link>
+            <Link to="/tools" onClick={() => setMenuOpen(false)} className="text-sm py-2.5 px-3 rounded-lg" style={{ color: 'var(--text-secondary)' }}>Outils</Link>
             <div className="separator my-1" />
-            <Link to="/timeline" onClick={() => setMenuOpen(false)} className="text-sm py-2 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]" style={{ color: 'var(--color-text-secondary)' }}>Timeline</Link>
-            <Link to="/reports" onClick={() => setMenuOpen(false)} className="text-sm py-2 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]" style={{ color: 'var(--color-text-secondary)' }}>Rapports</Link>
-            <Link to="/assistant" onClick={() => setMenuOpen(false)} className="text-sm py-2 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]" style={{ color: 'var(--color-text-secondary)' }}>Assistant</Link>
-            <Link to="/cves" onClick={() => setMenuOpen(false)} className="text-sm py-2 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]" style={{ color: 'var(--color-text-secondary)' }}>CVE</Link>
+            <Link to="/timeline" className="text-sm py-2 px-3 rounded-lg text-disabled">Timeline</Link>
+            <Link to="/reports" className="text-sm py-2 px-3 rounded-lg text-disabled">Rapports</Link>
+            <Link to="/assistant" className="text-sm py-2 px-3 rounded-lg text-disabled">Assistant</Link>
+            <Link to="/cves" className="text-sm py-2 px-3 rounded-lg text-disabled">CVE</Link>
             <div className="separator my-1" />
-            <Link to="/assets" onClick={() => setMenuOpen(false)} className="text-sm py-2 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]" style={{ color: 'var(--color-text-disabled)' }}>Assets</Link>
-            <Link to="/organization" onClick={() => setMenuOpen(false)} className="text-sm py-2 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]" style={{ color: 'var(--color-text-disabled)' }}>Organisation</Link>
-            <Link to="/settings" onClick={() => setMenuOpen(false)} className="text-sm py-2 px-3 rounded-lg hover:bg-[var(--color-surface-secondary)]" style={{ color: 'var(--color-text-disabled)' }}>Parametres</Link>
+            <Link to="/assets" className="text-sm py-2 px-3 rounded-lg text-disabled">Assets</Link>
+            <Link to="/organization" className="text-sm py-2 px-3 rounded-lg text-disabled">Organisation</Link>
+            <Link to="/settings" className="text-sm py-2 px-3 rounded-lg text-disabled">Parametres</Link>
           </nav>
         )}
 
         <Outlet />
 
-        <footer className="py-8 border-t mt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-disabled)' }}>
+        <footer className="py-8 mt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs" style={{ borderTop: `1px solid var(--border)` }}>
           <div className="flex items-center gap-3">
-            <span style={{ color: 'var(--color-text-secondary)' }}>HashCode Decision OS</span>
-            <span className="w-1 h-1 rounded-full" style={{ background: 'var(--color-border)' }} />
-            <Link to="/about" className="hover:text-[var(--color-text)] transition">A propos</Link>
+            <span className="text-secondary">HashCode Decision OS</span>
+            <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+            <Link to="/about" className="text-disabled hover:text-[var(--text)] transition">A propos</Link>
           </div>
-          <span>Decision Engine · NVD · Exploit-DB · EPSS · CISA KEV</span>
+          <span className="text-disabled">Decision Engine · NVD · Exploit-DB · EPSS · CISA KEV</span>
         </footer>
       </div>
     </div>
