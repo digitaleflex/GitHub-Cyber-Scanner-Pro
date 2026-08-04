@@ -261,9 +261,17 @@ function RootLayout() {
 
         <footer className="py-8 mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ borderTop: `1px solid var(--border)` }}>
           <div className="flex items-center gap-3">
-            <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>HashCode Decision OS</span>
-            <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
-            <Link to="/about" className="hover:underline" style={{ color: 'var(--text-muted)' }}>À propos</Link>
+              <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>HashCode Decision OS</span>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+              <Link to="/about" className="hover:underline" style={{ color: 'var(--text-muted)' }}>À propos</Link>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+              <Link to="/methodology" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Méthodologie</Link>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+              <Link to="/sources" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Sources</Link>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+              <Link to="/feedback" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Contribuer</Link>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+              <Link to="/contact" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Contact</Link>
           </div>
           <span className="text-muted">Decision Engine · NVD · Exploit-DB · EPSS · CISA KEV</span>
         </footer>
