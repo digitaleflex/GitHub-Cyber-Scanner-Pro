@@ -3,6 +3,13 @@ import { Route as RootRoute } from './__root'
 import { useQuery } from '@tanstack/react-query'
 import { Shield, ExternalLink, AlertTriangle, Bug, Star, ArrowLeft, Brain, CheckCircle2 } from 'lucide-react'
 
+const LEVEL_BADGE: Record<string, string> = {
+  CRITIQUE: 'bg-rose-50 text-rose-600 border-rose-200',
+  ELEVE: 'bg-amber-50 text-amber-600 border-amber-200',
+  MOYEN: 'bg-blue-50 text-blue-600 border-blue-200',
+  BAS: 'bg-slate-100 text-slate-500 border-slate-200',
+}
+
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
   path: '/cve/$id',
@@ -74,7 +81,8 @@ function DecisionCenter() {
   )
 
   const dec: DecisionData | null = decision && !decision.error ? decision : null
-  const levelColor = dec?.level === 'CRITIQUE' ? 'rose' : dec?.level === 'ELEVE' ? 'amber' : 'slate'
+  const decisionLevel = dec?.level === 'CRITIQUE' ? 'CRITIQUE' : dec?.level === 'ELEVE' ? 'ELEVE' : dec?.level === 'MOYEN' ? 'MOYEN' : 'BAS'
+  const levelBadge = LEVEL_BADGE[decisionLevel] || LEVEL_BADGE.BAS
 
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8 animate-fade">
@@ -93,7 +101,7 @@ function DecisionCenter() {
           {cve.cvss_score != null && (
             <span className="text-xs text-slate-400">CVSS {cve.cvss_score}</span>
           )}
-          <span className={`px-2 py-0.5 rounded text-[10px] font-medium bg-${levelColor}-500/10 text-${levelColor}-400 border border-${levelColor}-500/20`}>
+          <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${levelBadge}`}>
             {dec?.level || cve.severity || '?'}
           </span>
           {cve.is_kev && (
@@ -222,7 +230,7 @@ function DecisionCenter() {
             <div className="glass-card rounded-2xl p-5">
               <ScoreRing score={dec.score} level={dec.level} maxScore={100} />
               <div className="text-center mt-3">
-                <span className={`text-xs font-medium px-2.5 py-1 rounded bg-${levelColor}-500/10 text-${levelColor}-400`}>
+                <span className={`text-xs font-medium px-2.5 py-1 rounded ${levelBadge}`}>
                   {dec.level}
                 </span>
               </div>

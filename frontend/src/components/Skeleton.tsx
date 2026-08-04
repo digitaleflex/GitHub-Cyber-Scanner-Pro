@@ -1,58 +1,85 @@
-const base = "bg-slate-700/50 rounded animate-pulse"
+import type { ReactNode } from 'react'
 
-export function SkeletonCard() {
+export function Skeleton({ className = '' }: { className?: string }) {
   return (
-    <div className="glass-card rounded-2xl p-5 space-y-3">
-      <div className={`${base} h-4 w-2/3`} />
-      <div className={`${base} h-3 w-full`} />
-      <div className={`${base} h-3 w-4/5`} />
-      <div className="flex gap-2 mt-3">
-        <div className={`${base} h-6 w-16 rounded-full`} />
-        <div className={`${base} h-6 w-20 rounded-full`} />
+    <div className={`rounded-lg animate-pulse ${className}`}
+      style={{ background: 'var(--surface-secondary)' }}
+      role="status"
+      aria-label="Chargement" />
+  )
+}
+
+export function SkeletonCard({ lines = 3 }: { lines?: number }) {
+  return (
+    <div className="surface p-5 space-y-3" role="status" aria-label="Chargement du contenu">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-3 w-full" />
+      {lines > 1 && <Skeleton className="h-3 w-5/6" />}
+      {lines > 2 && <Skeleton className="h-3 w-2/3" />}
+      <div className="flex gap-3 pt-2">
+        <Skeleton className="h-8 w-20 rounded-lg" />
+        <Skeleton className="h-8 w-24 rounded-lg" />
       </div>
     </div>
   )
 }
 
-export function SkeletonTable({ rows = 8, cols = 4 }: { rows?: number; cols?: number }) {
+export function SkeletonHero() {
   return (
-    <div className="glass-card rounded-2xl overflow-hidden">
-      <div className="px-4 py-3 border-b border-white/[0.05]">
-        <div className={`${base} h-3 w-32`} />
+    <div className="surface p-6 space-y-4" role="status" aria-label="Chargement de la decision">
+      <Skeleton className="h-3 w-40" />
+      <Skeleton className="h-6 w-full" />
+      <Skeleton className="h-4 w-2/3" />
+      <div className="grid grid-cols-4 gap-3 py-2">
+        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-16 rounded-xl" />)}
       </div>
-      {Array.from({ length: rows }).map((_, r) => (
-        <div key={r} className="flex px-4 py-3 border-b border-white/[0.02] gap-4">
-          {Array.from({ length: cols }).map((_, c) => (
-            <div key={c} className={`${base} h-3 flex-1`} style={{ maxWidth: `${Math.random() * 40 + 60}%` }} />
-          ))}
-        </div>
-      ))}
+      <div className="space-y-2">
+        {[1, 2, 3].map(i => <Skeleton key={i} className="h-4 w-full" />)}
+      </div>
+      <div className="flex gap-2">
+        <Skeleton className="h-10 w-48 rounded-xl" />
+        <Skeleton className="h-10 w-32 rounded-xl" />
+      </div>
     </div>
   )
 }
 
-const COL_MAP: Record<number, string> = { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-4', 5: 'sm:grid-cols-5', 6: 'sm:grid-cols-6', 8: 'sm:grid-cols-8' }
-
-export function SkeletonStats({ count = 4 }: { count?: number }) {
-  const gridCols = COL_MAP[count] || 'sm:grid-cols-4'
+export function SkeletonKpi({ count = 4 }: { count?: number }) {
+  const grid = count === 2 ? 'grid-cols-2' : count === 3 ? 'grid-cols-3' : 'grid-cols-4'
   return (
-    <div className={`grid grid-cols-2 ${gridCols} gap-3`}>
+    <div className={`grid ${grid} gap-3`} role="status" aria-label="Chargement des indicateurs">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="glass-card rounded-xl p-4 text-center space-y-2">
-          <div className={`${base} h-8 w-8 mx-auto rounded-full`} />
-          <div className={`${base} h-5 w-16 mx-auto`} />
-          <div className={`${base} h-3 w-20 mx-auto`} />
-        </div>
+        <Skeleton key={i} className="h-20 rounded-xl" />
       ))}
     </div>
   )
 }
 
-export function SkeletonGraph() {
+export function EmptyState({ icon, title, description, action }: {
+  icon: ReactNode
+  title: string
+  description: string
+  action?: { label: string; onClick?: () => void; href?: string }
+}) {
   return (
-    <div className="glass-card rounded-2xl p-5">
-      <div className={`${base} h-4 w-40 mb-4`} />
-      <div className={`${base} h-64 w-full`} />
+    <div className="surface p-10 text-center max-w-md mx-auto" role="status">
+      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+        style={{ background: 'var(--surface-secondary)', color: 'var(--text-disabled)' }}>
+        {icon}
+      </div>
+      <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>{title}</h3>
+      <p className="text-xs mb-5" style={{ color: 'var(--text-secondary)' }}>{description}</p>
+      {action && (
+        action.href ? (
+          <a href={action.href} className="btn-primary inline-flex no-underline">
+            {action.label}
+          </a>
+        ) : (
+          <button onClick={action.onClick} className="btn-primary">
+            {action.label}
+          </button>
+        )
+      )}
     </div>
   )
 }

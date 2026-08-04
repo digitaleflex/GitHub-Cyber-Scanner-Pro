@@ -83,8 +83,8 @@ function ScanBtn() {
     setTimeout(() => setScanning(false), 2000)
   }, [isScanning, refetch, router])
   return (
-    <button onClick={handleScan} disabled={isScanning}
-      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full glass text-indigo-300 hover:text-white hover:border-indigo-500/30 disabled:opacity-40 transition">
+    <button onClick={handleScan} disabled={isScanning} aria-label={isScanning ? 'Scan en cours' : 'Lancer un scan'}
+      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full surface-secondary hover:bg-[var(--hover-bg)] disabled:opacity-40 transition">
       <Play size={11} className={isScanning ? 'animate-pulse' : ''} /> {isScanning ? 'Scan...' : 'Scanner'}
     </button>
   )
@@ -107,8 +107,8 @@ function RootLayout() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-0.5">
-            <Link to="/" className="nav-link [&.active]:nav-active">Aujourd'hui</Link>
+          <nav className="hidden md:flex items-center gap-0.5" role="navigation" aria-label="Navigation principale">
+            <Link to="/" className="nav-link [&.active]:nav-active" aria-current="page">Aujourd'hui</Link>
             <Link to="/threats" className="nav-link [&.active]:nav-active">Menaces</Link>
             <Link to="/missions" className="nav-link [&.active]:nav-active">Missions</Link>
             <Link to="/tools" className="nav-link [&.active]:nav-active">Outils</Link>
