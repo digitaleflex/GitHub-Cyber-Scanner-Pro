@@ -598,6 +598,27 @@ def init_db():
         )
     """)
 
+    # Feedback des decisions (fondation calibration) : comment l'utilisateur
+    # a valide/infirme une decision -> ajustement ulterieur des pondérations.
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS decision_feedback (
+            id SERIAL PRIMARY KEY,
+            cve_id VARCHAR(30) NOT NULL,
+            decision_score INTEGER,
+            action TEXT,                 -- patched | not_relevant | ignored | exploitable | false_positive
+            comment TEXT,
+            user_ref VARCHAR(100),
+            fp_risk_at_decision NUMERIC(6,3),
+            applied_patch BOOLEAN,
+            was_exploited BOOLEAN,
+            source VARCHAR(50) DEFAULT 'api',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_feedback_cve ON decision_feedback (cve_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_feedback_action ON decision_feedback (action)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_feedback_created ON decision_feedback (created_at)")
+
     conn.commit()
     cursor.close()
     conn.close()

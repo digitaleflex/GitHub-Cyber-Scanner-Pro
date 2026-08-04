@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime
 from fastapi import BackgroundTasks
+from fastapi import Body
 from fastapi.responses import FileResponse, HTMLResponse
 from src.config import app, FRONTEND_DIR, DOMAIN, EXCEL_FILE, JSON_FILE
 from src import database
@@ -799,7 +800,16 @@ def cve_decision_api(cve_id: str):
         "weaknesses": detail.get("weaknesses", ""),
         "_tokens": set(),
     }
-    decision = pe.score_cve(cve_dict, stack_kws, detail.get("exploits", []), None, 0.0, epss_val)
+    kev_row = None
+    if detail.get("is_kev"):
+        kev = detail.get("kev") or {}
+        kev_row = {
+            "product": kev.get("vulnerability_name") or "",
+            "vendor": "",
+            "dueDate": kev.get("due_date") or "",
+            "ransomware": "Known" if kev.get("ransomware_campaign") else "",
+        }
+    decision = pe.score_cve(cve_dict, stack_kws, detail.get("exploits", []), kev_row, 0.0, epss_val, detail.get("advisories", []))
     return decision
 
 
@@ -976,6 +986,32 @@ def ingest_rules_stats_api():
     import src.ingest_rules as rules_mod
 
     return rules_mod.get_rules_stats()
+
+
+@app.post("/api/decision/feedback")
+def decision_feedback_api(payload: dict = Body(...), _u: str = Depends(src.auth.verify_admin)):
+    """Enregistre un feedback utilisateur sur une decision (fondation calibration)."""
+    import src.decision_feedback as fb
+
+    return fb.record_feedback(
+        cve_id=str(payload.get("cve_id") or ""),
+        action=str(payload.get("action") or ""),
+        decision_score=payload.get("decision_score"),
+        fp_risk_at_decision=payload.get("fp_risk_at_decision"),
+        comment=payload.get("comment"),
+        user_ref=payload.get("user_ref"),
+        applied_patch=payload.get("applied_patch"),
+        was_exploited=payload.get("was_exploited"),
+        source=payload.get("source", "api"),
+    )
+
+
+@app.get("/api/decision/feedback/stats")
+def decision_feedback_stats_api(days: int = 30):
+    """Agregats de feedback : precision observee, taux de faux positifs, actions."""
+    import src.decision_feedback as fb
+
+    return fb.get_feedback_stats(days=max(1, min(days, 365)))
 
 
 @app.get("/api/ingest/stats")

@@ -125,7 +125,66 @@ def _confidence(factors: dict) -> str:
     return "Basse"
 
 
-def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | None, rerank_score: float = 0.0, epss: float = 0.0) -> dict:
+def _fp_report(cvss: float, severity: str, epss: float, exploits: list, kev_row: dict | None,
+               stack_hits: list, rerank_score: float, advisories: list | None = None) -> dict:
+    """Rapport de risque de faux positif base sur l'accord/desaccord des signaux.
+
+    Principe : un signal seul peut mentir ; le risque de faux positif diminue quand
+    des sources independantes corroborent la meme conclusion, et augmente quand
+    elles se contredisent. C'est une heuristique transparente (pas une boite noire).
+    """
+    signals = {}
+    conflicts = []
+
+    signals["CVSS"] = cvss >= 7.0 or severity in ("CRITICAL", "HIGH")
+    if not signals["CVSS"]:
+        conflicts.append("Severite faible ou moyenne — signal limite")
+
+    if epss and epss > 0:
+        signals["EPSS"] = epss >= 0.10
+        if cvss >= 9 and epss < 0.02:
+            conflicts.append("CVSS eleve mais probabilite d'exploitation faible (EPSS < 2%)")
+    else:
+        signals["EPSS"] = None
+        conflicts.append("EPSS inconnu — pas de prediction d'exploitation")
+
+    signals["KEV"] = bool(kev_row)
+    signals["ExploitDB"] = len(exploits) > 0
+    if cvss >= 9 and not exploits:
+        conflicts.append("Aucun exploit public connu")
+
+    if advisories is not None:
+        signals["Vendor"] = len(advisories) > 0
+    else:
+        signals["Vendor"] = None
+
+    signals["Stack"] = bool(stack_hits) or rerank_score > 0
+    if not signals["Stack"]:
+        conflicts.append("Aucune correspondance avec votre contexte (stack)")
+
+    known = {k for k, v in signals.items() if v is not None}
+    corroborate = {k for k in known if signals[k]}
+    dissent = {k for k in known if not signals[k]}
+
+    if signals["KEV"]:
+        fp = 0.02
+    elif signals["EPSS"] is True and epss >= 0.30:
+        fp = 0.08
+    else:
+        base = 0.30 - 0.05 * len(corroborate)
+        base += 0.12 * len(dissent)
+        base += 0.03 * (len(signals) - len(known))
+        fp = min(0.85, max(0.05, base))
+
+    return {
+        "false_positive_risk": round(fp, 3),
+        "confidence": round(1 - fp, 3),
+        "agreement": {k: bool(v) for k, v in signals.items()},
+        "conflicts": conflicts,
+    }
+
+
+def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | None, rerank_score: float = 0.0, epss: float = 0.0, advisories: list | None = None) -> dict:
     """Calcule le score de decision (0-100) pour une CVE avec justification."""
     cvss = cve.get("cvss_score") or 0
     severity = (cve.get("severity") or "").upper()
@@ -173,6 +232,7 @@ def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | No
             sources.append("EPSS")
             reasons.append(f"Probabilite d'exploitation imminente: {epss*100:.0f}% (EPSS)")
 
+    hits: list = []
     if rerank_score > 0:
         pts = min(rerank_score * 10, 10)
         score += pts
@@ -211,6 +271,7 @@ def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | No
 
     score = round(min(score, 100))
     level = "CRITIQUE" if score >= 75 else "ELEVE" if score >= 50 else "MOYEN" if score >= 25 else "BAS"
+    fp_report = _fp_report(cvss, severity, epss, exploits, kev_row, hits, rerank_score, advisories)
 
     return {
         "cve_id": cve.get("cve_id"),
@@ -226,6 +287,10 @@ def score_cve(cve: dict, stack_keywords: set, exploits: list, kev_row: dict | No
         "reasons": reasons,
         "risk_if_ignored": _risk_if_ignored(cvss, exploits, kev_row, level),
         "confidence": _confidence(factors),
+        "false_positive_risk": fp_report["false_positive_risk"],
+        "confidence_score": fp_report["confidence"],
+        "agreement": fp_report["agreement"],
+        "conflicts": fp_report["conflicts"],
         "sources": sorted(set(sources)),
     }
 
