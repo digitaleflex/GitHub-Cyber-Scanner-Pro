@@ -76,18 +76,25 @@ def init_profile(profile_id: int, role: str, assets: list[dict], org_name: str =
         "UPDATE user_profiles SET role = %s, onboarding_completed = true, display_name = %s, last_active = %s WHERE id = %s",
         (role, org_name or role, datetime.now(timezone.utc), profile_id),
     )
+    if cursor.rowcount == 0:
+        cursor.execute(
+            """INSERT INTO user_profiles (id, role, display_name, org_id, onboarding_completed, last_active)
+               VALUES (%s, %s, %s, %s, true, %s)""",
+            (profile_id, role, org_name or role, org_id, datetime.now(timezone.utc)),
+        )
 
     if org_id and assets:
         for asset in assets:
             cursor.execute(
-                """INSERT INTO asset_inventory (org_id, asset_type, name, vendor, version, criticality)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
+                """INSERT INTO asset_inventory (org_id, asset_type, name, vendor, version, exposed, criticality)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                 (
                     org_id,
-                    asset.get("type", "product"),
+                    asset.get("asset_type") or asset.get("type", "product"),
                     asset.get("name", "")[:200],
                     asset.get("vendor", ""),
                     asset.get("version", ""),
+                    bool(asset.get("exposed", False)),
                     asset.get("criticality", 3),
                 ),
             )

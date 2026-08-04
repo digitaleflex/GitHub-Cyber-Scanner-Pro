@@ -304,12 +304,26 @@ def priority_cves_api(days: int = 90, limit: int = 20, profile_id: int | None = 
     Si profile_id fourni, contexte personnel (organisation, assets, role).
     Sinon, contexte global (tous les repos)."""
     import src.priority_engine as pe
+    import src.risk_engine as risk
     decisions = pe.get_priority_decisions(days=days, limit=limit, profile_id=profile_id)
+    context = risk.load_context(profile_id)
+    decisions = [
+        risk.contextualize_decision(d, d.get("cve_id") or "", context)
+        for d in decisions
+    ]
     summary = pe.get_decision_summary(days=days)
     import src.context_engine as ctx
     role = ctx.get_user_role(profile_id)
     summary["role"] = role
+    summary["context"] = risk.get_context_summary(profile_id)
     return {"count": len(decisions), "decisions": decisions, "summary": summary}
+
+
+@app.get("/api/risk/context")
+def risk_context_api(profile_id: int | None = None):
+    """Resume du Cyber Risk Engine : inventaire d'actifs, couverture, exposition."""
+    import src.risk_engine as risk
+    return risk.get_context_summary(profile_id)
 
 
 @app.get("/api/organization")
@@ -776,18 +790,22 @@ def cve_detail_api(cve_id: str):
 
 
 @app.get("/api/cve/{cve_id}/decision")
-def cve_decision_api(cve_id: str):
-    """Decision Engine appliqué à une CVE spécifique (score, raisons, risque, confiance)."""
+def cve_decision_api(cve_id: str, profile_id: int | None = None):
+    """Decision Engine appliqué à une CVE spécifique (score, raisons, risque, confiance).
+
+    Si profile_id fourni, le Cyber Risk Engine contextualise la decision avec
+    l'inventaire d'actifs (criticalite + exposition)."""
     import src.priority_engine as pe
     import src.correlation as corr
     import src.context_engine as ctx
     import src.epss as epss_mod
+    import src.risk_engine as risk
 
     detail = corr.get_cve_detail(cve_id)
     if "error" in detail:
         return detail
 
-    stack_kws, _ = ctx.build_user_context()
+    stack_kws, _ = ctx.build_user_context(profile_id)
     epss_data = epss_mod.get_epss_for_cve(cve_id)
     epss_val = (epss_data or {}).get("epss", 0)
 
@@ -810,6 +828,8 @@ def cve_decision_api(cve_id: str):
             "ransomware": "Known" if kev.get("ransomware_campaign") else "",
         }
     decision = pe.score_cve(cve_dict, stack_kws, detail.get("exploits", []), kev_row, 0.0, epss_val, detail.get("advisories", []))
+    context = risk.load_context(profile_id)
+    decision = risk.contextualize_decision(decision, cve_id, context)
     return decision
 
 
