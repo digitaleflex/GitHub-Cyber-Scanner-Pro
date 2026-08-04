@@ -951,14 +951,31 @@ def token_status_api():
 
 @app.post("/api/ingest/run")
 def ingest_run_api(background_tasks: BackgroundTasks, full: bool = False, _u: str = Depends(src.auth.verify_admin)):
-    """Lance le pipeline d'ingestion (CISA KEV + abuse.ch + MITRE ATT&CK local)."""
+    """Lance le pipeline d'ingestion (CISA KEV + abuse.ch + MITRE ATT&CK + regles si full)."""
     import src.ingest as ingest_mod
 
     if full:
         background_tasks.add_task(ingest_mod.run_ingest, True)
-        return {"message": "Ingestion complete lancee en arriere-plan (KEV + IOCs + ATT&CK)."}
+        return {"message": "Ingestion complete lancee en arriere-plan (KEV + IOCs + ATT&CK + regles de detection)."}
     background_tasks.add_task(ingest_mod.run_ingest, False)
     return {"message": "Ingestion incrementale lancee en arriere-plan."}
+
+
+@app.post("/api/ingest/rules")
+def ingest_rules_api(background_tasks: BackgroundTasks, _u: str = Depends(src.auth.verify_admin)):
+    """Lance l'ingestion des regles de detection (SigmaHQ, signature-base, Snort)."""
+    import src.ingest_rules as rules_mod
+
+    background_tasks.add_task(rules_mod.run_rules_ingest)
+    return {"message": "Ingestion des regles de detection lancee en arriere-plan."}
+
+
+@app.get("/api/ingest/rules/stats")
+def ingest_rules_stats_api():
+    """Statistiques des regles de detection (Sigma / YARA / IDS)."""
+    import src.ingest_rules as rules_mod
+
+    return rules_mod.get_rules_stats()
 
 
 @app.get("/api/ingest/stats")

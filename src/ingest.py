@@ -334,6 +334,13 @@ def run_ingest(full: bool = False) -> dict:
     results["steps"]["urlhaus"] = ingest_urlhaus()["urlhaus"]
     results["steps"]["threatfox"] = ingest_threatfox()["threatfox"]
     results["steps"]["mitre"] = ingest_mitre_attack()["mitre"]
+    if full:
+        try:
+            import src.ingest_rules as rules_mod
+            results["steps"]["rules"] = rules_mod.run_rules_ingest()
+        except Exception as e:
+            logging.error(f"ingest rules: {e}")
+            results["steps"]["rules"] = {"error": str(e)}
     results["finished_at"] = datetime.utcnow().isoformat()
     return results
 
@@ -363,10 +370,17 @@ def get_ingest_stats() -> dict:
     kev_count = row[0] if row else 0
     cursor.close()
     conn.close()
+    rules = {}
+    try:
+        import src.ingest_rules as rules_mod
+        rules = rules_mod.get_rules_stats()
+    except Exception as e:
+        logging.error(f"stats regles: {e}")
     return {
         "total_iocs": total,
         "by_type": by_type,
         "by_source": by_source,
         "last_ingest": str(last_seen) if last_seen else None,
         "kev_count": kev_count,
+        "rules": rules,
     }
