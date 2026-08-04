@@ -1,17 +1,24 @@
-import { Link } from '@tanstack/react-router'
-import { Shield } from 'lucide-react'
+import { Link, createRoute } from '@tanstack/react-router'
+import { Route as RootRoute } from './__root'
+import { Shield, Search } from 'lucide-react'
 
-export default function NotFound() {
+export const Route = createRoute({
+  getParentRoute: () => RootRoute,
+  path: '/not-found',
+  component: NotFoundPage,
+})
+
+export default function NotFoundPage() {
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center text-center animate-fade">
-      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/20 flex items-center justify-center mb-6">
-        <Shield size={32} className="text-indigo-400" />
-      </div>
-      <h1 className="text-4xl font-bold text-white mb-2">404</h1>
-      <p className="text-slate-400 mb-6">Page introuvable</p>
-      <div className="flex gap-3">
-        <Link to="/" className="px-4 py-2 glass rounded-lg text-sm text-indigo-400 hover:text-white transition">Accueil</Link>
-        <Link to="/" className="px-4 py-2 glass rounded-lg text-sm text-slate-400 hover:text-white transition">Accueil</Link>
+    <div className="flex flex-col items-center justify-center py-20 sm:py-24 px-4 text-center animate-fade">
+      <Shield size={36} className="text-muted mb-4" />
+      <h1 className="h1 mb-2" style={{ color: 'var(--text)' }}>404</h1>
+      <p className="body mb-6" style={{ color: 'var(--text-secondary)' }}>Page introuvable</p>
+      <div className="flex items-center gap-3">
+        <Link to="/" className="btn-primary">Accueil</Link>
+        <Link to="/tools" className="btn-secondary flex items-center gap-1.5">
+          <Search size={14} /> Explorer les outils
+        </Link>
       </div>
     </div>
   )
