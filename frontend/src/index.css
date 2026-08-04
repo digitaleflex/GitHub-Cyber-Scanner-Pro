@@ -128,10 +128,16 @@ body {
   50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
 }
 
+@keyframes slide-bar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
 .animate-fade { animation: fade-in 0.4s var(--ease-out) both; }
 .animate-pulse-ring { animation: pulse-ring 2s ease-out infinite; }
 .animate-spin-scan { animation: spin-scan 1.5s linear infinite; }
 .animate-pulse-red { animation: pulse-red 2s ease-in-out infinite; }
+.animate-slide-bar { animation: slide-bar 1.2s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
