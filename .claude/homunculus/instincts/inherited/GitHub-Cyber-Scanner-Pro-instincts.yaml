@@ -1,0 +1,171 @@
+# Instincts generated from https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+# Generated: 2026-08-04T21:47:44.036Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: GitHub-Cyber-Scanner-Pro-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+---
+
+# GitHub Cyber Scanner Pro Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat, design, chore, fix, plan
+
+## Evidence
+
+- 15 commits analyzed
+- Detected conventional commit pattern
+- Examples: design: HashCode cockpit design system, plan: HashCode cockpit implementation plan
+
+---
+id: GitHub-Cyber-Scanner-Pro-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+---
+
+# GitHub Cyber Scanner Pro Commit Length
+
+## Action
+
+Keep commit messages concise (~49 characters)
+
+## Evidence
+
+- Average commit message length: 49 chars
+- Based on 15 commits
+
+---
+id: GitHub-Cyber-Scanner-Pro-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+---
+
+# GitHub Cyber Scanner Pro Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: GitHub-Cyber-Scanner-Pro-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+---
+
+# GitHub Cyber Scanner Pro Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: GitHub-Cyber-Scanner-Pro-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+---
+
+# GitHub Cyber Scanner Pro Export Style
+
+## Action
+
+Prefer mixed exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: mixed
+
+---
+id: GitHub-Cyber-Scanner-Pro-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+---
+
+# GitHub Cyber Scanner Pro Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: 
+
+---
+id: GitHub-Cyber-Scanner-Pro-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+---
+
+# GitHub Cyber Scanner Pro Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: GitHub-Cyber-Scanner-Pro-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro
+---
+
+# GitHub Cyber Scanner Pro Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~20x per month
+- Files: frontend/src/components/*, frontend/src/routes/*, **/api/**
+
