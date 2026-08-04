@@ -219,7 +219,7 @@ function ToolsPage() {
           <div className="relative w-full max-w-md overflow-y-auto p-6"
             style={{ background: 'var(--surface-elevated)', borderLeft: '1px solid var(--border)', boxShadow: '-8px 0 24px rgba(0,0,0,0.4)' }}
             onClick={e => e.stopPropagation()}>
-            <button onClick={() => setDrawer(null)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[var(--surface-hover)]" style={{ color: 'var(--text-muted)' }}><X size={18} /></button>
+            <button onClick={() => setDrawer(null)} aria-label="Fermer le panneau" className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[var(--surface-hover)]" style={{ color: 'var(--text-muted)' }}><X size={18} /></button>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--amber-light)' }}>
                 <Wrench size={14} style={{ color: 'var(--amber)' }} />

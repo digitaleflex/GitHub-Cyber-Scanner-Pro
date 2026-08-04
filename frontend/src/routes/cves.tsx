@@ -50,7 +50,7 @@ function CvesPage() {
     {
       key: 'cve_id', label: 'CVE ID', sortable: true,
       render: (cve) => (
-        <Link to="/cve/$id" params={{ id: cve.cve_id }} className="mono font-semibold" style={{ color: 'var(--info-text)' }}>
+        <Link to="/cve/$id" params={{ id: cve.cve_id }} className="mono font-semibold" style={{ color: 'var(--cyan)' }}>
           {cve.cve_id}
         </Link>
       ),

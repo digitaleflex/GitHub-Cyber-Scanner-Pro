@@ -58,7 +58,7 @@ function DecisionCenter() {
 
   if (isLoading || dl) return (
     <div className="flex items-center justify-center py-24">
-      <div className="w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-[var(--amber)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
@@ -85,7 +85,7 @@ function DecisionCenter() {
           {cve.description?.slice(0, 150) || 'Aucune description'}
         </h1>
         <div className="flex items-center justify-center gap-3 flex-wrap">
-          <span className="mono font-semibold" style={{ color: 'var(--info-text)' }}>{cve.cve_id}</span>
+          <span className="mono font-semibold" style={{ color: 'var(--cyan)' }}>{cve.cve_id}</span>
           {cve.cvss_score != null && (
             <span style={{ color: 'var(--text-secondary)' }}>CVSS {cve.cvss_score}</span>
           )}
@@ -106,9 +106,9 @@ function DecisionCenter() {
                   { v: dec.score, l: 'Score' },
                   { v: dec.confidence, l: 'Confiance' },
                   { v: dec.exploits_count, l: 'Exploits' },
-                  { v: dec.is_kev ? 'Oui' : 'Non', l: 'CISA KEV', c: dec.is_kev ? 'var(--warning-text)' : undefined },
+                  { v: dec.is_kev ? 'Oui' : 'Non', l: 'CISA KEV', c: dec.is_kev ? 'var(--amber)' : undefined },
                 ].map((s, i) => (
-                  <div key={i} className="rounded-xl p-3 text-center" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                  <div key={i} className="rounded-xl p-3 text-center" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
                     <div className="text-lg font-bold" style={{ color: s.c || 'var(--text)' }}>{s.v}</div>
                     <div className="text-xs text-muted">{s.l}</div>
                   </div>
@@ -118,14 +118,14 @@ function DecisionCenter() {
               <div className="space-y-2.5 mb-5">
                 {dec.reasons.map((r, i) => (
                   <div key={i} className="flex items-start gap-2.5 body-sm" style={{ color: 'var(--text)' }}>
-                    <CheckCircle2 size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--brand)' }} />
+                    <CheckCircle2 size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--amber)' }} />
                     <span>{r}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--warning-light)', borderLeft: '4px solid var(--warning)' }}>
-                <p className="caption mb-1" style={{ color: 'var(--warning-text)' }}>Si vous ignorez</p>
+              <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--amber-light)', borderLeft: '4px solid var(--amber)' }}>
+                <p className="caption mb-1" style={{ color: 'var(--amber)' }}>Si vous ignorez</p>
                 <p className="body-sm" style={{ color: 'var(--text)' }}>{dec.risk_if_ignored}</p>
               </div>
 
@@ -149,7 +149,7 @@ function DecisionCenter() {
             <InstrumentPanel title={`${cve.exploits.length} exploit${cve.exploits.length > 1 ? 's' : ''} public${cve.exploits.length > 1 ? 's' : ''}`} icon={<Bug size={18} />} accent="red">
               <div className="space-y-2">
                 {cve.exploits.map((e: any, i: number) => (
-                  <div key={i} className="rounded-xl p-3.5" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                  <div key={i} className="rounded-xl p-3.5" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <div className="text-xs" style={{ color: 'var(--text)' }}>{e.description}</div>
@@ -177,11 +177,11 @@ function DecisionCenter() {
                 {cve.tools.map((t: any, i: number) => (
                   <Link key={i} to="/tool/$name" params={{ name: t.name }}
                     className="rounded-xl p-3 block transition-all hover:-translate-y-0.5"
-                    style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)', textDecoration: 'none' }}>
+                    style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)', textDecoration: 'none' }}>
                     <div className="text-xs font-medium truncate" style={{ color: 'var(--text)' }}>{t.name}</div>
                     {t.desc && <div className="text-[10px] text-muted mt-0.5 line-clamp-1">{t.desc}</div>}
                     <div className="flex items-center gap-2 mt-1.5 text-[9px] text-muted">
-                      {t.stars && <span className="flex items-center gap-0.5" style={{ color: 'var(--warning)' }}><Star size={9} /> {t.stars}</span>}
+                      {t.stars && <span className="flex items-center gap-0.5" style={{ color: 'var(--amber)' }}><Star size={9} /> {t.stars}</span>}
                       <span>{t.match_type}</span>
                     </div>
                   </Link>
@@ -222,7 +222,7 @@ function DecisionCenter() {
                     onClick={() => navigator.clipboard?.writeText(i.value)}
                     title={`Source: ${i.source || '?'} — cliquer pour copier`}
                     className="mono text-[10px] px-2.5 py-1 rounded-full border transition-colors"
-                    style={{ background: 'var(--bg-alt)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
+                    style={{ background: 'var(--surface-elevated)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
                     {i.value}
                   </button>
                 ))}
@@ -234,7 +234,7 @@ function DecisionCenter() {
             <InstrumentPanel title={`${cve.attack_techniques.length} technique${cve.attack_techniques.length > 1 ? 's' : ''} MITRE ATT&CK`} icon={<Target size={18} />} accent="amber">
               <div className="space-y-2">
                 {cve.attack_techniques.map((t: any, i: number) => (
-                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
                     <div className="min-w-0">
                       <div className="text-xs font-medium" style={{ color: 'var(--text)' }}>
                         <span className="mono mr-2" style={{ color: 'var(--amber)' }}>{t.technique_id}</span>{t.name}
@@ -255,7 +255,7 @@ function DecisionCenter() {
             <InstrumentPanel title="Règles de détection" icon={<FileCode size={18} />} accent="violet">
               <div className="flex flex-wrap gap-1.5">
                 {cve.sigma_rules.map((r: any, i: number) => (
-                  <span key={`s-${i}`} className="text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--brand-bg)', color: 'var(--brand)', borderColor: 'var(--border-light)' }}>
+                  <span key={`s-${i}`} className="text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--amber-light)', color: 'var(--amber)', borderColor: 'var(--border-light)' }}>
                     Sigma — {r.title}
                   </span>
                 ))}
@@ -265,7 +265,7 @@ function DecisionCenter() {
                   </span>
                 ))}
                 {cve.ids_rules.map((r: any, i: number) => (
-                  <span key={`i-${i}`} className="mono text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--bg-alt)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
+                  <span key={`i-${i}`} className="mono text-[10px] px-2.5 py-1 rounded-full border font-medium" style={{ background: 'var(--surface-elevated)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
                     {r.engine} {r.sid} — {r.message}
                   </span>
                 ))}
@@ -277,17 +277,17 @@ function DecisionCenter() {
             <InstrumentPanel title={`${cve.patches.length} correctif${cve.patches.length > 1 ? 's' : ''}`} icon={<Package size={18} />} accent="lime">
               <div className="space-y-2">
                 {cve.patches.map((p: any, i: number) => (
-                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
                     <div className="min-w-0">
                       <div className="text-xs font-medium" style={{ color: 'var(--text)' }}>
                         {p.patch_name || p.vendor || 'Correctif'}
-                        {p.version_fixed && <span className="mono ml-2" style={{ color: 'var(--success)' }}>fix {p.version_fixed}</span>}
+                        {p.version_fixed && <span className="mono ml-2" style={{ color: 'var(--lime)' }}>fix {p.version_fixed}</span>}
                       </div>
                       {p.notes && <div className="text-[10px] text-muted mt-0.5 line-clamp-1">{p.notes}</div>}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full border"
-                        style={{ background: p.available ? 'var(--lime-light)' : 'var(--bg-alt)', color: p.available ? 'var(--lime)' : 'var(--text-muted)', borderColor: 'var(--border-light)' }}>
+                        style={{ background: p.available ? 'var(--lime-light)' : 'var(--surface-elevated)', color: p.available ? 'var(--lime)' : 'var(--text-muted)', borderColor: 'var(--border-light)' }}>
                         {p.available ? 'DISPONIBLE' : 'ATTENTE'}
                       </span>
                       {p.url && <a href={p.url} target="_blank" rel="noopener" className="p-1 rounded" style={{ color: 'var(--text-muted)' }}><ExternalLink size={12} /></a>}
@@ -302,7 +302,7 @@ function DecisionCenter() {
             <InstrumentPanel title="Produits affectés" icon={<Package size={18} />} accent="violet">
               <div className="flex flex-wrap gap-1.5">
                 {cve.affected_products.map((p: any, i: number) => (
-                  <span key={i} className="text-[10px] px-2.5 py-1 rounded-full border" style={{ background: 'var(--bg-alt)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
+                  <span key={i} className="text-[10px] px-2.5 py-1 rounded-full border" style={{ background: 'var(--surface-elevated)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }}>
                     {[p.vendor, p.product, p.version].filter(Boolean).join(' ')}
                   </span>
                 ))}
@@ -314,7 +314,7 @@ function DecisionCenter() {
             <InstrumentPanel title={`${cve.advisories.length} avis fournisseur${cve.advisories.length > 1 ? 's' : ''}`} icon={<FileText size={18} />} accent="cyan">
               <div className="space-y-2">
                 {cve.advisories.map((a: any, i: number) => (
-                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--bg-alt)', border: '1px solid var(--border-light)' }}>
+                  <div key={i} className="flex items-start justify-between gap-3 rounded-xl p-3" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-light)' }}>
                     <div className="min-w-0">
                       <div className="text-xs font-medium" style={{ color: 'var(--text)' }}>{a.vendor} — {a.title}</div>
                       {a.published && <div className="text-[10px] text-muted mt-0.5">{new Date(a.published).toLocaleDateString('fr-FR')}</div>}
@@ -380,7 +380,7 @@ function DecisionCenter() {
                     <span className="text-muted">EPSS (prob. exploitation)</span>
                     <span className="font-semibold" style={{ color: 'var(--text)' }}>{(cve.epss.epss * 100).toFixed(1)}%</span>
                   </div>
-                  <div className="h-1.5 rounded-full mt-1.5" style={{ background: 'var(--bg-alt)' }}>
+                  <div className="h-1.5 rounded-full mt-1.5" style={{ background: 'var(--surface-elevated)' }}>
                     <div className="h-full rounded-full" style={{ width: `${Math.min(cve.epss.epss * 100, 100)}%`, background: cve.epss.epss >= 0.5 ? 'var(--red)' : cve.epss.epss >= 0.1 ? 'var(--amber)' : 'var(--lime)' }} />
                   </div>
                   <div className="text-right text-[9px] text-muted mt-0.5">P{Math.round((cve.epss.percentile || 0) * 100)} — {cve.epss.percentile != null ? `top ${Math.round((1 - (cve.epss.percentile || 0)) * 100)}%` : ''}</div>
@@ -391,7 +391,7 @@ function DecisionCenter() {
 
           <a href={`https://nvd.nist.gov/vuln/detail/${cve.cve_id}`} target="_blank" rel="noopener"
             className="surface rounded-xl p-3 flex items-center justify-center gap-1.5 text-xs font-medium transition-all hover:-translate-y-0.5"
-            style={{ color: 'var(--info-text)', border: '1px solid var(--border)', textDecoration: 'none' }}>
+            style={{ color: 'var(--cyan)', border: '1px solid var(--border)', textDecoration: 'none' }}>
             Voir sur NVD <ExternalLink size={10} />
           </a>
 
@@ -403,7 +403,7 @@ function DecisionCenter() {
 
           <a href={`/api/cve/${encodeURIComponent(cve.cve_id)}/stix`} target="_blank" rel="noopener"
             className="surface rounded-xl p-3 flex items-center justify-center gap-1.5 text-xs font-medium transition-all hover:-translate-y-0.5"
-            style={{ color: 'var(--brand)', border: '1px solid var(--border)', textDecoration: 'none', background: 'var(--brand-bg)' }}>
+            style={{ color: 'var(--amber)', border: '1px solid var(--border)', textDecoration: 'none', background: 'var(--amber-light)' }}>
             Export STIX 2.1 <FileDown size={11} />
           </a>
         </div>

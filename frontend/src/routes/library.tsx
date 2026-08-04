@@ -57,7 +57,7 @@ function LibraryPage() {
             placeholder="Rechercher par nom, description, langage..."
             className="w-full pl-9 pr-8 py-2 rounded-xl text-sm"
             style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text)', outline: 'none' }} />
-          {q && <button onClick={() => { setQ(''); setPage(1) }} className="absolute right-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}><X size={14} /></button>}
+          {q && <button onClick={() => { setQ(''); setPage(1) }} aria-label="Effacer la recherche" className="absolute right-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}><X size={14} /></button>}
         </div>
         <select value={sort} onChange={e => { setSort(e.target.value); setPage(1) }}
           className="px-3 py-2 rounded-xl text-sm" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--text)' }}>
