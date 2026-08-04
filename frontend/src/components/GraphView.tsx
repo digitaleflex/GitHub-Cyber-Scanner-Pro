@@ -177,27 +177,28 @@ export default function GraphView() {
     : simLinks
 
   return (
-    <div className="glass-card rounded-2xl p-5">
+    <div className="surface rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <h2 className="text-indigo-400 text-sm font-semibold uppercase tracking-wider">
+        <h2 className="caption" style={{ color: 'var(--decision-text)' }}>
           Social Graph
         </h2>
         {data && (
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-muted">
             {data.nodes.length} noeuds · {data.links.length} relations
           </span>
         )}
         <div className="flex-1" />
         <div className="relative">
-          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Rechercher..."
-            className="pl-7 pr-3 py-1.5 glass rounded-lg text-xs text-white placeholder-slate-600 w-40 focus:ring-1 focus:ring-indigo-500/40"
+            className="pl-7 pr-7 py-1.5 rounded-lg text-xs ring-brand w-40"
+            style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' }}
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"><X size={10} /></button>
+            <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}><X size={10} /></button>
           )}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -205,11 +206,12 @@ export default function GraphView() {
             <button
               key={l || 'all'}
               onClick={() => setLabelFilter(l)}
-              className={`text-xs px-3 py-1 rounded-full border transition-colors  ${
-                labelFilter === l
-                  ? 'bg-slate-800 text-white border-slate-600'
-                  : 'text-slate-500 border-slate-700 hover:text-slate-400'
-              }`}
+              className="text-xs px-3 py-1 rounded-full border transition-all"
+              style={{
+                background: labelFilter === l ? 'var(--surface-elevated)' : 'var(--surface)',
+                color: labelFilter === l ? 'var(--text)' : 'var(--text-muted)',
+                borderColor: labelFilter === l ? 'var(--brand)' : 'var(--border)',
+              }}
             >
               {l || 'Tout'}
             </button>
@@ -217,7 +219,8 @@ export default function GraphView() {
           <button
             onClick={() => seedMutation.mutate()}
             disabled={seedMutation.isPending}
-            className="text-xs px-3 py-1 rounded-full border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/10 transition-colors  disabled:opacity-40"
+            className="text-xs px-3 py-1 rounded-full border font-medium transition-all disabled:opacity-40"
+            style={{ color: 'var(--decision-text)', borderColor: 'var(--decision)' }}
           >
             {seedMutation.isPending ? 'Seed...' : '⟳ Seed'}
           </button>
@@ -225,14 +228,14 @@ export default function GraphView() {
       </div>
 
       {isLoading ? (
-        <div className="h-96 bg-slate-800/50 rounded animate-pulse" />
+        <div className="h-96 rounded animate-pulse" style={{ background: 'var(--bg-alt)' }} />
       ) : !data?.available ? (
         <div className="h-96 flex items-center justify-center">
-          <p className="text-slate-500 text-sm ">Neo4j non disponible</p>
+          <p className="body-sm text-secondary">Neo4j non disponible</p>
         </div>
       ) : simNodes.length === 0 ? (
         <div className="h-96 flex items-center justify-center">
-          <p className="text-slate-500 text-sm ">Aucune donnée dans le graphe</p>
+          <p className="body-sm text-secondary">Aucune donnée dans le graphe</p>
         </div>
       ) : (
         <div className="relative">
@@ -286,34 +289,36 @@ export default function GraphView() {
           {/* Legend */}
           <div className="absolute bottom-3 left-3 flex gap-2 flex-wrap">
             {Object.entries(LABEL_COLORS).map(([label, color]) => (
-              <span key={label} className="glass px-2 py-1 rounded-full text-[9px] text-slate-400 flex items-center gap-1.5">
+              <span key={label} className="px-2 py-1 rounded-full text-[9px] flex items-center gap-1.5"
+                style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} /> {label}
               </span>
             ))}
           </div>
           {selected && (
-            <div className="absolute top-2 right-2 bg-slate-900/95 border border-slate-700 rounded-lg p-4 max-w-xs text-xs ">
+            <div className="absolute top-2 right-2 rounded-lg p-4 max-w-xs text-xs"
+              style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-lg)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: LABEL_COLORS[selected.label] ?? '#fff' }} />
-                <span className="text-white font-semibold">{selected.label}</span>
+                <span className="font-semibold" style={{ color: 'var(--text)' }}>{selected.label}</span>
               </div>
-              <div className="text-slate-400 mb-1">{selected.name}</div>
+              <div className="mb-1" style={{ color: 'var(--text-secondary)' }}>{selected.name}</div>
               {selected.label === 'Hacker' && (
-                <a href={selected.properties.profile_url as string} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-400">
+                <a href={selected.properties.profile_url as string} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--decision-text)' }}>
                   Voir le profil
                 </a>
               )}
               {selected.label === 'CVE' && (
-                <a href={`https://nvd.nist.gov/vuln/detail/${selected.name}`} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-400">
+                <a href={`https://nvd.nist.gov/vuln/detail/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--decision-text)' }}>
                   Voir sur NVD
                 </a>
               )}
               {selected.label === 'Repo' && (
-                <a href={`https://github.com/${selected.name}`} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-400">
+                <a href={`https://github.com/${selected.name}`} target="_blank" rel="noopener noreferrer" className="block text-xs mt-1" style={{ color: 'var(--decision-text)' }}>
                   Voir sur GitHub
                 </a>
               )}
-              <button onClick={() => setSelected(null)} className="mt-2 text-slate-500 hover:text-white transition-colors text-[10px]">
+              <button onClick={() => setSelected(null)} className="mt-2 text-[10px] transition-colors" style={{ color: 'var(--text-muted)' }}>
                 Fermer
               </button>
             </div>

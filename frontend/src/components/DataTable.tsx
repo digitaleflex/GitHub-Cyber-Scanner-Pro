@@ -44,16 +44,16 @@ export default function DataTable<T extends Record<string, any>>({
   const endItem = Math.min(page * perPage, total)
 
   return (
-    <div className="glass-card rounded-2xl overflow-hidden">
+    <div className="surface rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.05]">
-        <span className="text-xs text-slate-500">
-          {total.toLocaleString()} resultats
-          {total > 0 && <span className="ml-2 text-slate-500">{startItem}-{endItem}</span>}
+      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
+        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          {total.toLocaleString()} résultats
+          {total > 0 && <span className="ml-2">{startItem}-{endItem}</span>}
         </span>
         {exportCSV && (
           <button onClick={exportCSV}
-            className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-[10px] text-slate-400 hover:text-white transition">
+            className="btn-ghost text-xs">
             <Download size={11} /> {exportLabel || 'CSV'}
           </button>
         )}
@@ -63,15 +63,18 @@ export default function DataTable<T extends Record<string, any>>({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-white/[0.05]">
+            <tr style={{ borderBottom: '1px solid var(--border)' }}>
               {columns.map(col => (
                 <th key={col.key}
                   onClick={() => col.sortable ? handleSort(col.key) : undefined}
-                  className={`px-4 py-3 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider ${col.sortable ? 'cursor-pointer hover:text-white select-none' : ''} ${col.className || ''}`}>
+                  className={`px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider ${col.sortable ? 'cursor-pointer select-none' : ''} ${col.className || ''}`}
+                  style={{ color: 'var(--text-muted)' }}>
                   <span className="inline-flex items-center gap-1">
                     {col.label}
                     {col.sortable && sortKey === col.key && (
-                      sortDir === 'asc' ? <ChevronUp size={10} className="text-indigo-400" /> : <ChevronDown size={10} className="text-indigo-400" />
+                      sortDir === 'asc'
+                        ? <ChevronUp size={10} style={{ color: 'var(--decision)' }} />
+                        : <ChevronDown size={10} style={{ color: 'var(--decision)' }} />
                     )}
                   </span>
                 </th>
@@ -81,10 +84,10 @@ export default function DataTable<T extends Record<string, any>>({
           <tbody>
             {loading ? (
               Array.from({ length: SKELETON_ROWS }).map((_, i) => (
-                <tr key={i} className="border-b border-white/[0.02] animate-pulse">
+                <tr key={i} className="animate-pulse" style={{ borderBottom: '1px solid var(--border-light)' }}>
                   {columns.map(col => (
                     <td key={col.key} className="px-4 py-3">
-                      <div className={`h-3 bg-slate-700/50 rounded ${i % 2 === 0 ? 'w-3/4' : 'w-1/2'}`} />
+                      <div className="h-3 rounded" style={{ background: 'var(--border)', width: i % 2 === 0 ? '75%' : '50%' }} />
                     </td>
                   ))}
                 </tr>
@@ -98,14 +101,15 @@ export default function DataTable<T extends Record<string, any>>({
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-4">
-                  <EmptyState compact title={emptyMessage || 'Aucune donnee'} />
+                  <EmptyState compact title={emptyMessage || 'Aucune donnée'} />
                 </td>
               </tr>
             ) : (
               data.map((row, i) => (
-                <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition">
+                <tr key={i} className="transition-colors" style={{ borderBottom: '1px solid var(--border-light)' }}>
                   {columns.map(col => (
-                    <td key={col.key} className={`px-4 py-3 text-xs text-slate-400 ${col.className || ''}`}>
+                    <td key={col.key} className={`px-4 py-3 text-xs ${col.className || ''}`}
+                      style={{ color: 'var(--text-secondary)' }}>
                       {col.render ? col.render(row) : row[col.key]}
                     </td>
                   ))}
@@ -118,24 +122,24 @@ export default function DataTable<T extends Record<string, any>>({
 
       {/* Pagination */}
       {pages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.05]">
-          <span className="text-[10px] text-slate-500">Page {page} sur {pages}</span>
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid var(--border)' }}>
+          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Page {page} sur {pages}</span>
           <div className="flex items-center gap-1">
             <button onClick={() => onPageChange(1)} disabled={page === 1}
-              className="glass p-1.5 rounded-lg text-slate-500 hover:text-white disabled:opacity-20 transition">
+              className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               <ChevronLeft size={12} /><ChevronLeft size={12} className="-ml-2" />
             </button>
             <button onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page === 1}
-              className="glass p-1.5 rounded-lg text-slate-500 hover:text-white disabled:opacity-20 transition">
+              className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               <ChevronLeft size={12} />
             </button>
-            <span className="px-2 text-[10px] text-slate-500">{page}</span>
+            <span className="px-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>{page}</span>
             <button onClick={() => onPageChange(Math.min(pages, page + 1))} disabled={page >= pages}
-              className="glass p-1.5 rounded-lg text-slate-500 hover:text-white disabled:opacity-20 transition">
+              className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               <ChevronRight size={12} />
             </button>
             <button onClick={() => onPageChange(pages)} disabled={page >= pages}
-              className="glass p-1.5 rounded-lg text-slate-500 hover:text-white disabled:opacity-20 transition">
+              className="p-1.5 rounded-lg disabled:opacity-20 transition-all" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               <ChevronRight size={12} /><ChevronRight size={12} className="-ml-2" />
             </button>
           </div>
