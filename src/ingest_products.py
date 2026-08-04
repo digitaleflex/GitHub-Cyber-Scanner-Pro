@@ -12,6 +12,7 @@ CVE 360 (correlation) disposent enfin des produits concrets.
 import json
 import logging
 import os
+import re
 import threading
 import time
 
@@ -149,10 +150,27 @@ def _products_from_item(cve_item):
 
 def import_products_all(max_pages: int | None = None, start_year: int | None = None,
                         end_year: int | None = None, reverse: bool = True, resume: bool = True):
-    """Rejoue les pages NVD et remplit cve_affected_products."""
+    """Rejoue les pages NVD et remplit cve_affected_products.
+
+    En mode resume, repart du dernier trimestre enregistre dans le status
+    (evite de retraiter toutes les pages a chaque lancement).
+    """
     if not _import_lock.acquire(blocking=False):
         logging.info("Import produits déjà en cours, ignoré.")
         return {"imported": 0, "error": "already_running"}
+
+    start = start_year if start_year is not None else cve_importer.START_YEAR
+    end = end_year if end_year is not None else cve_importer.END_YEAR
+
+    # Reprise : repart du dernier trimestre vu dans le status precedent
+    if resume and not start_year and not end_year:
+        prev = get_products_status()
+        prev_page = prev.get("page", "")
+        m = re.match(r"(\d{4})", prev_page)
+        if m and prev.get("running", True) is False:
+            resume_year = int(m.group(1))
+            end = min(resume_year + 1, cve_importer.END_YEAR)
+            logging.info("Reprise import produits depuis %d (page: %s)", resume_year, prev_page)
 
     total = 0
     error = None

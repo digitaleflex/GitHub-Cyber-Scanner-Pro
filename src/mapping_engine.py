@@ -414,8 +414,13 @@ def map_cve(cve_id: str, description: str = "", references_urls: str = "", weakn
     return {"attack": n_attack, "campaign": n_campaign, "capec": n_capec, "ioc": n_ioc}
 
 
-def run_mapping(batch_limit: int = 200, only_kev: bool = True):
-    """Mappe un lot de CVE prioritaires (KEV + critiques). Retourne stats globales."""
+def run_mapping(batch_limit: int = 200, only_kev: bool = True, parallel: int = 5):
+    """Mappe un lot de CVE prioritaires (KEV + critiques). Retourne stats globales.
+
+    parallel: nb de threads concurrents pour les appels LLM (defaut 5).
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
     if not _lock.acquire(blocking=False):
         return {"error": "already_running"}
     stats = {"processed": 0, "attack": 0, "campaign": 0, "capec": 0, "ioc": 0}
@@ -445,15 +450,30 @@ def run_mapping(batch_limit: int = 200, only_kev: bool = True):
         rows = cur.fetchall()
         cur.close()
         conn.close()
-        for cve_id, desc, refs, weak in rows:
-            r = map_cve(cve_id, desc or "", refs or "", weak or "")
-            stats["processed"] += 1
-            stats["attack"] += r["attack"]
-            stats["campaign"] += r["campaign"]
-            stats["capec"] += r["capec"]
-            stats["ioc"] += r["ioc"]
-            if stats["processed"] % 25 == 0:
-                logging.info(f"🗺️ Mapping: {stats['processed']} CVE traitées (ATT&CK={stats['attack']})")
+        if not rows:
+            _lock.release()
+            logging.info("✅ Mapping: aucune CVE a mapper")
+            return stats
+
+        workers = max(1, min(parallel, len(rows)))
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = {
+                pool.submit(map_cve, cve_id, desc or "", refs or "", weak or ""): cve_id
+                for cve_id, desc, refs, weak in rows
+            }
+            for fut in as_completed(futures):
+                try:
+                    r = fut.result()
+                except Exception as e:
+                    logging.error(f"Mapping thread error {futures[fut]}: {e}")
+                    r = {"attack": 0, "campaign": 0, "capec": 0, "ioc": 0}
+                stats["processed"] += 1
+                stats["attack"] += r["attack"]
+                stats["campaign"] += r["campaign"]
+                stats["capec"] += r["capec"]
+                stats["ioc"] += r["ioc"]
+                if stats["processed"] % 50 == 0:
+                    logging.info(f"🗺️ Mapping: {stats['processed']} CVE traitées (ATT&CK={stats['attack']})")
     except Exception as e:
         logging.error(f"❌ Erreur mapping: {e}")
         stats["error"] = str(e)

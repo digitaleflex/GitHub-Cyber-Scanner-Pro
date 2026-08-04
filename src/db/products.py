@@ -1,12 +1,15 @@
 import logging
+from psycopg2.extras import execute_values
+
 import src.db.connection as _conn
+
+BATCH_SIZE = 2000
 
 
 def save_affected_products(products):
-    """Upsert batch de produits affectés (table cve_affected_products).
+    """Upsert batch via execute_values (x100 vs INSERT individuel).
 
     Chaque item: cve_id, product, vendor, version, platform, cpe_uri, status.
-    Dédoublonne par (cve_id, cpe_uri, status) avant insertion.
     """
     if not products:
         return 0
@@ -21,41 +24,42 @@ def save_affected_products(products):
         if key in seen:
             continue
         seen.add(key)
-        rows.append(p)
+        rows.append((
+            cve_id,
+            (p.get("product") or "unknown")[:300],
+            (p.get("vendor") or "")[:200] or None,
+            (p.get("version") or "")[:200] or None,
+            (p.get("platform") or "")[:100] or None,
+            p.get("cpe_uri") or None,
+            p.get("status", "unknown"),
+        ))
 
     if not rows:
         return 0
 
     conn = _conn.get_db_connection()
     cursor = conn.cursor()
-    count = 0
-    for p in rows:
-        try:
-            cursor.execute(
-                """
-                INSERT INTO cve_affected_products
-                    (cve_id, product, vendor, version, platform, cpe_uri, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (cve_id, COALESCE(cpe_uri, ''), COALESCE(vendor, ''), COALESCE(product, ''))
-                DO NOTHING
-                """,
-                (
-                    p.get("cve_id"),
-                    (p.get("product") or "unknown")[:300],
-                    (p.get("vendor") or "")[:200] or None,
-                    (p.get("version") or "")[:200] or None,
-                    (p.get("platform") or "")[:100] or None,
-                    p.get("cpe_uri") or None,
-                    p.get("status", "unknown"),
-                )
-            )
-            count += 1
-        except Exception as ex:
-            logging.error(f"Erreur save produit {p.get('cve_id')}: {ex}")
+    inserted = 0
+    try:
+        execute_values(
+            cursor,
+            """
+            INSERT INTO cve_affected_products
+                (cve_id, product, vendor, version, platform, cpe_uri, status)
+            VALUES %s
+            ON CONFLICT (cve_id, COALESCE(cpe_uri, ''), COALESCE(vendor, ''), COALESCE(product, ''))
+            DO NOTHING
+            """,
+            rows,
+            page_size=BATCH_SIZE,
+        )
+        inserted = cursor.rowcount
+    except Exception as ex:
+        logging.error(f"Erreur batch save produits: {ex}")
     conn.commit()
     cursor.close()
     conn.close()
-    return count
+    return inserted
 
 
 def get_products_count():
