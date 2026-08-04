@@ -262,47 +262,18 @@ function RootLayout() {
           <Outlet />
         </Suspense>
 
-        <footer className="mt-12 pt-8 pb-6" style={{ borderTop: `1px solid var(--border)`, background: 'var(--bg-alt)' }}>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 text-xs" style={{ color: 'var(--text-muted)' }}>
-            <div><h4 className="font-semibold mb-2 t-s">Vulnérabilités</h4><ul className="space-y-1">
-              <li><a href="https://nvd.nist.gov/" target="_blank" rel="noopener noreferrer" className="hover:underline">NVD (nist.gov)</a></li>
-              <li><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer" className="hover:underline">CISA KEV</a></li>
-              <li><a href="https://www.exploit-db.com/" target="_blank" rel="noopener noreferrer" className="hover:underline">Exploit-DB</a></li>
-            </ul></div>
-            <div><h4 className="font-semibold mb-2 t-s">Scoring</h4><ul className="space-y-1">
-              <li><a href="https://www.first.org/cvss/" target="_blank" rel="noopener noreferrer" className="hover:underline">CVSS v3/v4</a></li>
-              <li><a href="https://www.first.org/epss" target="_blank" rel="noopener noreferrer" className="hover:underline">EPSS</a></li>
-              <li><a href="https://cwe.mitre.org/" target="_blank" rel="noopener noreferrer" className="hover:underline">CWE</a></li>
-              <li><a href="https://capec.mitre.org/" target="_blank" rel="noopener noreferrer" className="hover:underline">CAPEC</a></li>
-            </ul></div>
-            <div><h4 className="font-semibold mb-2 t-s">Threat Intel</h4><ul className="space-y-1">
-              <li><a href="https://attack.mitre.org/" target="_blank" rel="noopener noreferrer" className="hover:underline">MITRE ATT&CK</a></li>
-              <li><a href="https://urlhaus.abuse.ch/" target="_blank" rel="noopener noreferrer" className="hover:underline">URLhaus</a></li>
-              <li><a href="https://threatfox.abuse.ch/" target="_blank" rel="noopener noreferrer" className="hover:underline">ThreatFox</a></li>
-            </ul></div>
-            <div><h4 className="font-semibold mb-2 t-s">Détection</h4><ul className="space-y-1">
-              <li><a href="https://github.com/SigmaHQ/sigma" target="_blank" rel="noopener noreferrer" className="hover:underline">Sigma Rules</a></li>
-              <li><a href="https://github.com/Yara-Rules/rules" target="_blank" rel="noopener noreferrer" className="hover:underline">YARA Rules</a></li>
-              <li><a href="https://www.snort.org/" target="_blank" rel="noopener noreferrer" className="hover:underline">Snort/Suricata</a></li>
-            </ul></div>
-            <div><h4 className="font-semibold mb-2 t-s">Plateforme</h4><ul className="space-y-1">
-              <li><a href="https://groq.com/" target="_blank" rel="noopener noreferrer" className="hover:underline">Groq IA</a></li>
-              <li><a href="https://github.com/digitaleflex/GitHub-Cyber-Scanner-Pro" target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub (MIT)</a></li>
-            </ul></div>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-4" style={{ borderTop: `1px solid var(--border-light)` }}>
+        <footer className="mt-32 pt-8 pb-6" style={{ borderTop: `1px solid var(--border)`, background: 'var(--bg-alt)' }}>
+          <div className="flex flex-wrap items-center justify-between gap-3 text-[11px]">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="font-medium t-s">HashCode Decision OS</span>
-              <span className="w-1 h-1 rounded-full hidden sm:inline" style={{ background: 'var(--border-hover)' }} />
+              <span className="font-semibold t-s">HashCode Decision OS</span>
               <Link to="/about" className="hover:underline t-m">À propos</Link>
-              <Link to="/methodology" className="hover:underline t-m">Méthodologie</Link>
-              <Link to="/sources" className="hover:underline t-m">Sources</Link>
-              <Link to="/feedback" className="hover:underline t-m">Contribuer</Link>
-              <Link to="/contact" className="hover:underline t-m">Contact</Link>
+              <Link to="/docs" className="hover:underline t-m">Documentation</Link>
               <Link to="/library" className="hover:underline t-m">Bibliothèque</Link>
-              <Link to="/docs" className="hover:underline t-m">Docs</Link>
+              <Link to="/contact" className="hover:underline t-m">Contact</Link>
             </div>
-            <span className="t-m">NVD · MITRE · CISA KEV · EPSS · CVSS · CWE · CAPEC · Exploit-DB · Sigma · YARA · Groq</span>
+            <span className="t-m">
+              <a href="https://nvd.nist.gov/" className="hover:underline">NVD</a> · <a href="https://attack.mitre.org/" className="hover:underline">MITRE</a> · <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" className="hover:underline">CISA KEV</a> · <a href="https://www.first.org/epss" className="hover:underline">EPSS</a> · <a href="https://groq.com/" className="hover:underline">Groq</a>
+            </span>
           </div>
         </footer>
       </div>
