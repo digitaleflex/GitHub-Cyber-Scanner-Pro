@@ -2,6 +2,7 @@
 # Sauvegarde quotidienne du Cyber-Scanner-Pro.
 # - pg_dump de la base Postgres (cyber_scanner_db) -> backups/cyber_scanner/
 # - copie de reports/ et data/ (exports JSON, rapports)
+# - notif Discord succès/échec
 # Retention : garde les N derniers dumps (BACKUP_KEEP, defaut 14).
 set -euo pipefail
 
@@ -13,6 +14,24 @@ DB_USER="${DB_USER:-postgres}"
 DB_NAME="${DB_NAME:-scanner_db}"
 STAMP="$(date +%Y%m%d_%H%M%S)"
 DUMP="${BACKUP_ROOT}/cyber_scanner_${STAMP}.sql.gz"
+ERROR_MSG=""
+
+# ── Discord ──
+ENV_FILE="/home/actions-runner/secrets/.env.production"
+DISCORD_WEBHOOK="${DISCORD_WEBHOOK_URL:-}"
+if [[ -z "$DISCORD_WEBHOOK" && -f "$ENV_FILE" ]]; then
+  set -a; . "$ENV_FILE"; set +a
+fi
+
+send_discord() {
+  local webhook="${DISCORD_WEBHOOK_URL:-}"
+  [[ -z "$webhook" ]] && return 0
+  curl -fsS -X POST "$webhook" -H "Content-Type: application/json" \
+    -d "{\"embeds\":[{\"title\":\"$1\",\"description\":\"$2\",\"color\":$3,\"timestamp\":\"$(date -Iseconds)\"}]}" \
+    >/dev/null 2>&1 || true
+}
+
+trap 'ERROR_MSG="Erreur ligne $LINENO"; send_discord "🚨 Backup Cyber Scanner — ÉCHEC" "$ERROR_MSG" 15548997; exit 1' ERR
 
 mkdir -p "${BACKUP_ROOT}"
 
@@ -63,4 +82,12 @@ for glob in cyber_scanner_*.sql.gz cyber_export_*.json reports_*.tar.gz data_*.t
     done
 done
 
-echo "✅ Backup terminé : dump $(du -h "${DUMP}" | cut -f1) + JSON complet (retention ${BACKUP_KEEP}, ${DELETED} ancien(s) purgé(s))"
+DUMP_SIZE=$(du -h "${DUMP}" | cut -f1)
+
+echo "✅ Backup terminé : dump ${DUMP_SIZE} + JSON complet (retention ${BACKUP_KEEP}, ${DELETED} ancien(s) purgé(s))"
+
+# ── Notification succès ──
+send_discord \
+  "✅ Backup Cyber Scanner — OK" \
+  "**Base :** \`${DB_NAME}\`\n**Taille dump :** ${DUMP_SIZE}\n**Rétention :** ${BACKUP_KEEP} jours\n**Anciens purgés :** ${DELETED}" \
+  5763719
