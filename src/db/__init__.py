@@ -11,6 +11,7 @@ from .repos import (
     get_repositories, get_repos_frontend, search_repos_frontend,
     save_readme_chunks, get_repos_without_readme_chunks, get_best_tools,
 )
+from .books import save_book, get_books_to_verify, update_book_status
 from .cves import save_cve_entries, search_cves
 from .stats import count_total_data_points, get_stats, get_frontend_stats
 from .search import (
