@@ -208,6 +208,7 @@ function RootLayout() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-caption">
             <span className="font-display font-semibold t-amber">HashCode</span>
             <Link to="/about" className="t-m hover:underline" style={{ textDecoration: 'none' }}>À propos</Link>
+            <Link to="/onboarding" className="t-m hover:underline" style={{ textDecoration: 'none' }}>Configurer</Link>
             <Link to="/docs" className="t-m hover:underline" style={{ textDecoration: 'none' }}>Documentation</Link>
             <Link to="/contact" className="t-m hover:underline" style={{ textDecoration: 'none' }}>Contact</Link>
           </div>
