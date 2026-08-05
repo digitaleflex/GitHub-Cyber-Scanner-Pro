@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { createRoute, Link, useRouter } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getProfileId } from '../lib/profile'
 import {
   Shield, Activity, TrendingUp, Brain, Target, Layers, Server, AlertCircle, Sparkles,
 } from 'lucide-react'
@@ -24,11 +26,17 @@ function HomePage() {
   const queryClient = useQueryClient()
 
   const { data: org } = useQuery({
-    queryKey: ['organization', 1],
-    queryFn: () => fetch('/api/organization?profile_id=1').then(r => r.json()),
+    queryKey: ['organization', getProfileId()],
+    queryFn: () => fetch(`/api/organization?profile_id=${getProfileId()}`).then(r => r.json()),
     staleTime: 300_000,
   })
   const orgName = org?.organization?.name || org?.profile?.org_name || 'Eurin'
+
+  useEffect(() => {
+    if (org && org.profile && !org.profile.onboarding_completed) {
+      router.navigate({ to: '/onboarding' })
+    }
+  }, [org, router])
 
   const { data: priority, isLoading, error } = useQuery({
     queryKey: ['priority-home'],
