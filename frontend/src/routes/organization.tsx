@@ -3,6 +3,7 @@ import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, ArrowRight } from 'lucide-react'
+import { getProfileId } from '../lib/profile'
 
 export const Route = createRoute({
   getParentRoute: () => RootRoute,
@@ -16,7 +17,7 @@ const COMPLIANCE_OPTS = ['PCI DSS', 'ISO 27001', 'NIST', 'SOC2', 'HIPAA', 'RGPD'
 
 function OrganizationPage() {
   const qc = useQueryClient()
-  const profileId = 1
+  const profileId = getProfileId()
   const { data, isLoading } = useQuery({
     queryKey: ['organization', profileId],
     queryFn: () => fetch(`/api/organization?profile_id=${profileId}`).then(r => r.json()),

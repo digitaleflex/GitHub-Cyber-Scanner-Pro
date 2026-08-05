@@ -3,6 +3,7 @@ import { createRoute } from '@tanstack/react-router'
 import { Route as RootRoute } from './__root'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Bell, Shield, Key, Check } from 'lucide-react'
+import { getProfileId } from '../lib/profile'
 
 export const Route = createRoute({ getParentRoute: () => RootRoute, path: '/settings', component: SettingsPage })
 
@@ -10,7 +11,7 @@ const ROLES = ['rssi', 'devsecops', 'pentester', 'developpeur', 'soc', 'cloud_en
 
 function SettingsPage() {
   const qc = useQueryClient()
-  const profileId = 1
+  const profileId = getProfileId()
   const { data, isLoading } = useQuery({
     queryKey: ['settings', profileId],
     queryFn: () => fetch(`/api/settings?profile_id=${profileId}`).then(r => r.json()),
