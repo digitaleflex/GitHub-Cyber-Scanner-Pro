@@ -20,5 +20,6 @@ import { Route as ReportsRoute } from './routes/reports'
 import { Route as AssistantRoute } from './routes/assistant'
 import { Route as SettingsRoute } from './routes/settings'
 import { Route as AdminRoute } from './routes/admin'
+import { Route as OnboardingRoute } from './routes/onboarding'
 
-export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, AboutRoute, MethodologyRoute, SourcesRoute, FeedbackRoute, ContactRoute, LibraryRoute, DocsRoute, ToolRoute, CveDetailRoute, CvesRoute, OrganizationRoute, AssetsRoute, MissionsRoute, ThreatsRoute, TimelineRoute, ReportsRoute, AssistantRoute, SettingsRoute, AdminRoute])
+export const routeTree = RootRoute.addChildren([IndexRoute, ToolsRoute, AboutRoute, MethodologyRoute, SourcesRoute, FeedbackRoute, ContactRoute, LibraryRoute, DocsRoute, ToolRoute, CveDetailRoute, CvesRoute, OrganizationRoute, AssetsRoute, MissionsRoute, ThreatsRoute, TimelineRoute, ReportsRoute, AssistantRoute, SettingsRoute, AdminRoute, OnboardingRoute])
