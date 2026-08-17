@@ -25,8 +25,13 @@ if FRONTEND_DIR.exists():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=[
+        "https://cyberbook.eurin.tech",
+        "http://cyberbook.eurin.tech",
+        "http://localhost:3000",
+        "http://localhost:5173",
+    ],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -48,7 +53,11 @@ def get_repos():
 def dashboard():
     if FRONTEND_DIR.exists() and (FRONTEND_DIR / "index.html").exists():
         return HTMLResponse((FRONTEND_DIR / "index.html").read_text())
-    return HTMLResponse("<h1>CyberScan API</h1><p>Frontend non disponible. Lancer <code>cd frontend && npm run build</code></p>")
+
+    repos = get_repos()
+    repos.sort(key=lambda r: r["stars"], reverse=True)
+
+    last_scan = "N/A"
     try:
         mtime = os.path.getmtime(LAST_SCAN_FILE)
         last_scan = datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M")

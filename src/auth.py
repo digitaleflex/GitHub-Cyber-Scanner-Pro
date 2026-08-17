@@ -1,4 +1,5 @@
 """HTTP Basic Auth pour les routes admin."""
+import logging
 import os
 import secrets
 from fastapi import Depends, HTTPException, status
@@ -12,13 +13,21 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 
 def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):  # noqa: B008
     if not ADMIN_PASSWORD:
-        return credentials.username
+        logging.warning(
+            "⚠️ ADMIN_PASSWORD non configuré — accès admin refusé par défaut. "
+            "Définir ADMIN_PASSWORD dans .env pour activer l'authentification."
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Accès refusé : ADMIN_PASSWORD non configuré sur le serveur",
+            headers={"WWW-Authenticate": "Basic realm=\"CyberScan Admin\""},
+        )
     is_user = secrets.compare_digest(credentials.username.encode(), ADMIN_USER.encode())
     is_pass = secrets.compare_digest(credentials.password.encode(), ADMIN_PASSWORD.encode())
     if not (is_user and is_pass):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Acces refuse",
+            detail="Accès refusé",
             headers={"WWW-Authenticate": "Basic realm=\"CyberScan Admin\""},
         )
     return credentials.username

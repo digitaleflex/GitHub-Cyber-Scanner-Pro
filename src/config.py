@@ -252,11 +252,69 @@ cve_in_progress = False
 # Initialiser l'application FastAPI
 app = FastAPI(title="GitHub Cyber Scanner Semantic API")
 
-# Activer CORS pour faciliter le développement local ou les intégrations
+# CORS configuré — restreint aux origines autorisées
+_CORS_ORIGINS = [
+    f"https://{DOMAIN}",
+    f"http://{DOMAIN}",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def security_headers(request, call_next):
+    """Ajoute les headers de sécurité HTTP."""
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if DOMAIN and DOMAIN != "localhost":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
+
+# ── Rate Limiter en mémoire ──────────────────────────────────────────
+import time as _time
+from collections import defaultdict as _defaultdict
+from fastapi.responses import JSONResponse as _JSONResponse
+
+_rate_limit_store: dict[str, list[float]] = _defaultdict(list)
+RATE_LIMIT_WINDOW = 60  # secondes
+RATE_LIMIT_MAX_REQUESTS = 60  # par fenêtre par IP (requests GET)
+RATE_LIMIT_MAX_WRITE = 10  # par fenêtre par IP (POST/PUT/DELETE)
+
+
+@app.middleware("http")
+async def rate_limiter(request, call_next):
+    """Rate limiter simple en mémoire : 60 req/min (GET), 10 req/min (POST)."""
+    client_ip = request.client.host if request.client else "unknown"
+    now = _time.time()
+
+    # Nettoyer les anciennes entrées
+    _rate_limit_store[client_ip] = [
+        t for t in _rate_limit_store[client_ip] if now - t < RATE_LIMIT_WINDOW
+    ]
+
+    is_write = request.method in ("POST", "PUT", "DELETE", "PATCH")
+    limit = RATE_LIMIT_MAX_WRITE if is_write else RATE_LIMIT_MAX_REQUESTS
+
+    if len(_rate_limit_store[client_ip]) >= limit:
+        return _JSONResponse(
+            status_code=429,
+            content={"error": "Trop de requêtes. Réessayez dans quelques secondes.", "retry_after": RATE_LIMIT_WINDOW},
+            headers={"Retry-After": str(RATE_LIMIT_WINDOW)},
+        )
+
+    _rate_limit_store[client_ip].append(now)
+    return await call_next(request)

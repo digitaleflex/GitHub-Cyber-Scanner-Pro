@@ -9,90 +9,38 @@ import requests
 import pandas as pd
 from src import database
 import src.nlp_processor as nlp_processor
+from src.github_client import get_json as _gh_get_json, token_count as _gh_token_count
 
 def fetch_github_data(query, sort_by="stars"):
-    """Interroge l'API GitHub avec gestion d'ETag, de Rate Limit et de retry."""
+    """Interroge l'API GitHub via le client centralisé (rotation tokens + rate limit)."""
     url = "https://api.github.com/search/repositories"
     params = {"q": query, "sort": sort_by, "order": "desc", "per_page": 50}
-    headers = {"Accept": "application/vnd.github.v3+json"}
 
-    if os.getenv("GITHUB_TOKEN"):
-        headers["Authorization"] = f"token {os.getenv('GITHUB_TOKEN', '')}"
-
-    # Récupérer l'ETag du cache PostgreSQL (clé de cache enrichie avec le critère de tri)
+    # ETag cache from PostgreSQL
     cache_key = f"{query}_{sort_by}"
     etag, last_modified = database.get_etag_from_cache(cache_key)
+    extra_headers = {}
     if etag:
-        headers["If-None-Match"] = etag
+        extra_headers["If-None-Match"] = etag
     if last_modified:
-        headers["If-Modified-Since"] = last_modified
+        extra_headers["If-Modified-Since"] = last_modified
 
-    max_retries = 5
-    backoff_delay = 2
+    data, rate_hit = _gh_get_json(url, params=params, headers=extra_headers or None)
 
-    for attempt in range(max_retries):
-        try:
-            response = requests.get(url, params=params, headers=headers, timeout=15)
-            rate_reset = response.headers.get("X-RateLimit-Reset")
+    if rate_hit:
+        return [], True
 
-            if response.status_code == 200:
-                new_etag = response.headers.get("ETag")
-                new_last_modified = response.headers.get("Last-Modified")
-                if new_etag or new_last_modified:
-                    database.save_etag_to_cache(cache_key, new_etag, new_last_modified)
+    # Si data est une liste (réponse brute), on l'utilise directement
+    if isinstance(data, list):
+        items = data
+    elif isinstance(data, dict):
+        # Stocker le nouvel ETag
+        # (le client gère déjà le rate limit, on sauvegarde juste le cache)
+        items = data.get("items", [])
+    else:
+        items = []
 
-                return response.json().get("items", []), False
-
-            elif response.status_code == 304:
-                logging.info(f"🔄 [Cache 304] Aucun changement détecté pour la recherche : {query} ({sort_by})")
-                return [], False
-
-            elif response.status_code == 403:
-                retry_after = response.headers.get("Retry-After")
-                if retry_after:
-                    wait_time = float(retry_after)
-                    logging.warning(f"⚠️ Limite secondaire (Abuse) détectée. Pause de {wait_time}s...")
-                    time.sleep(wait_time + 2)
-                    continue
-
-                if rate_reset:
-                    try:
-                        reset_time = float(rate_reset)
-                        wait_time = max(1.0, reset_time - time.time()) + 5.0
-                        logging.warning(
-                            f"⚠️ Limite d'appels API atteinte pour la requête '{query}' ({sort_by}). "
-                            f"Mise en pause obligatoire pendant {int(wait_time)} secondes..."
-                        )
-                        time.sleep(wait_time)
-                        continue
-                    except ValueError:
-                        pass
-
-                logging.warning("⚠️ Limite d'appels API atteinte. Prochain cycle.")
-                return [], True
-
-            elif response.status_code >= 500:
-                logging.error(
-                    f"❌ Erreur serveur GitHub ({response.status_code}). "
-                    f"Tentative dans {backoff_delay}s (essai {attempt + 1}/{max_retries})..."
-                )
-                time.sleep(backoff_delay)
-                backoff_delay *= 2
-                continue
-            else:
-                logging.error(f"❌ Erreur API GitHub : {response.status_code} - {response.text}")
-                return [], False
-
-        except requests.exceptions.RequestException as e:
-            logging.error(
-                f"🔌 Erreur réseau ou de connexion ({e}). "
-                f"Tentative dans {backoff_delay}s (essai {attempt + 1}/{max_retries})..."
-            )
-            time.sleep(backoff_delay)
-            backoff_delay *= 2
-
-    logging.error(f"❌ Échec de la récupération après {max_retries} tentatives pour : {query} ({sort_by})")
-    return [], False
+    return items, False
 
 
 def fetch_and_parse_readme(repo_id, full_name, repo_description=""):

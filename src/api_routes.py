@@ -219,25 +219,40 @@ def ready_to_use_api(limit: int = 20):
 
 @app.get("/api/tools/by-category")
 def tools_by_category_api(category: str = "all", limit: int = 30):
-    """Outils par categorie."""
+    """Outils par categorie (filtres parametrés, injection SQL prévenue)."""
     from src.database import get_db_connection
     from psycopg2.extras import RealDictCursor
+
+    _CATEGORY_FILTERS = {
+        "red-team": ("description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s",
+                     ["%red team%", "%C2%", "%exploit%", "%payload%", "%backdoor%", "%adversary%"]),
+        "blue-team": ("description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s",
+                      ["%defense%", "%detect%", "%monitor%", "%scan%", "%forensic%", "%incident%"]),
+        "exploit": ("description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s",
+                    ["%exploit%", "%PoC%", "%CVE%", "%vulnerability%"]),
+        "malware": ("description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s",
+                    ["%malware%", "%ransomware%", "%trojan%", "%stealer%", "%backdoor%"]),
+        "osint": ("description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s",
+                  ["%osint%", "%recon%", "%scraper%", "%crawler%", "%intelligence%"]),
+        "network": ("description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s OR description ILIKE %s",
+                    ["%network%", "%scanner%", "%proxy%", "%sniff%", "%packet%"]),
+    }
+
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
-    filters = {
-        "red-team": "description ILIKE '%red team%' OR description ILIKE '%C2%' OR description ILIKE '%exploit%' OR description ILIKE '%payload%' OR description ILIKE '%backdoor%' OR description ILIKE '%adversary%'",
-        "blue-team": "description ILIKE '%defense%' OR description ILIKE '%detect%' OR description ILIKE '%monitor%' OR description ILIKE '%scan%' OR description ILIKE '%forensic%' OR description ILIKE '%incident%'",
-        "exploit": "description ILIKE '%exploit%' OR description ILIKE '%PoC%' OR description ILIKE '%CVE%' OR description ILIKE '%vulnerability%'",
-        "malware": "description ILIKE '%malware%' OR description ILIKE '%ransomware%' OR description ILIKE '%trojan%' OR description ILIKE '%stealer%' OR description ILIKE '%backdoor%'",
-        "osint": "description ILIKE '%osint%' OR description ILIKE '%recon%' OR description ILIKE '%scraper%' OR description ILIKE '%crawler%' OR description ILIKE '%intelligence%'",
-        "network": "description ILIKE '%network%' OR description ILIKE '%scanner%' OR description ILIKE '%proxy%' OR description ILIKE '%sniff%' OR description ILIKE '%packet%'",
-    }
-    where = f"WHERE {filters[category]}" if category in filters else ""
-    cursor.execute(f"""
-        SELECT full_name AS name, description AS desc, stars, language AS lang,
-               html_url AS url, security_verdict, vitality_score
-        FROM repositories {where} ORDER BY stars DESC LIMIT %s
-    """, (limit,))
+    if category in _CATEGORY_FILTERS:
+        where_clause, params = _CATEGORY_FILTERS[category]
+        cursor.execute(f"""
+            SELECT full_name AS name, description AS desc, stars, language AS lang,
+                   html_url AS url, security_verdict, vitality_score
+            FROM repositories WHERE {where_clause} ORDER BY stars DESC LIMIT %s
+        """, params + [limit])
+    else:
+        cursor.execute("""
+            SELECT full_name AS name, description AS desc, stars, language AS lang,
+                   html_url AS url, security_verdict, vitality_score
+            FROM repositories ORDER BY stars DESC LIMIT %s
+        """, (limit,))
     rows = [dict(r) for r in cursor.fetchall()]
     cursor.close()
     conn.close()
